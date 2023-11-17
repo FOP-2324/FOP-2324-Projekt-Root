@@ -1,0 +1,13 @@
+[versions]
+algoutils = "0.7.2-SNAPSHOT"
+
+[libraries]
+annotations = "org.jetbrains:annotations:23.0.0"
+algoutils-student = { module = "org.tudalgo:algoutils-student", version.ref = "algoutils" }
+algoutils-tutor = { module = "org.tudalgo:algoutils-tutor", version.ref = "algoutils" }
+junit-core = { module = "org.junit.jupiter:junit-jupiter", version = "5.9.1" }
+fopbot = {module = "org.tudalgo:fopbot", version = "0.7.0"}
+
+[plugins]
+style = { id = "org.sourcegrade.style", version = "2.1.0" }
+jagr-gradle = { id = "org.sourcegrade.jagr-gradle", version = "0.10.0" }
