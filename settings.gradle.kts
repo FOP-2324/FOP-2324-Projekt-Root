@@ -7,4 +7,4 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "{{ github_team }}-Root"
+rootProject.name = "FOP-2324-Projekt-Root"

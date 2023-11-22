@@ -1,4 +1,4 @@
-package hProjekt;
+package projekt;
 
 import org.junit.jupiter.api.Test;
 

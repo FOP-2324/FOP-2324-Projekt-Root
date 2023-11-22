@@ -1,4 +1,4 @@
-package hProjekt;
+package projekt;
 
 /**
  * Main entry point in executing the program.

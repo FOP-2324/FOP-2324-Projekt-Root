@@ -8,7 +8,7 @@ plugins {
 version = file("version").readLines().first()
 
 jagr {
-    assignmentId.set("hProjekt")
+    assignmentId.set("projekt")
     submissions {
         val main by creating {
             // studentId.set("")
@@ -25,7 +25,7 @@ dependencies {
 }
 
 application {
-    mainClass.set("hProjekt.Main")
+    mainClass.set("projekt.Main")
 }
 
 tasks {
