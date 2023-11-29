@@ -3,13 +3,13 @@ package projekt.model.tiles;
 import projekt.model.Intersection;
 import projekt.model.Resource;
 
-import java.util.Set;
+import java.util.Map;
 
 abstract class AbstractTile implements Tile {
 
     protected final TileType tileType;
     protected final Resource resource;
-    protected Set<Intersection> adjacentIntersections;
+    protected Map<Direction, Intersection> adjacentIntersections;
     protected int yieldProbability;
 
     protected AbstractTile(TileType tileType, Resource resource) {
@@ -28,7 +28,7 @@ abstract class AbstractTile implements Tile {
     }
 
     @Override
-    public void setAdjacentIntersections(Set<Intersection> adjacentIntersections) {
+    public void setAdjacentIntersections(Map<Direction, Intersection> adjacentIntersections) {
         if (this.adjacentIntersections == null) {
             this.adjacentIntersections = adjacentIntersections;
         } else {
@@ -37,7 +37,7 @@ abstract class AbstractTile implements Tile {
     }
 
     @Override
-    public Set<Intersection> getAdjacentIntersections() {
+    public Map<Direction, Intersection> getAdjacentIntersections() {
         return adjacentIntersections;
     }
 

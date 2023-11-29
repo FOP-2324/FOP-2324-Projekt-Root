@@ -6,6 +6,7 @@ import projekt.model.tiles.TileType;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class HexGrid {
 
@@ -93,38 +94,49 @@ public class HexGrid {
     }
 
     private void mapTilesToIntersections() {
+        Tile.Direction[] directions = Tile.Direction.values();
+
         // top and bottom rows
         for (int i = 0; i < GRID_SIZE - 1; i++) {
             List<Tile> gridRowTop = tiles.get(i);
             List<Tile> gridRowBottom = tiles.get(2 * GRID_SIZE - i - 2);
 
             for (int j = 0; j < ROW_FORMULA.apply(i); j++) {
-                Set<Intersection> adjacentIntersectionsTop = new HashSet<>();
+                List<Intersection> adjacentIntersectionsTop = new LinkedList<>();
                 adjacentIntersectionsTop.addAll(intersections.get(i).subList(j * 2, j * 2 + 3));
                 adjacentIntersectionsTop.addAll(intersections.get(i + 1).subList(j * 2 + 1, j * 2 + 3 + 1));
-                gridRowTop.get(j).setAdjacentIntersections(Collections.unmodifiableSet(adjacentIntersectionsTop));
+                gridRowTop.get(j).setAdjacentIntersections(
+                    IntStream.range(0, directions.length)
+                        .boxed()
+                        .collect(Collectors.toUnmodifiableMap(k -> directions[k], adjacentIntersectionsTop::get)));
 
-                Set<Intersection> adjacentIntersectionsBottom = new HashSet<>();
+                List<Intersection> adjacentIntersectionsBottom = new LinkedList<>();
                 adjacentIntersectionsBottom.addAll(intersections.get(2 * GRID_SIZE - i - 2).subList(j * 2 + 1, j * 2 + 3 + 1));
                 adjacentIntersectionsBottom.addAll(intersections.get(2 * GRID_SIZE - i - 1).subList(j * 2, j * 2 + 3));
-                gridRowBottom.get(j).setAdjacentIntersections(Collections.unmodifiableSet(adjacentIntersectionsBottom));
+                gridRowBottom.get(j).setAdjacentIntersections(
+                    IntStream.range(0, directions.length)
+                        .boxed()
+                        .collect(Collectors.toUnmodifiableMap(k -> directions[k], adjacentIntersectionsBottom::get)));
             }
         }
 
         // edge case center row
         List<Tile> gridRowCenter = tiles.get(GRID_SIZE - 1);
         for (int j = 0; j < ROW_FORMULA.apply(GRID_SIZE - 1); j++) {
-            Set<Intersection> adjacentIntersections = new HashSet<>();
+            List<Intersection> adjacentIntersections = new LinkedList<>();
             adjacentIntersections.addAll(intersections.get(GRID_SIZE - 1).subList(j * 2, j * 2 + 3));
             adjacentIntersections.addAll(intersections.get(GRID_SIZE).subList(j * 2, j * 2 + 3));
-            gridRowCenter.get(j).setAdjacentIntersections(Collections.unmodifiableSet(adjacentIntersections));
+            gridRowCenter.get(j).setAdjacentIntersections(
+                IntStream.range(0, directions.length)
+                    .boxed()
+                    .collect(Collectors.toUnmodifiableMap(k -> directions[k], adjacentIntersections::get)));
         }
     }
 
     private void mapIntersectionsToTiles() {
         Map<Intersection, Set<Tile>> intersectionTileMapping = new HashMap<>();
         for (Tile tile : getTiles()) {
-            for (Intersection intersection : tile.getAdjacentIntersections()) {
+            for (Intersection intersection : tile.getAdjacentIntersections().values()) {
                 intersectionTileMapping.putIfAbsent(intersection, new HashSet<>());
                 intersectionTileMapping.get(intersection).add(tile);
             }
