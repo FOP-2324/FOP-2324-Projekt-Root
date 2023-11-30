@@ -20,6 +20,7 @@ public class HexGrid {
         mapTilesToIntersections();
         mapIntersectionsToTiles();
         makeRoads();
+        setYields();
     }
 
     private List<List<Tile>> initTiles() {
@@ -163,6 +164,14 @@ public class HexGrid {
         intersectionRoadMapping.putIfAbsent(nodeB, new HashSet<>());
         intersectionRoadMapping.get(nodeA).add(road);
         intersectionRoadMapping.get(nodeB).add(road);
+    }
+
+    private void setYields() {
+        getTiles().forEach(tile -> {
+            if (tile.getType() != TileType.DESERT) {
+                tile.setYieldProbability(YIELD_POOL.pop());
+            }
+        });
     }
 
     public Set<Tile> getTiles() {

@@ -41,4 +41,23 @@ public final class Config {
         TileType.MOUNTAIN, 3.0 / TILE_FORMULA.apply(GRID_SIZE),
         TileType.DESERT,   1.0 / TILE_FORMULA.apply(GRID_SIZE)
     );
+
+    /**
+     * The pool of available "number chips" or yields.
+     * By default, yields range from 2 to 12 inclusive, excluding 7. Yields 3 to 11 are available twice.
+     * The total number of available yields must equal {@code TILE_FORMULA.apply(GRID_SIZE)} minus the amount of tiles
+     * of type {@link projekt.model.tiles.DesertTile} in the grid.
+     */
+    public static final Stack<Integer> YIELD_POOL = new Stack<>() {{
+        // TODO: replace hard-coded constraints
+        for (int i = 2; i <= 12; i++) {
+            if (i == 7) continue;
+            if (i >= 3 && i <= 11) {
+                add(i);
+            }
+            add(i);
+        }
+
+        Collections.shuffle(this, RANDOM);
+    }};
 }
