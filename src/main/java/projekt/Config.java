@@ -16,6 +16,16 @@ public final class Config {
     public static final Random RANDOM = new Random();
 
     /**
+     * The number of dice rolled each round.
+     */
+    public static final int NUMBER_OF_DICE = 2;
+
+    /**
+     * The number of sides the dice have.
+     */
+    public static final int DICE_SIDES = 6;
+
+    /**
      * Starting at 1, the distance to the grid's edge measured from the center.
      */
     public static final int GRID_SIZE = 3;
