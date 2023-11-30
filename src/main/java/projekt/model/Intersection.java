@@ -1,15 +1,14 @@
 package projekt.model;
 
-import projekt.model.Road;
 import projekt.model.tiles.Tile;
 
-import java.util.HashSet;
 import java.util.Set;
 
 public class Intersection {
 
     private Set<Tile> adjacentTiles;
     private Set<Road> connectedRoads;
+    private Port port;
 
     public Intersection() {}
 
@@ -35,5 +34,13 @@ public class Intersection {
 
     public Set<Road> getConnectedRoads() {
         return connectedRoads;
+    }
+
+    public Port getPort() {
+        return port;
+    }
+
+    public void setPort(Port port) {
+        this.port = port;
     }
 }

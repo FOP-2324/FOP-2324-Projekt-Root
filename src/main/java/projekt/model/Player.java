@@ -21,4 +21,8 @@ public class Player {
     public void setVictoryPoints(int victoryPoints) {
         this.victoryPoints = victoryPoints;
     }
+
+    public Integer getAmount(Resource resource) {
+        return resources.get(resource);
+    }
 }

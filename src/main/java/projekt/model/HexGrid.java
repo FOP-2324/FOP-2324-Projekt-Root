@@ -4,8 +4,10 @@ import projekt.model.tiles.Tile;
 import projekt.model.tiles.TileType;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static projekt.Config.*;
 
@@ -21,6 +23,7 @@ public class HexGrid {
         mapIntersectionsToTiles();
         makeRoads();
         setYields();
+        setPorts();
     }
 
     private List<List<Tile>> initTiles() {
@@ -172,6 +175,49 @@ public class HexGrid {
                 tile.setYieldProbability(YIELD_POOL.pop());
             }
         });
+    }
+
+    private void setPorts() {
+        // optimized for GRID_SIZE = 3, may need modifications (or not even work) for different values
+        // TODO: see if this can work for different sizes
+        // 3:1 port
+        Port port_3_1 = new Port(3);
+        // 2:1 resource-specific ports
+        Map<Resource, Port> ports_2_1 = Stream.of(Resource.values())
+            .collect(Collectors.toMap(Function.identity(), resource -> new Port(2, resource)));
+
+        // coordinates, schema: {<row>, <column>[, <resource_type>]}
+        // 3:1 ports
+        int[][] coordinates_3_1 = {
+            {0, 0},
+            {0, 1},
+            {GRID_SIZE - 1, 2 * ROW_FORMULA.apply(GRID_SIZE - 1)},
+            {GRID_SIZE, 2 * ROW_FORMULA.apply(GRID_SIZE - 1)},
+            {2 * GRID_SIZE - 1, 0},
+            {2 * GRID_SIZE - 1, 1},
+            {2 * GRID_SIZE - 1, 2 * ROW_FORMULA.apply(0) - 3},
+            {2 * GRID_SIZE - 1, 2 * ROW_FORMULA.apply(0) - 2},
+        };
+        // 2:1 ports
+        int[][] coordinates_2_1 = {
+            {0, 2 * ROW_FORMULA.apply(0) - 3, Resource.GRAIN.ordinal()},
+            {0, 2 * ROW_FORMULA.apply(0) - 2, Resource.GRAIN.ordinal()},
+            {1, 2 * ROW_FORMULA.apply(1) - 1, Resource.ORE.ordinal()},
+            {1, 2 * ROW_FORMULA.apply(1), Resource.ORE.ordinal()},
+            {2 * GRID_SIZE - 2, 2 * ROW_FORMULA.apply(1) - 1, Resource.WOOL.ordinal()},
+            {2 * GRID_SIZE - 2, 2 * ROW_FORMULA.apply(1), Resource.WOOL.ordinal()},
+            {GRID_SIZE, 1, Resource.CLAY.ordinal()},
+            {GRID_SIZE + 1, 0, Resource.CLAY.ordinal()},
+            {GRID_SIZE - 1, 1, Resource.WOOD.ordinal()},
+            {GRID_SIZE - 2, 0, Resource.WOOD.ordinal()},
+        };
+
+        for (int[] coordinates : coordinates_3_1) {
+            intersections.get(coordinates[0]).get(coordinates[1]).setPort(port_3_1);
+        }
+        for (int[] coordinates : coordinates_2_1) {
+            intersections.get(coordinates[0]).get(coordinates[1]).setPort(ports_2_1.get(Resource.values()[coordinates[2]]));
+        }
     }
 
     public Set<Tile> getTiles() {
