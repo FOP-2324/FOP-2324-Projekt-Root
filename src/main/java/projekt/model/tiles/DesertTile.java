@@ -7,12 +7,12 @@ public class DesertTile extends AbstractTile {
     }
 
     @Override
-    public int getYieldProbability() {
+    public int getYield() {
         return -1;
     }
 
     @Override
-    public void setYieldProbability(int yieldProbability) {
+    public void setYield(int yield) {
         throw new IllegalStateException("Desert tiles have no yield");
     }
 }

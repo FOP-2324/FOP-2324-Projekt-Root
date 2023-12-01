@@ -10,7 +10,7 @@ abstract class AbstractTile implements Tile {
     protected final TileType tileType;
     protected final Resource resource;
     protected Map<Direction, Intersection> adjacentIntersections;
-    protected int yieldProbability;
+    protected int yield;
 
     protected AbstractTile(TileType tileType, Resource resource) {
         this.tileType = tileType;
@@ -42,12 +42,12 @@ abstract class AbstractTile implements Tile {
     }
 
     @Override
-    public void setYieldProbability(int yieldProbability) {
-        this.yieldProbability = yieldProbability;
+    public void setYield(int yield) {
+        this.yield = yield;
     }
 
     @Override
-    public int getYieldProbability() {
-        return this.yieldProbability;
+    public int getYield() {
+        return this.yield;
     }
 }

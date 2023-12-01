@@ -172,7 +172,7 @@ public class HexGrid {
     private void setYields() {
         getTiles().forEach(tile -> {
             if (tile.getType() != TileType.DESERT) {
-                tile.setYieldProbability(YIELD_POOL.pop());
+                tile.setYield(YIELD_POOL.pop());
             }
         });
     }

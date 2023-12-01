@@ -35,15 +35,15 @@ public interface Tile {
 
     /**
      * Set the value at which this tile yields one of its resource.
-     * @param probability the exact value at which this tile should yield its resource
+     * @param yield the exact value at which this tile should yield its resource
      */
-    void setYieldProbability(int probability);
+    void setYield(int yield);
 
     /**
      * Returns the value at which this tile yields one of its resource.
      * @return the value (determined by dice roll) required to yield this tile's resource
      */
-    int getYieldProbability();
+    int getYield();
 
     enum Direction {
         NORTH_WEST,
