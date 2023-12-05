@@ -1,6 +1,6 @@
 package projekt.model;
 
-public enum Resource {
+public enum ResourceType {
     WOOD,
     CLAY,
     WOOL,

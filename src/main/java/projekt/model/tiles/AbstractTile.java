@@ -1,20 +1,20 @@
 package projekt.model.tiles;
 
 import projekt.model.Intersection;
-import projekt.model.Resource;
+import projekt.model.ResourceType;
 
 import java.util.Map;
 
 abstract class AbstractTile implements Tile {
 
     protected final TileType tileType;
-    protected final Resource resource;
+    protected final ResourceType resourceType;
     protected Map<Direction, Intersection> adjacentIntersections;
     protected int yield;
 
-    protected AbstractTile(TileType tileType, Resource resource) {
+    protected AbstractTile(TileType tileType, ResourceType resourceType) {
         this.tileType = tileType;
-        this.resource = resource;
+        this.resourceType = resourceType;
     }
 
     @Override
@@ -23,8 +23,8 @@ abstract class AbstractTile implements Tile {
     }
 
     @Override
-    public Resource getResource() {
-        return this.resource;
+    public ResourceType getResource() {
+        return this.resourceType;
     }
 
     @Override

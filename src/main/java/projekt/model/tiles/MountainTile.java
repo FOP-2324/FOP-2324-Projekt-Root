@@ -1,10 +1,10 @@
 package projekt.model.tiles;
 
-import projekt.model.Resource;
+import projekt.model.ResourceType;
 
 public class MountainTile extends AbstractTile {
 
     public MountainTile() {
-        super(TileType.MOUNTAIN, Resource.ORE);
+        super(TileType.MOUNTAIN, ResourceType.ORE);
     }
 }

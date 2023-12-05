@@ -1,10 +1,10 @@
 package projekt.model.tiles;
 
-import projekt.model.Resource;
+import projekt.model.ResourceType;
 
 public class MeadowTile extends AbstractTile {
 
     public MeadowTile() {
-        super(TileType.MEADOW, Resource.WOOL);
+        super(TileType.MEADOW, ResourceType.WOOL);
     }
 }

@@ -1,7 +1,7 @@
 package projekt.model.tiles;
 
 import projekt.model.Intersection;
-import projekt.model.Resource;
+import projekt.model.ResourceType;
 
 import java.util.Map;
 
@@ -18,7 +18,7 @@ public interface Tile {
      * Returns the resource that is available from this tile, if any.
      * @return the resource
      */
-    Resource getResource();
+    ResourceType getResource();
 
     /**
      * Sets the adjacent intersections for this tile.

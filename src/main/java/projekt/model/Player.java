@@ -6,11 +6,11 @@ import java.util.Map;
 public class Player {
 
     private int victoryPoints;
-    private final Map<Resource, Integer> resources = new HashMap<>();
+    private final Map<ResourceType, Integer> resources = new HashMap<>();
 
     public Player() {
-        for (Resource resource : Resource.values()) {
-            this.resources.put(resource, 0);
+        for (ResourceType resourceType : ResourceType.values()) {
+            this.resources.put(resourceType, 0);
         }
     }
 
@@ -22,7 +22,7 @@ public class Player {
         this.victoryPoints = victoryPoints;
     }
 
-    public Integer getAmount(Resource resource) {
-        return resources.get(resource);
+    public Integer getAmount(ResourceType resourceType) {
+        return resources.get(resourceType);
     }
 }

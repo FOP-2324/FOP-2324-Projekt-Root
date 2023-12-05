@@ -183,7 +183,7 @@ public class HexGrid {
         // 3:1 port
         Port port_3_1 = new Port(3);
         // 2:1 resource-specific ports
-        Map<Resource, Port> ports_2_1 = Stream.of(Resource.values())
+        Map<ResourceType, Port> ports_2_1 = Stream.of(ResourceType.values())
             .collect(Collectors.toMap(Function.identity(), resource -> new Port(2, resource)));
 
         // coordinates, schema: {<row>, <column>[, <resource_type>]}
@@ -200,23 +200,23 @@ public class HexGrid {
         };
         // 2:1 ports
         int[][] coordinates_2_1 = {
-            {0, 2 * ROW_FORMULA.apply(0) - 3, Resource.GRAIN.ordinal()},
-            {0, 2 * ROW_FORMULA.apply(0) - 2, Resource.GRAIN.ordinal()},
-            {1, 2 * ROW_FORMULA.apply(1) - 1, Resource.ORE.ordinal()},
-            {1, 2 * ROW_FORMULA.apply(1), Resource.ORE.ordinal()},
-            {2 * GRID_SIZE - 2, 2 * ROW_FORMULA.apply(1) - 1, Resource.WOOL.ordinal()},
-            {2 * GRID_SIZE - 2, 2 * ROW_FORMULA.apply(1), Resource.WOOL.ordinal()},
-            {GRID_SIZE, 1, Resource.CLAY.ordinal()},
-            {GRID_SIZE + 1, 0, Resource.CLAY.ordinal()},
-            {GRID_SIZE - 1, 1, Resource.WOOD.ordinal()},
-            {GRID_SIZE - 2, 0, Resource.WOOD.ordinal()},
+            {0, 2 * ROW_FORMULA.apply(0) - 3, ResourceType.GRAIN.ordinal()},
+            {0, 2 * ROW_FORMULA.apply(0) - 2, ResourceType.GRAIN.ordinal()},
+            {1, 2 * ROW_FORMULA.apply(1) - 1, ResourceType.ORE.ordinal()},
+            {1, 2 * ROW_FORMULA.apply(1), ResourceType.ORE.ordinal()},
+            {2 * GRID_SIZE - 2, 2 * ROW_FORMULA.apply(1) - 1, ResourceType.WOOL.ordinal()},
+            {2 * GRID_SIZE - 2, 2 * ROW_FORMULA.apply(1), ResourceType.WOOL.ordinal()},
+            {GRID_SIZE, 1, ResourceType.CLAY.ordinal()},
+            {GRID_SIZE + 1, 0, ResourceType.CLAY.ordinal()},
+            {GRID_SIZE - 1, 1, ResourceType.WOOD.ordinal()},
+            {GRID_SIZE - 2, 0, ResourceType.WOOD.ordinal()},
         };
 
         for (int[] coordinates : coordinates_3_1) {
             intersections.get(coordinates[0]).get(coordinates[1]).setPort(port_3_1);
         }
         for (int[] coordinates : coordinates_2_1) {
-            intersections.get(coordinates[0]).get(coordinates[1]).setPort(ports_2_1.get(Resource.values()[coordinates[2]]));
+            intersections.get(coordinates[0]).get(coordinates[1]).setPort(ports_2_1.get(ResourceType.values()[coordinates[2]]));
         }
     }
 

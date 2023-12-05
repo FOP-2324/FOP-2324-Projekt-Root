@@ -3,7 +3,7 @@ package projekt.model;
 public class Port {
 
     private final int ratio;
-    private final Resource resource;
+    private final ResourceType resourceType;
 
     /**
      * Constructs a new port with n:1 ratio, meaning that n resources of the same type can be traded for 1 resource of any type.
@@ -16,23 +16,23 @@ public class Port {
     /**
      * Constructs a new port with n:1 ratio, meaning that n resources of the specified type can be traded for 1 resource of any type.
      * @param ratio    amount of same-type resources to trade
-     * @param resource type of resource that
+     * @param resourceType type of resource that
      */
-    public Port(int ratio, Resource resource) {
+    public Port(int ratio, ResourceType resourceType) {
         this.ratio = ratio;
-        this.resource = resource;
+        this.resourceType = resourceType;
     }
 
     public int getRatio() {
         return ratio;
     }
 
-    public Resource getResource() {
-        return resource;
+    public ResourceType getResource() {
+        return resourceType;
     }
 
     // TODO: not sure this belongs here
-    public boolean canTrade(Player player, Resource resource) {
-        return (this.resource == null || this.resource.equals(resource)) && player.getAmount(resource) >= ratio;
+    public boolean canTrade(Player player, ResourceType resourceType) {
+        return (this.resourceType == null || this.resourceType.equals(resourceType)) && player.getAmount(resourceType) >= ratio;
     }
 }
