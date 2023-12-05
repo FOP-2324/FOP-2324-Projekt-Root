@@ -1,8 +1,11 @@
-package projekt.model;
+package projekt.model.buildings;
+
+import projekt.model.Intersection;
+import projekt.model.Player;
 
 import java.util.Objects;
 
-public class Road {
+public class Road implements Structure {
 
     private final Intersection nodeA, nodeB;
     private Player ownedBy;
@@ -20,12 +23,13 @@ public class Road {
         return nodeB;
     }
 
-    public Player ownedBy() {
+    @Override
+    public Player getOwner() {
         return ownedBy;
     }
 
-    public void setOwner(Player ownedBy) {
-        this.ownedBy = ownedBy;
+    public void setOwner(Player player) {
+        this.ownedBy = player;
     }
 
     @Override

@@ -7,14 +7,14 @@ import java.util.stream.IntStream;
 
 public class GameController {
 
-    private final HexGrid gameBoard;
+    private static HexGrid GAME_BOARD;
 
     public GameController() {
-        this.gameBoard = new HexGrid();
+        GAME_BOARD = new HexGrid();
     }
 
-    public HexGrid getGameBoard() {
-        return this.gameBoard;
+    public static HexGrid getGameBoard() {
+        return GAME_BOARD;
     }
 
     public int castDice() {

@@ -1,11 +1,14 @@
 package projekt.model.tiles;
 
 import projekt.model.Intersection;
+import projekt.model.Position;
 import projekt.model.ResourceType;
 
 import java.util.Map;
 
 public interface Tile {
+
+    Position getPosition();
 
     /**
      * Returns the type of this tile.
@@ -19,13 +22,6 @@ public interface Tile {
      * @return the resource
      */
     ResourceType getResource();
-
-    /**
-     * Sets the adjacent intersections for this tile.
-     * May only be called <i>once</i>.
-     * @param intersections the adjacent intersections
-     */
-    void setAdjacentIntersections(Map<Direction, Intersection> intersections);
 
     /**
      * Returns the adjacent intersections of this tile.
@@ -49,8 +45,8 @@ public interface Tile {
         NORTH_WEST,
         NORTH,
         NORTH_EAST,
-        SOUTH_EAST,
+        SOUTH_WEST,
         SOUTH,
-        SOUTH_WEST
+        SOUTH_EAST
     }
 }

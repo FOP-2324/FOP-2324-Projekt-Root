@@ -1,27 +1,32 @@
 package projekt.model;
 
+import projekt.controller.GameController;
+import projekt.model.buildings.Port;
+import projekt.model.buildings.Road;
 import projekt.model.tiles.Tile;
 
 import java.util.Set;
 
 public class Intersection {
 
-    private Set<Tile> adjacentTiles;
+    private final Position position;
     private Set<Road> connectedRoads;
     private Port port;
 
-    public Intersection() {}
+    public Intersection(int i, int j) {
+        this(new Position(i , j));
+    }
 
-    public void setAdjacentTiles(Set<Tile> adjacentTiles) {
-        if (this.adjacentTiles == null) {
-            this.adjacentTiles = adjacentTiles;
-        } else {
-            throw new IllegalStateException("Method may not be called multiple times on the same object");
-        }
+    public Intersection(Position position) {
+        this.position = position;
+    }
+
+    public Position getPosition() {
+        return position;
     }
 
     public Set<Tile> getAdjacentTiles() {
-        return this.adjacentTiles;
+        return GameController.getGameBoard().getAdjacentTilesOfIntersection(this);
     }
 
     public void setConnectedRoads(Set<Road> connectedRoads) {

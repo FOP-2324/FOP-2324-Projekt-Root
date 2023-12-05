@@ -1,9 +1,15 @@
 package projekt.model.tiles;
 
+import projekt.model.Position;
+
 public class DesertTile extends AbstractTile {
 
-    public DesertTile() {
-        super(TileType.DESERT, null);
+    public DesertTile(int i, int j) {
+        super(i, j, TileType.DESERT, null);
+    }
+
+    public DesertTile(Position position) {
+        super(position, TileType.DESERT, null);
     }
 
     @Override

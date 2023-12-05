@@ -1,20 +1,32 @@
 package projekt.model.tiles;
 
+import projekt.controller.GameController;
 import projekt.model.Intersection;
+import projekt.model.Position;
 import projekt.model.ResourceType;
 
 import java.util.Map;
 
 abstract class AbstractTile implements Tile {
 
+    private final Position position;
     protected final TileType tileType;
     protected final ResourceType resourceType;
-    protected Map<Direction, Intersection> adjacentIntersections;
     protected int yield;
 
-    protected AbstractTile(TileType tileType, ResourceType resourceType) {
+    protected AbstractTile(int i, int j, TileType tileType, ResourceType resourceType) {
+        this(new Position(i, j), tileType, resourceType);
+    }
+
+    protected AbstractTile(Position position, TileType tileType, ResourceType resourceType) {
+        this.position = position;
         this.tileType = tileType;
         this.resourceType = resourceType;
+    }
+
+    @Override
+    public final Position getPosition() {
+        return position;
     }
 
     @Override
@@ -28,17 +40,8 @@ abstract class AbstractTile implements Tile {
     }
 
     @Override
-    public void setAdjacentIntersections(Map<Direction, Intersection> adjacentIntersections) {
-        if (this.adjacentIntersections == null) {
-            this.adjacentIntersections = adjacentIntersections;
-        } else {
-            throw new IllegalStateException("Method may not be called multiple times on the same object");
-        }
-    }
-
-    @Override
     public Map<Direction, Intersection> getAdjacentIntersections() {
-        return adjacentIntersections;
+        return GameController.getGameBoard().getAdjacentIntersectionsOfTile(this);
     }
 
     @Override

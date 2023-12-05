@@ -1,4 +1,7 @@
-package projekt.model;
+package projekt.model.buildings;
+
+import projekt.model.Player;
+import projekt.model.ResourceType;
 
 public class Port {
 
