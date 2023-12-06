@@ -1,14 +1,14 @@
 package projekt;
 
+import org.tudalgo.algoutils.student.io.PropertyUtils;
 import projekt.model.tiles.TileType;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Random;
-import java.util.Stack;
+import java.util.*;
 import java.util.function.Function;
 
 public final class Config {
+
+    private static final Properties TILE_RATIO_PROPERTIES = PropertyUtils.getProperties("tile_ratios.properties");
 
     /**
      * The global source of randomness.
@@ -43,14 +43,11 @@ public final class Config {
     /**
      * The ratio of each {@link TileType} to the total amount of tiles in the grid.
      */
-    public static final Map<TileType, Double> TILE_RATIOS = Map.of(
-        TileType.WOODLAND, 4.0 / TILE_FORMULA.apply(GRID_SIZE), // read: 4 tiles out of 19 (default) are of type WOODLAND
-        TileType.MEADOW,   4.0 / TILE_FORMULA.apply(GRID_SIZE), // the sum of all tiles here may not exceed the grid size
-        TileType.FARMLAND, 4.0 / TILE_FORMULA.apply(GRID_SIZE),
-        TileType.HILL,     3.0 / TILE_FORMULA.apply(GRID_SIZE),
-        TileType.MOUNTAIN, 3.0 / TILE_FORMULA.apply(GRID_SIZE),
-        TileType.DESERT,   1.0 / TILE_FORMULA.apply(GRID_SIZE)
-    );
+    public static final Map<TileType, Double> TILE_RATIOS = Collections.unmodifiableMap(new HashMap<>() {{
+        for (TileType tileType : TileType.values()) {
+            put(tileType, Double.parseDouble(TILE_RATIO_PROPERTIES.getProperty(tileType.name())) / TILE_FORMULA.apply(GRID_SIZE));
+        }
+    }});
 
     /**
      * The pool of available "number chips" or yields.
