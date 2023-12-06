@@ -6,10 +6,10 @@ import projekt.model.ResourceType;
 public class MeadowTile extends AbstractTile {
 
     public MeadowTile(int i, int j) {
-        super(i, j, TileType.MEADOW, ResourceType.WOOL);
+        super(i, j, Tile.Type.MEADOW, ResourceType.WOOL);
     }
 
     public MeadowTile(Position position) {
-        super(position, TileType.MEADOW, ResourceType.WOOL);
+        super(position, Tile.Type.MEADOW, ResourceType.WOOL);
     }
 }

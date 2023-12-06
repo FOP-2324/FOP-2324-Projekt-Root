@@ -10,15 +10,15 @@ import java.util.Map;
 abstract class AbstractTile implements Tile {
 
     private final Position position;
-    protected final TileType tileType;
+    protected final Tile.Type tileType;
     protected final ResourceType resourceType;
     protected int yield;
 
-    protected AbstractTile(int i, int j, TileType tileType, ResourceType resourceType) {
+    protected AbstractTile(int i, int j, Tile.Type tileType, ResourceType resourceType) {
         this(new Position(i, j), tileType, resourceType);
     }
 
-    protected AbstractTile(Position position, TileType tileType, ResourceType resourceType) {
+    protected AbstractTile(Position position, Tile.Type tileType, ResourceType resourceType) {
         this.position = position;
         this.tileType = tileType;
         this.resourceType = resourceType;
@@ -30,7 +30,7 @@ abstract class AbstractTile implements Tile {
     }
 
     @Override
-    public TileType getType() {
+    public Tile.Type getType() {
         return this.tileType;
     }
 

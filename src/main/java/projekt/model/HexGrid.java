@@ -3,7 +3,6 @@ package projekt.model;
 import projekt.model.buildings.Port;
 import projekt.model.buildings.Road;
 import projekt.model.tiles.Tile;
-import projekt.model.tiles.TileType;
 
 import java.util.*;
 import java.util.function.Function;
@@ -29,8 +28,8 @@ public class HexGrid {
 
     private List<List<Tile>> initTiles() {
         double singleTileRatio = 1.0 / TILE_FORMULA.apply(GRID_SIZE);
-        Stack<TileType> availableTileTypes = new Stack<>();
-        for (TileType tileType : TileType.values()) {
+        Stack<Tile.Type> availableTileTypes = new Stack<>();
+        for (Tile.Type tileType : Tile.Type.values()) {
             double targetTileRatio = TILE_RATIOS.get(tileType);
             double currentTileRatio = -1.0E-10; // a little bit of an error margin
 
@@ -120,7 +119,7 @@ public class HexGrid {
 
     private void setYields() {
         getTiles().forEach(tile -> {
-            if (tile.getType() != TileType.DESERT) {
+            if (tile.getType() != Tile.Type.DESERT) {
                 tile.setYield(YIELD_POOL.pop());
             }
         });

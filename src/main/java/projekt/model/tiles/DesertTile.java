@@ -5,11 +5,11 @@ import projekt.model.Position;
 public class DesertTile extends AbstractTile {
 
     public DesertTile(int i, int j) {
-        super(i, j, TileType.DESERT, null);
+        super(i, j, Tile.Type.DESERT, null);
     }
 
     public DesertTile(Position position) {
-        super(position, TileType.DESERT, null);
+        super(position, Tile.Type.DESERT, null);
     }
 
     @Override

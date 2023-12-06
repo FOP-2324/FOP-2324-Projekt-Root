@@ -1,7 +1,7 @@
 package projekt;
 
 import org.tudalgo.algoutils.student.io.PropertyUtils;
-import projekt.model.tiles.TileType;
+import projekt.model.tiles.Tile;
 
 import java.util.*;
 import java.util.function.Function;
@@ -41,10 +41,10 @@ public final class Config {
     public static final Function<Integer, Integer> TILE_FORMULA = i -> 6 * (i * (i - 1) / 2) + 1;
 
     /**
-     * The ratio of each {@link TileType} to the total amount of tiles in the grid.
+     * The ratio of each {@link Tile.Type} to the total amount of tiles in the grid.
      */
-    public static final Map<TileType, Double> TILE_RATIOS = Collections.unmodifiableMap(new HashMap<>() {{
-        for (TileType tileType : TileType.values()) {
+    public static final Map<Tile.Type, Double> TILE_RATIOS = Collections.unmodifiableMap(new HashMap<>() {{
+        for (Tile.Type tileType : Tile.Type.values()) {
             put(tileType, Double.parseDouble(TILE_RATIO_PROPERTIES.getProperty(tileType.name())) / TILE_FORMULA.apply(GRID_SIZE));
         }
     }});

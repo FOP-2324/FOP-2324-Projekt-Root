@@ -12,10 +12,10 @@ public interface Tile {
 
     /**
      * Returns the type of this tile.
-     * @see TileType
+     * @see Type
      * @return the type
      */
-    TileType getType();
+    Type getType();
 
     /**
      * Returns the resource that is available from this tile, if any.
@@ -48,5 +48,41 @@ public interface Tile {
         SOUTH_WEST,
         SOUTH,
         SOUTH_EAST
+    }
+
+    /**
+     * An enumeration containing all available tile types.
+     * Custom tile types need to be added to this list manually. As well as a corresponding mapping to {@link Type#newTileInstance()}.
+     */
+    enum Type {
+        WOODLAND,
+        MEADOW,
+        FARMLAND,
+        HILL,
+        MOUNTAIN,
+        DESERT;
+
+        /**
+         * Creates a new instance of this {@link Type} and returns it.
+         * @return the new instance
+         */
+        public Tile newTileInstance(int i, int j) {
+            return newTileInstance(new Position(i, j));
+        }
+
+        /**
+         * Creates a new instance of this {@link Type} and returns it.
+         * @return the new instance
+         */
+        public Tile newTileInstance(Position position) {
+            return switch (this) {
+                case WOODLAND -> new WoodlandTile(position);
+                case MEADOW -> new MeadowTile(position);
+                case FARMLAND -> new FarmlandTile(position);
+                case HILL -> new HillTile(position);
+                case MOUNTAIN -> new MountainTile(position);
+                case DESERT -> new DesertTile(position);
+            };
+        }
     }
 }
