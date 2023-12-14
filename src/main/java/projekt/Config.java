@@ -1,6 +1,7 @@
 package projekt;
 
 import org.tudalgo.algoutils.student.io.PropertyUtils;
+import projekt.model.ResourceType;
 import projekt.model.tiles.Tile;
 
 import java.util.*;
@@ -48,6 +49,14 @@ public final class Config {
             put(tileType, Double.parseDouble(TILE_RATIO_PROPERTIES.getProperty(tileType.name())) / TILE_FORMULA.apply(GRID_SIZE));
         }
     }});
+
+    public static final Map<Tile.Type, ResourceType> RESOURCE_MAPPING = Map.of(
+        Tile.Type.WOODLAND, ResourceType.WOOD,
+        Tile.Type.MEADOW, ResourceType.WOOL,
+        Tile.Type.FARMLAND, ResourceType.GRAIN,
+        Tile.Type.HILL, ResourceType.CLAY,
+        Tile.Type.MOUNTAIN, ResourceType.ORE
+    );
 
     /**
      * The pool of available "number chips" or yields.

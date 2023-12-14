@@ -1,5 +1,6 @@
 package projekt.model.tiles;
 
+import projekt.Config;
 import projekt.controller.GameController;
 import projekt.model.Intersection;
 import projekt.model.Position;
@@ -12,16 +13,17 @@ abstract class AbstractTile implements Tile {
     private final Position position;
     protected final Tile.Type tileType;
     protected final ResourceType resourceType;
-    protected int yield;
+    protected final int yield;
 
-    protected AbstractTile(int i, int j, Tile.Type tileType, ResourceType resourceType) {
-        this(new Position(i, j), tileType, resourceType);
+    protected AbstractTile(int i, int j, Tile.Type tileType, int yield) {
+        this(new Position(i, j), tileType, yield);
     }
 
-    protected AbstractTile(Position position, Tile.Type tileType, ResourceType resourceType) {
+    protected AbstractTile(Position position, Tile.Type tileType, int yield) {
         this.position = position;
         this.tileType = tileType;
-        this.resourceType = resourceType;
+        this.resourceType = Config.RESOURCE_MAPPING.getOrDefault(tileType, null);
+        this.yield = yield;
     }
 
     @Override
@@ -42,11 +44,6 @@ abstract class AbstractTile implements Tile {
     @Override
     public Map<Direction, Intersection> getAdjacentIntersections() {
         return GameController.getGameBoard().getAdjacentIntersectionsOfTile(this);
-    }
-
-    @Override
-    public void setYield(int yield) {
-        this.yield = yield;
     }
 
     @Override

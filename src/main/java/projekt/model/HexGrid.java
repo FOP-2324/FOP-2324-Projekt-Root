@@ -1,12 +1,10 @@
 package projekt.model;
 
 import projekt.model.buildings.Port;
-import projekt.model.buildings.Road;
 import projekt.model.tiles.Tile;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -17,13 +15,12 @@ public class HexGrid {
 
     private final List<List<Tile>> tiles;
     private final List<List<Intersection>> intersections;
+    private final Map<Position, Port> ports = new HashMap<>();
 
     public HexGrid() {
         this.tiles = initTiles();
         this.intersections = initIntersections();
-        makeRoads();
-        setYields();
-        setPorts();
+        initPorts();
     }
 
     private List<List<Tile>> initTiles() {
@@ -46,7 +43,8 @@ public class HexGrid {
             List<Tile> gridRow = new ArrayList<>(rowSize);
 
             for (int j = 0; j < rowSize; j++) {
-                gridRow.add(availableTileTypes.pop().newTileInstance(i, j));
+                Tile.Type tileType = availableTileTypes.pop();
+                gridRow.add(tileType.newTileInstance(i, j, (tileType != Tile.Type.DESERT ? YIELD_POOL.pop() : 0)));
             }
             tileGrid.add(gridRow);
         }
@@ -73,59 +71,7 @@ public class HexGrid {
         return new ArrayList<>(intersections);
     }
 
-    private void makeRoads() {
-        Map<Intersection, Set<Road>> intersectionRoadMapping = new HashMap<>();
-        for (int i = 0; i < GRID_SIZE; i++) {
-            int rowSize = 2 * (GRID_SIZE + i) + 1;
-            List<Intersection> intersectionRowTop = intersections.get(i);
-            List<Intersection> intersectionRowBottom = intersections.get(2 * GRID_SIZE - i - 1);
-
-            for (int j = 0; j < rowSize; j++) {
-                Intersection nodeATop = intersectionRowTop.get(j);
-                Intersection nodeABottom = intersectionRowBottom.get(j);
-
-                if (j < rowSize - 1) { // horizontal roads
-                    Intersection nodeBTop = intersectionRowTop.get(j + 1);
-                    Intersection nodeBBottom = intersectionRowBottom.get(j + 1);
-                    linkIntersections(intersectionRoadMapping, nodeATop, nodeBTop);
-                    linkIntersections(intersectionRoadMapping, nodeABottom, nodeBBottom);
-                }
-                if (j % 2 == 0) { // vertical roads
-                    if (i < GRID_SIZE - 1) { // top and bottom rows
-                        Intersection nodeBTop = intersections.get(i + 1).get(j + 1);
-                        Intersection nodeBBottom = intersections.get(2 * GRID_SIZE - i - 2).get(j + 1);
-                        linkIntersections(intersectionRoadMapping, nodeATop, nodeBTop);
-                        linkIntersections(intersectionRoadMapping, nodeABottom, nodeBBottom);
-                    } else { // center row
-                        Intersection nodeB = intersections.get(i + 1).get(j);
-                        linkIntersections(intersectionRoadMapping, nodeATop, nodeB);
-                    }
-                }
-            }
-        }
-        intersectionRoadMapping.forEach(Intersection::setConnectedRoads);
-    }
-
-    private void linkIntersections(Map<Intersection, Set<Road>> intersectionRoadMapping,
-                                   Intersection nodeA,
-                                   Intersection nodeB) {
-        Road road = new Road(nodeA, nodeB);
-
-        intersectionRoadMapping.putIfAbsent(nodeA, new HashSet<>());
-        intersectionRoadMapping.putIfAbsent(nodeB, new HashSet<>());
-        intersectionRoadMapping.get(nodeA).add(road);
-        intersectionRoadMapping.get(nodeB).add(road);
-    }
-
-    private void setYields() {
-        getTiles().forEach(tile -> {
-            if (tile.getType() != Tile.Type.DESERT) {
-                tile.setYield(YIELD_POOL.pop());
-            }
-        });
-    }
-
-    private void setPorts() {
+    private void initPorts() {
         // optimized for GRID_SIZE = 3, may need modifications (or not even work) for different values
         // TODO: see if this can work for different sizes
         // 3:1 port
@@ -161,10 +107,11 @@ public class HexGrid {
         };
 
         for (int[] coordinates : coordinates_3_1) {
-            intersections.get(coordinates[0]).get(coordinates[1]).setPort(port_3_1);
+            ports.put(new Position(coordinates[0], coordinates[1]), port_3_1);
         }
+        ResourceType[] resourceTypes = ResourceType.values();
         for (int[] coordinates : coordinates_2_1) {
-            intersections.get(coordinates[0]).get(coordinates[1]).setPort(ports_2_1.get(ResourceType.values()[coordinates[2]]));
+            ports.put(new Position(coordinates[0], coordinates[1]), ports_2_1.get(resourceTypes[coordinates[2]]));
         }
     }
 
@@ -233,22 +180,87 @@ public class HexGrid {
     public Set<Tile> getAdjacentTilesOfIntersection(Position position) {
         int intersectionRow = position.row();
         int intersectionColumn = position.column();
-        Supplier<Stream<Position>> tilePositions = () -> Stream.<Position>builder()
-            .add(new Position(intersectionRow - 1, intersectionColumn / 2 - 1))
-            .add(new Position(intersectionRow, intersectionColumn / 2 - 1))
-            .add(new Position(intersectionRow, intersectionColumn / 2))
-            .build();
-        Supplier<Stream<Position>> tilePositionsInverted = () -> Stream.<Position>builder()
-            .add(new Position(intersectionRow - 1, intersectionColumn / 2 - 1))
-            .add(new Position(intersectionRow - 1, intersectionColumn / 2))
-            .add(new Position(intersectionRow, intersectionColumn / 2))
-            .build();
+        Stream<Position> tilePositions;
 
-        return (intersectionRow <= GRID_SIZE ?
-            intersectionColumn % 2 == 0 ? tilePositions : tilePositionsInverted :
-            intersectionColumn % 2 == 0 ? tilePositionsInverted : tilePositions).get()
-            .filter(pos -> pos.row() >= 0 && pos.row() < 2 * GRID_SIZE && pos.column() >= 0 && pos.column() < 2 * ROW_FORMULA.apply(pos.row()) + 1)
+        if (intersectionRow < GRID_SIZE && intersectionColumn % 2 == 0 ||
+            intersectionRow >= GRID_SIZE && intersectionColumn % 2 != 0) {
+            tilePositions = Stream.<Position>builder()
+                .add(new Position(intersectionRow - 1, intersectionColumn / 2 - 1))
+                .add(new Position(intersectionRow, intersectionColumn / 2 - 1))
+                .add(new Position(intersectionRow, intersectionColumn / 2))
+                .build();
+        } else {
+            tilePositions = Stream.<Position>builder()
+                .add(new Position(intersectionRow - 1, intersectionColumn / 2 - 1))
+                .add(new Position(intersectionRow - 1, intersectionColumn / 2))
+                .add(new Position(intersectionRow, intersectionColumn / 2 - 1))
+                .build();
+        }
+
+        return tilePositions
+            .filter(pos ->
+                pos.row() >= 0 &&
+                pos.row() < 2 * GRID_SIZE - 1 &&
+                pos.column() >= 0 &&
+                pos.column() < ROW_FORMULA.apply(pos.row()))
             .map(pos -> tiles.get(pos.row()).get(pos.column()))
             .collect(Collectors.toUnmodifiableSet());
+    }
+
+    public Set<Intersection> getConnectedIntersections(Intersection intersection) {
+        return getConnectedIntersections(intersection.getPosition());
+    }
+
+    public Set<Intersection> getConnectedIntersections(Position position) {
+        int intersectionRow = position.row();
+        int intersectionColumn = position.column();
+        Stream.Builder<Position> intersectionPositions = Stream.<Position>builder()
+            .add(new Position(intersectionRow, intersectionColumn - 1))
+            .add(new Position(intersectionRow, intersectionColumn + 1));
+
+        if (intersectionRow == GRID_SIZE - 1) {
+            if (intersectionColumn % 2 == 0) {
+                intersectionPositions.add(new Position(intersectionRow + 1, intersectionColumn));
+            } else {
+                intersectionPositions.add(new Position(intersectionRow - 1, intersectionColumn - 1));
+            }
+        } else if (intersectionRow == GRID_SIZE) {
+            if (intersectionColumn % 2 == 0) {
+                intersectionPositions.add(new Position(intersectionRow - 1, intersectionColumn));
+            } else {
+                intersectionPositions.add(new Position(intersectionRow + 1, intersectionColumn - 1));
+            }
+        } else if (intersectionRow < GRID_SIZE) {
+            if (intersectionColumn % 2 == 0) {
+                intersectionPositions.add(new Position(intersectionRow + 1, intersectionColumn + 1));
+            } else {
+                intersectionPositions.add(new Position(intersectionRow - 1, intersectionColumn - 1));
+            }
+        } else {
+            if (intersectionColumn % 2 == 0) {
+                intersectionPositions.add(new Position(intersectionRow - 1, intersectionColumn + 1));
+            } else {
+                intersectionPositions.add(new Position(intersectionRow + 1, intersectionColumn - 1));
+            }
+        }
+
+        return intersectionPositions.build()
+            .filter(pos ->
+                pos.row() >= 0 &&
+                pos.row() < 2 * GRID_SIZE &&
+                pos.column() >= 0 &&
+                pos.column() < 2 * ROW_FORMULA.apply(pos.row() < GRID_SIZE ? pos.row() : pos.row() - 1) + 1)
+            .map(pos -> intersections.get(pos.row()).get(pos.column()))
+            .collect(Collectors.toUnmodifiableSet());
+    }
+
+    // Ports
+
+    public Port getPortAtIntersection(Intersection intersection) {
+        return getPortAtPosition(intersection.getPosition());
+    }
+
+    public Port getPortAtPosition(Position position) {
+        return ports.getOrDefault(position, null);
     }
 }

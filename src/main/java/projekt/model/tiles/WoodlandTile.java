@@ -5,11 +5,11 @@ import projekt.model.ResourceType;
 
 public class WoodlandTile extends AbstractTile {
 
-    public WoodlandTile(int i, int j) {
-        super(i, j, Tile.Type.WOODLAND, ResourceType.WOOD);
+    public WoodlandTile(int i, int j, int yield) {
+        super(i, j, Tile.Type.WOODLAND, yield);
     }
 
-    public WoodlandTile(Position position) {
-        super(position, Tile.Type.WOODLAND, ResourceType.WOOD);
+    public WoodlandTile(Position position, int yield) {
+        super(position, Tile.Type.WOODLAND, yield);
     }
 }

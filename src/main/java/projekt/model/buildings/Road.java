@@ -5,31 +5,11 @@ import projekt.model.Player;
 
 import java.util.Objects;
 
-public class Road implements Structure {
-
-    private final Intersection nodeA, nodeB;
-    private Player ownedBy;
-
-    public Road(Intersection nodeA, Intersection nodeB) {
-        this.nodeA = nodeA;
-        this.nodeB = nodeB;
-    }
-
-    public Intersection getNodeA() {
-        return nodeA;
-    }
-
-    public Intersection getNodeB() {
-        return nodeB;
-    }
+public record Road(Intersection nodeA, Intersection nodeB, Player owner) implements Structure {
 
     @Override
     public Player getOwner() {
-        return ownedBy;
-    }
-
-    public void setOwner(Player player) {
-        this.ownedBy = player;
+        return owner;
     }
 
     @Override

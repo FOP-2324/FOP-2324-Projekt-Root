@@ -5,11 +5,11 @@ import projekt.model.ResourceType;
 
 public class FarmlandTile extends AbstractTile {
 
-    public FarmlandTile(int i, int j) {
-        super(i, j, Tile.Type.FARMLAND, ResourceType.GRAIN);
+    public FarmlandTile(int i, int j, int yield) {
+        super(i, j, Tile.Type.FARMLAND, yield);
     }
 
-    public FarmlandTile(Position position) {
-        super(position, Tile.Type.FARMLAND, ResourceType.GRAIN);
+    public FarmlandTile(Position position, int yield) {
+        super(position, Tile.Type.FARMLAND, yield);
     }
 }

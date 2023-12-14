@@ -5,11 +5,11 @@ import projekt.model.ResourceType;
 
 public class HillTile extends AbstractTile {
 
-    public HillTile(int i, int j) {
-        super(i, j, Tile.Type.HILL, ResourceType.CLAY);
+    public HillTile(int i, int j, int yield) {
+        super(i, j, Tile.Type.HILL, yield);
     }
 
-    public HillTile(Position position) {
-        super(position, Tile.Type.HILL, ResourceType.CLAY);
+    public HillTile(Position position, int yield) {
+        super(position, Tile.Type.HILL, yield);
     }
 }
