@@ -13,6 +13,11 @@ public record Road(Intersection nodeA, Intersection nodeB, Player owner) impleme
     }
 
     @Override
+    public Structure.Type getType() {
+        return Structure.Type.ROAD;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

@@ -2,6 +2,8 @@ package projekt;
 
 import org.tudalgo.algoutils.student.io.PropertyUtils;
 import projekt.model.ResourceType;
+import projekt.model.buildings.Structure;
+import projekt.model.tiles.DesertTile;
 import projekt.model.tiles.Tile;
 
 import java.util.*;
@@ -30,6 +32,27 @@ public final class Config {
      * Starting at 1, the distance to the grid's edge measured from the center.
      */
     public static final int GRID_SIZE = 3;
+
+    /**
+     * Maximum amount of roads a player can place / own.
+     */
+    public static final int MAX_ROADS = 15;
+
+    /**
+     * Maximum amount of villages a player can place / own.
+     */
+    public static final int MAX_VILLAGES = 5;
+
+    /**
+     * Maximum amount of cities a player can place / own.
+     */
+    public static final int MAX_CITIES = 4;
+
+    public static final Function<Structure.Type, Integer> MAP_LIMIT = type -> switch (type) {
+        case ROAD -> MAX_ROADS;
+        case VILLAGE -> MAX_VILLAGES;
+        case CITY -> MAX_CITIES;
+    };
 
     /**
      * The formula to calculate how many tiles fit in a given row (zero-indexed).
@@ -62,7 +85,7 @@ public final class Config {
      * The pool of available "number chips" or yields.
      * By default, yields range from 2 to 12 inclusive, excluding 7. Yields 3 to 11 are available twice.
      * The total number of available yields must equal {@code TILE_FORMULA.apply(GRID_SIZE)} minus the amount of tiles
-     * of type {@link projekt.model.tiles.DesertTile} in the grid.
+     * of type {@link DesertTile} in the grid.
      */
     public static final Stack<Integer> YIELD_POOL = new Stack<>() {{
         // TODO: replace hard-coded constraints
@@ -76,4 +99,21 @@ public final class Config {
 
         Collections.shuffle(this, RANDOM);
     }};
+
+    public static final Map<Structure.Type, Map<ResourceType, Integer>> BUILDING_COSTS = Map.of(
+        Structure.Type.ROAD, Map.of(
+            ResourceType.WOOD, 1,
+            ResourceType.CLAY, 1
+        ),
+        Structure.Type.VILLAGE, Map.of(
+            ResourceType.WOOD, 1,
+            ResourceType.CLAY, 1,
+            ResourceType.GRAIN, 1,
+            ResourceType.WOOL, 1
+        ),
+        Structure.Type.CITY, Map.of(
+            ResourceType.GRAIN, 2,
+            ResourceType.ORE, 3
+        )
+    );
 }

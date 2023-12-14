@@ -36,6 +36,6 @@ public class Port {
 
     // TODO: not sure this belongs here
     public boolean canTrade(Player player, ResourceType resourceType) {
-        return (this.resourceType == null || this.resourceType.equals(resourceType)) && player.getAmount(resourceType) >= ratio;
+        return (this.resourceType == null || this.resourceType.equals(resourceType)) && player.getResourceAmount(resourceType) >= ratio;
     }
 }
