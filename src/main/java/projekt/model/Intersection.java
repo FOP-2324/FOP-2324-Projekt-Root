@@ -23,14 +23,14 @@ public class Intersection {
     }
 
     public Set<Tile> getAdjacentTiles() {
-        return GameController.getGameBoard().getAdjacentTilesOfIntersection(this);
+        return GameController.getInstance().getGameBoard().getAdjacentTilesOfIntersection(this);
     }
 
     public Set<Intersection> getConnectedIntersections() {
-        return GameController.getGameBoard().getConnectedIntersections(this);
+        return GameController.getInstance().getGameBoard().getConnectedIntersections(this);
     }
 
     public Port getPort() {
-        return GameController.getGameBoard().getPortAtIntersection(this);
+        return GameController.getInstance().getGameBoard().getPortAtIntersection(this);
     }
 }

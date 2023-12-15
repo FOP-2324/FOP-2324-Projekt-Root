@@ -28,7 +28,7 @@ public class City implements Settlement {
 
     @Override
     public Set<Tile> getSurroundingTiles() {
-        return GameController.getGameBoard().getAdjacentTilesOfIntersection(position);
+        return GameController.getInstance().getGameBoard().getAdjacentTilesOfIntersection(position);
     }
 
     @Override
