@@ -9,6 +9,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.value.ObservableDoubleValue;
+
 import static projekt.Config.*;
 
 public class HexGrid {
@@ -16,8 +20,11 @@ public class HexGrid {
     private final List<List<Tile>> tiles;
     private final List<List<Intersection>> intersections;
     private final Map<Position, Port> ports = new HashMap<>();
+    private final ObservableDoubleValue tileWidth = new SimpleDoubleProperty(60.0);
+    private final ObservableDoubleValue tileHeight;
 
     public HexGrid() {
+        this.tileHeight = Bindings.createDoubleBinding(() -> Math.sqrt(3) * tileWidth.get() / 2, tileWidth);
         this.tiles = initTiles();
         this.intersections = initIntersections();
         initPorts();
@@ -44,7 +51,8 @@ public class HexGrid {
 
             for (int j = 0; j < rowSize; j++) {
                 Tile.Type tileType = availableTileTypes.pop();
-                gridRow.add(tileType.newTileInstance(i, j, (tileType != Tile.Type.DESERT ? YIELD_POOL.pop() : 0)));
+                gridRow.add(tileType.newTileInstance(i, j, (tileType != Tile.Type.DESERT ? YIELD_POOL.pop() : 0),
+                        tileHeight, tileWidth));
             }
             tileGrid.add(gridRow);
         }
@@ -72,38 +80,39 @@ public class HexGrid {
     }
 
     private void initPorts() {
-        // optimized for GRID_SIZE = 3, may need modifications (or not even work) for different values
+        // optimized for GRID_SIZE = 3, may need modifications (or not even work) for
+        // different values
         // TODO: see if this can work for different sizes
         // 3:1 port
         Port port_3_1 = new Port(3);
         // 2:1 resource-specific ports
         Map<ResourceType, Port> ports_2_1 = Stream.of(ResourceType.values())
-            .collect(Collectors.toMap(Function.identity(), resource -> new Port(2, resource)));
+                .collect(Collectors.toMap(Function.identity(), resource -> new Port(2, resource)));
 
         // coordinates, schema: {<row>, <column>[, <resource_type>]}
         // 3:1 ports
         int[][] coordinates_3_1 = {
-            {0, 0},
-            {0, 1},
-            {GRID_SIZE - 1, 2 * ROW_FORMULA.apply(GRID_SIZE - 1)},
-            {GRID_SIZE, 2 * ROW_FORMULA.apply(GRID_SIZE - 1)},
-            {2 * GRID_SIZE - 1, 0},
-            {2 * GRID_SIZE - 1, 1},
-            {2 * GRID_SIZE - 1, 2 * ROW_FORMULA.apply(0) - 3},
-            {2 * GRID_SIZE - 1, 2 * ROW_FORMULA.apply(0) - 2},
+                { 0, 0 },
+                { 0, 1 },
+                { GRID_SIZE - 1, 2 * ROW_FORMULA.apply(GRID_SIZE - 1) },
+                { GRID_SIZE, 2 * ROW_FORMULA.apply(GRID_SIZE - 1) },
+                { 2 * GRID_SIZE - 1, 0 },
+                { 2 * GRID_SIZE - 1, 1 },
+                { 2 * GRID_SIZE - 1, 2 * ROW_FORMULA.apply(0) - 3 },
+                { 2 * GRID_SIZE - 1, 2 * ROW_FORMULA.apply(0) - 2 },
         };
         // 2:1 ports
         int[][] coordinates_2_1 = {
-            {0, 2 * ROW_FORMULA.apply(0) - 3, ResourceType.GRAIN.ordinal()},
-            {0, 2 * ROW_FORMULA.apply(0) - 2, ResourceType.GRAIN.ordinal()},
-            {1, 2 * ROW_FORMULA.apply(1) - 1, ResourceType.ORE.ordinal()},
-            {1, 2 * ROW_FORMULA.apply(1), ResourceType.ORE.ordinal()},
-            {2 * GRID_SIZE - 2, 2 * ROW_FORMULA.apply(1) - 1, ResourceType.WOOL.ordinal()},
-            {2 * GRID_SIZE - 2, 2 * ROW_FORMULA.apply(1), ResourceType.WOOL.ordinal()},
-            {GRID_SIZE, 1, ResourceType.CLAY.ordinal()},
-            {GRID_SIZE + 1, 0, ResourceType.CLAY.ordinal()},
-            {GRID_SIZE - 1, 1, ResourceType.WOOD.ordinal()},
-            {GRID_SIZE - 2, 0, ResourceType.WOOD.ordinal()},
+                { 0, 2 * ROW_FORMULA.apply(0) - 3, ResourceType.GRAIN.ordinal() },
+                { 0, 2 * ROW_FORMULA.apply(0) - 2, ResourceType.GRAIN.ordinal() },
+                { 1, 2 * ROW_FORMULA.apply(1) - 1, ResourceType.ORE.ordinal() },
+                { 1, 2 * ROW_FORMULA.apply(1), ResourceType.ORE.ordinal() },
+                { 2 * GRID_SIZE - 2, 2 * ROW_FORMULA.apply(1) - 1, ResourceType.WOOL.ordinal() },
+                { 2 * GRID_SIZE - 2, 2 * ROW_FORMULA.apply(1), ResourceType.WOOL.ordinal() },
+                { GRID_SIZE, 1, ResourceType.CLAY.ordinal() },
+                { GRID_SIZE + 1, 0, ResourceType.CLAY.ordinal() },
+                { GRID_SIZE - 1, 1, ResourceType.WOOD.ordinal() },
+                { GRID_SIZE - 2, 0, ResourceType.WOOD.ordinal() },
         };
 
         for (int[] coordinates : coordinates_3_1) {
@@ -119,8 +128,8 @@ public class HexGrid {
 
     public Set<Tile> getTiles() {
         return tiles.stream()
-            .flatMap(List::stream)
-            .collect(Collectors.toUnmodifiableSet());
+                .flatMap(List::stream)
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     public List<Tile> getTileRow(int i) {
@@ -143,7 +152,8 @@ public class HexGrid {
 
         if (tileRow < GRID_SIZE - 1) {
             tileIntersections.addAll(intersections.get(tileRow).subList(2 * tileColumn, 2 * tileColumn + 3));
-            tileIntersections.addAll(intersections.get(tileRow + 1).subList(2 * tileColumn + 1, 2 * tileColumn + 1 + 3));
+            tileIntersections
+                    .addAll(intersections.get(tileRow + 1).subList(2 * tileColumn + 1, 2 * tileColumn + 1 + 3));
         } else if (tileRow == GRID_SIZE - 1) {
             tileIntersections.addAll(intersections.get(tileRow).subList(2 * tileColumn, 2 * tileColumn + 3));
             tileIntersections.addAll(intersections.get(tileRow + 1).subList(2 * tileColumn, 2 * tileColumn + 3));
@@ -153,16 +163,16 @@ public class HexGrid {
         }
 
         return IntStream.range(0, directions.length)
-            .mapToObj(i -> Map.entry(directions[i], tileIntersections.get(i)))
-            .collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, Map.Entry::getValue));
+                .mapToObj(i -> Map.entry(directions[i], tileIntersections.get(i)))
+                .collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     // Intersections
 
     public Set<Intersection> getIntersections() {
         return intersections.stream()
-            .flatMap(List::stream)
-            .collect(Collectors.toUnmodifiableSet());
+                .flatMap(List::stream)
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     public List<Intersection> getIntersectionRow(int i) {
@@ -183,28 +193,27 @@ public class HexGrid {
         Stream<Position> tilePositions;
 
         if (intersectionRow < GRID_SIZE && intersectionColumn % 2 == 0 ||
-            intersectionRow >= GRID_SIZE && intersectionColumn % 2 != 0) {
+                intersectionRow >= GRID_SIZE && intersectionColumn % 2 != 0) {
             tilePositions = Stream.<Position>builder()
-                .add(new Position(intersectionRow - 1, intersectionColumn / 2 - 1))
-                .add(new Position(intersectionRow, intersectionColumn / 2 - 1))
-                .add(new Position(intersectionRow, intersectionColumn / 2))
-                .build();
+                    .add(new Position(intersectionRow - 1, intersectionColumn / 2 - 1))
+                    .add(new Position(intersectionRow, intersectionColumn / 2 - 1))
+                    .add(new Position(intersectionRow, intersectionColumn / 2))
+                    .build();
         } else {
             tilePositions = Stream.<Position>builder()
-                .add(new Position(intersectionRow - 1, intersectionColumn / 2 - 1))
-                .add(new Position(intersectionRow - 1, intersectionColumn / 2))
-                .add(new Position(intersectionRow, intersectionColumn / 2 - 1))
-                .build();
+                    .add(new Position(intersectionRow - 1, intersectionColumn / 2 - 1))
+                    .add(new Position(intersectionRow - 1, intersectionColumn / 2))
+                    .add(new Position(intersectionRow, intersectionColumn / 2 - 1))
+                    .build();
         }
 
         return tilePositions
-            .filter(pos ->
-                pos.row() >= 0 &&
-                pos.row() < 2 * GRID_SIZE - 1 &&
-                pos.column() >= 0 &&
-                pos.column() < ROW_FORMULA.apply(pos.row()))
-            .map(pos -> tiles.get(pos.row()).get(pos.column()))
-            .collect(Collectors.toUnmodifiableSet());
+                .filter(pos -> pos.row() >= 0 &&
+                        pos.row() < 2 * GRID_SIZE - 1 &&
+                        pos.column() >= 0 &&
+                        pos.column() < ROW_FORMULA.apply(pos.row()))
+                .map(pos -> getTileAt(pos.row(), pos.column()))
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     public Set<Intersection> getConnectedIntersections(Intersection intersection) {
@@ -215,8 +224,8 @@ public class HexGrid {
         int intersectionRow = position.row();
         int intersectionColumn = position.column();
         Stream.Builder<Position> intersectionPositions = Stream.<Position>builder()
-            .add(new Position(intersectionRow, intersectionColumn - 1))
-            .add(new Position(intersectionRow, intersectionColumn + 1));
+                .add(new Position(intersectionRow, intersectionColumn - 1))
+                .add(new Position(intersectionRow, intersectionColumn + 1));
 
         if (intersectionRow == GRID_SIZE - 1) {
             if (intersectionColumn % 2 == 0) {
@@ -245,13 +254,12 @@ public class HexGrid {
         }
 
         return intersectionPositions.build()
-            .filter(pos ->
-                pos.row() >= 0 &&
-                pos.row() < 2 * GRID_SIZE &&
-                pos.column() >= 0 &&
-                pos.column() < 2 * ROW_FORMULA.apply(pos.row() < GRID_SIZE ? pos.row() : pos.row() - 1) + 1)
-            .map(pos -> intersections.get(pos.row()).get(pos.column()))
-            .collect(Collectors.toUnmodifiableSet());
+                .filter(pos -> pos.row() >= 0 &&
+                        pos.row() < 2 * GRID_SIZE &&
+                        pos.column() >= 0 &&
+                        pos.column() < 2 * ROW_FORMULA.apply(pos.row() < GRID_SIZE ? pos.row() : pos.row() - 1) + 1)
+                .map(pos -> getIntersectionAt(pos.row(), pos.column()))
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     // Ports
