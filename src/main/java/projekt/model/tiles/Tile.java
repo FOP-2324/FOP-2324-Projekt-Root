@@ -6,12 +6,15 @@ import projekt.model.ResourceType;
 
 import java.util.Map;
 
+import javafx.beans.value.ObservableDoubleValue;
+
 public interface Tile {
 
     Position getPosition();
 
     /**
      * Returns the type of this tile.
+     *
      * @see Type
      * @return the type
      */
@@ -19,21 +22,39 @@ public interface Tile {
 
     /**
      * Returns the resource that is available from this tile, if any.
+     *
      * @return the resource
      */
     ResourceType getResource();
 
     /**
      * Returns the adjacent intersections of this tile.
+     *
      * @return the adjacent intersections
      */
     Map<Direction, Intersection> getAdjacentIntersections();
 
     /**
      * Returns the value at which this tile yields one of its resource.
-     * @return the value (determined by dice roll) required to yield this tile's resource
+     *
+     * @return the value (determined by dice roll) required to yield this tile's
+     *         resource
      */
     int getYield();
+
+    /**
+     * Returns the width of this tile as an {@link ObservableDoubleValue}.
+     *
+     * @return the width of this tile as an {@link ObservableDoubleValue}
+     */
+    ObservableDoubleValue widthProperty();
+
+    /**
+     * Returns the height of this tile as an {@link ObservableDoubleValue}.
+     *
+     * @return the height of this tile as an {@link ObservableDoubleValue}
+     */
+    ObservableDoubleValue heightProperty();
 
     enum Direction {
         NORTH_WEST,
@@ -46,7 +67,8 @@ public interface Tile {
 
     /**
      * An enumeration containing all available tile types.
-     * Custom tile types need to be added to this list manually. As well as a corresponding mapping to {@link Type#newTileInstance}.
+     * Custom tile types need to be added to this list manually. As well as a
+     * corresponding mapping to {@link Type#newTileInstance}.
      */
     enum Type {
         WOODLAND,
@@ -58,24 +80,28 @@ public interface Tile {
 
         /**
          * Creates a new instance of this {@link Type} and returns it.
+         *
          * @return the new instance
          */
-        public Tile newTileInstance(int i, int j, int yield) {
-            return newTileInstance(new Position(i, j), yield);
+        public Tile newTileInstance(int i, int j, int yield, ObservableDoubleValue height,
+                ObservableDoubleValue width) {
+            return newTileInstance(new Position(i, j), yield, height, width);
         }
 
         /**
          * Creates a new instance of this {@link Type} and returns it.
+         *
          * @return the new instance
          */
-        public Tile newTileInstance(Position position, int yield) {
+        public Tile newTileInstance(Position position, int yield, ObservableDoubleValue height,
+                ObservableDoubleValue width) {
             return switch (this) {
-                case WOODLAND -> new WoodlandTile(position, yield);
-                case MEADOW -> new MeadowTile(position, yield);
-                case FARMLAND -> new FarmlandTile(position, yield);
-                case HILL -> new HillTile(position, yield);
-                case MOUNTAIN -> new MountainTile(position, yield);
-                case DESERT -> new DesertTile(position, yield);
+                case WOODLAND -> new WoodlandTile(position, yield, height, width);
+                case MEADOW -> new MeadowTile(position, yield, height, width);
+                case FARMLAND -> new FarmlandTile(position, yield, height, width);
+                case HILL -> new HillTile(position, yield, height, width);
+                case MOUNTAIN -> new MountainTile(position, yield, height, width);
+                case DESERT -> new DesertTile(position, yield, height, width);
             };
         }
     }
