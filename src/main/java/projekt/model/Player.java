@@ -12,6 +12,7 @@ public class Player {
 
     protected final Map<ResourceType, Integer> resources = new HashMap<>();
     protected final Map<Structure.Type, List<Structure>> structures = new HashMap<>();
+    protected final Map<DevelopmentCardType, Integer> developmentCards = new HashMap<>();
 
     public Player() {
         for (ResourceType resourceType : ResourceType.values()) {
@@ -19,6 +20,9 @@ public class Player {
         }
         for (Structure.Type structureType : Structure.Type.values()) {
             this.structures.put(structureType, new ArrayList<>());
+        }
+        for (DevelopmentCardType developmentCardType : DevelopmentCardType.values()) {
+            developmentCards.put(developmentCardType, 0);
         }
     }
 
@@ -59,6 +63,14 @@ public class Player {
         return (List<? extends T>) structures.get(structureType);
     }
 
+    public Map<DevelopmentCardType, Integer> getDevelopmentCards() {
+        return Collections.unmodifiableMap(developmentCards);
+    }
+
+    public int getDevelopmentCards(DevelopmentCardType developmentCardType) {
+        return developmentCards.get(developmentCardType);
+    }
+
     public boolean canBuild(Structure.Type structureType) {
         Map<ResourceType, Integer> requiredResources = Structure.getRequiredResources(structureType);
         for (ResourceType resourceType : requiredResources.keySet()) {
@@ -78,6 +90,7 @@ public class Player {
         }
 
         structures.get(structureType).add(new Road(nodeA, nodeB, this));
+        Structure.getRequiredResources(structureType).forEach(this::removeResource);
     }
 
     public void buildVillage(Position position) {
@@ -89,6 +102,7 @@ public class Player {
         }
 
         structures.get(structureType).add(new Village(position, this));
+        Structure.getRequiredResources(structureType).forEach(this::removeResource);
     }
 
     public void buildCity(Village village) {
@@ -101,5 +115,12 @@ public class Player {
 
         structures.get(structureType).add(new City(village.getPosition(), this));
         structures.get(Structure.Type.VILLAGE).remove(village);
+        Structure.getRequiredResources(structureType).forEach(this::removeResource);
+    }
+
+    public void playDevelopmentCard(DevelopmentCardType developmentCard) {
+        if (developmentCards.get(developmentCard) <= 0) {
+            throw new IllegalStateException("Player does not have cards of type " + developmentCard);
+        }
     }
 }

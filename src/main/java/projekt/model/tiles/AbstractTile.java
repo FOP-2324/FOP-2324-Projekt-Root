@@ -51,7 +51,7 @@ abstract class AbstractTile implements Tile {
 
     @Override
     public Map<Direction, Intersection> getAdjacentIntersections() {
-        return GameController.getGameBoard().getAdjacentIntersectionsOfTile(this);
+        return GameController.getInstance().getGameBoard().getAdjacentIntersectionsOfTile(this);
     }
 
     @Override
