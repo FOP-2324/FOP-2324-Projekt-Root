@@ -7,6 +7,7 @@ import projekt.model.ResourceType;
 import java.util.Map;
 
 import javafx.beans.value.ObservableDoubleValue;
+import javafx.scene.paint.Color;
 
 public interface Tile {
 
@@ -71,12 +72,18 @@ public interface Tile {
      * corresponding mapping to {@link Type#newTileInstance}.
      */
     enum Type {
-        WOODLAND,
-        MEADOW,
-        FARMLAND,
-        HILL,
-        MOUNTAIN,
-        DESERT;
+        WOODLAND(Color.DARKGREEN),
+        MEADOW(Color.GREEN),
+        FARMLAND(Color.YELLOW),
+        HILL(Color.LIGHTGREEN),
+        MOUNTAIN(Color.GRAY),
+        DESERT(Color.BEIGE);
+
+        public final Color color;
+
+        Type(Color color) {
+            this.color = color;
+        }
 
         /**
          * Creates a new instance of this {@link Type} and returns it.
