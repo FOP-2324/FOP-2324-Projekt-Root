@@ -148,12 +148,12 @@ public class HexGrid {
                 .collect(Collectors.toUnmodifiableSet());
     }
 
-    public List<Tile> getTileRow(int i) {
-        return Collections.unmodifiableList(tiles.get(i));
+    public List<Tile> getTileRow(int row) {
+        return Collections.unmodifiableList(tiles.get(row));
     }
 
-    public Tile getTileAt(int i, int j) {
-        return tiles.get(i).get(j);
+    public Tile getTileAt(int row, int column) {
+        return tiles.get(row).get(column);
     }
 
     public Map<Tile.Direction, Intersection> getAdjacentIntersectionsOfTile(Tile tile) {
@@ -191,12 +191,12 @@ public class HexGrid {
                 .collect(Collectors.toUnmodifiableSet());
     }
 
-    public List<Intersection> getIntersectionRow(int i) {
-        return Collections.unmodifiableList(intersections.get(i));
+    public List<Intersection> getIntersectionRow(int row) {
+        return Collections.unmodifiableList(intersections.get(row));
     }
 
-    public Intersection getIntersectionAt(int i, int j) {
-        return intersections.get(i).get(j);
+    public Intersection getIntersectionAt(int row, int column) {
+        return intersections.get(row).get(column);
     }
 
     public Set<Tile> getAdjacentTilesOfIntersection(Intersection intersection) {
