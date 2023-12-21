@@ -20,11 +20,11 @@ public class HexGrid {
     private final List<List<Tile>> tiles;
     private final List<List<Intersection>> intersections;
     private final Map<Position, Port> ports = new HashMap<>();
-    private final ObservableDoubleValue tileWidth = new SimpleDoubleProperty(60.0);
-    private final ObservableDoubleValue tileHeight;
+    private final ObservableDoubleValue tileWidth;
+    private final ObservableDoubleValue tileHeight = new SimpleDoubleProperty(60.0);
 
     public HexGrid() {
-        this.tileHeight = Bindings.createDoubleBinding(() -> Math.sqrt(3) * tileWidth.get() / 2, tileWidth);
+        this.tileWidth = Bindings.createDoubleBinding(() -> Math.sqrt(3) * tileHeight.get() / 2, tileHeight);
         this.tiles = initTiles();
         this.intersections = initIntersections();
         initPorts();
@@ -125,6 +125,22 @@ public class HexGrid {
     }
 
     // Tiles
+
+    public ObservableDoubleValue tileWidthProperty() {
+        return tileWidth;
+    }
+
+    public double getTileWidth() {
+        return tileWidth.get();
+    }
+
+    public ObservableDoubleValue tileHeightProperty() {
+        return tileHeight;
+    }
+
+    public double getTileHeight() {
+        return tileHeight.get();
+    }
 
     public Set<Tile> getTiles() {
         return tiles.stream()
