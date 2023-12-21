@@ -10,6 +10,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.value.ObservableDoubleValue;
 
@@ -21,7 +22,7 @@ public class HexGrid {
     private final List<List<Intersection>> intersections;
     private final Map<Position, Port> ports = new HashMap<>();
     private final ObservableDoubleValue tileWidth;
-    private final ObservableDoubleValue tileHeight = new SimpleDoubleProperty(60.0);
+    private final DoubleProperty tileHeight = new SimpleDoubleProperty(60.0);
 
     public HexGrid() {
         this.tileWidth = Bindings.createDoubleBinding(() -> Math.sqrt(3) * tileHeight.get() / 2, tileHeight);
@@ -134,7 +135,7 @@ public class HexGrid {
         return tileWidth.get();
     }
 
-    public ObservableDoubleValue tileHeightProperty() {
+    public DoubleProperty tileHeightProperty() {
         return tileHeight;
     }
 

@@ -24,7 +24,7 @@ public class GameController extends SceneController {
     private Tile banditTile = null;
 
     private GameController(HexGrid gameBoard) {
-        super(new GameBoardBuilder(new HexGridController(gameBoard).getView()));
+        super(new GameBoardBuilder(HexGridController.getHexGridController(gameBoard).getView()));
         this.gameBoard = gameBoard;
     }
 
