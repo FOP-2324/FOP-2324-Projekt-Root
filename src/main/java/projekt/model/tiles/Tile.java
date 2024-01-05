@@ -29,13 +29,6 @@ public interface Tile {
     ResourceType getResource();
 
     /**
-     * Returns the adjacent intersections of this tile.
-     *
-     * @return the adjacent intersections
-     */
-    Map<Direction, Intersection> getAdjacentIntersections();
-
-    /**
      * Returns the value at which this tile yields one of its resource.
      *
      * @return the value (determined by dice roll) required to yield this tile's
@@ -57,12 +50,12 @@ public interface Tile {
      */
     ObservableDoubleValue heightProperty();
 
-    enum Direction {
+    enum Corner {
+        SOUTH,
+        SOUTH_WEST,
         NORTH_WEST,
         NORTH,
         NORTH_EAST,
-        SOUTH_WEST,
-        SOUTH,
         SOUTH_EAST
     }
 
@@ -72,44 +65,19 @@ public interface Tile {
      * corresponding mapping to {@link Type#newTileInstance}.
      */
     enum Type {
-        WOODLAND(Color.DARKGREEN),
-        MEADOW(Color.GREEN),
-        FARMLAND(Color.YELLOW),
-        HILL(Color.LIGHTGREEN),
-        MOUNTAIN(Color.GRAY),
-        DESERT(Color.BEIGE);
+        WOODLAND(Color.DARKGREEN, ResourceType.WOOD),
+        MEADOW(Color.GREEN, ResourceType.CLAY),
+        FARMLAND(Color.YELLOW, ResourceType.GRAIN),
+        HILL(Color.LIGHTGREEN, ResourceType.WOOL),
+        MOUNTAIN(Color.GRAY, ResourceType.ORE),
+        DESERT(Color.BEIGE, null);
 
         public final Color color;
+        public final ResourceType resourceType;
 
-        Type(Color color) {
+        Type(Color color, ResourceType resourceType) {
             this.color = color;
-        }
-
-        /**
-         * Creates a new instance of this {@link Type} and returns it.
-         *
-         * @return the new instance
-         */
-        public Tile newTileInstance(int i, int j, int yield, ObservableDoubleValue height,
-                ObservableDoubleValue width) {
-            return newTileInstance(new Position(i, j), yield, height, width);
-        }
-
-        /**
-         * Creates a new instance of this {@link Type} and returns it.
-         *
-         * @return the new instance
-         */
-        public Tile newTileInstance(Position position, int yield, ObservableDoubleValue height,
-                ObservableDoubleValue width) {
-            return switch (this) {
-                case WOODLAND -> new WoodlandTile(position, yield, height, width);
-                case MEADOW -> new MeadowTile(position, yield, height, width);
-                case FARMLAND -> new FarmlandTile(position, yield, height, width);
-                case HILL -> new HillTile(position, yield, height, width);
-                case MOUNTAIN -> new MountainTile(position, yield, height, width);
-                case DESERT -> new DesertTile(position, yield, height, width);
-            };
+            this.resourceType = resourceType;
         }
     }
 }

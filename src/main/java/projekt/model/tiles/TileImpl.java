@@ -10,21 +10,21 @@ import java.util.Map;
 
 import javafx.beans.value.ObservableDoubleValue;
 
-abstract class AbstractTile implements Tile {
+public class TileImpl implements Tile {
 
     private final Position position;
-    protected final Tile.Type tileType;
-    protected final ResourceType resourceType;
-    protected final int yield;
-    protected final ObservableDoubleValue width;
-    protected final ObservableDoubleValue height;
+    private final Tile.Type tileType;
+    private final ResourceType resourceType;
+    private final int yield;
+    private final ObservableDoubleValue width;
+    private final ObservableDoubleValue height;
 
-    protected AbstractTile(int i, int j, Tile.Type tileType, int yield, ObservableDoubleValue height,
+    public TileImpl(int row, int column, Tile.Type tileType, int yield, ObservableDoubleValue height,
             ObservableDoubleValue width) {
-        this(new Position(i, j), tileType, yield, height, width);
+        this(new Position(row, column), tileType, yield, height, width);
     }
 
-    protected AbstractTile(Position position, Tile.Type tileType, int yield, ObservableDoubleValue height,
+    public TileImpl(Position position, Tile.Type tileType, int yield, ObservableDoubleValue height,
             ObservableDoubleValue width) {
         this.position = position;
         this.tileType = tileType;
@@ -47,11 +47,6 @@ abstract class AbstractTile implements Tile {
     @Override
     public ResourceType getResource() {
         return this.resourceType;
-    }
-
-    @Override
-    public Map<Direction, Intersection> getAdjacentIntersections() {
-        return GameController.getInstance().getGameBoard().getAdjacentIntersectionsOfTile(this);
     }
 
     @Override
