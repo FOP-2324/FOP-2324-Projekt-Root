@@ -1,6 +1,6 @@
 package projekt.model.buildings;
 
-import projekt.model.Player;
+import projekt.model.PlayerImpl;
 import projekt.model.ResourceType;
 
 public class Port {
@@ -35,7 +35,7 @@ public class Port {
     }
 
     // TODO: not sure this belongs here
-    public boolean canTrade(Player player, ResourceType resourceType) {
+    public boolean canTrade(PlayerImpl player, ResourceType resourceType) {
         return (this.resourceType == null || this.resourceType.equals(resourceType)) && player.getResourceAmount(resourceType) >= ratio;
     }
 }

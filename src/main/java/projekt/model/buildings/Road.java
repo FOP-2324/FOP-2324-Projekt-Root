@@ -1,29 +1,18 @@
 package projekt.model.buildings;
 
 import projekt.model.Intersection;
-import projekt.model.Player;
+import projekt.model.PlayerImpl;
 
 import java.util.Objects;
 
-public record Road(Intersection nodeA, Intersection nodeB, Player owner) implements Structure {
-
-    @Override
-    public Player getOwner() {
-        return owner;
-    }
-
-    @Override
-    public Structure.Type getType() {
-        return Structure.Type.ROAD;
-    }
-
+public record Road(Intersection nodeA, Intersection nodeB, PlayerImpl owner) {
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || getClass() != o.getClass())
+            return false;
         Road road = (Road) o;
-        if ((nodeA == road.nodeA && nodeB == road.nodeB) || (nodeA == road.nodeB && nodeB == road.nodeA)) return true;
-        return Objects.equals(nodeA, road.nodeA) && Objects.equals(nodeB, road.nodeB);
+        return Objects.equals(nodeA, road.nodeA) && Objects.equals(nodeB, road.nodeB) ||
+                Objects.equals(nodeA, road.nodeB) && Objects.equals(nodeB, road.nodeA);
     }
 
     @Override

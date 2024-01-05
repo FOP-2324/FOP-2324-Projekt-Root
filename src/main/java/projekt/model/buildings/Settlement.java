@@ -1,13 +1,11 @@
 package projekt.model.buildings;
 
-import projekt.model.Position;
-import projekt.model.tiles.Tile;
+import projekt.model.Intersection;
+import projekt.model.PlayerImpl;
 
-import java.util.Set;
-
-public interface Settlement extends Structure {
-
-    Set<Tile> getSurroundingTiles();
-
-    Position getPosition();
+public record Settlement(PlayerImpl owner, Intersection intersection, Type type) {
+    enum Type {
+        VILLAGE,
+        CITY
+    }
 }
