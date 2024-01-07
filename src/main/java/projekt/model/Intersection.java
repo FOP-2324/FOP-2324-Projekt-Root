@@ -16,7 +16,7 @@ import java.util.Set;
 public record Intersection(Position position0, Position position1, Position position2) {
     /**
      * Creates a new intersection with the given positions.
-     * Ensures that the positions are not null and not equal.
+     * Ensures that the positions are not null, not equal and next to each other.
      *
      * @param position0 the first position
      * @param position1 the second position
@@ -28,6 +28,11 @@ public record Intersection(Position position0, Position position1, Position posi
 
         if (position0.equals(position1) || position0.equals(position2) || position1.equals(position2))
             throw new IllegalArgumentException("Positions must not be equal");
+
+        if (!Position.neighbours(position0).containsAll(Set.of(position1, position2))
+                || !Position.neighbours(position1).containsAll(Set.of(position0, position2)))
+            throw new IllegalArgumentException(String.format("Positions must be neighbours: %s, %s, %s",
+                    position0.toString(), position1.toString(), position2.toString()));
 
         this.position0 = position0;
         this.position1 = position1;
