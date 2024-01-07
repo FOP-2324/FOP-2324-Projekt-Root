@@ -1,5 +1,9 @@
 package projekt.model;
 
+import java.util.Set;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 /**
  * A position on the board using the axial coordinate system.
  */
@@ -47,6 +51,20 @@ public record Position(int q, int r) {
         return Position.add(position, direction.position);
     }
 
+    /**
+     * Returns all neighbours of the given position.
+     *
+     * @param position the position to get the neighbours of
+     * @return all neighbours of the given position
+     */
+    public static Set<Position> neighbours(Position position) {
+        return Arrays.stream(Direction.values()).map(direction -> neighbour(position, direction))
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * The directions around a position and their relative position.
+     */
     enum Direction {
         EAST(new Position(1, 0)),
         NORTH_EAST(new Position(1, -1)),
