@@ -1,6 +1,7 @@
 package projekt.model;
 
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -63,7 +64,42 @@ public record Position(int q, int r) {
     }
 
     /**
-     * The directions around a position and their relative position.
+     * Executes the given function on each Position on a ring with the given radius
+     * around the given center.
+     *
+     *
+     * @param center   the center of the ring
+     * @param radius   the radius of the ring
+     * @param function the function to execute, gets the current position and an
+     *                 array with the radius, side and tile
+     */
+    public static void forEachRing(Position center, int radius, BiConsumer<Position, Integer[]> function) {
+        Position current = Position.add(center, Position.scale(Direction.values()[4].position, radius));
+        for (int side = 0; side < 6; side++) {
+            for (int tile = 0; tile < radius; tile++) {
+                function.accept(current, new Integer[] { radius, side, tile });
+                current = Position.neighbour(current, Direction.values()[side]);
+            }
+        }
+    }
+
+    /**
+     * Executes the given function on each Position on a spiral with the given
+     * radius around the given center.
+     *
+     * @param center   the center of the spiral
+     * @param radius   the radius of the spiral including the center
+     * @param function the function to execute
+     */
+    public static void forEachSpiral(Position center, int radius, BiConsumer<Position, Integer[]> function) {
+        for (int i = 1; i < radius; i++) {
+            forEachRing(center, i, function);
+        }
+    }
+
+    /**
+     * The directions around a position and their relative position. The order of
+     * the directions must be anticlockwise.
      */
     enum Direction {
         EAST(new Position(1, 0)),
