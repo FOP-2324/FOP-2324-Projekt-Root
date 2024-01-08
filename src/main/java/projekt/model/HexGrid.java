@@ -10,6 +10,48 @@ import projekt.model.tiles.Tile;
 
 public interface HexGrid {
     /**
+     * Returns the width of a tile.
+     *
+     * @return the width of a tile
+     */
+    double getTileWidth();
+
+    /**
+     * Returns the height of a tile.
+     *
+     * @return the height of a tile
+     */
+    double getTileHeight();
+
+    /**
+     * Returns the size of a tile.
+     *
+     * @return the size of a tile
+     */
+    double getTileSize();
+
+    /**
+     * Returns the width of a tile as an {@link ObservableDoubleValue}.
+     *
+     * @return the width of a tile as an {@link ObservableDoubleValue}
+     */
+    ObservableDoubleValue tileWidthProperty();
+
+    /**
+     * Returns the height of a tile as an {@link ObservableDoubleValue}.
+     *
+     * @return the height of a tile as an {@link ObservableDoubleValue}
+     */
+    ObservableDoubleValue tileHeightProperty();
+
+    /**
+     * Returns the size of a tile as an {@link DoubleProperty}.
+     *
+     * @return the size of a tile as an {@link DoubleProperty}
+     */
+    DoubleProperty tileSizeProperty();
+
+    /**
      * Returns all tiles of the grid as a 2D list where each row is a new list.
      * Example: getTiles().get(0).get(1) returns the Tile in row 0 and column 1.
      *
