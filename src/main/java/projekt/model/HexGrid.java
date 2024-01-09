@@ -52,21 +52,20 @@ public interface HexGrid {
     DoubleProperty tileSizeProperty();
 
     /**
-     * Returns all tiles of the grid as a 2D list where each row is a new list.
-     * Example: getTiles().get(0).get(1) returns the Tile in row 0 and column 1.
+     * Returns all tiles of the grid as a set.
      *
-     * @return all tiles of the grid as a 2D list where each row is a new list
+     * @return all tiles of the grid as a set
      */
-    public List<List<Tile>> getTiles();
+    Set<Tile> getTiles();
 
     /**
-     * Returns the tile at the given row and column.
+     * Returns the tile at the given q and r coordinate.
      *
-     * @param row    the row of the tile
-     * @param column the column of the tile
+     * @param q the q-coordinate of the tile
+     * @param r the r-coordinate of the tile
      * @return the tile at the given row and column
      */
-    public Tile getTileAt(int row, int column);
+    Tile getTileAt(int q, int r);
 
     /**
      * Returns the tile at the given position.
@@ -74,7 +73,7 @@ public interface HexGrid {
      * @param position the position of the tile
      * @return the tile at the given position
      */
-    public Tile getTileAt(Position position);
+    Tile getTileAt(Position position);
 
     /**
      * Returns all intersections of the grid as a 2D list where each row is a new
