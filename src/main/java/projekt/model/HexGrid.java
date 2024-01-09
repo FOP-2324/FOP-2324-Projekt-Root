@@ -113,7 +113,7 @@ public interface HexGrid {
      *
      * @return all ports of the grid
      */
-    public Set<Port> getPorts();
+    Set<Port> getPorts();
 
     /**
      * Returns all ports that border that tile.
@@ -121,13 +121,49 @@ public interface HexGrid {
      * @param tile the tile to get the adjacent ports of
      * @return all ports that border that tile
      */
-    public Set<Port> getAdjacentPorts(Tile tile);
+    Set<Port> getAdjacentPorts(Tile tile);
 
     /**
-     * Returns all roads of the grid as a 2D list where each row is a new list.
-     * Example: getRoads().get(0).get(1) returns the road in row 0 and column 1.
+     * Adds the given road to the grid.
      *
-     * @return all roads of the grid as a 2D list where each row is a new list
+     * @param road the road to add
      */
-    public List<List<Road>> getRoads();
+    void addRoad(Road road);
+
+    /**
+     * Returns all roads of the grid.
+     *
+     * @return all roads of the grid
+     */
+    Set<Road> getRoads();
+
+    /**
+     * Returns the road between the given intersections.
+     *
+     * @param intersection0 the first intersection
+     * @param intersection1 the second intersection
+     * @return the road between the given intersections
+     */
+    Road getRoad(Intersection nodeA, Intersection nodeB);
+
+    /**
+     * Adds the given settlement to the grid.
+     *
+     * @param settlement the settlement to add
+     */
+    void addSettlement(Settlement settlement);
+
+    /**
+     * Upgrades the given settlement to a city.
+     *
+     * @param settlement the settlement to upgrade
+     */
+    void upgradeSettlement(Settlement settlement);
+
+    /**
+     * Returns all settlements of the grid.
+     *
+     * @return all settlements of the grid
+     */
+    Set<Settlement> getSettlements();
 }
