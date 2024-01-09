@@ -1,11 +1,10 @@
 package projekt.model.buildings;
 
 import projekt.model.Intersection;
-import projekt.model.PlayerImpl;
-
+import projekt.model.Player;
 import java.util.Objects;
 
-public record Road(Intersection nodeA, Intersection nodeB, PlayerImpl owner) {
+public record Road(Intersection nodeA, Intersection nodeB, Player owner) {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass())

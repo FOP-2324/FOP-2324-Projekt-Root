@@ -1,10 +1,10 @@
 package projekt.model.buildings;
 
 import projekt.model.Intersection;
-import projekt.model.PlayerImpl;
+import projekt.model.Player;
 
-public record Settlement(PlayerImpl owner, Intersection intersection, Type type) {
-    enum Type {
+public record Settlement(Player owner, Intersection intersection, Type type) {
+    public enum Type {
         VILLAGE,
         CITY
     }
