@@ -14,6 +14,7 @@ import java.util.Set;
  * @formatter:on
  */
 public record Intersection(Position position0, Position position1, Position position2) {
+
     /**
      * Creates a new intersection with the given positions.
      * Ensures that the positions are not null, not equal and next to each other.
@@ -47,16 +48,6 @@ public record Intersection(Position position0, Position position1, Position posi
     public Set<Position> getAdjacentPositions() {
         return Set.of(position0, position1, position2);
     }
-
-    // /**
-    // * Returns the intersections next to this intersection.
-    // *
-    // * @return the intersections next to this intersection
-    // */
-    // public Set<Intersection> getConnectedIntersections() {
-    // return
-    // GameController.getInstance().getGameBoard().getConnectedIntersections(this);
-    // }
 
     @Override
     public boolean equals(Object o) {
