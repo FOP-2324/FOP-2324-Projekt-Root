@@ -1,11 +1,12 @@
 package projekt.model;
 
-import java.util.List;
 import java.util.Set;
 
-import javax.sound.sampled.Port;
-
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.value.ObservableDoubleValue;
+import projekt.model.buildings.Port;
 import projekt.model.buildings.Road;
+import projekt.model.buildings.Settlement;
 import projekt.model.tiles.Tile;
 
 public interface HexGrid {
