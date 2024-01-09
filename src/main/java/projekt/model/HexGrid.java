@@ -76,14 +76,21 @@ public interface HexGrid {
     Tile getTileAt(Position position);
 
     /**
-     * Returns all intersections of the grid as a 2D list where each row is a new
-     * list.
-     * Example: getIntersections().get(0).get(1) returns the intersection in row 0
-     * and column 1.
+     * Returns all intersections of the grid as a set.
      *
-     * @return all intersections of the grid as a 2D list where each row is a new
+     * @return all intersections of the grid as a set
      */
-    public List<List<Intersection>> getIntersections();
+    Set<Intersection> getIntersections();
+
+    /**
+     * Returns the intersection between the given positions.
+     *
+     * @param position0 the first position
+     * @param position1 the second position
+     * @param position2 the third position
+     * @return the intersection at the given position
+     */
+    Intersection getIntersectionAt(Position position0, Position position1, Position position2);
 
     /**
      * Returns all Intersections that border that tile.
@@ -91,7 +98,15 @@ public interface HexGrid {
      * @param tile the tile to get the adjacent intersections of
      * @return all Intersections that border that tile
      */
-    public Set<Intersection> getAdjacentIntersections(Tile tile);
+    Set<Intersection> getAdjacentIntersections(Tile tile);
+
+    /**
+     * Returns all intersections that are connected to that intersection.
+     *
+     * @param intersection the intersection to get the connected intersections of
+     * @return all intersections that border that intersection
+     */
+    Set<Intersection> getConnectedIntersections(Intersection intersection);
 
     /**
      * Returns all ports of the grid.
