@@ -49,6 +49,14 @@ public record Intersection(Position position0, Position position1, Position posi
         return Set.of(position0, position1, position2);
     }
 
+    public boolean contains(Position position) {
+        return position0.equals(position) || position1.equals(position) || position2.equals(position);
+    }
+
+    public boolean containsAll(Collection<?> positions) {
+        return getAdjacentPositions().containsAll(positions);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)
