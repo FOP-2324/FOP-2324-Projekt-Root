@@ -1,69 +1,62 @@
 package projekt.model;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
-/**
- * An intersection represented by the three adjacent positions (tiles).
- * As an exmaple, the following intersection has the positions ordered clockwise:
- * @formatter:off
- *      |
- *      |
- *  0   *  1
- *     / \
- *    / 2 \
- * @formatter:on
- */
-public record Intersection(Position position0, Position position1, Position position2) {
+import projekt.model.buildings.Port;
+import projekt.model.buildings.Road;
+import projekt.model.buildings.Settlement;
+
+public interface Intersection {
+    /**
+     * Returns the settlement on this intersection or null
+     *
+     * @return the settlement on this intersection
+     */
+    Settlement getSettlement();
 
     /**
-     * Creates a new intersection with the given positions.
-     * Ensures that the positions are not null, not equal and next to each other.
+     * Returns all settlements adjacent to this intersection.
      *
-     * @param position0 the first position
-     * @param position1 the second position
-     * @param position2 the third position
+     * @return all settlements adjacent to this intersection
      */
-    public Intersection(Position position0, Position position1, Position position2) {
-        if (position0 == null || position1 == null || position2 == null)
-            throw new IllegalArgumentException("Positions must not be null");
-
-        if (position0.equals(position1) || position0.equals(position2) || position1.equals(position2))
-            throw new IllegalArgumentException("Positions must not be equal");
-
-        if (!Position.neighbours(position0).containsAll(Set.of(position1, position2))
-                || !Position.neighbours(position1).containsAll(Set.of(position0, position2)))
-            throw new IllegalArgumentException(String.format("Positions must be neighbours: %s, %s, %s",
-                    position0.toString(), position1.toString(), position2.toString()));
-
-        this.position0 = position0;
-        this.position1 = position1;
-        this.position2 = position2;
+    default Set<Settlement> getAdjacentSettlements() {
+        return getAdjacentIntersections().stream().map(Intersection::getSettlement)
+                .filter(settlement -> settlement != null).collect(Collectors.toSet());
     }
 
     /**
-     * Returns the positions to identify the intersection.
+     * Places a village on this intersection for the given player.
      *
-     * @return the positions to identify the intersection
+     * @param player the player who places the settlement
      */
-    public Set<Position> getAdjacentPositions() {
-        return Set.of(position0, position1, position2);
-    }
+    void placeVillage(Player player);
 
-    public boolean contains(Position position) {
-        return position0.equals(position) || position1.equals(position) || position2.equals(position);
-    }
+    /**
+     * Upgrades the settlement on this intersection to a city.
+     *
+     * @param player the player who owns the settlement
+     */
+    void upgradeSettlement(Player player);
 
-    public boolean containsAll(Collection<?> positions) {
-        return getAdjacentPositions().containsAll(positions);
-    }
+    /**
+     * Returns the port on this intersection or null
+     *
+     * @return the port on this intersection
+     */
+    Port getPort();
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-        Intersection intersection = (Intersection) o;
-        return getAdjacentPositions().equals(intersection.getAdjacentPositions());
-    }
+    /**
+     * Returns all Roads connected to this intersection.
+     *
+     * @return all Roads connected to this intersection
+     */
+    Set<Road> getConnectedRoads();
+
+    /**
+     * Returns all Intersection that are adjacent to this intersection.
+     *
+     * @return all Intersection that are adjacent to this intersection
+     */
+    Set<Intersection> getAdjacentIntersections();
 }
