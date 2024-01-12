@@ -48,7 +48,7 @@ public record Position(int q, int r) {
      * @param direction the direction to go in
      * @return the position of the neighbour in the given direction
      */
-    public static Position neighbour(Position position, Direction direction) {
+    public static Position neighbour(Position position, EdgeDirection direction) {
         return Position.add(position, direction.position);
     }
 
@@ -59,7 +59,7 @@ public record Position(int q, int r) {
      * @return all neighbours of the given position
      */
     public static Set<Position> neighbours(Position position) {
-        return Arrays.stream(Direction.values()).map(direction -> neighbour(position, direction))
+        return Arrays.stream(EdgeDirection.values()).map(direction -> neighbour(position, direction))
                 .collect(Collectors.toSet());
     }
 
@@ -74,11 +74,11 @@ public record Position(int q, int r) {
      *                 array with the radius, side and tile
      */
     public static void forEachRing(Position center, int radius, BiConsumer<Position, Integer[]> function) {
-        Position current = Position.add(center, Position.scale(Direction.values()[4].position, radius));
+        Position current = Position.add(center, Position.scale(EdgeDirection.values()[4].position, radius));
         for (int side = 0; side < 6; side++) {
             for (int tile = 0; tile < radius; tile++) {
                 function.accept(current, new Integer[] { radius, side, tile });
-                current = Position.neighbour(current, Direction.values()[side]);
+                current = Position.neighbour(current, EdgeDirection.values()[side]);
             }
         }
     }
@@ -101,7 +101,7 @@ public record Position(int q, int r) {
      * The directions around a position and their relative position. The order of
      * the directions must be anticlockwise.
      */
-    enum Direction {
+    public static enum EdgeDirection {
         EAST(new Position(1, 0)),
         NORTH_EAST(new Position(1, -1)),
         NORTH_WEST(new Position(0, -1)),
@@ -111,8 +111,47 @@ public record Position(int q, int r) {
 
         public final Position position;
 
-        Direction(Position position) {
+        public IntersectionDirection getLeftIntersection() {
+            return switch (this) {
+                case NORTH_EAST -> IntersectionDirection.NORTH;
+                case EAST -> IntersectionDirection.NORTH_EAST;
+                case SOUTH_EAST -> IntersectionDirection.SOUTH_EAST;
+                case SOUTH_WEST -> IntersectionDirection.SOUTH;
+                case WEST -> IntersectionDirection.SOUTH_WEST;
+                case NORTH_WEST -> IntersectionDirection.NORTH_WEST;
+            };
+        }
+
+        public IntersectionDirection getRightIntersection() {
+            return switch (this) {
+                case NORTH_EAST -> IntersectionDirection.NORTH_EAST;
+                case EAST -> IntersectionDirection.SOUTH_EAST;
+                case SOUTH_EAST -> IntersectionDirection.SOUTH;
+                case SOUTH_WEST -> IntersectionDirection.SOUTH_WEST;
+                case WEST -> IntersectionDirection.NORTH_WEST;
+                case NORTH_WEST -> IntersectionDirection.NORTH;
+            };
+        }
+
+        EdgeDirection(Position position) {
             this.position = position;
+        }
+    }
+
+    public static enum IntersectionDirection {
+        NORTH(EdgeDirection.NORTH_EAST, EdgeDirection.NORTH_WEST),
+        NORTH_EAST(EdgeDirection.NORTH_EAST, EdgeDirection.EAST),
+        SOUTH_EAST(EdgeDirection.EAST, EdgeDirection.SOUTH_EAST),
+        SOUTH(EdgeDirection.SOUTH_EAST, EdgeDirection.SOUTH_WEST),
+        SOUTH_WEST(EdgeDirection.SOUTH_WEST, EdgeDirection.WEST),
+        NORTH_WEST(EdgeDirection.WEST, EdgeDirection.NORTH_WEST);
+
+        public final Position leftPosition;
+        public final Position rightPosition;
+
+        IntersectionDirection(EdgeDirection leftPosition, EdgeDirection rightPosition) {
+            this.leftPosition = leftPosition.position;
+            this.rightPosition = rightPosition.position;
         }
     }
 
