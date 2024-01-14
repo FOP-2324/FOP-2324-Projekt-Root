@@ -13,19 +13,20 @@ public class HexGridController extends Controller {
     private final HexGrid hexGrid;
     private static double lastX, lastY;
 
-    public HexGridController(HexGrid hexGrid, Consumer<ScrollEvent> scrollHandler, Consumer<MouseEvent> pressedHandler,
+    public HexGridController(HexGrid hexGrid, Consumer<ScrollEvent> scrollHandler,
+            Consumer<MouseEvent> pressedHandler,
             BiConsumer<MouseEvent, Region> draggedHandler) {
         super(new HexGridBuilder(hexGrid, scrollHandler, pressedHandler, draggedHandler));
         this.hexGrid = hexGrid;
     }
 
     public static HexGridController getHexGridController(HexGrid hexGrid) {
-        final double minTileHeight = hexGrid.getTileHeight();
+        final double minTileSize = hexGrid.getTileSize();
         Consumer<ScrollEvent> scrollHandler = (event) -> {
-            if (hexGrid.getTileHeight() <= minTileHeight && event.getDeltaY() < 0 || event.getDeltaY() == 0) {
+            if (hexGrid.getTileSize() <= minTileSize && event.getDeltaY() < 0 || event.getDeltaY() == 0) {
                 return;
             }
-            hexGrid.tileHeightProperty().set(hexGrid.getTileHeight() + event.getDeltaY());
+            hexGrid.tileSizeProperty().set(hexGrid.getTileSize() + event.getDeltaY());
         };
         Consumer<MouseEvent> pressedHandler = (event) -> {
             lastX = event.getX();
