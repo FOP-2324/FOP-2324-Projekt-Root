@@ -97,8 +97,10 @@ public interface HexGrid {
     /**
      * Adds the given road to the grid.
      *
-     * @param road the road to add
-     * @return wether the road was added
+     * @param position0 the first position of the road
+     * @param position1 the second position of the road
+     * @param player    the player that owns the road
+     * @return whether the road was added
      */
     boolean addRoad(TilePosition position0, TilePosition position1, Player player);
 
@@ -107,7 +109,7 @@ public interface HexGrid {
      *
      * @param tile          the tile the road is next to
      * @param edgeDirection the direction of the edge the road is on
-     * @return wether the road was added
+     * @return whether the road was added
      */
     default boolean addRoad(final Tile tile, final EdgeDirection edgeDirection, final Player player) {
         return tile.addRoad(edgeDirection, player);
@@ -136,6 +138,22 @@ public interface HexGrid {
      * @return the road between the given intersections
      */
     Road getRoad(TilePosition position0, TilePosition position1);
+
+    /**
+     * Removes the road between the given positions.
+     *
+     * @param position0 the first position
+     * @param position1 the second position
+     * @return wether the road was removed
+     */
+    boolean removeRoad(TilePosition position0, TilePosition position1);
+
+    /**
+     * Removes the given road from the grid.
+     */
+    default boolean removeRoad(final Road road) {
+        return removeRoad(road.position1(), road.position2());
+    }
 
     /**
      * Returns the longest road of the given player
