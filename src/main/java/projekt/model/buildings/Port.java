@@ -10,7 +10,7 @@ public record Port(int ratio, ResourceType resourceType) {
      *
      * @param ratio amount of same-type resources to trade
      */
-    public Port(int ratio) {
+    public Port(final int ratio) {
         this(ratio, null);
     }
 }

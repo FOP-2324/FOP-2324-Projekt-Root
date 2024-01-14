@@ -5,7 +5,7 @@ import projekt.view.menus.MainMenuBuilder;
 
 public class MainMenuSceneController extends SceneController {
 
-    public MainMenuSceneController(Stage stage) {
+    public MainMenuSceneController(final Stage stage) {
         super(new MainMenuBuilder(SceneController::quit, SceneController.gameSceneLoader(stage),
                 SceneController.settingsSceneLoader(stage), SceneController.highscoreSceneLoader(stage)));
     }

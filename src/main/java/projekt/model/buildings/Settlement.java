@@ -9,7 +9,7 @@ public record Settlement(Player owner, Type type) {
 
         public final int resourceAmount;
 
-        Type(int resourceAmount) {
+        Type(final int resourceAmount) {
             this.resourceAmount = resourceAmount;
         }
     }

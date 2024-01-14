@@ -15,7 +15,7 @@ public class PlayerImpl implements Player {
     private final Map<ResourceType, Integer> resources = new HashMap<>();
     private final Map<DevelopmentCardType, Integer> developmentCards = new HashMap<>();
 
-    public PlayerImpl(HexGrid hexGrid, Color color) {
+    public PlayerImpl(final HexGrid hexGrid, final Color color) {
         this.hexGrid = hexGrid;
         this.color = color;
     }
@@ -31,12 +31,12 @@ public class PlayerImpl implements Player {
     }
 
     @Override
-    public void addResource(ResourceType resourceType, int amount) {
+    public void addResource(final ResourceType resourceType, final int amount) {
         resources.put(resourceType, resources.getOrDefault(resourceType, 0) + amount);
     }
 
     @Override
-    public boolean removeResource(ResourceType resourceType, int amount) {
+    public boolean removeResource(final ResourceType resourceType, final int amount) {
         if (resources.getOrDefault(resourceType, 0) <= amount) {
             return false;
         }
@@ -60,12 +60,12 @@ public class PlayerImpl implements Player {
     }
 
     @Override
-    public void addDevelopmentCard(DevelopmentCardType developmentCardType) {
+    public void addDevelopmentCard(final DevelopmentCardType developmentCardType) {
         developmentCards.put(developmentCardType, developmentCards.getOrDefault(developmentCardType, 0) + 1);
     }
 
     @Override
-    public boolean removeDevelopmentCard(DevelopmentCardType developmentCardType) {
+    public boolean removeDevelopmentCard(final DevelopmentCardType developmentCardType) {
         if (developmentCards.getOrDefault(developmentCardType, 0) <= 0) {
             return false;
         }

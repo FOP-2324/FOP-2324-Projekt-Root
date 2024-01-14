@@ -16,7 +16,7 @@ public abstract class MenuBuilder implements Builder<Region> {
     protected final BorderPane root;
     private final Runnable quitHandler;
 
-    public MenuBuilder(final String title, Runnable quitHandler) {
+    public MenuBuilder(final String title, final Runnable quitHandler) {
         this.root = new BorderPane();
         this.quitHandler = quitHandler;
         init(title);
@@ -27,7 +27,7 @@ public abstract class MenuBuilder implements Builder<Region> {
         return root;
     }
 
-    protected void init(String title) {
+    protected void init(final String title) {
         final Label titleLabel = new Label(title);
         titleLabel.setPadding(new Insets(20, 20, 20, 20));
         titleLabel.setId("Title");

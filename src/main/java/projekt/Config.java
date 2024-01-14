@@ -63,10 +63,10 @@ public final class Config {
      */
     public static final Map<Tile.Type, Double> TILE_RATIOS = Collections.unmodifiableMap(new HashMap<>() {
         {
-            double sum = TILE_RATIO_PROPERTIES.entrySet().stream()
+            final double sum = TILE_RATIO_PROPERTIES.entrySet().stream()
                     .filter(entry -> Tile.Type.valueOf(entry.getKey().toString()) instanceof Tile.Type)
                     .mapToDouble(entry -> Double.parseDouble(entry.getValue().toString())).sum();
-            for (Tile.Type tileType : Tile.Type.values()) {
+            for (final Tile.Type tileType : Tile.Type.values()) {
                 put(tileType, Double.parseDouble(TILE_RATIO_PROPERTIES.getProperty(tileType.name())) / sum);
             }
         }
@@ -82,10 +82,10 @@ public final class Config {
      */
     public static final Stack<Integer> YIELD_POOL = new Stack<>() {
         {
-            int total_number_of_tiles = TILE_FORMULA.apply(GRID_RADIUS);
-            int number_of_deserts = (int) (total_number_of_tiles * TILE_RATIOS.get(Tile.Type.DESERT));
+            final int total_number_of_tiles = TILE_FORMULA.apply(GRID_RADIUS);
+            final int number_of_deserts = (int) (total_number_of_tiles * TILE_RATIOS.get(Tile.Type.DESERT));
             for (int i = 0; i < total_number_of_tiles - number_of_deserts; i++) {
-                int number = NUMBER_OF_DICE + i % (DICE_SIDES * NUMBER_OF_DICE - (NUMBER_OF_DICE - 1));
+                final int number = NUMBER_OF_DICE + i % (DICE_SIDES * NUMBER_OF_DICE - (NUMBER_OF_DICE - 1));
                 push(number != 7 ? number : 6);
             }
 

@@ -109,7 +109,7 @@ public interface HexGrid {
      * @param edgeDirection the direction of the edge the road is on
      * @return wether the road was added
      */
-    default boolean addRoad(Tile tile, EdgeDirection edgeDirection, Player player) {
+    default boolean addRoad(final Tile tile, final EdgeDirection edgeDirection, final Player player) {
         return tile.addRoad(edgeDirection, player);
     }
 

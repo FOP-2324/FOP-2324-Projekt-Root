@@ -12,19 +12,19 @@ import projekt.model.Player;
  */
 public class DevelopmentCardActions {
 
-    public static void knight(Player player) {
+    public static void knight(final Player player) {
 
     }
 
-    public static void roadworkAhead(Player player) {
+    public static void roadworkAhead(final Player player) {
         // sure hope it does...
     }
 
-    public static void invention(Player player) {
+    public static void invention(final Player player) {
 
     }
 
-    public static void monopoly(Player player) {
+    public static void monopoly(final Player player) {
 
     }
 }

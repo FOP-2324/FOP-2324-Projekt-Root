@@ -77,7 +77,7 @@ public interface Tile {
      * @param direction the direction of the edge
      * @return the neighbouring tile
      */
-    default Tile getNeighbour(EdgeDirection direction) {
+    default Tile getNeighbour(final EdgeDirection direction) {
         return getHexGrid().getTileAt(TilePosition.neighbour(getPosition(), direction));
     }
 
@@ -95,7 +95,7 @@ public interface Tile {
      * @param direction the direction of the intersection
      * @return a set of positions defining the intersection
      */
-    default Set<TilePosition> getIntersectionPositions(IntersectionDirection direction) {
+    default Set<TilePosition> getIntersectionPositions(final IntersectionDirection direction) {
         return Set.of(
                 getPosition(),
                 TilePosition.neighbour(getPosition(), direction.leftDirection),
@@ -108,7 +108,7 @@ public interface Tile {
      * @param direction the direction of the intersection
      * @return the intersection in the given direction
      */
-    default Intersection getIntersection(IntersectionDirection direction) {
+    default Intersection getIntersection(final IntersectionDirection direction) {
         return getHexGrid().getIntersections().get(getIntersectionPositions(direction));
     }
 
@@ -130,7 +130,7 @@ public interface Tile {
      * @param player    the player who owns the settlement
      * @return wether the settlement was placed
      */
-    default boolean placeVillage(IntersectionDirection direction, Player player) {
+    default boolean placeVillage(final IntersectionDirection direction, final Player player) {
         return getIntersection(direction).placeVillage(player);
     }
 
@@ -164,7 +164,7 @@ public interface Tile {
      * An enumeration containing all available tile types.
      * Custom tile types need to be added to this list manually.
      */
-    public static enum Type {
+    enum Type {
         WOODLAND(Color.DARKGREEN, ResourceType.WOOD),
         MEADOW(Color.GREEN, ResourceType.CLAY),
         FARMLAND(Color.YELLOW, ResourceType.GRAIN),
@@ -175,7 +175,7 @@ public interface Tile {
         public final Color color;
         public final ResourceType resourceType;
 
-        Type(Color color, ResourceType resourceType) {
+        Type(final Color color, final ResourceType resourceType) {
             this.color = color;
             this.resourceType = resourceType;
         }

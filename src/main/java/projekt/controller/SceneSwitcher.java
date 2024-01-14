@@ -42,9 +42,9 @@ public class SceneSwitcher {
      * @return The {@link Scene} that was switched to.
      * @see #loadScene(SceneAndController, Stage)
      */
-    public static Scene loadScene(final SceneType sceneType, Stage stage) {
-        SceneController controller = sceneType.controllerGenerator.apply(stage);
-        Scene scene = new Scene(controller.getView());
+    public static Scene loadScene(final SceneType sceneType, final Stage stage) {
+        final SceneController controller = sceneType.controllerGenerator.apply(stage);
+        final Scene scene = new Scene(controller.getView());
         stage.setScene(scene);
         stage.setTitle(controller.getTitle());
         stage.show();

@@ -36,7 +36,7 @@ public class HexGridImpl implements HexGrid {
     private final ObservableDoubleValue tileHeight;
     private final DoubleProperty tileSize = new SimpleDoubleProperty(50);
 
-    public HexGridImpl(int radius) {
+    public HexGridImpl(final int radius) {
         this.tileHeight = Bindings.createDoubleBinding(() -> tileSize.get() * 2, tileSize);
         this.tileWidth = Bindings.createDoubleBinding(() -> Math.sqrt(3) * tileSize.get(), tileSize);
         initTiles(radius);
@@ -49,10 +49,10 @@ public class HexGridImpl implements HexGrid {
                 .ifPresent(tile -> robberPosition = tile.getPosition());
     }
 
-    private void initTiles(int grid_radius) {
-        Stack<Tile.Type> availableTileTypes = generateAvailableTileTypes();
+    private void initTiles(final int grid_radius) {
+        final Stack<Tile.Type> availableTileTypes = generateAvailableTileTypes();
 
-        TilePosition center = new TilePosition(0, 0);
+        final TilePosition center = new TilePosition(0, 0);
 
         TilePosition.forEachSpiral(center, grid_radius, (position, params) -> {
             addTile(position, availableTileTypes.pop());
@@ -69,10 +69,10 @@ public class HexGridImpl implements HexGrid {
     }
 
     private Stack<Tile.Type> generateAvailableTileTypes() {
-        Stack<Tile.Type> availableTileTypes = new Stack<>() {
+        final Stack<Tile.Type> availableTileTypes = new Stack<>() {
             {
-                for (Tile.Type tileType : Tile.Type.values()) {
-                    double tileAmount = TILE_RATIOS.get(tileType) * TILE_FORMULA.apply(GRID_RADIUS);
+                for (final Tile.Type tileType : Tile.Type.values()) {
+                    final double tileAmount = TILE_RATIOS.get(tileType) * TILE_FORMULA.apply(GRID_RADIUS);
                     for (int i = 0; i < tileAmount; i++) {
                         push(tileType);
                     }
@@ -87,8 +87,8 @@ public class HexGridImpl implements HexGrid {
         return availableTileTypes;
     }
 
-    private void addTile(TilePosition position, Tile.Type type) {
-        int rollNumber = type.resourceType != null ? YIELD_POOL.pop() : 0;
+    private void addTile(final TilePosition position, final Tile.Type type) {
+        final int rollNumber = type.resourceType != null ? YIELD_POOL.pop() : 0;
         tiles.put(position, new TileImpl(position, type, rollNumber, tileHeight, tileWidth, this));
     }
 
@@ -128,12 +128,12 @@ public class HexGridImpl implements HexGrid {
     }
 
     @Override
-    public Tile getTileAt(int q, int r) {
+    public Tile getTileAt(final int q, final int r) {
         return getTileAt(new TilePosition(q, r));
     }
 
     @Override
-    public Tile getTileAt(TilePosition position) {
+    public Tile getTileAt(final TilePosition position) {
         return tiles.get(position);
     }
 
@@ -143,7 +143,7 @@ public class HexGridImpl implements HexGrid {
     }
 
     @Override
-    public Intersection getIntersectionAt(TilePosition position0, TilePosition position1, TilePosition position2) {
+    public Intersection getIntersectionAt(final TilePosition position0, final TilePosition position1, final TilePosition position2) {
         return intersections.get(Set.of(position0, position1, position2));
     }
 
@@ -153,19 +153,19 @@ public class HexGridImpl implements HexGrid {
     }
 
     @Override
-    public Road getRoad(TilePosition position0, TilePosition position1) {
+    public Road getRoad(final TilePosition position0, final TilePosition position1) {
         return roads.get(Set.of(position0, position1));
     }
 
     @Override
-    public Map<Set<TilePosition>, Road> getRoads(Player player) {
+    public Map<Set<TilePosition>, Road> getRoads(final Player player) {
         return Collections.unmodifiableMap(roads.entrySet().stream()
                 .filter(entry -> entry.getValue().owner().equals(player))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
     }
 
     @Override
-    public List<Road> getLongestRoad(Player player) {
+    public List<Road> getLongestRoad(final Player player) {
         throw new UnsupportedOperationException("Unimplemented method 'getLongestRoad'");
     }
 
@@ -175,12 +175,12 @@ public class HexGridImpl implements HexGrid {
     }
 
     @Override
-    public void setRobberPosition(TilePosition position) {
+    public void setRobberPosition(final TilePosition position) {
         robberPosition = position;
     }
 
     @Override
-    public boolean addRoad(TilePosition position0, TilePosition position1, Player player) {
+    public boolean addRoad(final TilePosition position0, final TilePosition position1, final Player player) {
         if (roads.containsKey(Set.of(position0, position1))) {
             return false;
         }

@@ -15,8 +15,9 @@ import javafx.beans.value.ObservableDoubleValue;
 public record TileImpl(TilePosition position, Type type, int rollNumber, ObservableDoubleValue heightProperty,
         ObservableDoubleValue widthProperty, HexGrid hexGrid) implements Tile {
 
-    public TileImpl(int q, int r, Type type, int yield, ObservableDoubleValue heightProperty,
-            ObservableDoubleValue widthProperty, HexGrid hexGrid) {
+    public TileImpl(
+        final int q, final int r, final Type type, final int yield, final ObservableDoubleValue heightProperty,
+        final ObservableDoubleValue widthProperty, final HexGrid hexGrid) {
         this(new TilePosition(q, r), type, yield, heightProperty, widthProperty, hexGrid);
     }
 
@@ -48,7 +49,7 @@ public record TileImpl(TilePosition position, Type type, int rollNumber, Observa
     }
 
     @Override
-    public boolean addRoad(EdgeDirection direction, Player owner) {
+    public boolean addRoad(final EdgeDirection direction, final Player owner) {
         final var neighbour = TilePosition.neighbour(this.position, direction);
         if (!this.hexGrid.getTiles().containsKey(neighbour)) {
             return false;
@@ -64,7 +65,7 @@ public record TileImpl(TilePosition position, Type type, int rollNumber, Observa
     }
 
     @Override
-    public Road getRoad(EdgeDirection direction) {
+    public Road getRoad(final EdgeDirection direction) {
         final var neighbour = TilePosition.neighbour(this.position, direction);
         return this.hexGrid.getRoads().get(Set.of(this.position, neighbour));
     }

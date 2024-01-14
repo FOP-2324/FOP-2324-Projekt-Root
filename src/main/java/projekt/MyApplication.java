@@ -8,7 +8,7 @@ import projekt.controller.SceneSwitcher.SceneType;
 public class MyApplication extends Application {
 
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(final Stage stage) throws Exception {
         stage.setMinWidth(450);
         stage.setMinHeight(400);
 

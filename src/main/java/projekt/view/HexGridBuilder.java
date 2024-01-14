@@ -38,15 +38,16 @@ public class HexGridBuilder implements Builder<Region> {
     private final Supplier<Double> minX;
     private final Supplier<Double> minY;
 
-    public HexGridBuilder(HexGrid grid, Consumer<ScrollEvent> scrollHandler,
-            Consumer<MouseEvent> pressedHandler,
-            BiConsumer<MouseEvent, Region> draggedHandler) {
+    public HexGridBuilder(
+        final HexGrid grid, final Consumer<ScrollEvent> scrollHandler,
+        final Consumer<MouseEvent> pressedHandler,
+        final BiConsumer<MouseEvent, Region> draggedHandler) {
         this.grid = grid;
         this.scrollHandler = scrollHandler;
         this.pressedHandler = pressedHandler;
         this.draggedHandler = draggedHandler;
-        BiFunction<ToIntFunction<TilePosition>, IntBinaryOperator, Integer> reduceTiles = (positionFunction,
-                reduceFunction) -> grid.getTiles().values().stream().map(Tile::getPosition)
+        final BiFunction<ToIntFunction<TilePosition>, IntBinaryOperator, Integer> reduceTiles = (positionFunction,
+                                                                                                 reduceFunction) -> grid.getTiles().values().stream().map(Tile::getPosition)
                         .mapToInt(positionFunction).reduce(reduceFunction).getAsInt();
         this.maxX = () -> calculatePositionXTranslation(
                 new TilePosition(reduceTiles.apply(TilePosition::q, Integer::max), 0)) + 10;
@@ -60,7 +61,7 @@ public class HexGridBuilder implements Builder<Region> {
 
     @Override
     public Region build() {
-        Pane hexGridPane = new Pane();
+        final Pane hexGridPane = new Pane();
 
         hexGridPane.getChildren().addAll(grid.getTiles().values().stream().map((tile) -> {
             return placeTile(tile.getPosition(), tile);
@@ -77,7 +78,7 @@ public class HexGridBuilder implements Builder<Region> {
         hexGridPane.minHeightProperty().bind(hexGridPane.maxHeightProperty());
 
         hexGridPane.getChildren().addAll(grid.getIntersections().values().stream().map((intersection) -> {
-            Circle circle = new Circle();
+            final Circle circle = new Circle();
             circle.setRadius(10);
             circle.setFill(Color.RED);
             circle.setCenterX(calculateIntersectionXTranslation(intersection));
@@ -87,7 +88,7 @@ public class HexGridBuilder implements Builder<Region> {
 
         hexGridPane.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, null)));
 
-        StackPane mapPane = new StackPane(hexGridPane);
+        final StackPane mapPane = new StackPane(hexGridPane);
         mapPane.setBackground(new Background(new BackgroundFill(Color.DEEPSKYBLUE, null, null)));
         mapPane.setPadding(new Insets(20));
         mapPane.minWidthProperty().bind(hexGridPane.maxWidthProperty());
@@ -101,8 +102,8 @@ public class HexGridBuilder implements Builder<Region> {
         return mapPane;
     }
 
-    private Region placeTile(TilePosition position, Tile tile) {
-        Region tileView = new TileBuilder(tile).build();
+    private Region placeTile(final TilePosition position, final Tile tile) {
+        final Region tileView = new TileBuilder(tile).build();
         tileView.translateXProperty().bind(Bindings
                 .createDoubleBinding(
                         () -> (calculatePositionXTranslationOffset(position).get()),
@@ -114,44 +115,44 @@ public class HexGridBuilder implements Builder<Region> {
         return tileView;
     }
 
-    private double calculatePositionXTranslation(TilePosition Position) {
+    private double calculatePositionXTranslation(final TilePosition Position) {
         return grid.getTileSize() * (Math.sqrt(3) * Position.q() + Math.sqrt(3) / 2 * Position.r());
     }
 
-    private Supplier<Double> calculatePositionXTranslationOffset(TilePosition position) {
+    private Supplier<Double> calculatePositionXTranslationOffset(final TilePosition position) {
         return () -> calculatePositionXTranslation(position) + Math.abs(minX.get());
     }
 
-    private double calculatePositionYTranslation(TilePosition Position) {
+    private double calculatePositionYTranslation(final TilePosition Position) {
         return grid.getTileSize() * (3.0 / 2 * Position.r());
     }
 
-    private Supplier<Double> calculatePositionYTranslationOffset(TilePosition position) {
+    private Supplier<Double> calculatePositionYTranslationOffset(final TilePosition position) {
         return () -> calculatePositionYTranslation(position) + Math.abs(minY.get());
     }
 
-    private double calculatePositionXCenter(TilePosition Position) {
+    private double calculatePositionXCenter(final TilePosition Position) {
         return calculatePositionXTranslation(Position) + grid.getTileWidth() / 2;
     }
 
-    private double calculatePositionYCenter(TilePosition Position) {
+    private double calculatePositionYCenter(final TilePosition Position) {
         return calculatePositionYTranslation(Position) + grid.getTileHeight() / 2;
     }
 
-    private double calculatePositionXCenterOffset(TilePosition position) {
+    private double calculatePositionXCenterOffset(final TilePosition position) {
         return calculatePositionXCenter(position) + Math.abs(minX.get());
     }
 
-    private double calculatePositionYCenterOffset(TilePosition position) {
+    private double calculatePositionYCenterOffset(final TilePosition position) {
         return calculatePositionYCenter(position) + Math.abs(minY.get());
     }
 
-    private double calculateIntersectionXTranslation(Intersection intersection) {
+    private double calculateIntersectionXTranslation(final Intersection intersection) {
         return (intersection.getAdjacentTilePositions().stream()
                 .mapToDouble(position -> calculatePositionXCenterOffset(position)).sum()) / 3;
     }
 
-    private double calculateIntersectionYTranslation(Intersection intersection) {
+    private double calculateIntersectionYTranslation(final Intersection intersection) {
         return (intersection.getAdjacentTilePositions().stream()
                 .mapToDouble(position -> calculatePositionYCenterOffset(position)).sum()) / 3;
     }

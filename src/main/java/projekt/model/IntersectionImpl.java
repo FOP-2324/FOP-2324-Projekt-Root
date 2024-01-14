@@ -29,7 +29,7 @@ public class IntersectionImpl implements Intersection {
     private Settlement settlment;
     private Port port;
 
-    public IntersectionImpl(HexGrid hexGrid, List<TilePosition> positions) {
+    public IntersectionImpl(final HexGrid hexGrid, final List<TilePosition> positions) {
         this(positions.get(0), positions.get(1), positions.get(2), hexGrid);
     }
 
@@ -41,7 +41,7 @@ public class IntersectionImpl implements Intersection {
      * @param position1 the second position
      * @param position2 the third position
      */
-    public IntersectionImpl(TilePosition position0, TilePosition position1, TilePosition position2, HexGrid hexGrid) {
+    public IntersectionImpl(final TilePosition position0, final TilePosition position1, final TilePosition position2, final HexGrid hexGrid) {
         if (position0 == null || position1 == null || position2 == null)
             throw new IllegalArgumentException("Positions must not be null");
 
@@ -51,7 +51,8 @@ public class IntersectionImpl implements Intersection {
         if (!TilePosition.neighbours(position0).containsAll(Set.of(position1, position2))
                 || !TilePosition.neighbours(position1).containsAll(Set.of(position0, position2)))
             throw new IllegalArgumentException(String.format("Positions must be neighbours: %s, %s, %s",
-                    position0.toString(), position1.toString(), position2.toString()));
+                                                             position0, position1, position2
+            ));
 
         this.position0 = position0;
         this.position1 = position1;
@@ -68,21 +69,21 @@ public class IntersectionImpl implements Intersection {
         return Set.of(position0, position1, position2);
     }
 
-    public boolean contains(TilePosition position) {
+    public boolean contains(final TilePosition position) {
         return position0.equals(position) || position1.equals(position) || position2.equals(position);
     }
 
-    public boolean containsAll(Collection<?> positions) {
+    public boolean containsAll(final Collection<?> positions) {
         return getAdjacentPositions().containsAll(positions);
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o)
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        IntersectionImpl intersection = (IntersectionImpl) o;
+        final IntersectionImpl intersection = (IntersectionImpl) o;
         return getAdjacentPositions().equals(intersection.getAdjacentPositions());
     }
 
@@ -97,7 +98,7 @@ public class IntersectionImpl implements Intersection {
     }
 
     @Override
-    public boolean placeVillage(Player player) {
+    public boolean placeVillage(final Player player) {
         if (settlment != null)
             return false;
         settlment = new Settlement(player, Settlement.Type.VILLAGE);
@@ -105,7 +106,7 @@ public class IntersectionImpl implements Intersection {
     }
 
     @Override
-    public boolean upgradeSettlement(Player player) {
+    public boolean upgradeSettlement(final Player player) {
         if (settlment == null || settlment.type() != Settlement.Type.VILLAGE)
             return false;
         settlment = new Settlement(player, Settlement.Type.CITY);
@@ -144,12 +145,12 @@ public class IntersectionImpl implements Intersection {
     }
 
     @Override
-    public boolean isConnectedTo(TilePosition position) {
+    public boolean isConnectedTo(final TilePosition position) {
         return this.position1.equals(position) || this.position2.equals(position) || this.position0.equals(position);
     }
 
     @Override
-    public boolean isConnectedTO(TilePosition... positions) {
+    public boolean isConnectedTO(final TilePosition... positions) {
         return Stream.of(positions).allMatch(this::isConnectedTo);
     }
 }

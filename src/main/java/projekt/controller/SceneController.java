@@ -11,7 +11,7 @@ import javafx.util.Builder;
  * its {@link Stage}.
  */
 public abstract class SceneController extends Controller {
-    protected SceneController(Builder<Region> viewBuilder) {
+    protected SceneController(final Builder<Region> viewBuilder) {
         super(viewBuilder);
     }
 
@@ -30,20 +30,20 @@ public abstract class SceneController extends Controller {
         Platform.exit();
     }
 
-    public static Runnable mainMenuSceneLoader(Stage stage) {
+    public static Runnable mainMenuSceneLoader(final Stage stage) {
         return () -> SceneSwitcher.loadScene(SceneSwitcher.SceneType.MAIN_MENU, stage);
     }
 
-    public static Runnable settingsSceneLoader(Stage stage) {
+    public static Runnable settingsSceneLoader(final Stage stage) {
         return () -> System.out.println("Loading settings");
     }
 
-    public static Runnable highscoreSceneLoader(Stage stage) {
+    public static Runnable highscoreSceneLoader(final Stage stage) {
         return () -> System.out.println("Loading highscores");
 
     }
 
-    public static Runnable gameSceneLoader(Stage stage) {
+    public static Runnable gameSceneLoader(final Stage stage) {
         return () -> SceneSwitcher.loadScene(SceneSwitcher.SceneType.GAME_BOARD, stage);
     }
 }
