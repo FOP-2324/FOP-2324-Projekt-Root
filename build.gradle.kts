@@ -1,8 +1,10 @@
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     java
     application
     alias(libs.plugins.style)
     alias(libs.plugins.jagr.gradle)
+    alias(libs.plugins.javafx)
 }
 
 version = file("version").readLines().first()
@@ -48,4 +50,9 @@ tasks {
         sourceCompatibility = "17"
         targetCompatibility = "17"
     }
+}
+
+javafx {
+    version = "17.0.1"
+    modules("javafx.controls", "javafx.fxml", "javafx.swing")
 }
