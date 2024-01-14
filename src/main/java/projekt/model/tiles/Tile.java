@@ -8,12 +8,12 @@ import javafx.beans.value.ObservableDoubleValue;
 import javafx.scene.paint.Color;
 import projekt.model.HexGrid;
 import projekt.model.Intersection;
-import projekt.model.IntersectionImpl;
 import projekt.model.Player;
-import projekt.model.Position;
+import projekt.model.TilePosition;
 import projekt.model.ResourceType;
-import projekt.model.Position.EdgeDirection;
-import projekt.model.Position.IntersectionDirection;
+import projekt.model.TilePosition.EdgeDirection;
+import projekt.model.TilePosition.IntersectionDirection;
+import projekt.model.buildings.Road;
 import projekt.model.buildings.Settlement;
 
 public interface Tile {
@@ -57,7 +57,29 @@ public interface Tile {
      *
      * @return the position of this tile
      */
-    Position getPosition();
+    TilePosition getPosition();
+
+    /**
+     * Returns all neighbours of this tile
+     *
+     * @return all neighbours of this tile
+     */
+    default Set<Tile> getNeighbours() {
+        return getHexGrid().getTiles().entrySet().stream()
+                .filter(entrySet -> TilePosition.neighbours(getPosition()).contains(entrySet.getKey()))
+                .map(entrySet -> entrySet.getValue())
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * Returns the tile next to the given edge
+     *
+     * @param direction the direction of the edge
+     * @return the neighbouring tile
+     */
+    default Tile getNeighbour(EdgeDirection direction) {
+        return getHexGrid().getTileAt(TilePosition.neighbour(getPosition(), direction));
+    }
 
     /**
      * Returns all intersections adjacent to this tile
@@ -67,13 +89,27 @@ public interface Tile {
     Set<Intersection> getIntersections();
 
     /**
+     * Returns a set of the position defining the intersection in the given
+     * direction
+     *
+     * @param direction the direction of the intersection
+     * @return a set of positions defining the intersection
+     */
+    default Set<TilePosition> getIntersectionPositions(IntersectionDirection direction) {
+        return Set.of(
+                getPosition(),
+                TilePosition.neighbour(getPosition(), direction.leftDirection),
+                TilePosition.neighbour(getPosition(), direction.rightDirection));
+    }
+
+    /**
      * Returns the intersection in the given direction
      *
      * @param direction the direction of the intersection
      * @return the intersection in the given direction
      */
     default Intersection getIntersection(IntersectionDirection direction) {
-        return new IntersectionImpl(getPosition(), direction.leftPosition, direction.rightPosition);
+        return getHexGrid().getIntersections().get(getIntersectionPositions(direction));
     }
 
     /**
@@ -92,35 +128,37 @@ public interface Tile {
      *
      * @param direction the direction of the intersection
      * @param player    the player who owns the settlement
+     * @return wether the settlement was placed
      */
-    default void placeVillage(IntersectionDirection direction, Player player) {
-        getIntersection(direction).placeVillage(player);
+    default boolean placeVillage(IntersectionDirection direction, Player player) {
+        return getIntersection(direction).placeVillage(player);
     }
 
     /**
-     * Add a road between the intersections described by the given directions.
-     * The order of the directions does not matter.
-     *
-     * @param direction0 the first direction
-     * @param direction1 the second direction
-     */
-    void addRoad(IntersectionDirection direction0, IntersectionDirection direction1);
-
-    /**
-     * Add a road on the given Edge
+     * Add a road on the given edge
      *
      * @param direction the direction of the edge
+     * @param owner     the player who owns the road
+     * @return wether the road was added
      */
-    default void addRoad(EdgeDirection direction) {
-        addRoad(direction.getLeftIntersection(), direction.getRightIntersection());
-    }
+    boolean addRoad(EdgeDirection direction, Player owner);
+
+    /**
+     * Returns the road on the given edge
+     *
+     * @param direction the direction of the edge
+     * @return the road on the given edge
+     */
+    Road getRoad(EdgeDirection direction);
 
     /**
      * Returns wether the robber is currently on this tile.
      *
      * @return wether the robber is currently on this tile
      */
-    boolean hasRobber();
+    default boolean hasRobber() {
+        return getHexGrid().getRobberPosition().equals(getPosition());
+    }
 
     /**
      * An enumeration containing all available tile types.

@@ -6,8 +6,16 @@ import java.util.stream.Collectors;
 import projekt.model.buildings.Port;
 import projekt.model.buildings.Road;
 import projekt.model.buildings.Settlement;
+import projekt.model.tiles.Tile;
 
 public interface Intersection {
+    /**
+     * Returns the hexGrid instance
+     *
+     * @return the hexGrid instance
+     */
+    HexGrid getHexGrid();
+
     /**
      * Returns the settlement on this intersection or null
      *
@@ -16,28 +24,20 @@ public interface Intersection {
     Settlement getSettlement();
 
     /**
-     * Returns all settlements adjacent to this intersection.
-     *
-     * @return all settlements adjacent to this intersection
-     */
-    default Set<Settlement> getAdjacentSettlements() {
-        return getAdjacentIntersections().stream().map(Intersection::getSettlement)
-                .filter(settlement -> settlement != null).collect(Collectors.toSet());
-    }
-
-    /**
      * Places a village on this intersection for the given player.
      *
      * @param player the player who places the settlement
+     * @return wether the placement was successful
      */
-    void placeVillage(Player player);
+    boolean placeVillage(Player player);
 
     /**
      * Upgrades the settlement on this intersection to a city.
      *
      * @param player the player who owns the settlement
+     * @return wether the upgrade was successful
      */
-    void upgradeSettlement(Player player);
+    boolean upgradeSettlement(Player player);
 
     /**
      * Returns the port on this intersection or null
@@ -59,4 +59,38 @@ public interface Intersection {
      * @return all Intersection that are adjacent to this intersection
      */
     Set<Intersection> getAdjacentIntersections();
+
+    /**
+     * Returns a set of all adjacent Positions
+     *
+     * @return a set of all adjacent Positions
+     */
+    Set<TilePosition> getAdjacentTilePositions();
+
+    /**
+     * Returns a set of all adjacent Tiles
+     *
+     * @return a set of all adjacent Tiles
+     */
+    default Set<Tile> getAdjacentTiles() {
+        return getHexGrid().getTiles().entrySet().stream()
+                .filter(entrySet -> getAdjacentTilePositions().contains(entrySet.getKey()))
+                .map(entrySet -> entrySet.getValue()).collect(Collectors.toSet());
+    }
+
+    /**
+     * Checks wether this intersection is connected to the given position
+     *
+     * @param position the position to check
+     * @return wether the position is connected
+     */
+    boolean isConnectedTo(TilePosition position);
+
+    /**
+     * Checks wether is connected to all given positions
+     *
+     * @param position the positions to check
+     * @return wether all positions are connected
+     */
+    boolean isConnectedTO(TilePosition... position);
 }

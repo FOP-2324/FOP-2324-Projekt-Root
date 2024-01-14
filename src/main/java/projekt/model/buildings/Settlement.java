@@ -1,11 +1,16 @@
 package projekt.model.buildings;
 
-import projekt.model.Intersection;
 import projekt.model.Player;
 
-public record Settlement(Player owner, Intersection intersection, Type type) {
+public record Settlement(Player owner, Type type) {
     public enum Type {
-        VILLAGE,
-        CITY
+        VILLAGE(1),
+        CITY(2);
+
+        public final int resourceAmount;
+
+        Type(int resourceAmount) {
+            this.resourceAmount = resourceAmount;
+        }
     }
 }

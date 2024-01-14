@@ -1,12 +1,13 @@
 package projekt.model;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.value.ObservableDoubleValue;
-import projekt.model.buildings.Port;
+import projekt.model.TilePosition.EdgeDirection;
 import projekt.model.buildings.Road;
-import projekt.model.buildings.Settlement;
 import projekt.model.tiles.Tile;
 
 public interface HexGrid {
@@ -57,7 +58,7 @@ public interface HexGrid {
      *
      * @return all tiles of the grid as a set
      */
-    Set<Tile> getTiles();
+    Map<TilePosition, Tile> getTiles();
 
     /**
      * Returns the tile at the given q and r coordinate.
@@ -74,14 +75,14 @@ public interface HexGrid {
      * @param position the position of the tile
      * @return the tile at the given position
      */
-    Tile getTileAt(Position position);
+    Tile getTileAt(TilePosition position);
 
     /**
      * Returns all intersections of the grid as a set.
      *
      * @return all intersections of the grid as a set
      */
-    Set<Intersection> getIntersections();
+    Map<Set<TilePosition>, Intersection> getIntersections();
 
     /**
      * Returns the intersection between the given positions.
@@ -91,80 +92,70 @@ public interface HexGrid {
      * @param position2 the third position
      * @return the intersection at the given position
      */
-    Intersection getIntersectionAt(Position position0, Position position1, Position position2);
-
-    /**
-     * Returns all Intersections that border that tile.
-     *
-     * @param tile the tile to get the adjacent intersections of
-     * @return all Intersections that border that tile
-     */
-    Set<Intersection> getAdjacentIntersections(Tile tile);
-
-    /**
-     * Returns all intersections that are connected to that intersection.
-     *
-     * @param intersection the intersection to get the connected intersections of
-     * @return all intersections that border that intersection
-     */
-    Set<Intersection> getConnectedIntersections(Intersection intersection);
-
-    /**
-     * Returns all ports of the grid.
-     *
-     * @return all ports of the grid
-     */
-    Set<Port> getPorts();
-
-    /**
-     * Returns all ports that border that tile.
-     *
-     * @param tile the tile to get the adjacent ports of
-     * @return all ports that border that tile
-     */
-    Set<Port> getAdjacentPorts(Tile tile);
+    Intersection getIntersectionAt(TilePosition position0, TilePosition position1, TilePosition position2);
 
     /**
      * Adds the given road to the grid.
      *
      * @param road the road to add
+     * @return wether the road was added
      */
-    void addRoad(Road road);
+    boolean addRoad(TilePosition position0, TilePosition position1, Player player);
+
+    /**
+     * Adds the given road to the grid relative to the given tile.
+     *
+     * @param tile          the tile the road is next to
+     * @param edgeDirection the direction of the edge the road is on
+     * @return wether the road was added
+     */
+    default boolean addRoad(Tile tile, EdgeDirection edgeDirection, Player player) {
+        return tile.addRoad(edgeDirection, player);
+    }
 
     /**
      * Returns all roads of the grid.
      *
      * @return all roads of the grid
      */
-    Set<Road> getRoads();
+    Map<Set<TilePosition>, Road> getRoads();
 
     /**
-     * Returns the road between the given intersections.
+     * Returns all roads of the given player.
      *
-     * @param intersection0 the first intersection
-     * @param intersection1 the second intersection
+     * @param player the player to get the roads of
+     * @return all roads of the given player
+     */
+    Map<Set<TilePosition>, Road> getRoads(Player player);
+
+    /**
+     * Returns the road between the given positions.
+     *
+     * @param position0 the first position
+     * @param position1 the second position
      * @return the road between the given intersections
      */
-    Road getRoad(Intersection nodeA, Intersection nodeB);
+    Road getRoad(TilePosition position0, TilePosition position1);
 
     /**
-     * Adds the given settlement to the grid.
+     * Returns the longest road of the given player
      *
-     * @param settlement the settlement to add
+     * @param player the player to get the longest road of
+     * @return set of all roads that make up the longest road
      */
-    void addSettlement(Settlement settlement);
+    List<Road> getLongestRoad(Player player);
 
     /**
-     * Upgrades the given settlement to a city.
+     * Returns the current position of the robber
      *
-     * @param settlement the settlement to upgrade
+     * @return the current position of the robber
      */
-    void upgradeSettlement(Settlement settlement);
+    TilePosition getRobberPosition();
 
     /**
-     * Returns all settlements of the grid.
+     * Sets the position of the robber
      *
-     * @return all settlements of the grid
+     * @param position the new position of the robber
      */
-    Set<Settlement> getSettlements();
+    void setRobberPosition(TilePosition position);
 }

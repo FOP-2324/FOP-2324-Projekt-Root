@@ -2,13 +2,20 @@ package projekt.model;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javafx.scene.paint.Color;
 import projekt.model.buildings.Road;
 import projekt.model.buildings.Settlement;
-import projekt.model.developmentCards.DevelopmentCardType;
 
 public interface Player {
+    /**
+     * Returns the hexGrid instance
+     *
+     * @return the hexGrid instance
+     */
+    HexGrid getHexGrid();
+
     /**
      * Returns a map of all resources the player currently has and how many of each.
      *
@@ -30,21 +37,16 @@ public interface Player {
      * @param resourceType the ResourceType to remove from
      * @param amount       the amount to remove
      */
-    void removeResource(ResourceType resourceType, int amount);
+    boolean removeResource(ResourceType resourceType, int amount);
 
     /**
      * Returns all roads the player currently has.
      *
      * @return all roads the player currently has
      */
-    Set<Road> getRoads();
-
-    /**
-     * Adds the given road to the player.
-     *
-     * @param road the road to add
-     */
-    void addRoad(Road road);
+    default Map<Set<TilePosition>, Road> getRoads() {
+        return getHexGrid().getRoads(this);
+    }
 
     /**
      * Returns the amount of roads the player can still build.
@@ -58,21 +60,13 @@ public interface Player {
      *
      * @return all settlements the player currently has
      */
-    Set<Settlement> getSettlements();
-
-    /**
-     * Adds the given settlement to the player.
-     *
-     * @param settlement the settlement to add
-     */
-    void addSettlement(Settlement settlement);
-
-    /**
-     * Removes the given settlement from the player.
-     *
-     * @param settlement the settlement to remove
-     */
-    void removeSettlement(Settlement settlement);
+    default Set<Settlement> getSettlements() {
+        return getHexGrid().getIntersections().values().stream()
+                .filter(intersection -> intersection.getSettlement() != null)
+                .filter(intersection -> intersection.getSettlement().owner() == this)
+                .map(intersection -> intersection.getSettlement())
+                .collect(Collectors.toSet());
+    }
 
     /**
      * Returns the amount of settlements the player can still build.
@@ -100,7 +94,7 @@ public interface Player {
      *
      * @param developmentCardType the development card to remove
      */
-    void removeDevelopmentCard(DevelopmentCardType developmentCardType);
+    boolean removeDevelopmentCard(DevelopmentCardType developmentCardType);
 
     /**
      * Returns the total amount of development cards the player has.

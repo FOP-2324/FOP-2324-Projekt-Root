@@ -1,21 +1,38 @@
 package projekt.model.buildings;
 
+import projekt.model.HexGrid;
 import projekt.model.Intersection;
 import projekt.model.Player;
-import java.util.Objects;
+import projekt.model.TilePosition;
 
-public record Road(Intersection nodeA, Intersection nodeB, Player owner) {
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass())
-            return false;
-        Road road = (Road) o;
-        return Objects.equals(nodeA, road.nodeA) && Objects.equals(nodeB, road.nodeB) ||
-                Objects.equals(nodeA, road.nodeB) && Objects.equals(nodeB, road.nodeA);
+import java.util.Set;
+
+public record Road(HexGrid grid, TilePosition position1, TilePosition position2, Player owner) {
+    public Set<TilePosition> getAdjacentTilePositions() {
+        return Set.of(this.position1, this.position2);
     }
 
-    @Override
-    public int hashCode() {
-        return nodeA.hashCode() + nodeB.hashCode();
+    public Set<Intersection> getIntersections() {
+        final var edgeDir = TilePosition.EdgeDirection
+                .fromRelativePosition(TilePosition.subtract(this.position2, this.position1));
+        final var is1 = this.grid.getIntersections()
+                .get(Set.of(this.position1, this.position2, TilePosition.neighbour(this.position1, edgeDir.left())));
+        final var is2 = this.grid.getIntersections()
+                .get(Set.of(this.position1, this.position2, TilePosition.neighbour(this.position1, edgeDir.right())));
+        if (is1 == null || is2 == null)
+            throw new RuntimeException("Road is not connected to two intersections");
+        return Set.of(
+                is1,
+                is2);
+    }
+
+    public boolean connectsTo(final Road other) {
+        return this.getIntersections().stream().anyMatch(i -> i.getConnectedRoads().contains(other));
+    }
+
+    public Set<Road> getConnectedRoads() {
+        return this.getIntersections().stream()
+                .flatMap(i -> i.getConnectedRoads().stream())
+                .collect(java.util.stream.Collectors.toSet());
     }
 }

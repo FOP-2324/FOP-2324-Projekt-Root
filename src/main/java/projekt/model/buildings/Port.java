@@ -1,9 +1,8 @@
 package projekt.model.buildings;
 
-import projekt.model.Intersection;
 import projekt.model.ResourceType;
 
-public record Port(int ratio, Intersection intersection, ResourceType resourceType) {
+public record Port(int ratio, ResourceType resourceType) {
 
     /**
      * Constructs a new port with n:1 ratio, meaning that n resources of the same
@@ -11,7 +10,7 @@ public record Port(int ratio, Intersection intersection, ResourceType resourceTy
      *
      * @param ratio amount of same-type resources to trade
      */
-    public Port(int ratio, Intersection intersection) {
-        this(ratio, intersection, null);
+    public Port(int ratio) {
+        this(ratio, null);
     }
 }
