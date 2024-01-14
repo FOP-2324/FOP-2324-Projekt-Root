@@ -6,18 +6,31 @@ import projekt.model.Player;
 import projekt.model.TilePosition;
 import projekt.model.TilePosition.EdgeDirection;
 import projekt.model.buildings.Road;
+
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import javafx.beans.value.ObservableDoubleValue;
 
-public record TileImpl(TilePosition position, Type type, int rollNumber, ObservableDoubleValue heightProperty,
-        ObservableDoubleValue widthProperty, HexGrid hexGrid) implements Tile {
+public record TileImpl(
+    TilePosition position,
+    Type type,
+    int rollNumber,
+    ObservableDoubleValue heightProperty,
+    ObservableDoubleValue widthProperty,
+    HexGrid hexGrid
+) implements Tile {
 
     public TileImpl(
-        final int q, final int r, final Type type, final int yield, final ObservableDoubleValue heightProperty,
-        final ObservableDoubleValue widthProperty, final HexGrid hexGrid) {
+        final int q,
+        final int r,
+        final Type type,
+        final int yield,
+        final ObservableDoubleValue heightProperty,
+        final ObservableDoubleValue widthProperty,
+        final HexGrid hexGrid
+    ) {
         this(new TilePosition(q, r), type, yield, heightProperty, widthProperty, hexGrid);
     }
 
@@ -44,24 +57,13 @@ public record TileImpl(TilePosition position, Type type, int rollNumber, Observa
     @Override
     public Set<Intersection> getIntersections() {
         return Arrays.stream(TilePosition.IntersectionDirection.values())
-                .map(this::getIntersection)
-                .collect(Collectors.toSet());
+            .map(this::getIntersection)
+            .collect(Collectors.toSet());
     }
 
     @Override
     public boolean addRoad(final EdgeDirection direction, final Player owner) {
-        final var neighbour = TilePosition.neighbour(this.position, direction);
-        if (!this.hexGrid.getTiles().containsKey(neighbour)) {
-            return false;
-        }
-        final var newRoad = new Road(this.hexGrid, this.position, neighbour, owner);
-        if (this.hexGrid.getRoads().containsKey(newRoad.getAdjacentTilePositions())) {
-            return false;
-        }
-        this.hexGrid.getRoads().put(
-                newRoad.getAdjacentTilePositions(),
-                newRoad);
-        return true;
+        return this.hexGrid.addRoad(this.position, TilePosition.neighbour(this.position, direction), owner);
     }
 
     @Override

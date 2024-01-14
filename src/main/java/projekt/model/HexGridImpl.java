@@ -88,7 +88,7 @@ public class HexGridImpl implements HexGrid {
     }
 
     private void addTile(final TilePosition position, final Tile.Type type) {
-        final int rollNumber = type.resourceType != null ? YIELD_POOL.pop() : 0;
+        final int rollNumber = type.resourceType != null ? !YIELD_POOL.empty() ? YIELD_POOL.pop() : 0 : 0;
         tiles.put(position, new TileImpl(position, type, rollNumber, tileHeight, tileWidth, this));
     }
 
@@ -155,6 +155,11 @@ public class HexGridImpl implements HexGrid {
     @Override
     public Road getRoad(final TilePosition position0, final TilePosition position1) {
         return roads.get(Set.of(position0, position1));
+    }
+
+    @Override
+    public boolean removeRoad(final TilePosition position0, final TilePosition position1) {
+        return roads.remove(Set.of(position0, position1)) != null;
     }
 
     @Override
