@@ -1,17 +1,71 @@
 package projekt.model.tiles;
 
 import projekt.model.HexGrid;
-import projekt.model.Position;
-import projekt.model.ResourceType;
+import projekt.model.Intersection;
+import projekt.model.Player;
+import projekt.model.TilePosition;
+import projekt.model.TilePosition.EdgeDirection;
+import projekt.model.buildings.Road;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javafx.beans.value.ObservableDoubleValue;
-import javafx.scene.paint.Color;
 
-public record TileImpl(Position position, Type type, int yield, ObservableDoubleValue heightProperty,
+public record TileImpl(TilePosition position, Type type, int rollNumber, ObservableDoubleValue heightProperty,
         ObservableDoubleValue widthProperty, HexGrid hexGrid) implements Tile {
 
     public TileImpl(int q, int r, Type type, int yield, ObservableDoubleValue heightProperty,
             ObservableDoubleValue widthProperty, HexGrid hexGrid) {
-        this(new Position(q, r), type, yield, heightProperty, widthProperty, hexGrid);
+        this(new TilePosition(q, r), type, yield, heightProperty, widthProperty, hexGrid);
+    }
+
+    @Override
+    public HexGrid getHexGrid() {
+        return hexGrid;
+    }
+
+    @Override
+    public Type getType() {
+        return type;
+    }
+
+    @Override
+    public int getRollNumber() {
+        return rollNumber;
+    }
+
+    @Override
+    public TilePosition getPosition() {
+        return position;
+    }
+
+    @Override
+    public Set<Intersection> getIntersections() {
+        return Arrays.stream(TilePosition.IntersectionDirection.values())
+                .map(this::getIntersection)
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public boolean addRoad(EdgeDirection direction, Player owner) {
+        final var neighbour = TilePosition.neighbour(this.position, direction);
+        if (!this.hexGrid.getTiles().containsKey(neighbour)) {
+            return false;
+        }
+        final var newRoad = new Road(this.hexGrid, this.position, neighbour, owner);
+        if (this.hexGrid.getRoads().containsKey(newRoad.getAdjacentTilePositions())) {
+            return false;
+        }
+        this.hexGrid.getRoads().put(
+                newRoad.getAdjacentTilePositions(),
+                newRoad);
+        return true;
+    }
+
+    @Override
+    public Road getRoad(EdgeDirection direction) {
+        final var neighbour = TilePosition.neighbour(this.position, direction);
+        return this.hexGrid.getRoads().get(Set.of(this.position, neighbour));
     }
 }

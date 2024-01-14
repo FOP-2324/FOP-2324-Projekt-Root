@@ -1,128 +1,91 @@
 package projekt.model;
 
-import projekt.Config;
-import projekt.model.buildings.Road;
-import projekt.model.buildings.Structure;
+import static projekt.Config.MAX_CITIES;
+import static projekt.Config.MAX_ROADS;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
-public class PlayerImpl {
+import javafx.scene.paint.Color;
 
-    protected final Map<ResourceType, Integer> resources = new HashMap<>();
-    protected final Map<Structure.Type, List<Structure>> structures = new HashMap<>();
-    protected final Map<DevelopmentCardType, Integer> developmentCards = new HashMap<>();
+public class PlayerImpl implements Player {
+    private final HexGrid hexGrid;
+    private final Color color;
+    private final Map<ResourceType, Integer> resources = new HashMap<>();
+    private final Map<DevelopmentCardType, Integer> developmentCards = new HashMap<>();
 
-    public PlayerImpl() {
-        for (ResourceType resourceType : ResourceType.values()) {
-            this.resources.put(resourceType, 0);
-        }
-        for (Structure.Type structureType : Structure.Type.values()) {
-            this.structures.put(structureType, new ArrayList<>());
-        }
-        for (DevelopmentCardType developmentCardType : DevelopmentCardType.values()) {
-            developmentCards.put(developmentCardType, 0);
-        }
+    public PlayerImpl(HexGrid hexGrid, Color color) {
+        this.hexGrid = hexGrid;
+        this.color = color;
     }
 
-    public int getVictoryPoints() {
-        int structureVictoryPoints = structures.entrySet()
-                .stream()
-                .filter(entry -> entry.getKey() == Structure.Type.VILLAGE || entry.getKey() == Structure.Type.CITY)
-                .mapToInt(entry -> switch (entry.getKey()) {
-                    case VILLAGE -> entry.getValue().size();
-                    case CITY -> 2 * entry.getValue().size();
-                    default -> 0;
-                })
-                .sum();
-
-        return structureVictoryPoints;
+    @Override
+    public HexGrid getHexGrid() {
+        return hexGrid;
     }
 
+    @Override
+    public Map<ResourceType, Integer> getResources() {
+        return Collections.unmodifiableMap(resources);
+    }
+
+    @Override
     public void addResource(ResourceType resourceType, int amount) {
-        resources.compute(resourceType, (k, v) -> (v != null ? v : 0) + amount);
+        resources.put(resourceType, resources.getOrDefault(resourceType, 0) + amount);
     }
 
-    public void removeResource(ResourceType resourceType, int amount) {
-        resources.compute(resourceType, (k, v) -> v != null ? v - amount : 0);
+    @Override
+    public boolean removeResource(ResourceType resourceType, int amount) {
+        if (resources.getOrDefault(resourceType, 0) <= amount) {
+            return false;
+        }
+        resources.put(resourceType, resources.getOrDefault(resourceType, 0) - amount);
+        return true;
     }
 
-    public int getResourceAmount(ResourceType resourceType) {
-        return resources.get(resourceType);
+    @Override
+    public int getRemainingRoads() {
+        return MAX_ROADS - getRoads().size();
     }
 
-    public List<? extends Structure> getStructures() {
-        return structures.values()
-                .stream()
-                .flatMap(Collection::stream)
-                .toList();
+    @Override
+    public int getRemainingSettlements() {
+        return MAX_CITIES - getSettlements().size();
     }
 
-    public <T extends Structure> List<? extends T> getStructures(Structure.Type structureType) {
-        return (List<? extends T>) structures.get(structureType);
-    }
-
+    @Override
     public Map<DevelopmentCardType, Integer> getDevelopmentCards() {
         return Collections.unmodifiableMap(developmentCards);
     }
 
-    public int getDevelopmentCards(DevelopmentCardType developmentCardType) {
-        return developmentCards.get(developmentCardType);
+    @Override
+    public void addDevelopmentCard(DevelopmentCardType developmentCardType) {
+        developmentCards.put(developmentCardType, developmentCards.getOrDefault(developmentCardType, 0) + 1);
     }
 
-    public boolean canBuild(Structure.Type structureType) {
-        Map<ResourceType, Integer> requiredResources = Structure.getRequiredResources(structureType);
-        for (ResourceType resourceType : requiredResources.keySet()) {
-            if (resources.get(resourceType) < requiredResources.get(resourceType)) {
-                return false;
-            }
+    @Override
+    public boolean removeDevelopmentCard(DevelopmentCardType developmentCardType) {
+        if (developmentCards.getOrDefault(developmentCardType, 0) <= 0) {
+            return false;
         }
+        developmentCards.put(developmentCardType, developmentCards.getOrDefault(developmentCardType, 0) - 1);
         return true;
     }
 
-    public void buildRoad(Intersection nodeA, Intersection nodeB) {
-        Structure.Type structureType = Structure.Type.ROAD;
-        if (!canBuild(structureType)) {
-            throw new IllegalStateException("Player lacks sufficient resources to build a village");
-        } else if (structures.get(structureType).size() >= Config.MAP_LIMIT.apply(structureType)) {
-            throw new IllegalStateException("Player owns too many villages");
-        }
-
-        structures.get(structureType).add(new Road(nodeA, nodeB, this));
-        Structure.getRequiredResources(structureType).forEach(this::removeResource);
+    @Override
+    public int getTotalDevelopmentCards() {
+        return developmentCards.values().stream().mapToInt(Integer::intValue).sum();
     }
 
-    // public void buildVillage(Position position) {
-    // Structure.Type structureType = Structure.Type.VILLAGE;
-    // if (!canBuild(structureType)) {
-    // throw new IllegalStateException("Player lacks sufficient resources to build a
-    // village");
-    // } else if (structures.get(structureType).size() >=
-    // Config.MAP_LIMIT.apply(structureType)) {
-    // throw new IllegalStateException("Player owns too many villages");
-    // }
-
-    // structures.get(structureType).add(new Village(position, this));
-    // Structure.getRequiredResources(structureType).forEach(this::removeResource);
-    // }
-
-    // public void buildCity(Village village) {
-    // Structure.Type structureType = Structure.Type.CITY;
-    // if (!canBuild(structureType)) {
-    // throw new IllegalStateException("Player lacks sufficient resources to build a
-    // city");
-    // } else if (structures.get(structureType).size() >=
-    // Config.MAP_LIMIT.apply(structureType)) {
-    // throw new IllegalStateException("Player owns too many cities");
-    // }
-
-    // structures.get(structureType).add(new City(village.getPosition(), this));
-    // structures.get(Structure.Type.VILLAGE).remove(village);
-    // Structure.getRequiredResources(structureType).forEach(this::removeResource);
-    // }
-
-    public void playDevelopmentCard(DevelopmentCardType developmentCard) {
-        if (developmentCards.get(developmentCard) <= 0) {
-            throw new IllegalStateException("Player does not have cards of type " + developmentCard);
-        }
+    @Override
+    public int getKnightsPlayed() {
+        return developmentCards.getOrDefault(DevelopmentCardType.KNIGHT, 0);
     }
+
+    @Override
+    public Color getColor() {
+        return color;
+    }
+
 }

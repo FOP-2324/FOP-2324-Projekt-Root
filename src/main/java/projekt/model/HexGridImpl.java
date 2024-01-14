@@ -1,305 +1,190 @@
 package projekt.model;
 
-import static projekt.Config.GRID_SIZE;
-import static projekt.Config.RANDOM;
-import static projekt.Config.ROW_FORMULA;
 import static projekt.Config.TILE_FORMULA;
+import static projekt.Config.TILE_RATIOS;
 import static projekt.Config.YIELD_POOL;
+import static projekt.Config.GRID_RADIUS;
+import static projekt.Config.RANDOM;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.value.ObservableDoubleValue;
-import projekt.model.buildings.Port;
+import projekt.model.buildings.Road;
 import projekt.model.tiles.Tile;
 import projekt.model.tiles.TileImpl;
 
-public class HexGridImpl {
-
-    private final List<List<Tile>> tiles;
-    private final List<List<Intersection>> intersections;
-    private final Map<Position, Port> ports = new HashMap<>();
+/**
+ * Holds all the information displayed on the hexagonal grid and information for
+ * rendering.
+ */
+public class HexGridImpl implements HexGrid {
+    private final Map<TilePosition, Tile> tiles = new HashMap<>();
+    private final Map<Set<TilePosition>, Intersection> intersections = new HashMap<>();
+    private final Map<Set<TilePosition>, Road> roads = new HashMap<>();
+    private TilePosition robberPosition;
     private final ObservableDoubleValue tileWidth;
-    private final DoubleProperty tileHeight = new SimpleDoubleProperty(60.0);
+    private final ObservableDoubleValue tileHeight;
+    private final DoubleProperty tileSize = new SimpleDoubleProperty(50);
 
-    public HexGridImpl() {
-        this.tileWidth = Bindings.createDoubleBinding(() -> Math.sqrt(3) * tileHeight.get() / 2, tileHeight);
-        this.tiles = initTiles();
-        this.intersections = initIntersections();
-        initPorts();
+    public HexGridImpl(int radius) {
+        this.tileHeight = Bindings.createDoubleBinding(() -> tileSize.get() * 2, tileSize);
+        this.tileWidth = Bindings.createDoubleBinding(() -> Math.sqrt(3) * tileSize.get(), tileSize);
+        initTiles(radius);
+        initIntersections();
+        initRobber();
     }
 
-    private List<List<Tile>> initTiles() {
-        double singleTileRatio = 1.0 / TILE_FORMULA.apply(GRID_SIZE);
-        Stack<Tile.Type> availableTileTypes = new Stack<>();
-        // for (Tile.Type tileType : Tile.Type.values()) {
-        // double targetTileRatio = TILE_RATIOS.get(tileType);
-        // double currentTileRatio = -1.0E-10; // a little bit of an error margin
+    private void initRobber() {
+        this.tiles.values().stream().filter(tile -> tile.getType() == Tile.Type.DESERT).findAny()
+                .ifPresent(tile -> robberPosition = tile.getPosition());
+    }
 
-        // while (currentTileRatio + singleTileRatio <= targetTileRatio) {
-        // availableTileTypes.push(tileType);
-        // currentTileRatio += singleTileRatio;
-        // }
-        // }
-        for (int i = 0; i < TILE_FORMULA.apply(GRID_SIZE); i++) {
-            availableTileTypes.push(Tile.Type.values()[i % Tile.Type.values().length]);
+    private void initTiles(int grid_radius) {
+        Stack<Tile.Type> availableTileTypes = generateAvailableTileTypes();
+
+        TilePosition center = new TilePosition(0, 0);
+
+        TilePosition.forEachSpiral(center, grid_radius, (position, params) -> {
+            addTile(position, availableTileTypes.pop());
+        });
+    }
+
+    private void initIntersections() {
+        for (final var tile : this.tiles.values()) {
+            Arrays.stream(TilePosition.IntersectionDirection.values())
+                    .map(tile::getIntersectionPositions)
+                    .forEach(
+                            ps -> this.intersections.putIfAbsent(ps, new IntersectionImpl(this, ps.stream().toList())));
+        }
+    }
+
+    private Stack<Tile.Type> generateAvailableTileTypes() {
+        Stack<Tile.Type> availableTileTypes = new Stack<>() {
+            {
+                for (Tile.Type tileType : Tile.Type.values()) {
+                    double tileAmount = TILE_RATIOS.get(tileType) * TILE_FORMULA.apply(GRID_RADIUS);
+                    for (int i = 0; i < tileAmount; i++) {
+                        push(tileType);
+                    }
+                }
+            }
+        };
+        if (availableTileTypes.size() < TILE_FORMULA.apply(GRID_RADIUS)) {
+            throw new IllegalStateException(
+                    "The amount of tiles does not match the formula. If this error occured please rerun or report to Per");
         }
         Collections.shuffle(availableTileTypes, RANDOM);
-
-        List<List<Tile>> tileGrid = new ArrayList<>(2 * GRID_SIZE - 1);
-        for (int row = 0; row < 2 * GRID_SIZE - 1; row++) {
-            int rowSize = ROW_FORMULA.apply(row);
-            List<Tile> gridRow = new ArrayList<>(rowSize);
-
-            for (int column = 0; column < rowSize; column++) {
-                Tile.Type tileType = availableTileTypes.pop();
-                gridRow.add(new TileImpl(row, column, tileType, (tileType != Tile.Type.DESERT ? YIELD_POOL.pop() : 0),
-                        tileHeight, tileWidth));
-            }
-            tileGrid.add(gridRow);
-        }
-
-        return tileGrid;
+        return availableTileTypes;
     }
 
-    private List<List<Intersection>> initIntersections() {
-        LinkedList<List<Intersection>> intersections = new LinkedList<>();
-
-        for (int i = GRID_SIZE - 1; i >= 0; i--) {
-            List<Intersection> topRow = new ArrayList<>();
-            List<Intersection> bottomRow = new ArrayList<>();
-
-            for (int j = 0; j < 2 * (GRID_SIZE + i) + 1; j++) {
-                topRow.add(new Intersection(i, j));
-                bottomRow.add(new Intersection(2 * GRID_SIZE - i - 1, j));
-            }
-
-            intersections.addFirst(topRow);
-            intersections.addLast(bottomRow);
-        }
-
-        return new ArrayList<>(intersections);
+    private void addTile(TilePosition position, Tile.Type type) {
+        int rollNumber = type.resourceType != null ? YIELD_POOL.pop() : 0;
+        tiles.put(position, new TileImpl(position, type, rollNumber, tileHeight, tileWidth, this));
     }
 
-    private void initPorts() {
-        // optimized for GRID_SIZE = 3, may need modifications (or not even work) for
-        // different values
-        // TODO: see if this can work for different sizes
-        // 3:1 port
-        Port port_3_1 = new Port(3);
-        // 2:1 resource-specific ports
-        Map<ResourceType, Port> ports_2_1 = Stream.of(ResourceType.values())
-                .collect(Collectors.toMap(Function.identity(), resource -> new Port(2, resource)));
-
-        // coordinates, schema: {<row>, <column>[, <resource_type>]}
-        // 3:1 ports
-        int[][] coordinates_3_1 = {
-                { 0, 0 },
-                { 0, 1 },
-                { GRID_SIZE - 1, 2 * ROW_FORMULA.apply(GRID_SIZE - 1) },
-                { GRID_SIZE, 2 * ROW_FORMULA.apply(GRID_SIZE - 1) },
-                { 2 * GRID_SIZE - 1, 0 },
-                { 2 * GRID_SIZE - 1, 1 },
-                { 2 * GRID_SIZE - 1, 2 * ROW_FORMULA.apply(0) - 3 },
-                { 2 * GRID_SIZE - 1, 2 * ROW_FORMULA.apply(0) - 2 },
-        };
-        // 2:1 ports
-        int[][] coordinates_2_1 = {
-                { 0, 2 * ROW_FORMULA.apply(0) - 3, ResourceType.GRAIN.ordinal() },
-                { 0, 2 * ROW_FORMULA.apply(0) - 2, ResourceType.GRAIN.ordinal() },
-                { 1, 2 * ROW_FORMULA.apply(1) - 1, ResourceType.ORE.ordinal() },
-                { 1, 2 * ROW_FORMULA.apply(1), ResourceType.ORE.ordinal() },
-                { 2 * GRID_SIZE - 2, 2 * ROW_FORMULA.apply(1) - 1, ResourceType.WOOL.ordinal() },
-                { 2 * GRID_SIZE - 2, 2 * ROW_FORMULA.apply(1), ResourceType.WOOL.ordinal() },
-                { GRID_SIZE, 1, ResourceType.CLAY.ordinal() },
-                { GRID_SIZE + 1, 0, ResourceType.CLAY.ordinal() },
-                { GRID_SIZE - 1, 1, ResourceType.WOOD.ordinal() },
-                { GRID_SIZE - 2, 0, ResourceType.WOOD.ordinal() },
-        };
-
-        for (int[] coordinates : coordinates_3_1) {
-            ports.put(new Position(coordinates[0], coordinates[1]), port_3_1);
-        }
-        ResourceType[] resourceTypes = ResourceType.values();
-        for (int[] coordinates : coordinates_2_1) {
-            ports.put(new Position(coordinates[0], coordinates[1]), ports_2_1.get(resourceTypes[coordinates[2]]));
-        }
-    }
-
-    // Tiles
-
+    @Override
     public ObservableDoubleValue tileWidthProperty() {
         return tileWidth;
     }
 
+    @Override
     public double getTileWidth() {
         return tileWidth.get();
     }
 
-    public DoubleProperty tileHeightProperty() {
+    @Override
+    public ObservableDoubleValue tileHeightProperty() {
         return tileHeight;
     }
 
+    @Override
+    public DoubleProperty tileSizeProperty() {
+        return tileSize;
+    }
+
+    @Override
+    public double getTileSize() {
+        return tileSize.get();
+    }
+
+    @Override
     public double getTileHeight() {
         return tileHeight.get();
     }
 
-    public Set<Tile> getTiles() {
-        return tiles.stream()
-                .flatMap(List::stream)
-                .collect(Collectors.toUnmodifiableSet());
+    @Override
+    public Map<TilePosition, Tile> getTiles() {
+        return Collections.unmodifiableMap(tiles);
     }
 
-    public List<Tile> getTileRow(int row) {
-        return Collections.unmodifiableList(tiles.get(row));
+    @Override
+    public Tile getTileAt(int q, int r) {
+        return getTileAt(new TilePosition(q, r));
     }
 
-    public Tile getTileAt(int row, int column) {
-        return tiles.get(row).get(column);
+    @Override
+    public Tile getTileAt(TilePosition position) {
+        return tiles.get(position);
     }
 
-    public Map<Tile.Corner, Intersection> getAdjacentIntersectionsOfTile(Tile tile) {
-        return getAdjacentIntersectionsOfTile(tile.getPosition());
+    @Override
+    public Map<Set<TilePosition>, Intersection> getIntersections() {
+        return Collections.unmodifiableMap(intersections);
     }
 
-    public Map<Tile.Corner, Intersection> getAdjacentIntersectionsOfTile(Position tilePosition) {
-        int tileRow = tilePosition.row();
-        int tileColumn = tilePosition.column();
-        Tile.Corner[] directions = Tile.Corner.values();
-        List<Intersection> tileIntersections = new ArrayList<>(directions.length);
+    @Override
+    public Intersection getIntersectionAt(TilePosition position0, TilePosition position1, TilePosition position2) {
+        return intersections.get(Set.of(position0, position1, position2));
+    }
 
-        if (tileRow < GRID_SIZE - 1) {
-            tileIntersections.addAll(intersections.get(tileRow).subList(2 * tileColumn, 2 * tileColumn + 3));
-            tileIntersections
-                    .addAll(intersections.get(tileRow + 1).subList(2 * tileColumn + 1, 2 * tileColumn + 1 + 3));
-        } else if (tileRow == GRID_SIZE - 1) {
-            tileIntersections.addAll(intersections.get(tileRow).subList(2 * tileColumn, 2 * tileColumn + 3));
-            tileIntersections.addAll(intersections.get(tileRow + 1).subList(2 * tileColumn, 2 * tileColumn + 3));
-        } else {
-            tileIntersections.addAll(intersections.get(tileRow).subList(2 * tileColumn + 1, 2 * tileColumn + 1 + 3));
-            tileIntersections.addAll(intersections.get(tileRow + 1).subList(2 * tileColumn, 2 * tileColumn + 3));
+    @Override
+    public Map<Set<TilePosition>, Road> getRoads() {
+        return Collections.unmodifiableMap(roads);
+    }
+
+    @Override
+    public Road getRoad(TilePosition position0, TilePosition position1) {
+        return roads.get(Set.of(position0, position1));
+    }
+
+    @Override
+    public Map<Set<TilePosition>, Road> getRoads(Player player) {
+        return Collections.unmodifiableMap(roads.entrySet().stream()
+                .filter(entry -> entry.getValue().owner().equals(player))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+    }
+
+    @Override
+    public List<Road> getLongestRoad(Player player) {
+        throw new UnsupportedOperationException("Unimplemented method 'getLongestRoad'");
+    }
+
+    @Override
+    public TilePosition getRobberPosition() {
+        return robberPosition;
+    }
+
+    @Override
+    public void setRobberPosition(TilePosition position) {
+        robberPosition = position;
+    }
+
+    @Override
+    public boolean addRoad(TilePosition position0, TilePosition position1, Player player) {
+        if (roads.containsKey(Set.of(position0, position1))) {
+            return false;
         }
-
-        return IntStream.range(0, directions.length)
-                .mapToObj(i -> Map.entry(directions[i], tileIntersections.get(i)))
-                .collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, Map.Entry::getValue));
-    }
-
-    // Intersections
-
-    public Set<Intersection> getIntersections() {
-        return intersections.stream()
-                .flatMap(List::stream)
-                .collect(Collectors.toUnmodifiableSet());
-    }
-
-    public List<Intersection> getIntersectionRow(int row) {
-        return Collections.unmodifiableList(intersections.get(row));
-    }
-
-    public Intersection getIntersectionAt(int row, int column) {
-        return intersections.get(row).get(column);
-    }
-
-    public Set<Tile> getAdjacentTilesOfIntersection(Intersection intersection) {
-        return getAdjacentTilesOfIntersection(intersection.getPosition());
-    }
-
-    public Set<Tile> getAdjacentTilesOfIntersection(Position position) {
-        int intersectionRow = position.row();
-        int intersectionColumn = position.column();
-        Stream<Position> tilePositions;
-
-        if (intersectionRow < GRID_SIZE && intersectionColumn % 2 == 0 ||
-                intersectionRow >= GRID_SIZE && intersectionColumn % 2 != 0) {
-            tilePositions = Stream.<Position>builder()
-                    .add(new Position(intersectionRow - 1, intersectionColumn / 2 - 1))
-                    .add(new Position(intersectionRow, intersectionColumn / 2 - 1))
-                    .add(new Position(intersectionRow, intersectionColumn / 2))
-                    .build();
-        } else {
-            tilePositions = Stream.<Position>builder()
-                    .add(new Position(intersectionRow - 1, intersectionColumn / 2 - 1))
-                    .add(new Position(intersectionRow - 1, intersectionColumn / 2))
-                    .add(new Position(intersectionRow, intersectionColumn / 2 - 1))
-                    .build();
-        }
-
-        return tilePositions
-                .filter(pos -> pos.row() >= 0 &&
-                        pos.row() < 2 * GRID_SIZE - 1 &&
-                        pos.column() >= 0 &&
-                        pos.column() < ROW_FORMULA.apply(pos.row()))
-                .map(pos -> getTileAt(pos.row(), pos.column()))
-                .collect(Collectors.toUnmodifiableSet());
-    }
-
-    public Set<Intersection> getConnectedIntersections(Intersection intersection) {
-        return getConnectedIntersections(intersection.getPosition());
-    }
-
-    public Set<Intersection> getConnectedIntersections(Position position) {
-        int intersectionRow = position.row();
-        int intersectionColumn = position.column();
-        Stream.Builder<Position> intersectionPositions = Stream.<Position>builder()
-                .add(new Position(intersectionRow, intersectionColumn - 1))
-                .add(new Position(intersectionRow, intersectionColumn + 1));
-
-        if (intersectionRow == GRID_SIZE - 1) {
-            if (intersectionColumn % 2 == 0) {
-                intersectionPositions.add(new Position(intersectionRow + 1, intersectionColumn));
-            } else {
-                intersectionPositions.add(new Position(intersectionRow - 1, intersectionColumn - 1));
-            }
-        } else if (intersectionRow == GRID_SIZE) {
-            if (intersectionColumn % 2 == 0) {
-                intersectionPositions.add(new Position(intersectionRow - 1, intersectionColumn));
-            } else {
-                intersectionPositions.add(new Position(intersectionRow + 1, intersectionColumn - 1));
-            }
-        } else if (intersectionRow < GRID_SIZE) {
-            if (intersectionColumn % 2 == 0) {
-                intersectionPositions.add(new Position(intersectionRow + 1, intersectionColumn + 1));
-            } else {
-                intersectionPositions.add(new Position(intersectionRow - 1, intersectionColumn - 1));
-            }
-        } else {
-            if (intersectionColumn % 2 == 0) {
-                intersectionPositions.add(new Position(intersectionRow - 1, intersectionColumn + 1));
-            } else {
-                intersectionPositions.add(new Position(intersectionRow + 1, intersectionColumn - 1));
-            }
-        }
-
-        return intersectionPositions.build()
-                .filter(pos -> pos.row() >= 0 &&
-                        pos.row() < 2 * GRID_SIZE &&
-                        pos.column() >= 0 &&
-                        pos.column() < 2 * ROW_FORMULA.apply(pos.row() < GRID_SIZE ? pos.row() : pos.row() - 1) + 1)
-                .map(pos -> getIntersectionAt(pos.row(), pos.column()))
-                .collect(Collectors.toUnmodifiableSet());
-    }
-
-    // Ports
-
-    public Port getPortAtIntersection(Intersection intersection) {
-        return getPortAtPosition(intersection.getPosition());
-    }
-
-    public Port getPortAtPosition(Position position) {
-        return ports.getOrDefault(position, null);
+        roads.put(Set.of(position0, position1), new Road(this, position0, position1, player));
+        return true;
     }
 }
