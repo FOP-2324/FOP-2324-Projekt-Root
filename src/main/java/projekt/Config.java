@@ -1,9 +1,9 @@
 package projekt;
 
 import org.tudalgo.algoutils.student.io.PropertyUtils;
+
 import projekt.model.ResourceType;
-import projekt.model.buildings.Structure;
-import projekt.model.tiles.DesertTile;
+import projekt.model.buildings.Settlement;
 import projekt.model.tiles.Tile;
 
 import java.util.*;
@@ -11,6 +11,10 @@ import java.util.function.Function;
 
 public final class Config {
 
+    /**
+     * The properties file containing the amount of tiles of each type the ratio is
+     * calulated by (see {@link #TILE_RATIOS}).
+     */
     private static final Properties TILE_RATIO_PROPERTIES = PropertyUtils.getProperties("tile_ratios.properties");
 
     /**
@@ -26,12 +30,12 @@ public final class Config {
     /**
      * The number of sides the dice have.
      */
-    public static final int DICE_SIDES = 6;
+    public static final int DICE_SIDES = 3;
 
     /**
-     * Starting at 1, the distance to the grid's edge measured from the center.
+     * The radius of the grid, center is included.
      */
-    public static final int GRID_SIZE = 3;
+    public static final int GRID_RADIUS = 6;
 
     /**
      * Maximum amount of roads a player can place / own.
@@ -48,72 +52,64 @@ public final class Config {
      */
     public static final int MAX_CITIES = 4;
 
-    public static final Function<Structure.Type, Integer> MAP_LIMIT = type -> switch (type) {
-        case ROAD -> MAX_ROADS;
-        case VILLAGE -> MAX_VILLAGES;
-        case CITY -> MAX_CITIES;
-    };
-
     /**
-     * The formula to calculate how many tiles fit in a given row (zero-indexed).
-     */
-    public static final Function<Integer, Integer> ROW_FORMULA = i -> -Math.abs(i - (GRID_SIZE - 1)) + (2 * GRID_SIZE - 1);
-
-    /**
-     * The formula to calculate how many tiles fit in a grid with the given size.
+     * The formula to calculate how many tiles fit in a grid with the given radius.
      */
     public static final Function<Integer, Integer> TILE_FORMULA = i -> 6 * (i * (i - 1) / 2) + 1;
 
     /**
-     * The ratio of each {@link Tile.Type} to the total amount of tiles in the grid.
+     * The ratio of each {@link TileImpl.Type} to the total amount of tiles in the
+     * grid.
      */
-    public static final Map<Tile.Type, Double> TILE_RATIOS = Collections.unmodifiableMap(new HashMap<>() {{
-        for (Tile.Type tileType : Tile.Type.values()) {
-            put(tileType, Double.parseDouble(TILE_RATIO_PROPERTIES.getProperty(tileType.name())) / TILE_FORMULA.apply(GRID_SIZE));
+    public static final Map<Tile.Type, Double> TILE_RATIOS = Collections.unmodifiableMap(new HashMap<>() {
+        {
+            double sum = TILE_RATIO_PROPERTIES.entrySet().stream()
+                    .filter(entry -> Tile.Type.valueOf(entry.getKey().toString()) instanceof Tile.Type)
+                    .mapToDouble(entry -> Double.parseDouble(entry.getValue().toString())).sum();
+            for (Tile.Type tileType : Tile.Type.values()) {
+                put(tileType, Double.parseDouble(TILE_RATIO_PROPERTIES.getProperty(tileType.name())) / sum);
+            }
         }
-    }});
-
-    public static final Map<Tile.Type, ResourceType> RESOURCE_MAPPING = Map.of(
-        Tile.Type.WOODLAND, ResourceType.WOOD,
-        Tile.Type.MEADOW, ResourceType.WOOL,
-        Tile.Type.FARMLAND, ResourceType.GRAIN,
-        Tile.Type.HILL, ResourceType.CLAY,
-        Tile.Type.MOUNTAIN, ResourceType.ORE
-    );
+    });
 
     /**
      * The pool of available "number chips" or yields.
-     * By default, yields range from 2 to 12 inclusive, excluding 7. Yields 3 to 11 are available twice.
-     * The total number of available yields must equal {@code TILE_FORMULA.apply(GRID_SIZE)} minus the amount of tiles
-     * of type {@link DesertTile} in the grid.
+     * yields range from {@link #NUMBER_OF_DICE} to {@link #NUMBER_OF_DICE} *
+     * {@link #DICE_SIDES} excluding 7.
+     * The total number of available yields must equal
+     * {@code TILE_FORMULA.apply(GRID_RADIUS)} minus the amount of tiles
+     * of type {@link TileImpl.Type#DESERT} in the grid.
      */
-    public static final Stack<Integer> YIELD_POOL = new Stack<>() {{
-        // TODO: replace hard-coded constraints
-        for (int i = 2; i <= 12; i++) {
-            if (i == 7) continue;
-            if (i >= 3 && i <= 11) {
-                add(i);
+    public static final Stack<Integer> YIELD_POOL = new Stack<>() {
+        {
+            int total_number_of_tiles = TILE_FORMULA.apply(GRID_RADIUS);
+            int number_of_deserts = (int) (total_number_of_tiles * TILE_RATIOS.get(Tile.Type.DESERT));
+            for (int i = 0; i < total_number_of_tiles - number_of_deserts; i++) {
+                int number = NUMBER_OF_DICE + i % (DICE_SIDES * NUMBER_OF_DICE - (NUMBER_OF_DICE - 1));
+                push(number != 7 ? number : 6);
             }
-            add(i);
+
+            Collections.shuffle(this, RANDOM);
         }
+    };
 
-        Collections.shuffle(this, RANDOM);
-    }};
+    /**
+     * The amount of resources needed to build a road.
+     */
+    public static final Map<ResourceType, Integer> ROAD_BUILDING_COST = Map.of(
+            ResourceType.WOOD, 1,
+            ResourceType.CLAY, 1);
 
-    public static final Map<Structure.Type, Map<ResourceType, Integer>> BUILDING_COSTS = Map.of(
-        Structure.Type.ROAD, Map.of(
-            ResourceType.WOOD, 1,
-            ResourceType.CLAY, 1
-        ),
-        Structure.Type.VILLAGE, Map.of(
-            ResourceType.WOOD, 1,
-            ResourceType.CLAY, 1,
-            ResourceType.GRAIN, 1,
-            ResourceType.WOOL, 1
-        ),
-        Structure.Type.CITY, Map.of(
-            ResourceType.GRAIN, 2,
-            ResourceType.ORE, 3
-        )
-    );
+    /**
+     * The amount of resources needed to build each settlement type.
+     */
+    public static final Map<Settlement.Type, Map<ResourceType, Integer>> SETTLEMENT_BUILDING_COST = Map.of(
+            Settlement.Type.VILLAGE, Map.of(
+                    ResourceType.WOOD, 1,
+                    ResourceType.CLAY, 1,
+                    ResourceType.GRAIN, 1,
+                    ResourceType.WOOL, 1),
+            Settlement.Type.CITY, Map.of(
+                    ResourceType.GRAIN, 2,
+                    ResourceType.ORE, 3));
 }
