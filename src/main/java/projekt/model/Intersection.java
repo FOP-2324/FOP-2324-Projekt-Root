@@ -92,5 +92,5 @@ public interface Intersection {
      * @param position the positions to check
      * @return wether all positions are connected
      */
-    boolean isConnectedTO(TilePosition... position);
+    boolean isConnectedTo(TilePosition... position);
 }
