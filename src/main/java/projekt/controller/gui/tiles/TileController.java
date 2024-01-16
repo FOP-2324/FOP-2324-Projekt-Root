@@ -1,6 +1,6 @@
-package projekt.controller.tiles;
+package projekt.controller.gui.tiles;
 
-import projekt.controller.Controller;
+import projekt.controller.gui.Controller;
 import projekt.model.tiles.Tile;
 import projekt.view.tiles.TileBuilder;
 

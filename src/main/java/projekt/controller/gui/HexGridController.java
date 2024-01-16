@@ -1,11 +1,13 @@
-package projekt.controller;
+package projekt.controller.gui;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import javafx.event.Event;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Region;
+import javafx.util.Builder;
 import projekt.model.HexGrid;
 import projekt.view.HexGridBuilder;
 
@@ -13,21 +15,19 @@ public class HexGridController extends Controller {
     private final HexGrid hexGrid;
     private static double lastX, lastY;
 
-    public HexGridController(
-        final HexGrid hexGrid, final Consumer<ScrollEvent> scrollHandler,
-        final Consumer<MouseEvent> pressedHandler,
-        final BiConsumer<MouseEvent, Region> draggedHandler) {
-        super(new HexGridBuilder(hexGrid, scrollHandler, pressedHandler, draggedHandler));
+    public HexGridController(final HexGrid hexGrid) {
+        super(getHexGridBuilder(hexGrid));
         this.hexGrid = hexGrid;
     }
 
-    public static HexGridController getHexGridController(final HexGrid hexGrid) {
-        final double minTileSize = hexGrid.getTileSize();
-        final Consumer<ScrollEvent> scrollHandler = (event) -> {
-            if (hexGrid.getTileSize() <= minTileSize && event.getDeltaY() < 0 || event.getDeltaY() == 0) {
+    private static Builder<Region> getHexGridBuilder(HexGrid hexGrid) {
+        final double minTileScale = 0.5;
+        final BiConsumer<ScrollEvent, Region> scrollHandler = (event, pane) -> {
+            if (pane.getScaleX() <= minTileScale && event.getDeltaY() < 0 || event.getDeltaY() == 0) {
                 return;
             }
-            hexGrid.tileSizeProperty().set(hexGrid.getTileSize() + event.getDeltaY());
+            pane.setScaleX(pane.getScaleX() + event.getDeltaY() / 500);
+            pane.setScaleY(pane.getScaleY() + event.getDeltaY() / 500);
         };
         final Consumer<MouseEvent> pressedHandler = (event) -> {
             lastX = event.getX();
@@ -41,7 +41,11 @@ public class HexGridController extends Controller {
             lastX = event.getX();
             lastY = event.getY();
         };
-        return new HexGridController(hexGrid, scrollHandler, pressedHandler, draggedHandler);
+        final BiConsumer<Event, Region> centerButtonHandler = (event, pane) -> {
+            pane.setTranslateX(0);
+            pane.setTranslateY(0);
+        };
+        return new HexGridBuilder(hexGrid, scrollHandler, pressedHandler, draggedHandler, centerButtonHandler);
     }
 
     public HexGrid getHexGrid() {

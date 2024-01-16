@@ -2,17 +2,19 @@ package projekt;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
-import projekt.controller.SceneSwitcher;
-import projekt.controller.SceneSwitcher.SceneType;
+import projekt.controller.gui.SceneSwitcher;
+import projekt.controller.gui.SceneSwitcher.SceneType;
 
 public class MyApplication extends Application {
 
     @Override
     public void start(final Stage stage) throws Exception {
-        stage.setMinWidth(450);
-        stage.setMinHeight(400);
+        stage.setMinWidth(854);
+        stage.setMinHeight(480);
+        stage.setWidth(1280);
+        stage.setHeight(720);
 
-        SceneSwitcher.loadScene(SceneType.MAIN_MENU, stage);
+        SceneSwitcher.getInstance(stage).loadScene(SceneType.GAME_BOARD);
     }
 
     /**

@@ -8,7 +8,9 @@ import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
 
 import javafx.beans.binding.Bindings;
+import javafx.event.Event;
 import javafx.geometry.Insets;
+import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Background;
@@ -30,25 +32,30 @@ import projekt.view.tiles.TileBuilder;
 
 public class HexGridBuilder implements Builder<Region> {
     private final HexGrid grid;
-    private final Consumer<ScrollEvent> scrollHandler;
+    private final BiConsumer<ScrollEvent, Region> scrollHandler;
     private final Consumer<MouseEvent> pressedHandler;
     private final BiConsumer<MouseEvent, Region> draggedHandler;
     private final Supplier<Double> maxX;
     private final Supplier<Double> maxY;
     private final Supplier<Double> minX;
     private final Supplier<Double> minY;
+    private BiConsumer<Event, Region> centerButtonHandler;
 
     public HexGridBuilder(
-        final HexGrid grid, final Consumer<ScrollEvent> scrollHandler,
-        final Consumer<MouseEvent> pressedHandler,
-        final BiConsumer<MouseEvent, Region> draggedHandler) {
+            final HexGrid grid, final BiConsumer<ScrollEvent, Region> scrollHandler,
+            final Consumer<MouseEvent> pressedHandler,
+            final BiConsumer<MouseEvent, Region> draggedHandler,
+            final BiConsumer<Event, Region> centerButtonHandler) {
         this.grid = grid;
         this.scrollHandler = scrollHandler;
         this.pressedHandler = pressedHandler;
         this.draggedHandler = draggedHandler;
+        this.centerButtonHandler = centerButtonHandler;
+
         final BiFunction<ToIntFunction<TilePosition>, IntBinaryOperator, Integer> reduceTiles = (positionFunction,
-                                                                                                 reduceFunction) -> grid.getTiles().values().stream().map(Tile::getPosition)
+                reduceFunction) -> grid.getTiles().values().stream().map(Tile::getPosition)
                         .mapToInt(positionFunction).reduce(reduceFunction).getAsInt();
+
         this.maxX = () -> calculatePositionXTranslation(
                 new TilePosition(reduceTiles.apply(TilePosition::q, Integer::max), 0)) + 10;
         this.minX = () -> calculatePositionXTranslation(
@@ -86,19 +93,25 @@ public class HexGridBuilder implements Builder<Region> {
             return circle;
         }).toList());
 
-        hexGridPane.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, null)));
+        hexGridPane.getStylesheets().add("css/hexmap.css");
 
         final StackPane mapPane = new StackPane(hexGridPane);
-        mapPane.setBackground(new Background(new BackgroundFill(Color.DEEPSKYBLUE, null, null)));
-        mapPane.setPadding(new Insets(20));
-        mapPane.minWidthProperty().bind(hexGridPane.maxWidthProperty());
-        mapPane.minHeightProperty().bind(hexGridPane.maxHeightProperty());
+        mapPane.setBackground(new Background(new BackgroundFill(Color.DODGERBLUE, null, null)));
 
-        mapPane.setOnScroll(scrollHandler::accept);
+        mapPane.setOnScroll(event -> scrollHandler.accept(event, hexGridPane));
         mapPane.setOnMousePressed(pressedHandler::accept);
-        mapPane.setOnMouseDragged((event) -> draggedHandler.accept(event, hexGridPane));
+        mapPane.setOnMouseDragged(event -> draggedHandler.accept(event, hexGridPane));
 
-        hexGridPane.getStylesheets().add("css/hexmap.css");
+        Button centerButton = new Button("Zentrieren");
+        centerButton.setOnAction(event -> centerButtonHandler.accept(event, hexGridPane));
+        centerButton.translateXProperty().bind(Bindings
+                .createDoubleBinding(() -> (centerButton.getWidth() - mapPane.getWidth()) / 2 + 10,
+                        mapPane.widthProperty()));
+        centerButton.translateYProperty().bind(Bindings.createDoubleBinding(
+                () -> (mapPane.getHeight() - centerButton.getHeight()) / 2 - 10, mapPane.heightProperty()));
+
+        mapPane.getChildren().add(centerButton);
+
         return mapPane;
     }
 

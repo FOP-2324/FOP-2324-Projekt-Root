@@ -1,4 +1,4 @@
-package projekt.controller;
+package projekt.controller.gui;
 
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -30,20 +30,19 @@ public abstract class SceneController extends Controller {
         Platform.exit();
     }
 
-    public static Runnable mainMenuSceneLoader(final Stage stage) {
-        return () -> SceneSwitcher.loadScene(SceneSwitcher.SceneType.MAIN_MENU, stage);
+    public static void mainMenuSceneLoader() {
+        SceneSwitcher.getInstance().loadScene(SceneSwitcher.SceneType.MAIN_MENU);
     }
 
-    public static Runnable settingsSceneLoader(final Stage stage) {
-        return () -> System.out.println("Loading settings");
+    public static void settingsSceneLoader() {
+        System.out.println("Loading settings");
     }
 
-    public static Runnable highscoreSceneLoader(final Stage stage) {
-        return () -> System.out.println("Loading highscores");
-
+    public static void highscoreSceneLoader() {
+        System.out.println("Loading highscores");
     }
 
-    public static Runnable gameSceneLoader(final Stage stage) {
-        return () -> SceneSwitcher.loadScene(SceneSwitcher.SceneType.GAME_BOARD, stage);
+    public static void gameSceneLoader() {
+        SceneSwitcher.getInstance().loadScene(SceneSwitcher.SceneType.GAME_BOARD);
     }
 }

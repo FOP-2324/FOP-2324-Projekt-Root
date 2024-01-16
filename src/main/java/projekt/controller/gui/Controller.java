@@ -1,4 +1,4 @@
-package projekt.controller;
+package projekt.controller.gui;
 
 import javafx.scene.layout.Region;
 import javafx.util.Builder;
@@ -10,7 +10,7 @@ public abstract class Controller {
         this.viewBuilder = viewBuilder;
     }
 
-    public Region getView() {
+    public Region buildView() {
         return viewBuilder.build();
     }
 }
