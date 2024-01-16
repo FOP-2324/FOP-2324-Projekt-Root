@@ -7,7 +7,8 @@ public class GameBoardController extends SceneController {
     private final GameController gameController;
 
     protected GameBoardController(final GameController gameController) {
-        super(new GameBoardBuilder(new HexGridController(gameController.getGrid()).buildView()));
+        super(new GameBoardBuilder(new HexGridController(gameController.getGrid()).buildView(),
+                gameController.getPlayers()));
         this.gameController = gameController;
     }
 
