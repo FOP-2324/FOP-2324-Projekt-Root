@@ -2,19 +2,13 @@ package projekt.controller.gui;
 
 import javafx.application.Platform;
 import javafx.scene.Scene;
-import javafx.scene.layout.Region;
 import javafx.stage.Stage;
-import javafx.util.Builder;
 
 /**
  * A SceneController is responsible for dynamically managing a {@link Scene} and
  * its {@link Stage}.
  */
-public abstract class SceneController extends Controller {
-    protected SceneController(final Builder<Region> viewBuilder) {
-        super(viewBuilder);
-    }
-
+public interface SceneController extends Controller {
     /**
      * Specifies the title of the {@link Stage}.
      * This is used to set the title of the
@@ -22,7 +16,7 @@ public abstract class SceneController extends Controller {
      *
      * @return The title of the {@link Stage}.
      */
-    public abstract String getTitle();
+    String getTitle();
 
     // --Setup Methods-- //
 

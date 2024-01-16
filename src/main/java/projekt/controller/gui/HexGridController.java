@@ -11,12 +11,13 @@ import javafx.util.Builder;
 import projekt.model.HexGrid;
 import projekt.view.HexGridBuilder;
 
-public class HexGridController extends Controller {
+public class HexGridController implements Controller {
     private final HexGrid hexGrid;
+    private final Builder<Region> builder;
     private static double lastX, lastY;
 
     public HexGridController(final HexGrid hexGrid) {
-        super(getHexGridBuilder(hexGrid));
+        this.builder = getHexGridBuilder(hexGrid);
         this.hexGrid = hexGrid;
     }
 
@@ -50,5 +51,10 @@ public class HexGridController extends Controller {
 
     public HexGrid getHexGrid() {
         return hexGrid;
+    }
+
+    @Override
+    public Builder<Region> getBuilder() {
+        return builder;
     }
 }
