@@ -1,14 +1,12 @@
 package projekt.controller;
 
+import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 import projekt.Config;
 import projekt.model.GameState;
 import projekt.model.HexGridImpl;
 import projekt.model.Player;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class GameController {
@@ -68,6 +66,8 @@ public class GameController {
         // normal case
         distributeResources(diceRoll);
         playerController.setActivePlayer(newActivePlayer);
+        playerController.setCallback(this::nextPlayer);
+        playerController.setPlayerObjective(PlayerController.PlayerObjective.REGULAR_TURN);
     }
 
     public void startGame() {
@@ -79,12 +79,32 @@ public class GameController {
     }
 
     private void diceRollSeven(final Player activePlayer) {
-        // each player with more than 7 cards needs to select half of their cards to discard
-        // player can choose robber position
-        // player can steal from one of the players with a settlement next to the robber
-        throw new UnsupportedOperationException("Problem for later");
+        diceRollSeven(activePlayer, new ArrayList<>(this.getState().getPlayers()));
     }
 
+    private void diceRollSeven(final Player activePlayer, final List<Player> remainingPlayers) {
+        if (remainingPlayers.isEmpty()) {
+            playerController.setActivePlayer(activePlayer);
+            playerController.setPlayerObjective(PlayerController.PlayerObjective.SELECT_ROBBER_TILE);
+            playerController.setCallback(() -> {
+                playerController.setPlayerObjective(PlayerController.PlayerObjective.SELECT_CARD_TO_STEAL);
+                playerController.setCallback(() -> {
+                    playerController.setCallback(this::nextPlayer);
+                    playerController.setPlayerObjective(PlayerController.PlayerObjective.REGULAR_TURN);
+                });
+            });
+        }
+        final var player = remainingPlayers.remove(0);
+        if (player.getResources().values().stream().mapToInt(Integer::intValue).sum() > 7) {
+            playerController.setActivePlayer(player);
+            playerController.setPlayerObjective(PlayerController.PlayerObjective.DROP_HALF_CARDS);
+            playerController.setCallback(() -> diceRollSeven(activePlayer, remainingPlayers));
+        } else {
+            diceRollSeven(activePlayer, remainingPlayers);
+        }
+    }
+
+    @StudentImplementationRequired
     public void distributeResources(final int diceRoll) {
         for (final var tile : state.getGrid().getTiles(diceRoll)) {
             for (final var intersection : tile.getIntersections()) {

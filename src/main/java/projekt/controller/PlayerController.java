@@ -19,6 +19,17 @@ public class PlayerController {
 
     private final GameController gameController;
 
+    private Runnable callback;
+
+    public static enum PlayerObjective {
+        DROP_HALF_CARDS,
+        SELECT_CARD_TO_STEAL,
+        SELECT_ROBBER_TILE,
+        REGULAR_TURN,
+    }
+
+    private Property<PlayerObjective> playerObjectiveProperty;
+
     /**
      * Creates a new {@link PlayerController} with the given {@link GameController}.
      *
@@ -64,11 +75,27 @@ public class PlayerController {
         return gameController;
     }
 
+    public Runnable getCallback() {
+        return callback;
+    }
+
+    public void setCallback(final Runnable callback) {
+        this.callback = callback;
+    }
+
+    public Property<PlayerObjective> getPlayerObjectiveProperty() {
+        return playerObjectiveProperty;
+    }
+
+    public void setPlayerObjective(final PlayerObjective playerObjectiveProperty) {
+        this.playerObjectiveProperty.setValue(playerObjectiveProperty);
+    }
+
     /**
      * Ends the turn of the current {@link Player}.
      */
     public void endTurn() {
-        gameController.nextPlayer();
+        callback.run();
     }
 
     // -- Building methods --
@@ -159,5 +186,26 @@ public class PlayerController {
             player.addResource(entry.getKey(), entry.getValue());
         }
         return true;
+    }
+
+    /**
+     * Selects the resources to drop when a 7 is rolled. Also invokes {@link #endTurn()} to proceed to the next player.
+     *
+     * @param resourcesToDrop the resources to drop
+     */
+    public void selectResourcesToDrop(final Map<ResourceType, Integer> resourcesToDrop) {
+        final var player = getActivePlayer();
+        if (!player.hasResources(resourcesToDrop)) {
+            return;
+        }
+        // check if half of the cards are selected
+        final var playerResourceAmount = player.getResources().values().stream().mapToInt(Integer::intValue).sum();
+        final var resourcesToDropAmount = resourcesToDrop.values().stream().mapToInt(Integer::intValue).sum();
+        if (resourcesToDropAmount != playerResourceAmount / 2) {
+            return;
+        }
+        // remove resources from player
+        player.removeResources(resourcesToDrop);
+        endTurn();
     }
 }
