@@ -8,21 +8,25 @@ import projekt.model.Player;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class GameController {
 
     private static GameController INSTANCE;
     private final GameState state;
-    private Player currentPlayer;
+    private final PlayerController playerController;
     private final Iterator<Integer> dice;
 
-    public GameController(final GameState state, final Iterator<Integer> dice) {
+    public GameController(final GameState state, final PlayerController pc, final Iterator<Integer> dice) {
         this.state = state;
+        this.playerController = pc;
         this.dice = dice;
     }
 
     public GameController() {
         this.state = new GameState(new HexGridImpl(Config.GRID_RADIUS), new ArrayList<>());
+        this.playerController = new PlayerController(this);
         this.dice = Config.RANDOM
             .ints(
                 1,
@@ -39,40 +43,49 @@ public class GameController {
         return dice.next();
     }
 
+    public Set<Player> getWinners() {
+        return getState().getPlayers().stream()
+            .filter(player -> player.getVictoryPoints() >= 10)
+            .collect(Collectors.toUnmodifiableSet());
+    }
+
+    public void nextPlayer() {
+        // check for winner
+        if (!getWinners().isEmpty()) {
+            getState().setGameOver(true);
+            return;
+        }
+        // advance to next player
+        final var index = state.getPlayers().indexOf(playerController.getActivePlayer());
+        final var newActivePlayer = state.getPlayers().get((index + 1) % state.getPlayers().size());
+        // roll dice
+        final var diceRoll = castDice();
+        // special case: 7
+        if (diceRoll == 7) {
+            diceRollSeven(newActivePlayer);
+            return;
+        }
+        // normal case
+        distributeResources(diceRoll);
+        playerController.setActivePlayer(newActivePlayer);
+    }
+
     public void startGame() {
         if (this.state.getPlayers().size() < Config.MIN_PLAYERS) {
             throw new IllegalStateException("Not enough players");
         }
-        this.currentPlayer = state.getPlayers().get(0);
-        gameLoop();
+        this.playerController.setActivePlayer(this.state.getPlayers().get(0));
+        nextPlayer();
     }
 
-    public void nextPlayer() {
-        final var index = state.getPlayers().indexOf(currentPlayer);
-        currentPlayer = state.getPlayers().get((index + 1) % state.getPlayers().size());
-    }
-
-    private void gameLoop() {
-        while (!getState().isGameOver()) {
-            final var diceRoll = castDice();
-            if (diceRoll == 7) {
-                diceRollSeven();
-            } else {
-                resourcePhase(diceRoll);
-            }
-            buildTradeDevelopmentPhase();
-            nextPlayer();
-        }
-    }
-
-    private void diceRollSeven() {
+    private void diceRollSeven(final Player activePlayer) {
         // each player with more than 7 cards needs to select half of their cards to discard
         // player can choose robber position
         // player can steal from one of the players with a settlement next to the robber
         throw new UnsupportedOperationException("Problem for later");
     }
 
-    public void resourcePhase(final int diceRoll) {
+    public void distributeResources(final int diceRoll) {
         for (final var tile : state.getGrid().getTiles(diceRoll)) {
             for (final var intersection : tile.getIntersections()) {
                 Optional.ofNullable(intersection.getSettlement()).ifPresent(
@@ -80,8 +93,5 @@ public class GameController {
                 );
             }
         }
-    }
-
-    private void buildTradeDevelopmentPhase() {
     }
 }

@@ -7,11 +7,16 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import javafx.beans.property.IntegerProperty;
 import javafx.scene.paint.Color;
+import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
+import projekt.model.buildings.Port;
 
 public class PlayerImpl implements Player {
     private final HexGrid hexGrid;
     private final Color color;
+    private String name;
+    private IntegerProperty victoryPoints;
     private final Map<ResourceType, Integer> resources = new HashMap<>();
     private final Map<DevelopmentCardType, Integer> developmentCards = new HashMap<>();
 
@@ -42,6 +47,36 @@ public class PlayerImpl implements Player {
         }
         resources.put(resourceType, resources.getOrDefault(resourceType, 0) - amount);
         return true;
+    }
+
+    @Override
+    public boolean removeResources(final Map<ResourceType, Integer> resources) {
+        if (!hasResources(resources)) {
+            return false;
+        }
+        for (final var entry : resources.entrySet()) {
+            removeResource(entry.getKey(), entry.getValue());
+        }
+        return true;
+    }
+
+    @Override
+    public int getTradeRatio(final ResourceType resourceType) {
+        final var intersections = getHexGrid().getIntersections();
+        return intersections.values().stream()
+            .filter(intersection -> intersection.getPort() != null && intersection.getPort().resourceType() == resourceType)
+            .filter(intersection -> intersection.playerHasConnectedRoad(this))
+            .map(Intersection::getPort)
+            .findAny().map(Port::ratio).orElse(4);
+    }
+
+    @Override
+    @StudentImplementationRequired
+    public boolean hasResources(final Map<ResourceType, Integer> resources) {
+        return resources
+            .entrySet()
+            .stream()
+            .noneMatch(e -> this.resources.getOrDefault(e.getKey(), 0) < e.getValue());
     }
 
     @Override
@@ -88,4 +123,17 @@ public class PlayerImpl implements Player {
         return color;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public IntegerProperty getVictoryPointsProperty() {
+        return victoryPoints;
+    }
+
+    @Override
+    public int getVictoryPoints() {
+        return victoryPoints.get();
+    }
 }

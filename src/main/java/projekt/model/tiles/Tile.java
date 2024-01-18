@@ -128,18 +128,19 @@ public interface Tile {
      *
      * @param direction the direction of the intersection
      * @param player    the player who owns the settlement
-     * @return wether the settlement was placed
+     * @return whether the settlement was placed
      */
     default boolean placeVillage(final IntersectionDirection direction, final Player player) {
         return getIntersection(direction).placeVillage(player);
     }
 
     /**
-     * Add a road on the given edge
+     * Add a road on the given edge. Also checks if the player has a connected road. Does not check or remove
+     * Player's resources.
      *
      * @param direction the direction of the edge
      * @param owner     the player who owns the road
-     * @return wether the road was added
+     * @return whether the road was added
      */
     boolean addRoad(EdgeDirection direction, Player owner);
 
@@ -152,9 +153,9 @@ public interface Tile {
     Road getRoad(EdgeDirection direction);
 
     /**
-     * Returns wether the robber is currently on this tile.
+     * Returns whether the robber is currently on this tile.
      *
-     * @return wether the robber is currently on this tile
+     * @return whether the robber is currently on this tile
      */
     default boolean hasRobber() {
         return getHexGrid().getRobberPosition().equals(getPosition());

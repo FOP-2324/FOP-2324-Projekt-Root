@@ -103,7 +103,8 @@ public interface HexGrid {
     Intersection getIntersectionAt(TilePosition position0, TilePosition position1, TilePosition position2);
 
     /**
-     * Adds the given road to the grid.
+     * Adds the given road to the grid. Also Checks if the player has a connected road. Does not check or remove
+     * Player's resources.
      *
      * @param position0 the first position of the road
      * @param position1 the second position of the road
@@ -152,7 +153,7 @@ public interface HexGrid {
      *
      * @param position0 the first position
      * @param position1 the second position
-     * @return wether the road was removed
+     * @return whether the road was removed
      */
     boolean removeRoad(TilePosition position0, TilePosition position1);
 

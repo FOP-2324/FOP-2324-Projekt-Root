@@ -1,5 +1,7 @@
 package projekt.model;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.paint.Color;
 import projekt.Config;
 
@@ -21,7 +23,7 @@ public final class GameState {
     /**
      * The game over flag.
      */
-    private boolean gameOver = false;
+    private final BooleanProperty gameOverProperty = new SimpleBooleanProperty(false);
 
     /**
      * Creates a new {@link GameState} with the given {@link HexGrid} and {@link Player}s.
@@ -53,21 +55,30 @@ public final class GameState {
     }
 
     /**
+     * Returns a {@link BooleanProperty} that represents the game over flag.
+     *
+     * @return a {@link BooleanProperty} that represents the game over flag.
+     */
+    public BooleanProperty getGameOverProperty() {
+        return gameOverProperty;
+    }
+
+    /**
      * Returns true if the game is over, false otherwise.
      *
      * @return true if the game is over, false otherwise.
      */
     public boolean isGameOver() {
-        return gameOver;
+        return gameOverProperty.get();
     }
 
     /**
      * Sets the game over flag.
      *
-     * @param gameOver the new game over flag
+     * @param gameOverProperty the new game over flag
      */
-    public void setGameOver(final boolean gameOver) {
-        this.gameOver = gameOver;
+    public void setGameOver(final boolean gameOverProperty) {
+        this.gameOverProperty.set(gameOverProperty);
     }
 
     /**

@@ -24,18 +24,19 @@ public interface Intersection {
     Settlement getSettlement();
 
     /**
-     * Places a village on this intersection for the given player.
+     * Places a village on this intersection for the given player. Verifies that the player has a connected road to this intersection.
+     * Does not check or remove resources.
      *
      * @param player the player who places the settlement
-     * @return wether the placement was successful
+     * @return whether the placement was successful
      */
     boolean placeVillage(Player player);
 
     /**
-     * Upgrades the settlement on this intersection to a city.
+     * Upgrades the settlement on this intersection to a city. Player resources are not checked or removed.
      *
      * @param player the player who owns the settlement
-     * @return wether the upgrade was successful
+     * @return whether the upgrade was successful
      */
     boolean upgradeSettlement(Player player);
 
@@ -45,6 +46,13 @@ public interface Intersection {
      * @return the port on this intersection
      */
     Port getPort();
+
+    /**
+     * Returns true if the player has a connected road to this intersection
+     * @param player the player to check
+     * @return true if the player has a connected road to this intersection
+     */
+    boolean playerHasConnectedRoad(Player player);
 
     /**
      * Returns all Roads connected to this intersection.
@@ -79,18 +87,18 @@ public interface Intersection {
     }
 
     /**
-     * Checks wether this intersection is connected to the given position
+     * Checks whether this intersection is connected to the given position
      *
      * @param position the position to check
-     * @return wether the position is connected
+     * @return whether the position is connected
      */
     boolean isConnectedTo(TilePosition position);
 
     /**
-     * Checks wether is connected to all given positions
+     * Checks whether is connected to all given positions
      *
      * @param position the positions to check
-     * @return wether all positions are connected
+     * @return whether all positions are connected
      */
     boolean isConnectedTo(TilePosition... position);
 }
