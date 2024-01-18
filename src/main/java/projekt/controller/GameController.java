@@ -79,11 +79,11 @@ public class GameController {
     }
 
     private void diceRollSeven(final Player activePlayer) {
-        diceRollSeven(activePlayer, new ArrayList<>(this.getState().getPlayers()));
+        diceRollSeven(activePlayer, this.getState().getPlayers().iterator());
     }
 
-    private void diceRollSeven(final Player activePlayer, final List<Player> remainingPlayers) {
-        if (remainingPlayers.isEmpty()) {
+    private void diceRollSeven(final Player activePlayer, final Iterator<Player> remainingPlayers) {
+        if (!remainingPlayers.hasNext()) {
             playerController.setActivePlayer(activePlayer);
             playerController.setPlayerObjective(PlayerController.PlayerObjective.SELECT_ROBBER_TILE);
             playerController.setCallback(() -> {
@@ -94,7 +94,7 @@ public class GameController {
                 });
             });
         }
-        final var player = remainingPlayers.remove(0);
+        final var player = remainingPlayers.next();
         if (player.getResources().values().stream().mapToInt(Integer::intValue).sum() > 7) {
             playerController.setActivePlayer(player);
             playerController.setPlayerObjective(PlayerController.PlayerObjective.DROP_HALF_CARDS);
