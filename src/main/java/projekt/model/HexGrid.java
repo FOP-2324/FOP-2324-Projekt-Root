@@ -61,6 +61,14 @@ public interface HexGrid {
     Map<TilePosition, Tile> getTiles();
 
     /**
+     * Returns all tiles of the grid that have the given roll number as a set.
+     *
+     * @param diceRoll the roll number of the tiles
+     * @return all tiles of the grid that have the given roll number as a set
+     */
+    Set<Tile> getTiles(int diceRoll);
+
+    /**
      * Returns the tile at the given q and r coordinate.
      *
      * @param q the q-coordinate of the tile

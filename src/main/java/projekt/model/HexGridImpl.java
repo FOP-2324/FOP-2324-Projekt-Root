@@ -128,6 +128,11 @@ public class HexGridImpl implements HexGrid {
     }
 
     @Override
+    public Set<Tile> getTiles(final int diceRoll) {
+        return tiles.values().stream().filter(tile -> tile.getRollNumber() == diceRoll).collect(Collectors.toSet());
+    }
+
+    @Override
     public Tile getTileAt(final int q, final int r) {
         return getTileAt(new TilePosition(q, r));
     }

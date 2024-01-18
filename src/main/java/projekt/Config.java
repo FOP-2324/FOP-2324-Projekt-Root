@@ -11,6 +11,8 @@ import java.util.function.Function;
 
 public final class Config {
 
+    public static final int MAX_PLAYERS = 4;
+    public static final int MIN_PLAYERS = 2;
     /**
      * The properties file containing the amount of tiles of each type the ratio is
      * calulated by (see {@link #TILE_RATIOS}).
@@ -58,7 +60,7 @@ public final class Config {
     public static final Function<Integer, Integer> TILE_FORMULA = i -> 6 * (i * (i - 1) / 2) + 1;
 
     /**
-     * The ratio of each {@link TileImpl.Type} to the total amount of tiles in the
+     * The ratio of each {@link projekt.model.tiles.TileImpl.Type} to the total amount of tiles in the
      * grid.
      */
     public static final Map<Tile.Type, Double> TILE_RATIOS = Collections.unmodifiableMap(new HashMap<>() {
@@ -78,7 +80,7 @@ public final class Config {
      * {@link #DICE_SIDES} excluding 7.
      * The total number of available yields must equal
      * {@code TILE_FORMULA.apply(GRID_RADIUS)} minus the amount of tiles
-     * of type {@link TileImpl.Type#DESERT} in the grid.
+     * of type {@link projekt.model.tiles.TileImpl.Type#DESERT} in the grid.
      */
     public static final Stack<Integer> YIELD_POOL = new Stack<>() {
         {

@@ -1,100 +1,87 @@
 package projekt.controller;
 
-import javafx.scene.paint.Color;
 import projekt.Config;
-import projekt.model.HexGrid;
+import projekt.model.GameState;
 import projekt.model.HexGridImpl;
 import projekt.model.Player;
-import projekt.model.PlayerImpl;
-import projekt.model.tiles.Tile;
-import projekt.view.GameBoardBuilder;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.IntStream;
+import java.util.Iterator;
+import java.util.Optional;
 
-public class GameController extends SceneController {
+public class GameController {
 
     private static GameController INSTANCE;
-    private final HexGrid grid;
-    private final List<Player> players = new ArrayList<>();
-    private Tile banditTile = null;
+    private final GameState state;
+    private Player currentPlayer;
+    private final Iterator<Integer> dice;
 
-    private GameController(final HexGrid grid) {
-        super(new GameBoardBuilder(HexGridController.getHexGridController(grid).getView()));
-        this.grid = grid;
+    public GameController(final GameState state, final Iterator<Integer> dice) {
+        this.state = state;
+        this.dice = dice;
     }
 
-    public static GameController getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new GameController(new HexGridImpl(Config.GRID_RADIUS));
-        }
-
-        return INSTANCE;
+    public GameController() {
+        this.state = new GameState(new HexGridImpl(Config.GRID_RADIUS), new ArrayList<>());
+        this.dice = Config.RANDOM
+            .ints(
+                1,
+                2 * Config.DICE_SIDES * Config.NUMBER_OF_DICE + 1
+            )
+            .iterator();
     }
 
-    public HexGrid getGrid() {
-        return grid;
-    }
-
-    public Player newPlayer() {
-        final Player player = new PlayerImpl(grid, Color.AQUA);
-        players.add(player);
-        return player;
-    }
-
-    public List<Player> getPlayers() {
-        return Collections.unmodifiableList(players);
-    }
-
-    public Tile getBanditTile() {
-        return banditTile;
-    }
-
-    public void setBanditTile(final Tile tile) {
-        this.banditTile = tile;
+    public GameState getState() {
+        return state;
     }
 
     public int castDice() {
-        return IntStream.rangeClosed(1, Config.NUMBER_OF_DICE)
-            .map(i -> Config.RANDOM.nextInt(1, Config.DICE_SIDES + 1))
-            .sum();
+        return dice.next();
     }
 
-    public void resourcePhase() {
-        final int diceValue = castDice();
-
-//        if (diceValue != 7) {
-//            final Set<? extends Settlement> settlements = players.stream()
-//                .flatMap(player -> player.getStructures()
-//                    .stream()
-//                    .filter(structure -> structure instanceof Settlement)
-//                    .map(structure -> (Settlement) structure))
-//                .collect(Collectors.toSet());
-//
-//            grid.getTiles()
-//                .stream()
-//                .filter(tile -> tile.getYield() == diceValue)
-//                .forEach(tile -> {
-//                    final Set<TilePosition> adjacentIntersections = tile.getAdjacentIntersections()
-//                        .values()
-//                        .stream()
-//                        .map(Intersection::getPosition)
-//                        .collect(Collectors.toSet());
-//                    settlements.forEach(settlement -> {
-//                        if (adjacentIntersections.contains(settlement.getPosition())) {
-//                            settlement.getOwner().addResource(tile.getResource(), 1);
-//                        }
-//                    });
-//                });
-//        } else {
-//            // bandit becomes active
-//        }
+    public void startGame() {
+        if (this.state.getPlayers().size() < Config.MIN_PLAYERS) {
+            throw new IllegalStateException("Not enough players");
+        }
+        this.currentPlayer = state.getPlayers().get(0);
+        gameLoop();
     }
 
-    @Override
-    public String getTitle() {
-        return "Siedler von Catan";
+    public void nextPlayer() {
+        final var index = state.getPlayers().indexOf(currentPlayer);
+        currentPlayer = state.getPlayers().get((index + 1) % state.getPlayers().size());
+    }
+
+    private void gameLoop() {
+        while (!getState().isGameOver()) {
+            final var diceRoll = castDice();
+            if (diceRoll == 7) {
+                diceRollSeven();
+            } else {
+                resourcePhase(diceRoll);
+            }
+            buildTradeDevelopmentPhase();
+            nextPlayer();
+        }
+    }
+
+    private void diceRollSeven() {
+        // each player with more than 7 cards needs to select half of their cards to discard
+        // player can choose robber position
+        // player can steal from one of the players with a settlement next to the robber
+        throw new UnsupportedOperationException("Problem for later");
+    }
+
+    public void resourcePhase(final int diceRoll) {
+        for (final var tile : state.getGrid().getTiles(diceRoll)) {
+            for (final var intersection : tile.getIntersections()) {
+                Optional.ofNullable(intersection.getSettlement()).ifPresent(
+                    settlement -> settlement.owner().addResource(tile.getType().resourceType, 1)
+                );
+            }
+        }
+    }
+
+    private void buildTradeDevelopmentPhase() {
     }
 }

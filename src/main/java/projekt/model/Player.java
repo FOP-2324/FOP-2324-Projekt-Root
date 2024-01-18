@@ -62,10 +62,10 @@ public interface Player {
      */
     default Set<Settlement> getSettlements() {
         return getHexGrid().getIntersections().values().stream()
-                .filter(intersection -> intersection.getSettlement() != null)
-                .filter(intersection -> intersection.getSettlement().owner() == this)
-                .map(intersection -> intersection.getSettlement())
-                .collect(Collectors.toSet());
+            .filter(intersection -> intersection.getSettlement() != null)
+            .filter(intersection -> intersection.getSettlement().owner() == this)
+            .map(intersection -> intersection.getSettlement())
+            .collect(Collectors.toSet());
     }
 
     /**
@@ -116,4 +116,13 @@ public interface Player {
      * @return the color of the player
      */
     Color getColor();
+
+    /**
+     * Returns true if the player is an AI, false otherwise.
+     *
+     * @return true if the player is an AI, false otherwise
+     */
+    default boolean isAi() {
+        return false;
+    }
 }
