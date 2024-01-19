@@ -61,11 +61,12 @@ public class PlayerImpl implements Player {
     }
 
     @Override
+    @StudentImplementationRequired
     public int getTradeRatio(final ResourceType resourceType) {
         final var intersections = getHexGrid().getIntersections();
         return intersections.values().stream()
             .filter(intersection -> intersection.getPort() != null && intersection.getPort().resourceType() == resourceType)
-            .filter(intersection -> intersection.playerHasConnectedRoad(this))
+            .filter(intersection -> intersection.getSettlement() != null && intersection.getSettlement().owner() == this)
             .map(Intersection::getPort)
             .findAny().map(Port::ratio).orElse(4);
     }

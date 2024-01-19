@@ -41,6 +41,7 @@ public class GameController {
         return dice.next();
     }
 
+    @StudentImplementationRequired
     public Set<Player> getWinners() {
         return getState().getPlayers().stream()
             .filter(player -> player.getVictoryPoints() >= 10)
