@@ -24,8 +24,8 @@ public class SceneSwitcher {
     public enum SceneType {
         // --Enum Constants-- //
 
-        MAIN_MENU((stage) -> new MainMenuSceneController(stage)),
-        GAME_BOARD((stage) -> GameController.getInstance());
+        MAIN_MENU((stage) -> new MainMenuSceneController(stage));
+//        GAME_BOARD((stage) -> GameController.getInstance());
 
         private final Function<Stage, SceneController> controllerGenerator;
 
@@ -40,7 +40,7 @@ public class SceneSwitcher {
      * @param sceneType The {@link SceneType} to load.
      * @param stage     The {@link Stage} to show the {@link Scene} on.
      * @return The {@link Scene} that was switched to.
-     * @see #loadScene(SceneAndController, Stage)
+     * @see #loadScene(SceneType, Stage)
      */
     public static Scene loadScene(final SceneType sceneType, final Stage stage) {
         final SceneController controller = sceneType.controllerGenerator.apply(stage);
