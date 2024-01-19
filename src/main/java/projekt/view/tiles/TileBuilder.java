@@ -36,11 +36,13 @@ public class TileBuilder implements Builder<Region> {
 
     private VBox createCoordinateLabel() {
         final VBox detailsBox = new VBox();
-        final Label position = new Label(tile.getPosition().toString());
-        position.getStyleClass().add("coordinate-label");
-        final Label resource = new Label(tile.getType().toString());
-        resource.getStyleClass().add("coordinate-label");
-        detailsBox.getChildren().addAll(position, resource);
+        final Label positionLabel = new Label(tile.getPosition().toString());
+        positionLabel.getStyleClass().add("coordinate-label");
+        final Label resourceLabel = new Label(tile.getType().toString());
+        final Label rollNumberLabel = new Label(Integer.toString(tile.getRollNumber()));
+        resourceLabel.getStyleClass().add("coordinate-label");
+        rollNumberLabel.getStyleClass().add("coordinate-label");
+        detailsBox.getChildren().addAll(positionLabel, resourceLabel, rollNumberLabel);
         detailsBox.setAlignment(Pos.CENTER);
         return detailsBox;
     }
