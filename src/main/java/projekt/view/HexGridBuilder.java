@@ -24,6 +24,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.util.Builder;
+import projekt.controller.gui.IntersectionController;
 import projekt.model.HexGrid;
 import projekt.model.Intersection;
 import projekt.model.TilePosition;
@@ -85,12 +86,7 @@ public class HexGridBuilder implements Builder<Region> {
         hexGridPane.minHeightProperty().bind(hexGridPane.maxHeightProperty());
 
         hexGridPane.getChildren().addAll(grid.getIntersections().values().stream().map((intersection) -> {
-            final Circle circle = new Circle();
-            circle.setRadius(10);
-            circle.setFill(Color.RED);
-            circle.setCenterX(calculateIntersectionXTranslation(intersection));
-            circle.setCenterY(calculateIntersectionYTranslation(intersection));
-            return circle;
+            return placeIntersection(intersection);
         }).toList());
 
         hexGridPane.getStylesheets().add("css/hexmap.css");
@@ -126,6 +122,19 @@ public class HexGridBuilder implements Builder<Region> {
                         () -> (calculatePositionYTranslationOffset(position).get()),
                         tile.heightProperty()));
         return tileView;
+    }
+
+    private Region placeIntersection(final Intersection intersection) {
+        final Region intersectionView = new IntersectionController(intersection).buildView();
+        intersectionView.translateXProperty().bind(Bindings
+                .createDoubleBinding(
+                        () -> (calculateIntersectionXTranslation(intersection) - intersectionView.getWidth() / 2),
+                        intersectionView.widthProperty()));
+        intersectionView.translateYProperty().bind(Bindings
+                .createDoubleBinding(
+                        () -> (calculateIntersectionYTranslation(intersection) - intersectionView.getHeight() / 2),
+                        intersectionView.heightProperty()));
+        return intersectionView;
     }
 
     private double calculatePositionXTranslation(final TilePosition Position) {
