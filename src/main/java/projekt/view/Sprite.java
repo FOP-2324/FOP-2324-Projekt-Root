@@ -31,9 +31,13 @@ public class Sprite extends ImageView {
         setImage(image);
         double cellSize = image.getWidth();
         setPreserveRatio(true);
-        setViewport(new Rectangle2D(0, 0, cellSize, cellSize));
+        setViewport(cellSize);
         imageIndex.addListener(
-                observable -> setViewport(new Rectangle2D(0, cellSize * imageIndex.get(), cellSize, cellSize)));
+                observable -> setViewport(cellSize));
+    }
+
+    private void setViewport(double cellSize) {
+        setViewport(new Rectangle2D(0, cellSize * imageIndex.get(), cellSize, cellSize));
     }
 
     private void colorize() {
