@@ -22,29 +22,25 @@ public class IntersectionBuilder implements Builder<Region> {
 
     @Override
     public Region build() {
-        ImageView settlement = getSettlement();
-        // Circle circle = new Circle(10, Color.RED);
-        // pane.getChildren().add(circle);
-        if (settlement != null) {
-            pane.getChildren().add(settlement);
-        }
+        pane.getChildren().clear();
         unhighlight();
+        addSettlement();
         pane.getStyleClass().add("intersection");
         return pane;
     }
 
-    private ImageView getSettlement() {
-        if (intersection.getSettlement() == null) {
-            return null;
+    private void addSettlement() {
+        Settlement settlement = intersection.getSettlement();
+        if (settlement == null) {
+            return;
         }
-        Sprite settlement = new Sprite("img/settlements.png", 0, intersection.getSettlement().owner().getColor());
-        if (intersection.getSettlement().type() == Settlement.Type.CITY) {
-            settlement.imageIndexProperty().set(1);
-        }
-        settlement.setFitWidth(25);
-        settlement.setPreserveRatio(true);
 
-        return settlement;
+        Sprite settlementSprite = new Sprite("img/settlements.png", settlement.type().ordinal(),
+                settlement.owner().getColor());
+        settlementSprite.setFitWidth(25);
+        settlementSprite.setPreserveRatio(true);
+
+        pane.getChildren().add(settlementSprite);
     }
 
     public Intersection getIntersection() {
@@ -52,7 +48,7 @@ public class IntersectionBuilder implements Builder<Region> {
     }
 
     public void highlight(Consumer<MouseEvent> handler) {
-        System.out.println("Highlighting intersection");
+        unhighlight();
         Circle circle = new Circle(10, Color.RED);
         pane.getChildren().add(circle);
         pane.setOnMouseClicked(handler::accept);
