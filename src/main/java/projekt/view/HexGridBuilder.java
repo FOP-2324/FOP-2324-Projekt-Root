@@ -19,16 +19,12 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.util.Builder;
-import projekt.controller.gui.IntersectionController;
 import projekt.model.HexGrid;
 import projekt.model.Intersection;
 import projekt.model.TilePosition;
@@ -45,6 +41,7 @@ public class HexGridBuilder implements Builder<Region> {
     private final Supplier<Double> minX;
     private final Supplier<Double> minY;
     private final BiConsumer<Event, Region> centerButtonHandler;
+    private final Map<Intersection, Builder<Region>> intersectionBuilders;
 
     private final Set<Region> intersections = new HashSet<>();
     private final Set<Node> roads = new HashSet<>();
@@ -52,11 +49,14 @@ public class HexGridBuilder implements Builder<Region> {
     private final Pane hexGridPane = new Pane();
 
     public HexGridBuilder(
-            final HexGrid grid, final BiConsumer<ScrollEvent, Region> scrollHandler,
+            final HexGrid grid, final Map<Intersection, Builder<Region>> intersectionBuilders,
+            final BiConsumer<ScrollEvent, Region> scrollHandler,
             final Consumer<MouseEvent> pressedHandler,
             final BiConsumer<MouseEvent, Region> draggedHandler,
             final BiConsumer<Event, Region> centerButtonHandler) {
         this.grid = grid;
+        this.intersectionBuilders = intersectionBuilders;
+
         this.scrollHandler = scrollHandler;
         this.pressedHandler = pressedHandler;
         this.draggedHandler = draggedHandler;
@@ -94,9 +94,7 @@ public class HexGridBuilder implements Builder<Region> {
         hexGridPane.minWidthProperty().bind(hexGridPane.maxWidthProperty());
         hexGridPane.minHeightProperty().bind(hexGridPane.maxHeightProperty());
 
-        hexGridPane.getChildren().addAll(grid.getIntersections().values().stream().map((intersection) -> {
-            return placeIntersection(intersection);
-        }).toList());
+        drawIntersections();
 
         hexGridPane.getStylesheets().add("css/hexmap.css");
 
@@ -133,8 +131,16 @@ public class HexGridBuilder implements Builder<Region> {
         return tileView;
     }
 
-    private Region placeIntersection(final Intersection intersection) {
-        final Region intersectionView = new IntersectionController(intersection).buildView();
+    public void drawIntersections() {
+        hexGridPane.getChildren().removeIf(node -> intersections.contains(node));
+        intersections.clear();
+        hexGridPane.getChildren().addAll(intersectionBuilders.entrySet().stream().map(entries -> {
+            return placeIntersection(entries.getKey(), entries.getValue());
+        }).toList());
+    }
+
+    private Region placeIntersection(final Intersection intersection, Builder<Region> builder) {
+        final Region intersectionView = builder.build();
         intersectionView.translateXProperty().bind(Bindings
                 .createDoubleBinding(
                         () -> (calculateIntersectionXTranslation(intersection) - intersectionView.getWidth() / 2),
@@ -143,6 +149,8 @@ public class HexGridBuilder implements Builder<Region> {
                 .createDoubleBinding(
                         () -> (calculateIntersectionYTranslation(intersection) - intersectionView.getHeight() / 2),
                         intersectionView.heightProperty()));
+
+        intersections.add(intersectionView);
         return intersectionView;
     }
 

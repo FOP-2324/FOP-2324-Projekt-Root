@@ -1,7 +1,10 @@
 package projekt.controller.gui;
 
+import java.util.Map;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import javafx.event.Event;
 import javafx.scene.input.MouseEvent;
@@ -9,19 +12,25 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Region;
 import javafx.util.Builder;
 import projekt.model.HexGrid;
+import projekt.model.Intersection;
 import projekt.view.HexGridBuilder;
 
 public class HexGridController implements Controller {
     private final HexGrid hexGrid;
-    private final Builder<Region> builder;
+    private final HexGridBuilder builder;
+    private final Set<IntersectionController> intersectionControllers;
     private static double lastX, lastY;
 
     public HexGridController(final HexGrid hexGrid) {
-        this.builder = getHexGridBuilder(hexGrid);
+        this.intersectionControllers = hexGrid.getIntersections().values().stream()
+                .map(intersection -> new IntersectionController(intersection)).collect(Collectors.toSet());
+        this.builder = getHexGridBuilder(hexGrid, intersectionControllers.stream().collect(
+                Collectors.toMap(IntersectionController::getIntersection, controller -> controller.getBuilder())));
         this.hexGrid = hexGrid;
     }
 
-    private static Builder<Region> getHexGridBuilder(HexGrid hexGrid) {
+    private static HexGridBuilder getHexGridBuilder(final HexGrid hexGrid,
+            final Map<Intersection, Builder<Region>> intersectionBuilders) {
         final double minTileScale = 0.5;
         final BiConsumer<ScrollEvent, Region> scrollHandler = (event, pane) -> {
             if (pane.getScaleX() <= minTileScale && event.getDeltaY() < 0 || event.getDeltaY() == 0) {
@@ -46,7 +55,13 @@ public class HexGridController implements Controller {
             pane.setTranslateX(0);
             pane.setTranslateY(0);
         };
-        return new HexGridBuilder(hexGrid, scrollHandler, pressedHandler, draggedHandler, centerButtonHandler);
+        return new HexGridBuilder(hexGrid, intersectionBuilders, scrollHandler, pressedHandler, draggedHandler,
+                centerButtonHandler);
+    }
+
+    public Set<IntersectionController> getIntersectionControllers() {
+        return intersectionControllers;
+    }
     }
 
     public HexGrid getHexGrid() {
