@@ -1,5 +1,9 @@
 package projekt.view;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -40,7 +44,12 @@ public class HexGridBuilder implements Builder<Region> {
     private final Supplier<Double> maxY;
     private final Supplier<Double> minX;
     private final Supplier<Double> minY;
-    private BiConsumer<Event, Region> centerButtonHandler;
+    private final BiConsumer<Event, Region> centerButtonHandler;
+
+    private final Set<Region> intersections = new HashSet<>();
+    private final Set<Node> roads = new HashSet<>();
+    private final Set<Node> highlightedRoads = new HashSet<>();
+    private final Pane hexGridPane = new Pane();
 
     public HexGridBuilder(
             final HexGrid grid, final BiConsumer<ScrollEvent, Region> scrollHandler,
@@ -69,7 +78,7 @@ public class HexGridBuilder implements Builder<Region> {
 
     @Override
     public Region build() {
-        final Pane hexGridPane = new Pane();
+        hexGridPane.getChildren().clear();
 
         hexGridPane.getChildren().addAll(grid.getTiles().values().stream().map((tile) -> {
             return placeTile(tile.getPosition(), tile);
