@@ -33,6 +33,7 @@ public record Road(HexGrid grid, TilePosition position1, TilePosition position2,
     public Set<Road> getConnectedRoads() {
         return this.getIntersections().stream()
                 .flatMap(i -> i.getConnectedRoads().stream())
+                .filter(r -> !r.equals(this))
                 .collect(java.util.stream.Collectors.toSet());
     }
 }
