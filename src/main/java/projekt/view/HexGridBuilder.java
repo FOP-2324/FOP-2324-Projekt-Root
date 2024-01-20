@@ -13,7 +13,7 @@ import java.util.function.ToIntFunction;
 
 import javafx.beans.binding.Bindings;
 import javafx.event.Event;
-import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -23,11 +23,12 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
 import javafx.util.Builder;
 import projekt.model.HexGrid;
 import projekt.model.Intersection;
 import projekt.model.TilePosition;
+import projekt.model.buildings.Road;
 import projekt.model.tiles.Tile;
 import projekt.view.tiles.TileBuilder;
 
@@ -94,6 +95,7 @@ public class HexGridBuilder implements Builder<Region> {
         hexGridPane.minWidthProperty().bind(hexGridPane.maxWidthProperty());
         hexGridPane.minHeightProperty().bind(hexGridPane.maxHeightProperty());
 
+        drawRoads();
         drawIntersections();
 
         hexGridPane.getStylesheets().add("css/hexmap.css");
@@ -152,6 +154,60 @@ public class HexGridBuilder implements Builder<Region> {
 
         intersections.add(intersectionView);
         return intersectionView;
+    }
+
+    private Line drawLineBetweenIntersections(final Intersection intersection0, final Intersection intersection1,
+            final Color color) {
+        return drawLineBetweenIntersections(intersection0, intersection1, color, 1, 5);
+    }
+
+    private Line drawLineBetweenIntersections(final Intersection intersection0, final Intersection intersection1,
+            final Color color, final double offsetScaleFactor, final double width) {
+        final double positionOffset = 10;
+        final Line line = new Line(calculateIntersectionXTranslation(intersection0),
+                calculateIntersectionYTranslation(intersection0), calculateIntersectionXTranslation(intersection1),
+                calculateIntersectionYTranslation(intersection1));
+        line.setStroke(color);
+        line.setStrokeWidth(width);
+        line.setStrokeDashOffset(-positionOffset / 2);
+        line.getStrokeDashArray().addAll(
+                (calculateDistance(line.getStartX(), line.getStartY(), line.getEndX(), line.getEndY()) - positionOffset)
+                        * offsetScaleFactor);
+        return line;
+    }
+
+    public void highlightRoad(Intersection intersection0, Intersection intersection1, Consumer<MouseEvent> handler) {
+        final Line highlightedRoad = drawLineBetweenIntersections(intersection0, intersection1, Color.RED, 0.2, 8);
+        highlightedRoad.getStrokeDashArray().add(20.0);
+        highlightedRoad.setOnMouseClicked(handler::accept);
+        highlightedRoads.add(highlightedRoad);
+        hexGridPane.getChildren().add(highlightedRoad);
+    }
+
+    public void unhighlightRoads() {
+        hexGridPane.getChildren().removeIf(node -> highlightedRoads.contains(node));
+        highlightedRoads.clear();
+    }
+
+    public void drawRoads() {
+        hexGridPane.getChildren().removeIf(node -> roads.contains(node));
+        roads.clear();
+        hexGridPane.getChildren().addAll(grid.getRoads().values().stream().map((road) -> {
+            return placeRoad(road);
+        }).toList());
+    }
+
+    private Node placeRoad(final Road road) {
+        final List<Intersection> intersections = road.getIntersections().stream().toList();
+
+        final Line roadLine = drawLineBetweenIntersections(intersections.get(0), intersections.get(1),
+                road.owner().getColor());
+        roads.add(roadLine);
+        return roadLine;
+    }
+
+    private double calculateDistance(final double x1, final double y1, final double x2, final double y2) {
+        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     }
 
     private double calculatePositionXTranslation(final TilePosition Position) {

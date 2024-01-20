@@ -68,6 +68,22 @@ public class HexGridController implements Controller {
         return hexGrid;
     }
 
+    public void drawIntersections() {
+        builder.drawIntersections();
+    }
+
+    public void drawRoads() {
+        builder.drawRoads();
+    }
+
+    public void highlightRoad(Intersection intersection0, Intersection intersection1, Consumer<MouseEvent> handler) {
+        builder.highlightRoad(intersection0, intersection1, handler);
+    }
+
+    public void unhighlightRoads() {
+        builder.unhighlightRoads();
+    }
+
     @Override
     public Builder<Region> getBuilder() {
         return builder;
