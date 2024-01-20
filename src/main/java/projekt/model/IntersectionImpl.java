@@ -7,6 +7,7 @@ import projekt.model.buildings.Settlement;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -89,7 +90,7 @@ public class IntersectionImpl implements Intersection {
 
     @Override
     public boolean upgradeSettlement(final Player player) {
-        if (settlment == null || settlment.type() != Settlement.Type.VILLAGE)
+        if (settlment == null || settlment.type() != Settlement.Type.VILLAGE || settlment.owner() != player)
             return false;
         settlment = new Settlement(player, Settlement.Type.CITY);
         return true;
@@ -116,11 +117,11 @@ public class IntersectionImpl implements Intersection {
     public Set<Intersection> getAdjacentIntersections() {
         return hexGrid.getIntersections().entrySet().stream().filter(
                 entry -> entry.getKey().containsAll(Set.of(position0, position1)) ||
-                    entry.getKey().containsAll(Set.of(position1, position2)) ||
-                    entry.getKey().containsAll(Set.of(position2, position0)))
-            .map(Map.Entry::getValue)
-            .filter(this::equals)
-            .collect(Collectors.toSet());
+                        entry.getKey().containsAll(Set.of(position1, position2)) ||
+                        entry.getKey().containsAll(Set.of(position2, position0)))
+                .map(Map.Entry::getValue)
+                .filter(Predicate.not(this::equals))
+                .collect(Collectors.toSet());
     }
 
     @Override
