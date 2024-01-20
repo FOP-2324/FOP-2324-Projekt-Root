@@ -139,6 +139,11 @@ public class IntersectionImpl implements Intersection {
     }
 
     @Override
+    public boolean hasConnectingRoad(Intersection intersection) {
+        return getConnectedRoads().stream().anyMatch(r -> r.getIntersections().contains(intersection));
+    }
+
+    @Override
     public int hashCode() {
         return getAdjacentPositions().hashCode();
     }

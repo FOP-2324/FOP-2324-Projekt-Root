@@ -93,4 +93,12 @@ public interface Intersection {
      * @return wether all positions are connected
      */
     boolean isConnectedTo(TilePosition... position);
+
+    /**
+     * Checks whether has a connecting road to the given intersection
+     *
+     * @param intersection the intersection to check
+     * @return whether there is a connecting road
+     */
+    boolean hasConnectingRoad(Intersection intersection);
 }
