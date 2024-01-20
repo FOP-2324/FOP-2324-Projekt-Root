@@ -158,4 +158,13 @@ public class IntersectionImpl implements Intersection {
         final IntersectionImpl intersection = (IntersectionImpl) o;
         return getAdjacentPositions().equals(intersection.getAdjacentPositions());
     }
+
+    @Override
+    public String toString() {
+        return "Intersection{" +
+                "position0=" + position0 +
+                ", position1=" + position1 +
+                ", position2=" + position2 +
+                '}';
+    }
 }
