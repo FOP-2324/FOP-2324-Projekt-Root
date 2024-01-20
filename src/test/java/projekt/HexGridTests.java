@@ -6,12 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import projekt.model.GameState;
-import projekt.model.HexGrid;
-import projekt.model.HexGridImpl;
-import projekt.model.Player;
-import projekt.model.PlayerImpl;
-import projekt.model.TilePosition;
+import projekt.model.*;
 
 import java.util.List;
 
@@ -23,13 +18,12 @@ public class HexGridTests {
     @BeforeEach
     void setUp() {
         gameState = new GameState(
-            List.of(
+            new HexGridImpl(6), List.of(
                 new PlayerImpl(this.hexGrid, Color.AQUA)
-            ),
-            new HexGridImpl(6)
+            )
         );
-        this.hexGrid = gameState.grid();
-        this.player = gameState.players().get(0);
+        this.hexGrid = gameState.getGrid();
+        this.player = gameState.getPlayers().get(0);
     }
 
     @Test

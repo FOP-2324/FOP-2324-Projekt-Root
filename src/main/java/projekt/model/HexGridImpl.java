@@ -128,6 +128,11 @@ public class HexGridImpl implements HexGrid {
     }
 
     @Override
+    public Set<Tile> getTiles(final int diceRoll) {
+        return tiles.values().stream().filter(tile -> tile.getRollNumber() == diceRoll).collect(Collectors.toSet());
+    }
+
+    @Override
     public Tile getTileAt(final int q, final int r) {
         return getTileAt(new TilePosition(q, r));
     }
@@ -189,7 +194,11 @@ public class HexGridImpl implements HexGrid {
         if (roads.containsKey(Set.of(position0, position1))) {
             return false;
         }
-        roads.put(Set.of(position0, position1), new Road(this, position0, position1, player));
+        final var newRoad = new Road(this, position0, position1, player);
+        if(newRoad.getConnectedRoads().stream().noneMatch(road -> road.owner() == player)) {
+            return false;
+        }
+        roads.put(Set.of(position0, position1), newRoad);
         return true;
     }
 }

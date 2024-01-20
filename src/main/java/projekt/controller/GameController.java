@@ -1,93 +1,116 @@
 package projekt.controller;
 
-import javafx.scene.paint.Color;
+import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 import projekt.Config;
-import projekt.model.HexGrid;
+import projekt.model.GameState;
 import projekt.model.HexGridImpl;
 import projekt.model.Player;
-import projekt.model.PlayerImpl;
-import projekt.model.tiles.Tile;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.IntStream;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class GameController {
 
     private static GameController INSTANCE;
-    private final HexGrid grid;
-    private final List<Player> players = new ArrayList<>();
-    private Tile banditTile = null;
+    private final GameState state;
+    private final PlayerController playerController;
+    private final Iterator<Integer> dice;
 
-    private GameController(final HexGrid grid) {
-        this.grid = grid;
+    public GameController(final GameState state, final PlayerController pc, final Iterator<Integer> dice) {
+        this.state = state;
+        this.playerController = pc;
+        this.dice = dice;
     }
 
-    public static GameController getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new GameController(new HexGridImpl(Config.GRID_RADIUS));
-        }
-
-        return INSTANCE;
+    public GameController() {
+        this.state = new GameState(new HexGridImpl(Config.GRID_RADIUS), new ArrayList<>());
+        this.playerController = new PlayerController(this);
+        this.dice = Config.RANDOM
+                .ints(
+                        1,
+                        2 * Config.DICE_SIDES * Config.NUMBER_OF_DICE + 1)
+                .iterator();
     }
 
-    public HexGrid getGrid() {
-        return grid;
-    }
-
-    public Player newPlayer() {
-        final Player player = new PlayerImpl(grid, Color.AQUA);
-        players.add(player);
-        return player;
-    }
-
-    public List<Player> getPlayers() {
-        return Collections.unmodifiableList(players);
-    }
-
-    public Tile getBanditTile() {
-        return banditTile;
-    }
-
-    public void setBanditTile(final Tile tile) {
-        this.banditTile = tile;
+    public GameState getState() {
+        return state;
     }
 
     public int castDice() {
-        return IntStream.rangeClosed(1, Config.NUMBER_OF_DICE)
-                .map(i -> Config.RANDOM.nextInt(1, Config.DICE_SIDES + 1))
-                .sum();
+        return dice.next();
     }
 
-    public void resourcePhase() {
-        final int diceValue = castDice();
+    @StudentImplementationRequired
+    public Set<Player> getWinners() {
+        return getState().getPlayers().stream()
+                .filter(player -> player.getVictoryPoints() >= 10)
+                .collect(Collectors.toUnmodifiableSet());
+    }
 
-        // if (diceValue != 7) {
-        // final Set<? extends Settlement> settlements = players.stream()
-        // .flatMap(player -> player.getStructures()
-        // .stream()
-        // .filter(structure -> structure instanceof Settlement)
-        // .map(structure -> (Settlement) structure))
-        // .collect(Collectors.toSet());
-        //
-        // grid.getTiles()
-        // .stream()
-        // .filter(tile -> tile.getYield() == diceValue)
-        // .forEach(tile -> {
-        // final Set<TilePosition> adjacentIntersections =
-        // tile.getAdjacentIntersections()
-        // .values()
-        // .stream()
-        // .map(Intersection::getPosition)
-        // .collect(Collectors.toSet());
-        // settlements.forEach(settlement -> {
-        // if (adjacentIntersections.contains(settlement.getPosition())) {
-        // settlement.getOwner().addResource(tile.getResource(), 1);
-        // }
-        // });
-        // });
-        // } else {
-        // // bandit becomes active
-        // }
+    public void nextPlayer() {
+        // check for winner
+        if (!getWinners().isEmpty()) {
+            getState().setGameOver(true);
+            return;
+        }
+        // advance to next player
+        final var index = state.getPlayers().indexOf(playerController.getActivePlayer());
+        final var newActivePlayer = state.getPlayers().get((index + 1) % state.getPlayers().size());
+        // roll dice
+        final var diceRoll = castDice();
+        // special case: 7
+        if (diceRoll == 7) {
+            diceRollSeven(newActivePlayer);
+            return;
+        }
+        // normal case
+        distributeResources(diceRoll);
+        playerController.setActivePlayer(newActivePlayer);
+        playerController.setCallback(this::nextPlayer);
+        playerController.setPlayerObjective(PlayerController.PlayerObjective.REGULAR_TURN);
+    }
+
+    public void startGame() {
+        if (this.state.getPlayers().size() < Config.MIN_PLAYERS) {
+            throw new IllegalStateException("Not enough players");
+        }
+        this.playerController.setActivePlayer(this.state.getPlayers().get(0));
+        nextPlayer();
+    }
+
+    private void diceRollSeven(final Player activePlayer) {
+        diceRollSeven(activePlayer, this.getState().getPlayers().iterator());
+    }
+
+    private void diceRollSeven(final Player activePlayer, final Iterator<Player> remainingPlayers) {
+        if (!remainingPlayers.hasNext()) {
+            playerController.setActivePlayer(activePlayer);
+            playerController.setPlayerObjective(PlayerController.PlayerObjective.SELECT_ROBBER_TILE);
+            playerController.setCallback(() -> {
+                playerController.setPlayerObjective(PlayerController.PlayerObjective.SELECT_CARD_TO_STEAL);
+                playerController.setCallback(() -> {
+                    playerController.setCallback(this::nextPlayer);
+                    playerController.setPlayerObjective(PlayerController.PlayerObjective.REGULAR_TURN);
+                });
+            });
+        }
+        final var player = remainingPlayers.next();
+        if (player.getResources().values().stream().mapToInt(Integer::intValue).sum() > 7) {
+            playerController.setActivePlayer(player);
+            playerController.setPlayerObjective(PlayerController.PlayerObjective.DROP_HALF_CARDS);
+            playerController.setCallback(() -> diceRollSeven(activePlayer, remainingPlayers));
+        } else {
+            diceRollSeven(activePlayer, remainingPlayers);
+        }
+    }
+
+    @StudentImplementationRequired
+    public void distributeResources(final int diceRoll) {
+        for (final var tile : state.getGrid().getTiles(diceRoll)) {
+            for (final var intersection : tile.getIntersections()) {
+                Optional.ofNullable(intersection.getSettlement()).ifPresent(
+                        settlement -> settlement.owner().addResource(tile.getType().resourceType, 1));
+            }
+        }
     }
 }

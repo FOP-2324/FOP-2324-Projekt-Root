@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javafx.beans.property.IntegerProperty;
 import javafx.scene.paint.Color;
 import projekt.model.buildings.Road;
 import projekt.model.buildings.Settlement;
@@ -24,6 +25,27 @@ public interface Player {
     Map<ResourceType, Integer> getResources();
 
     /**
+     * Returns a property of the amount of victory points the player has.
+     *
+     * @return a property of the amount of victory points the player has.
+     */
+    IntegerProperty getVictoryPointsProperty();
+
+    /**
+     * Returns the amount of victory points the player has.
+     *
+     * @return the amount of victory points the player has.
+     */
+    int getVictoryPoints();
+
+    /**
+     * Returns true if the player has the given resources, false otherwise.
+     *
+     * @return true if the player has the given resources, false otherwise
+     */
+    boolean hasResources(Map<ResourceType, Integer> resources);
+
+    /**
      * Adds the given amount of the given resource to the player.
      *
      * @param resourceType the ResourceType to add to
@@ -38,6 +60,22 @@ public interface Player {
      * @param amount       the amount to remove
      */
     boolean removeResource(ResourceType resourceType, int amount);
+
+    /**
+     * Removes the given resources from the player.
+     *
+     * @param resources the resources to remove
+     * @return true if the player had enough resources to remove, false otherwise
+     */
+    boolean removeResources(Map<ResourceType, Integer> resources);
+
+    /**
+     * Returns the ratio the player can trade the given resource for with the bank.
+     *
+     * @param resourceType the resource to trade
+     * @return the ratio the player can trade the given resource for with the bank
+     */
+    int getTradeRatio(ResourceType resourceType);
 
     /**
      * Returns all roads the player currently has.
@@ -62,10 +100,10 @@ public interface Player {
      */
     default Set<Settlement> getSettlements() {
         return getHexGrid().getIntersections().values().stream()
-                .filter(intersection -> intersection.getSettlement() != null)
-                .filter(intersection -> intersection.getSettlement().owner() == this)
-                .map(intersection -> intersection.getSettlement())
-                .collect(Collectors.toSet());
+            .filter(intersection -> intersection.getSettlement() != null)
+            .filter(intersection -> intersection.getSettlement().owner() == this)
+            .map(Intersection::getSettlement)
+            .collect(Collectors.toSet());
     }
 
     /**
@@ -116,4 +154,13 @@ public interface Player {
      * @return the color of the player
      */
     Color getColor();
+
+    /**
+     * Returns true if the player is an AI, false otherwise.
+     *
+     * @return true if the player is an AI, false otherwise
+     */
+    default boolean isAi() {
+        return false;
+    }
 }

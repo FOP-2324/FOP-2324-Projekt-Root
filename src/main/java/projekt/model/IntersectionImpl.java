@@ -82,7 +82,7 @@ public class IntersectionImpl implements Intersection {
 
     @Override
     public boolean placeVillage(final Player player) {
-        if (settlment != null)
+        if (settlment != null || !playerHasConnectedRoad(player))
             return false;
         settlment = new Settlement(player, Settlement.Type.VILLAGE);
         return true;
@@ -99,6 +99,11 @@ public class IntersectionImpl implements Intersection {
     @Override
     public Port getPort() {
         return port;
+    }
+
+    @Override
+    public boolean playerHasConnectedRoad(final Player player) {
+        return getConnectedRoads().stream().anyMatch(road -> road.owner() == player);
     }
 
     @Override
