@@ -83,7 +83,7 @@ public class IntersectionImpl implements Intersection {
     public boolean placeVillage(final Player player) {
         if (settlment != null || !playerHasConnectedRoad(player))
             return false;
-        settlment = new Settlement(player, Settlement.Type.VILLAGE);
+        settlment = new Settlement(player, Settlement.Type.VILLAGE, this);
         return true;
     }
 
@@ -91,7 +91,7 @@ public class IntersectionImpl implements Intersection {
     public boolean upgradeSettlement(final Player player) {
         if (settlment == null || settlment.type() != Settlement.Type.VILLAGE || settlment.owner().equals(player))
             return false;
-        settlment = new Settlement(player, Settlement.Type.CITY);
+        settlment = new Settlement(player, Settlement.Type.CITY, this);
         return true;
     }
 
