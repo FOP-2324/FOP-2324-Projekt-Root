@@ -37,6 +37,10 @@ public class GameController {
         return state;
     }
 
+    public PlayerController getPlayerController() {
+        return playerController;
+    }
+
     public int castDice() {
         return dice.next();
     }
