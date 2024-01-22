@@ -98,6 +98,7 @@ public class GameController {
                     playerController.setPlayerObjective(PlayerController.PlayerObjective.REGULAR_TURN);
                 });
             });
+            return;
         }
         final var player = remainingPlayers.next();
         if (player.getResources().values().stream().mapToInt(Integer::intValue).sum() > 7) {
