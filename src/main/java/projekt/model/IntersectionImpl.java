@@ -101,6 +101,11 @@ public class IntersectionImpl implements Intersection {
     }
 
     @Override
+    public void setPort(final Port port) {
+        this.port = port;
+    }
+
+    @Override
     public boolean playerHasConnectedRoad(final Player player) {
         return getConnectedRoads().stream().anyMatch(road -> road.owner() == player);
     }

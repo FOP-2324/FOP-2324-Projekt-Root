@@ -48,6 +48,13 @@ public interface Intersection {
     Port getPort();
 
     /**
+     * Sets the port on this intersection
+     *
+     * @param port the port to set
+     */
+    void setPort(Port port);
+
+    /**
      * Returns true if the player has a connected road to this intersection
      * @param player the player to check
      * @return true if the player has a connected road to this intersection
