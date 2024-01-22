@@ -100,10 +100,10 @@ public interface Player {
      */
     default Set<Settlement> getSettlements() {
         return getHexGrid().getIntersections().values().stream()
-            .filter(intersection -> intersection.getSettlement() != null)
-            .filter(intersection -> intersection.getSettlement().owner() == this)
-            .map(Intersection::getSettlement)
-            .collect(Collectors.toSet());
+                .filter(intersection -> intersection.getSettlement() != null)
+                .filter(intersection -> intersection.getSettlement().owner().equals(this))
+                .map(Intersection::getSettlement)
+                .collect(Collectors.toSet());
     }
 
     /**
