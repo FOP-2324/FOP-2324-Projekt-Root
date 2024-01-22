@@ -13,17 +13,18 @@ import javafx.util.Builder;
 
 public abstract class MenuBuilder implements Builder<Region> {
 
-    protected final BorderPane root;
+    protected final BorderPane root = new BorderPane();
     private final Runnable quitHandler;
+    private final String title;
 
     public MenuBuilder(final String title, final Runnable quitHandler) {
-        this.root = new BorderPane();
         this.quitHandler = quitHandler;
-        init(title);
+        this.title = title;
     }
 
     @Override
     public Region build() {
+        init(title);
         return root;
     }
 
