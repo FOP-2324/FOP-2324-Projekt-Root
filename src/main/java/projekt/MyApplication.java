@@ -14,7 +14,7 @@ public class MyApplication extends Application {
         stage.setWidth(1280);
         stage.setHeight(720);
 
-        SceneSwitcher.getInstance(stage).loadScene(SceneType.GAME_BOARD);
+        SceneSwitcher.getInstance(stage).loadScene(SceneType.MAIN_MENU);
     }
 
     /**
