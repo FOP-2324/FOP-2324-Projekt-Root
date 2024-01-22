@@ -24,19 +24,23 @@ public interface SceneController extends Controller {
         Platform.exit();
     }
 
-    public static void mainMenuSceneLoader() {
+    public static void loadMainMenuScene() {
         SceneSwitcher.getInstance().loadScene(SceneSwitcher.SceneType.MAIN_MENU);
     }
 
-    public static void settingsSceneLoader() {
+    public static void loadCreateGameScene() {
+        SceneSwitcher.getInstance().loadScene(SceneSwitcher.SceneType.CREATE_GAME);
+    }
+
+    public static void loadSettingsScene() {
         System.out.println("Loading settings");
     }
 
-    public static void highscoreSceneLoader() {
+    public static void loadHighscoreScene() {
         System.out.println("Loading highscores");
     }
 
-    public static void gameSceneLoader() {
+    public static void loadGameScene() {
         SceneSwitcher.getInstance().loadScene(SceneSwitcher.SceneType.GAME_BOARD);
     }
 }

@@ -8,8 +8,8 @@ public class MainMenuSceneController implements SceneController {
     private final Builder<Region> builder;
 
     public MainMenuSceneController() {
-        builder = new MainMenuBuilder(SceneController::quit, SceneController::gameSceneLoader,
-                SceneController::settingsSceneLoader, SceneController::highscoreSceneLoader);
+        builder = new MainMenuBuilder(SceneController::quit, SceneController::loadCreateGameScene,
+                SceneController::loadSettingsScene, SceneController::loadHighscoreScene);
     }
 
     @Override
