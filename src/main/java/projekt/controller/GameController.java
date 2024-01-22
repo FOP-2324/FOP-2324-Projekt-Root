@@ -16,6 +16,13 @@ public class GameController {
     private final PlayerController playerController;
     private final Iterator<Integer> dice;
 
+    public GameController(final GameState state, final PlayerController playerController,
+            final Iterator<Integer> dice) {
+        this.state = state;
+        this.playerController = playerController;
+        this.dice = dice;
+    }
+
     public GameController(final GameState state, final Iterator<Integer> dice) {
         this.state = state;
         this.playerController = new PlayerController(this);
