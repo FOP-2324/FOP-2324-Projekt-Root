@@ -156,6 +156,13 @@ public interface Player {
     Color getColor();
 
     /**
+     * Returns the name of the player.
+     *
+     * @return the name of the player
+     */
+    String getName();
+
+    /**
      * Returns true if the player is an AI, false otherwise.
      *
      * @return true if the player is an AI, false otherwise
