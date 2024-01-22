@@ -34,15 +34,16 @@ public class GameControllerTests {
                 new PlayerImpl(hexGrid, Color.BLUE)));
         this.dice = Stream.generate(() -> 1).iterator();
         this.gameController = new GameController(gameState, dice);
-
     }
 
-    void setupPlayerResources() {
+    int setupPlayerResources() {
+        int amount = 10000;
         for (Player player : gameState.getPlayers()) {
             for (ResourceType resourceType : ResourceType.values()) {
-                player.addResource(resourceType, 10000);
+                player.addResource(resourceType, amount);
             }
         }
+        return amount;
     }
 
     @Test
@@ -120,5 +121,17 @@ public class GameControllerTests {
         playerController.endTurn();
         Assertions.assertEquals(playerController.getPlayerObjectiveProperty().getValue(),
                 PlayerController.PlayerObjective.REGULAR_TURN);
+    }
+
+    @Test
+    void tradeWithBank() {
+        int resourceAmount = setupPlayerResources();
+        this.gameController.startGame();
+        PlayerController playerController = this.gameController.getPlayerController();
+        playerController.tradeWithBank(ResourceType.CLAY, 4, ResourceType.WOOD);
+        Assertions.assertTrue(
+                playerController.getActivePlayer().getResources().get(ResourceType.CLAY) == resourceAmount - 4);
+        Assertions.assertTrue(
+                playerController.getActivePlayer().getResources().get(ResourceType.WOOD) == resourceAmount + 1);
     }
 }

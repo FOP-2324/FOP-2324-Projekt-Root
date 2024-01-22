@@ -156,10 +156,11 @@ public class PlayerController {
         if (offerAmount != ratio) {
             return false;
         }
-        if (player.getResources().get(offerType) < offerAmount) {
+        if (!player.removeResource(offerType, offerAmount)) {
             return false;
         }
-        return player.removeResource(offerType, offerAmount);
+        player.addResource(request, 1);
+        return true;
     }
 
     /**
