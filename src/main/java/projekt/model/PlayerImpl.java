@@ -44,7 +44,7 @@ public class PlayerImpl implements Player {
 
     @Override
     public boolean removeResource(final ResourceType resourceType, final int amount) {
-        if (resources.getOrDefault(resourceType, 0) <= amount) {
+        if (!hasResources(Map.of(resourceType, amount))) {
             return false;
         }
         resources.put(resourceType, resources.getOrDefault(resourceType, 0) - amount);
