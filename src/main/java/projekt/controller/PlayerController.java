@@ -1,6 +1,7 @@
 package projekt.controller;
 
 import javafx.beans.property.Property;
+import javafx.beans.property.SimpleObjectProperty;
 import projekt.Config;
 import projekt.model.Intersection;
 import projekt.model.Player;
@@ -15,7 +16,7 @@ public class PlayerController {
     /**
      * The currently active {@link Player} instance of this {@link PlayerController}.
      */
-    private Property<Player> activePlayerProperty;
+    private final Property<Player> activePlayerProperty;
 
     private final GameController gameController;
 
@@ -28,7 +29,7 @@ public class PlayerController {
         REGULAR_TURN,
     }
 
-    private Property<PlayerObjective> playerObjectiveProperty;
+    private final Property<PlayerObjective> playerObjectiveProperty;
 
     /**
      * Creates a new {@link PlayerController} with the given {@link GameController}.
@@ -37,6 +38,8 @@ public class PlayerController {
      */
     public PlayerController(final GameController gameController) {
         this.gameController = gameController;
+        this.activePlayerProperty = new SimpleObjectProperty<>();
+        this.playerObjectiveProperty = new SimpleObjectProperty<>();
     }
 
     /**

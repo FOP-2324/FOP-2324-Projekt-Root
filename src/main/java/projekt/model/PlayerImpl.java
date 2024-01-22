@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.paint.Color;
 import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 import projekt.model.buildings.Port;
@@ -16,13 +17,14 @@ public class PlayerImpl implements Player {
     private final HexGrid hexGrid;
     private final Color color;
     private String name;
-    private IntegerProperty victoryPoints;
+    private final IntegerProperty victoryPoints;
     private final Map<ResourceType, Integer> resources = new HashMap<>();
     private final Map<DevelopmentCardType, Integer> developmentCards = new HashMap<>();
 
     public PlayerImpl(final HexGrid hexGrid, final Color color) {
         this.hexGrid = hexGrid;
         this.color = color;
+        this.victoryPoints = new SimpleIntegerProperty(0);
     }
 
     @Override
