@@ -75,9 +75,9 @@ public class GameControllerTests {
     @Test
     void buildFirstVillage() {
         this.gameController.startGame();
-        this.gameController.getPlayerController()
+        this.gameController.getActivePlayerController()
                 .buildVillage(gameState.getGrid().getIntersections().values().iterator().next());
-        Assertions.assertFalse(gameController.getPlayerController().getActivePlayer().getSettlements().isEmpty());
+        Assertions.assertFalse(gameController.getActivePlayerController().getPlayer().getSettlements().isEmpty());
     }
 
     @Test
@@ -85,25 +85,26 @@ public class GameControllerTests {
         this.gameController.startGame();
         setupPlayerResources();
         Tile tile = gameState.getGrid().getTileAt(0, 0);
-        this.gameController.getPlayerController().buildVillage(tile.getIntersection(IntersectionDirection.NORTH_EAST));
-        this.gameController.getPlayerController()
+        this.gameController.getActivePlayerController()
+                .buildVillage(tile.getIntersection(IntersectionDirection.NORTH_EAST));
+        this.gameController.getActivePlayerController()
                 .buildRoad(tile, EdgeDirection.EAST);
-        Assertions.assertFalse(gameController.getPlayerController().getActivePlayer().getRoads().isEmpty());
+        Assertions.assertFalse(gameController.getActivePlayerController().getPlayer().getRoads().isEmpty());
     }
 
     @Test
     void upgradeVillageWithoutVillage() {
         setupPlayerResources();
         this.gameController.startGame();
-        Assertions.assertFalse(this.gameController.getPlayerController()
+        Assertions.assertFalse(this.gameController.getActivePlayerController()
                 .upgradeVillage(hexGrid.getIntersections().values().iterator().next()));
-        Assertions.assertTrue(this.gameController.getPlayerController().getActivePlayer().getSettlements().isEmpty());
+        Assertions.assertTrue(this.gameController.getActivePlayerController().getPlayer().getSettlements().isEmpty());
     }
 
     @Test
     void regularTurnCorrectPlayerObjective() {
         this.gameController.startGame();
-        Assertions.assertEquals(this.gameController.getPlayerController().getPlayerObjectiveProperty().getValue(),
+        Assertions.assertEquals(this.gameController.getActivePlayerController().getPlayerObjectiveProperty().getValue(),
                 PlayerController.PlayerObjective.REGULAR_TURN);
     }
 
@@ -112,7 +113,7 @@ public class GameControllerTests {
         dice = Stream.generate(() -> 7).iterator();
         this.gameController = new GameController(gameState, dice);
         this.gameController.startGame();
-        PlayerController playerController = this.gameController.getPlayerController();
+        PlayerController playerController = this.gameController.getActivePlayerController();
         Assertions.assertEquals(playerController.getPlayerObjectiveProperty().getValue(),
                 PlayerController.PlayerObjective.SELECT_ROBBER_TILE);
         playerController.endTurn();
@@ -127,11 +128,11 @@ public class GameControllerTests {
     void tradeWithBank() {
         int resourceAmount = setupPlayerResources();
         this.gameController.startGame();
-        PlayerController playerController = this.gameController.getPlayerController();
+        PlayerController playerController = this.gameController.getActivePlayerController();
         playerController.tradeWithBank(ResourceType.CLAY, 4, ResourceType.WOOD);
         Assertions.assertTrue(
-                playerController.getActivePlayer().getResources().get(ResourceType.CLAY) == resourceAmount - 4);
+                playerController.getPlayer().getResources().get(ResourceType.CLAY) == resourceAmount - 4);
         Assertions.assertTrue(
-                playerController.getActivePlayer().getResources().get(ResourceType.WOOD) == resourceAmount + 1);
+                playerController.getPlayer().getResources().get(ResourceType.WOOD) == resourceAmount + 1);
     }
 }
