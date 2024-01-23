@@ -133,8 +133,8 @@ public class GameController {
         for (final var tile : state.getGrid().getTiles(diceRoll)) {
             for (final var intersection : tile.getIntersections()) {
                 Optional.ofNullable(intersection.getSettlement()).ifPresent(
-                    settlement -> settlement.owner().addResource(tile.getType().resourceType, 1)
-                );
+                        settlement -> settlement.owner().addResource(tile.getType().resourceType,
+                                settlement.type().resourceAmount));
             }
         }
     }

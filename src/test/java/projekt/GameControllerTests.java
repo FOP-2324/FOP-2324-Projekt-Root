@@ -18,6 +18,7 @@ import projekt.model.PlayerImpl;
 import projekt.model.ResourceType;
 import projekt.model.TilePosition.EdgeDirection;
 import projekt.model.TilePosition.IntersectionDirection;
+import projekt.model.buildings.Settlement;
 import projekt.model.tiles.Tile;
 
 public class GameControllerTests {
@@ -134,5 +135,23 @@ public class GameControllerTests {
                 playerController.getPlayer().getResources().get(ResourceType.CLAY) == resourceAmount - 4);
         Assertions.assertTrue(
                 playerController.getPlayer().getResources().get(ResourceType.WOOD) == resourceAmount + 1);
+    }
+
+    @Test
+    void distributeResources() {
+        Player player0 = gameState.getPlayers().get(0);
+        Player player1 = gameState.getPlayers().get(1);
+        Tile tile = hexGrid.getTileAt(0, 0);
+        tile.getIntersection(IntersectionDirection.NORTH).placeVillage(player0, true);
+        tile.getIntersection(IntersectionDirection.SOUTH).placeVillage(player1, true);
+        tile.getIntersection(IntersectionDirection.SOUTH).upgradeSettlement(player1);
+        this.gameController.distributeResources(tile.getRollNumber());
+
+        Assertions.assertNotNull(player0.getResources().get(tile.getType().resourceType));
+        Assertions.assertNotNull(player1.getResources().get(tile.getType().resourceType));
+        Assertions.assertTrue(player0.getResources()
+                .get(tile.getType().resourceType) == Settlement.Type.VILLAGE.resourceAmount);
+        Assertions.assertTrue(player1.getResources()
+                .get(tile.getType().resourceType) == Settlement.Type.CITY.resourceAmount);
     }
 }
