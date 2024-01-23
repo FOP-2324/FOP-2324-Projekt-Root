@@ -135,14 +135,15 @@ public interface Tile {
     }
 
     /**
-     * Add a road on the given edge. Also checks if the player has a connected road. Does not check or remove
-     * Player's resources.
+     * Add a road on the given edge.
+     * Check {@link HexGrid#addRoad(TilePosition, TilePosition, Player, boolean)}
+     * for details.
      *
      * @param direction the direction of the edge
      * @param owner     the player who owns the road
      * @return whether the road was added
      */
-    boolean addRoad(EdgeDirection direction, Player owner);
+    boolean addRoad(EdgeDirection direction, Player owner, boolean checkVillages);
 
     /**
      * Returns the road on the given edge

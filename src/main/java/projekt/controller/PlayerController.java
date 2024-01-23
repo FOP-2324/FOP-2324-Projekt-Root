@@ -24,6 +24,7 @@ public class PlayerController {
         SELECT_CARD_TO_STEAL,
         SELECT_ROBBER_TILE,
         REGULAR_TURN,
+        PLACE_TWO_ROADS,
     }
 
     private final Property<PlayerObjective> playerObjectiveProperty;
@@ -113,29 +114,25 @@ public class PlayerController {
 
     public boolean canBuildRoad() {
         final var requiredResources = Config.ROAD_BUILDING_COST;
-        return player.hasResources(requiredResources);
+        return playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_TWO_ROADS)
+                || player.hasResources(requiredResources);
     }
 
     public boolean buildRoad(final Tile tile, final TilePosition.EdgeDirection edgeDirection) {
-        if (!canBuildRoad()) {
-            return false;
-        }
-        if (!tile.addRoad(edgeDirection, player)) {
-            return false;
-        }
-        final var requiredResources = Config.ROAD_BUILDING_COST;
-        return player.removeResources(requiredResources);
+        return buildRoad(tile.getPosition(), TilePosition.neighbour(tile.getPosition(), edgeDirection));
     }
 
     public boolean buildRoad(final TilePosition position0, final TilePosition position1) {
         if (!canBuildRoad()) {
             return false;
         }
-        if (!gameController.getState().getGrid().addRoad(position0, position1, player)) {
+        if (!gameController.getState().getGrid().addRoad(position0, position1, player,
+                playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_TWO_ROADS))) {
             return false;
         }
         final var requiredResources = Config.ROAD_BUILDING_COST;
-        return player.removeResources(requiredResources);
+        return playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_TWO_ROADS)
+                || player.removeResources(requiredResources);
     }
 
     // -- Trading methods --

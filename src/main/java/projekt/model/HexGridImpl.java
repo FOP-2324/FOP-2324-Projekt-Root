@@ -190,12 +190,17 @@ public class HexGridImpl implements HexGrid {
     }
 
     @Override
-    public boolean addRoad(final TilePosition position0, final TilePosition position1, final Player player) {
+    public boolean addRoad(final TilePosition position0, final TilePosition position1, final Player player,
+            final boolean checkVillages) {
         if (roads.containsKey(Set.of(position0, position1))) {
             return false;
         }
         final var newRoad = new Road(this, position0, position1, player);
-        if(newRoad.getConnectedRoads().stream().noneMatch(road -> road.owner() == player)) {
+        if ((!checkVillages && newRoad.getConnectedRoads().stream().noneMatch(road -> road.owner().equals(player)))
+                || (checkVillages && newRoad.getIntersections().stream()
+                        .noneMatch(intersection -> intersection.getSettlement() != null
+                                && intersection.getSettlement().owner().equals(player)
+                                && intersection.getConnectedRoads().isEmpty()))) {
             return false;
         }
         roads.put(Set.of(position0, position1), newRoad);

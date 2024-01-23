@@ -62,8 +62,9 @@ public record TileImpl(
     }
 
     @Override
-    public boolean addRoad(final EdgeDirection direction, final Player owner) {
-        return this.hexGrid.addRoad(this.position, TilePosition.neighbour(this.position, direction), owner);
+    public boolean addRoad(final EdgeDirection direction, final Player owner, final boolean checkVillages) {
+        return this.hexGrid.addRoad(this.position, TilePosition.neighbour(this.position, direction), owner,
+                checkVillages);
     }
 
     @Override
