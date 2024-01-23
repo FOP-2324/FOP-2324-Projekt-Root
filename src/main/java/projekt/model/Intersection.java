@@ -24,13 +24,14 @@ public interface Intersection {
     Settlement getSettlement();
 
     /**
-     * Places a village on this intersection for the given player. Verifies that the player has a connected road to this intersection.
+     * Places a village on this intersection for the given player. Verifies that the
+     * player has a connected road to this intersection if not explicitly ignored.
      * Does not check or remove resources.
      *
      * @param player the player who places the settlement
      * @return whether the placement was successful
      */
-    boolean placeVillage(Player player);
+    boolean placeVillage(Player player, boolean ignoreRoads);
 
     /**
      * Upgrades the settlement on this intersection to a city. Player resources are not checked or removed.
@@ -56,6 +57,7 @@ public interface Intersection {
 
     /**
      * Returns true if the player has a connected road to this intersection
+     *
      * @param player the player to check
      * @return true if the player has a connected road to this intersection
      */

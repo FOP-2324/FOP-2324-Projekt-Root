@@ -24,6 +24,7 @@ public class PlayerController {
         SELECT_CARD_TO_STEAL,
         SELECT_ROBBER_TILE,
         REGULAR_TURN,
+        PLACE_TWO_VILLAGES,
         PLACE_TWO_ROADS,
     }
 
@@ -87,7 +88,8 @@ public class PlayerController {
 
     public boolean canBuildVillage() {
         final var requiredResources = Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.VILLAGE);
-        return player.getSettlements().size() < 2 || player.hasResources(requiredResources);
+        return playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_TWO_VILLAGES)
+                || player.hasResources(requiredResources);
     }
 
     public boolean buildVillage(final Intersection intersection) {
@@ -95,10 +97,11 @@ public class PlayerController {
         if (!canBuildVillage()) {
             return false;
         }
-        if (!intersection.placeVillage(player)) {
+        if (!intersection.placeVillage(player, player.getSettlements().size() < 2)) {
             return false;
         }
-        return player.removeResources(requiredResources);
+        return playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_TWO_VILLAGES)
+                || player.removeResources(requiredResources);
     }
 
     public boolean upgradeVillage(final Intersection intersection) {

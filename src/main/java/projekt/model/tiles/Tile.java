@@ -125,13 +125,14 @@ public interface Tile {
     /**
      * place a Village at the intersection in the given direction for the given
      * player
+     * Check {@link Intersection#placeVillage(Player, boolean)} for details.
      *
      * @param direction the direction of the intersection
      * @param player    the player who owns the settlement
      * @return whether the settlement was placed
      */
-    default boolean placeVillage(final IntersectionDirection direction, final Player player) {
-        return getIntersection(direction).placeVillage(player);
+    default boolean placeVillage(final IntersectionDirection direction, final Player player, boolean ignoreRoads) {
+        return getIntersection(direction).placeVillage(player, ignoreRoads);
     }
 
     /**
