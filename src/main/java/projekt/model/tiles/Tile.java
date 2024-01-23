@@ -1,6 +1,7 @@
 package projekt.model.tiles;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -66,9 +67,9 @@ public interface Tile {
      */
     default Set<Tile> getNeighbours() {
         return getHexGrid().getTiles().entrySet().stream()
-                .filter(entrySet -> TilePosition.neighbours(getPosition()).contains(entrySet.getKey()))
-                .map(entrySet -> entrySet.getValue())
-                .collect(Collectors.toSet());
+            .filter(entrySet -> TilePosition.neighbours(getPosition()).contains(entrySet.getKey()))
+            .map(Map.Entry::getValue)
+            .collect(Collectors.toSet());
     }
 
     /**
@@ -97,9 +98,10 @@ public interface Tile {
      */
     default Set<TilePosition> getIntersectionPositions(final IntersectionDirection direction) {
         return Set.of(
-                getPosition(),
-                TilePosition.neighbour(getPosition(), direction.leftDirection),
-                TilePosition.neighbour(getPosition(), direction.rightDirection));
+            getPosition(),
+            TilePosition.neighbour(getPosition(), direction.leftDirection),
+            TilePosition.neighbour(getPosition(), direction.rightDirection)
+        );
     }
 
     /**
@@ -119,7 +121,7 @@ public interface Tile {
      */
     default Set<Settlement> getSettlements() {
         return Collections.unmodifiableSet(getIntersections().stream().map(Intersection::getSettlement)
-                .filter(settlement -> settlement != null).collect(Collectors.toSet()));
+                                               .filter(settlement -> settlement != null).collect(Collectors.toSet()));
     }
 
     /**
@@ -127,12 +129,17 @@ public interface Tile {
      * player
      * Check {@link Intersection#placeVillage(Player, boolean)} for details.
      *
-     * @param direction the direction of the intersection
-     * @param player    the player who owns the settlement
+     * @param direction       the direction of the intersection
+     * @param player          the player who owns the settlement
+     * @param ignoreRoadCheck whether to ignore the condition that the player needs a connected road
      * @return whether the settlement was placed
      */
-    default boolean placeVillage(final IntersectionDirection direction, final Player player, final boolean ignoreRoads) {
-        return getIntersection(direction).placeVillage(player, ignoreRoads);
+    default boolean placeVillage(
+        final IntersectionDirection direction,
+        final Player player,
+        final boolean ignoreRoadCheck
+    ) {
+        return getIntersection(direction).placeVillage(player, ignoreRoadCheck);
     }
 
     /**
@@ -140,8 +147,9 @@ public interface Tile {
      * Check {@link HexGrid#addRoad(TilePosition, TilePosition, Player, boolean)}
      * for details.
      *
-     * @param direction the direction of the edge
-     * @param owner     the player who owns the road
+     * @param direction     the direction of the edge
+     * @param owner         the player who owns the road
+     * @param checkVillages whether to check if the player has a connected village
      * @return whether the road was added
      */
     boolean addRoad(EdgeDirection direction, Player owner, boolean checkVillages);

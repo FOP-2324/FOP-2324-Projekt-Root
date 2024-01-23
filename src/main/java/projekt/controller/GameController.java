@@ -8,6 +8,7 @@ import projekt.Config;
 import projekt.model.GameState;
 import projekt.model.HexGridImpl;
 import projekt.model.Player;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -18,10 +19,13 @@ public class GameController {
     private final Iterator<Integer> dice;
     private final Property<PlayerController> activePlayerControllerProperty = new SimpleObjectProperty<>();
 
-    public GameController(final GameState state, final Map<Player, PlayerController> playerController,
-            final Iterator<Integer> dice) {
+    public GameController(
+        final GameState state,
+        final Map<Player, PlayerController> playerControllers,
+        final Iterator<Integer> dice
+    ) {
         this.state = state;
-        this.playerControllers = playerController;
+        this.playerControllers = playerControllers;
         this.dice = dice;
     }
 
@@ -35,8 +39,10 @@ public class GameController {
     }
 
     public GameController() {
-        this(new GameState(new HexGridImpl(Config.GRID_RADIUS), new ArrayList<>()),
-                Config.RANDOM.ints(1, 2 * Config.DICE_SIDES * Config.NUMBER_OF_DICE + 1).iterator());
+        this(
+            new GameState(new HexGridImpl(Config.GRID_RADIUS), new ArrayList<>()),
+            Config.RANDOM.ints(1, 2 * Config.DICE_SIDES * Config.NUMBER_OF_DICE + 1).iterator()
+        );
     }
 
     public GameState getState() {
@@ -151,8 +157,10 @@ public class GameController {
         for (final var tile : state.getGrid().getTiles(diceRoll)) {
             for (final var intersection : tile.getIntersections()) {
                 Optional.ofNullable(intersection.getSettlement()).ifPresent(
-                        settlement -> settlement.owner().addResource(tile.getType().resourceType,
-                                settlement.type().resourceAmount));
+                    settlement -> settlement.owner().addResource(
+                        tile.getType().resourceType,
+                        settlement.type().resourceAmount
+                    ));
             }
         }
     }
