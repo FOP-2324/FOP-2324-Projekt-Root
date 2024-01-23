@@ -107,14 +107,7 @@ public class GameController {
 
     private void setupRound(final Player activePlayer, final Iterator<Player> remainingPlayers) {
         if (!remainingPlayers.hasNext()) {
-            setActivePlayerControllerProperty(activePlayer);
-            getActivePlayerController().setPlayerObjective(PlayerController.PlayerObjective.PLACE_TWO_ROADS);
-            getActivePlayerController().setCallback(() -> {
-                getActivePlayerController().setPlayerObjective(PlayerController.PlayerObjective.PLACE_TWO_VILLAGES);
-                getActivePlayerController().setCallback(() -> {
-                    getActivePlayerController().setCallback(this::nextPlayer);
-                });
-            });
+            nextPlayer();
             return;
         }
         final var player = remainingPlayers.next();
