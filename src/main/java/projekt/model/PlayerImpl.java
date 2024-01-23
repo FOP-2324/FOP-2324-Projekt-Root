@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.paint.Color;
 import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 import projekt.model.buildings.Port;
@@ -16,13 +17,14 @@ public class PlayerImpl implements Player {
     private final HexGrid hexGrid;
     private final Color color;
     private String name;
-    private IntegerProperty victoryPoints;
+    private final IntegerProperty victoryPoints;
     private final Map<ResourceType, Integer> resources = new HashMap<>();
     private final Map<DevelopmentCardType, Integer> developmentCards = new HashMap<>();
 
     public PlayerImpl(final HexGrid hexGrid, final Color color) {
         this.hexGrid = hexGrid;
         this.color = color;
+        this.victoryPoints = new SimpleIntegerProperty(0);
     }
 
     @Override
@@ -42,7 +44,7 @@ public class PlayerImpl implements Player {
 
     @Override
     public boolean removeResource(final ResourceType resourceType, final int amount) {
-        if (resources.getOrDefault(resourceType, 0) <= amount) {
+        if (!hasResources(Map.of(resourceType, amount))) {
             return false;
         }
         resources.put(resourceType, resources.getOrDefault(resourceType, 0) - amount);
@@ -65,10 +67,12 @@ public class PlayerImpl implements Player {
     public int getTradeRatio(final ResourceType resourceType) {
         final var intersections = getHexGrid().getIntersections();
         return intersections.values().stream()
-            .filter(intersection -> intersection.getPort() != null && intersection.getPort().resourceType() == resourceType)
-            .filter(intersection -> intersection.getSettlement() != null && intersection.getSettlement().owner() == this)
-            .map(Intersection::getPort)
-            .findAny().map(Port::ratio).orElse(4);
+                .filter(intersection -> intersection.getPort() != null
+                        && intersection.getPort().resourceType().equals(resourceType))
+                .filter(intersection -> intersection.getSettlement() != null
+                        && intersection.getSettlement().owner().equals(this))
+                .map(Intersection::getPort)
+                .findAny().map(Port::ratio).orElse(4);
     }
 
     @Override
@@ -124,6 +128,7 @@ public class PlayerImpl implements Player {
         return color;
     }
 
+    @Override
     public String getName() {
         return name;
     }

@@ -1,6 +1,7 @@
 package projekt.controller;
 
 import javafx.beans.property.Property;
+import javafx.beans.property.SimpleObjectProperty;
 import projekt.Config;
 import projekt.model.Intersection;
 import projekt.model.Player;
@@ -12,58 +13,43 @@ import projekt.model.tiles.Tile;
 import java.util.Map;
 
 public class PlayerController {
-    /**
-     * The currently active {@link Player} instance of this {@link PlayerController}.
-     */
-    private Property<Player> activePlayerProperty;
+    private final Player player;
 
     private final GameController gameController;
 
     private Runnable callback;
 
-    public static enum PlayerObjective {
+    public enum PlayerObjective {
         DROP_HALF_CARDS,
         SELECT_CARD_TO_STEAL,
         SELECT_ROBBER_TILE,
         REGULAR_TURN,
+        PLACE_TWO_VILLAGES,
+        PLACE_TWO_ROADS,
     }
 
-    private Property<PlayerObjective> playerObjectiveProperty;
+    private final Property<PlayerObjective> playerObjectiveProperty;
 
     /**
      * Creates a new {@link PlayerController} with the given {@link GameController}.
      *
      * @param gameController the {@link GameController} to use.
      */
-    public PlayerController(final GameController gameController) {
+    public PlayerController(final GameController gameController, final Player player) {
         this.gameController = gameController;
+        this.player = player;
+        this.playerObjectiveProperty = new SimpleObjectProperty<>();
     }
 
     /**
-     * Returns the currently active {@link Player} instance of this {@link PlayerController}.
+     * Returns a {@link Property} that represents the currently active
+     * {@link Player} instance of this {@link PlayerController}.
      *
-     * @return the currently active {@link Player} instance of this {@link PlayerController}.
+     * @return a {@link Property} that represents the currently active
+     *         {@link Player} instance of this {@link PlayerController}.
      */
-    public Player getActivePlayer() {
-        return activePlayerProperty.getValue();
-    }
-
-    /**
-     * Returns a {@link Property} that represents the currently active {@link Player} instance of this {@link PlayerController}.
-     *
-     * @return a {@link Property} that represents the currently active {@link Player} instance of this {@link PlayerController}.
-     */
-    public Property<Player> getActivePlayerProperty() {
-        return activePlayerProperty;
-    }
-
-    /**
-     * Sets the currently active {@link Player} instance of this {@link PlayerController}.
-     *
-     * @param activePlayer the currently active {@link Player} instance of this {@link PlayerController}.
-     */
-    public void setActivePlayer(final Player activePlayer) {
-        this.activePlayerProperty.setValue(activePlayer);
+    public Player getPlayer() {
+        return player;
     }
 
     /**
@@ -100,20 +86,25 @@ public class PlayerController {
 
     // -- Building methods --
 
-    public boolean buildVillage(final Intersection intersection) {
-        final var player = getActivePlayer();
+    public boolean canBuildVillage() {
         final var requiredResources = Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.VILLAGE);
-        if (!player.hasResources(requiredResources)) {
+        return playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_TWO_VILLAGES)
+                || player.hasResources(requiredResources);
+    }
+
+    public boolean buildVillage(final Intersection intersection) {
+        final var requiredResources = Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.VILLAGE);
+        if (!canBuildVillage()) {
             return false;
         }
-        if (!intersection.placeVillage(player)) {
+        if (!intersection.placeVillage(player, player.getSettlements().size() < 2)) {
             return false;
         }
-        return player.removeResources(requiredResources);
+        return playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_TWO_VILLAGES)
+                || player.removeResources(requiredResources);
     }
 
     public boolean upgradeVillage(final Intersection intersection) {
-        final var player = getActivePlayer();
         final var requiredResources = Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.CITY);
         if (!player.hasResources(requiredResources)) {
             return false;
@@ -124,16 +115,27 @@ public class PlayerController {
         return player.removeResources(requiredResources);
     }
 
-    public boolean buildRoad(final Tile tile, final TilePosition.EdgeDirection edgeDirection) {
-        final var player = getActivePlayer();
+    public boolean canBuildRoad() {
         final var requiredResources = Config.ROAD_BUILDING_COST;
-        if (!player.hasResources(requiredResources)) {
+        return playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_TWO_ROADS)
+                || player.hasResources(requiredResources);
+    }
+
+    public boolean buildRoad(final Tile tile, final TilePosition.EdgeDirection edgeDirection) {
+        return buildRoad(tile.getPosition(), TilePosition.neighbour(tile.getPosition(), edgeDirection));
+    }
+
+    public boolean buildRoad(final TilePosition position0, final TilePosition position1) {
+        if (!canBuildRoad()) {
             return false;
         }
-        if (!tile.addRoad(edgeDirection, player)) {
+        if (!gameController.getState().getGrid().addRoad(position0, position1, player,
+                playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_TWO_ROADS))) {
             return false;
         }
-        return player.removeResources(requiredResources);
+        final var requiredResources = Config.ROAD_BUILDING_COST;
+        return playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_TWO_ROADS)
+                || player.removeResources(requiredResources);
     }
 
     // -- Trading methods --
@@ -147,16 +149,16 @@ public class PlayerController {
      * @return whether the trade was successful
      */
     public boolean tradeWithBank(final ResourceType offerType, final int offerAmount, final ResourceType request) {
-        final var player = getActivePlayer();
         // check for port
         final var ratio = player.getTradeRatio(offerType);
         if (offerAmount != ratio) {
             return false;
         }
-        if (player.getResources().get(offerType) < offerAmount) {
+        if (!player.removeResource(offerType, offerAmount)) {
             return false;
         }
-        return player.removeResource(offerType, offerAmount);
+        player.addResource(request, 1);
+        return true;
     }
 
     /**
@@ -167,8 +169,8 @@ public class PlayerController {
      * @param request     the resources to request
      * @return whether the trade was successful
      */
-    public boolean tradeWithPlayer(final Player otherPlayer, final Map<ResourceType, Integer> offer, final Map<ResourceType, Integer> request) {
-        final var player = getActivePlayer();
+    public boolean tradeWithPlayer(final Player otherPlayer, final Map<ResourceType, Integer> offer,
+            final Map<ResourceType, Integer> request) {
         if (!player.hasResources(offer)) {
             return false;
         }
@@ -194,7 +196,6 @@ public class PlayerController {
      * @param resourcesToDrop the resources to drop
      */
     public void selectResourcesToDrop(final Map<ResourceType, Integer> resourcesToDrop) {
-        final var player = getActivePlayer();
         if (!player.hasResources(resourcesToDrop)) {
             return;
         }

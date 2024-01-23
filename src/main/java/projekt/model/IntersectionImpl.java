@@ -42,7 +42,8 @@ public class IntersectionImpl implements Intersection {
      * @param position1 the second position
      * @param position2 the third position
      */
-    public IntersectionImpl(final TilePosition position0, final TilePosition position1, final TilePosition position2, final HexGrid hexGrid) {
+    public IntersectionImpl(final TilePosition position0, final TilePosition position1, final TilePosition position2,
+            final HexGrid hexGrid) {
         if (position0 == null || position1 == null || position2 == null)
             throw new IllegalArgumentException("Positions must not be null");
 
@@ -50,10 +51,9 @@ public class IntersectionImpl implements Intersection {
             throw new IllegalArgumentException("Positions must not be equal");
 
         if (!TilePosition.neighbours(position0).containsAll(Set.of(position1, position2))
-            || !TilePosition.neighbours(position1).containsAll(Set.of(position0, position2)))
+                || !TilePosition.neighbours(position1).containsAll(Set.of(position0, position2)))
             throw new IllegalArgumentException(String.format("Positions must be neighbours: %s, %s, %s",
-                                                             position0, position1, position2
-            ));
+                    position0, position1, position2));
 
         this.position0 = position0;
         this.position1 = position1;
@@ -81,24 +81,29 @@ public class IntersectionImpl implements Intersection {
     }
 
     @Override
-    public boolean placeVillage(final Player player) {
-        if (settlment != null || !playerHasConnectedRoad(player))
+    public boolean placeVillage(final Player player, final boolean ignoreRoadCheck) {
+        if (settlment != null || (!playerHasConnectedRoad(player) && !ignoreRoadCheck))
             return false;
-        settlment = new Settlement(player, Settlement.Type.VILLAGE);
+        settlment = new Settlement(player, Settlement.Type.VILLAGE, this);
         return true;
     }
 
     @Override
     public boolean upgradeSettlement(final Player player) {
-        if (settlment == null || settlment.type() != Settlement.Type.VILLAGE || settlment.owner() != player)
+        if (settlment == null || settlment.type() != Settlement.Type.VILLAGE || !settlment.owner().equals(player))
             return false;
-        settlment = new Settlement(player, Settlement.Type.CITY);
+        settlment = new Settlement(player, Settlement.Type.CITY, this);
         return true;
     }
 
     @Override
     public Port getPort() {
         return port;
+    }
+
+    @Override
+    public void setPort(final Port port) {
+        this.port = port;
     }
 
     @Override
@@ -111,11 +116,10 @@ public class IntersectionImpl implements Intersection {
         return Stream.of(
                 Set.of(this.position1, this.position2),
                 Set.of(this.position2, this.position0),
-                Set.of(this.position0, this.position1)
-            )
-            .filter(this.hexGrid.getRoads()::containsKey)
-            .map(this.hexGrid.getRoads()::get)
-            .collect(Collectors.toSet());
+                Set.of(this.position0, this.position1))
+                .filter(this.hexGrid.getRoads()::containsKey)
+                .map(this.hexGrid.getRoads()::get)
+                .collect(Collectors.toSet());
     }
 
     @Override
