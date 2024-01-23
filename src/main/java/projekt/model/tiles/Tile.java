@@ -131,7 +131,7 @@ public interface Tile {
      * @param player    the player who owns the settlement
      * @return whether the settlement was placed
      */
-    default boolean placeVillage(final IntersectionDirection direction, final Player player, boolean ignoreRoads) {
+    default boolean placeVillage(final IntersectionDirection direction, final Player player, final boolean ignoreRoads) {
         return getIntersection(direction).placeVillage(player, ignoreRoads);
     }
 

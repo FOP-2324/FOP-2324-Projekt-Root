@@ -39,17 +39,17 @@ public class GameControllerTests {
     }
 
     int setupPlayerResources() {
-        int amount = 10000;
-        for (Player player : gameState.getPlayers()) {
-            for (ResourceType resourceType : ResourceType.values()) {
+        final int amount = 10000;
+        for (final Player player : gameState.getPlayers()) {
+            for (final ResourceType resourceType : ResourceType.values()) {
                 player.addResource(resourceType, amount);
             }
         }
         return amount;
     }
 
-    private Tile setupThirdVillage(Player player) {
-        Tile tile = hexGrid.getTileAt(0, 0);
+    private Tile setupThirdVillage(final Player player) {
+        final Tile tile = hexGrid.getTileAt(0, 0);
         tile.getIntersection(IntersectionDirection.NORTH_EAST)
                 .placeVillage(player, true);
         tile.addRoad(EdgeDirection.EAST, player, true);
@@ -69,7 +69,7 @@ public class GameControllerTests {
     void correctWinners() {
         this.gameState.getPlayers().get(0).getVictoryPointsProperty().set(100);
         this.gameController.startGame();
-        Assertions.assertTrue(this.gameController.getWinners().size() == 1);
+        Assertions.assertEquals(1, this.gameController.getWinners().size());
         Assertions.assertTrue(
                 this.gameController.getWinners().contains(this.gameState.getPlayers().get(0)));
     }
@@ -78,7 +78,7 @@ public class GameControllerTests {
     void firstRound() {
         this.gameController.startGame();
         this.gameController.nextPlayer();
-        for (Player player : gameState.getPlayers()) {
+        for (final Player player : gameState.getPlayers()) {
             Assertions.assertTrue(player.getResources().isEmpty());
             Assertions.assertTrue(player.getDevelopmentCards().isEmpty());
             Assertions.assertTrue(player.getRoads().isEmpty());
@@ -88,7 +88,7 @@ public class GameControllerTests {
     @Test
     void setupRound() {
         this.gameController.startGame();
-        PlayerController playerController0 = this.gameController.getActivePlayerController();
+        final PlayerController playerController0 = this.gameController.getActivePlayerController();
         Assertions.assertEquals(playerController0.getPlayerObjectiveProperty().getValue(),
                 PlayerObjective.PLACE_TWO_VILLAGES);
         playerController0.endTurn();
@@ -96,7 +96,7 @@ public class GameControllerTests {
                 PlayerObjective.PLACE_TWO_ROADS);
         playerController0.endTurn();
         Assertions.assertNotEquals(playerController0, this.gameController.getActivePlayerController());
-        PlayerController playerController1 = this.gameController.getActivePlayerController();
+        final PlayerController playerController1 = this.gameController.getActivePlayerController();
         Assertions.assertEquals(playerController1.getPlayerObjectiveProperty().getValue(),
                 PlayerObjective.PLACE_TWO_VILLAGES);
         playerController1.endTurn();
@@ -110,29 +110,29 @@ public class GameControllerTests {
 
     @Test
     void buildFirstVillage() {
-        PlayerController playerController = this.gameController.getPlayerControllers()
+        final PlayerController playerController = this.gameController.getPlayerControllers()
                 .get(gameState.getPlayers().get(0));
         playerController.getPlayerObjectiveProperty().setValue(PlayerObjective.PLACE_TWO_VILLAGES);
         Assertions.assertTrue(
                 playerController.buildVillage(hexGrid.getIntersections().values().iterator().next()));
-        Assertions.assertTrue(playerController.getPlayer().getSettlements().size() == 1);
+        Assertions.assertEquals(1, playerController.getPlayer().getSettlements().size());
     }
 
     @Test
     void buildFirstRoad() {
-        Tile tile = hexGrid.getTileAt(0, 0);
-        PlayerController playerController = this.gameController.getPlayerControllers()
+        final Tile tile = hexGrid.getTileAt(0, 0);
+        final PlayerController playerController = this.gameController.getPlayerControllers()
                 .get(gameState.getPlayers().get(0));
         tile.getIntersection(IntersectionDirection.NORTH_EAST).placeVillage(playerController.getPlayer(), true);
         playerController.getPlayerObjectiveProperty().setValue(PlayerObjective.PLACE_TWO_ROADS);
         Assertions.assertTrue(playerController.buildRoad(tile, EdgeDirection.EAST));
-        Assertions.assertTrue(playerController.getPlayer().getRoads().size() == 1);
+        Assertions.assertEquals(1, playerController.getPlayer().getRoads().size());
     }
 
     @Test
     void firstRoadRequiresVillage() {
-        Tile tile = hexGrid.getTileAt(0, 0);
-        PlayerController playerController = this.gameController.getPlayerControllers()
+        final Tile tile = hexGrid.getTileAt(0, 0);
+        final PlayerController playerController = this.gameController.getPlayerControllers()
                 .get(gameState.getPlayers().get(0));
         playerController.getPlayerObjectiveProperty().setValue(PlayerObjective.PLACE_TWO_ROADS);
         Assertions.assertFalse(playerController.buildRoad(tile, EdgeDirection.EAST));
@@ -141,8 +141,8 @@ public class GameControllerTests {
 
     @Test
     void firstRoadRequiresOwnVillage() {
-        Tile tile = hexGrid.getTileAt(0, 0);
-        PlayerController playerController = this.gameController.getPlayerControllers()
+        final Tile tile = hexGrid.getTileAt(0, 0);
+        final PlayerController playerController = this.gameController.getPlayerControllers()
                 .get(gameState.getPlayers().get(0));
         tile.getIntersection(IntersectionDirection.NORTH_EAST).placeVillage(gameState.getPlayers().get(1), true);
         playerController.getPlayerObjectiveProperty().setValue(PlayerObjective.PLACE_TWO_ROADS);
@@ -173,7 +173,7 @@ public class GameControllerTests {
         this.gameController = new GameController(gameState, dice);
         this.gameController.startGame();
         this.gameController.nextPlayer();
-        PlayerController playerController = this.gameController.getActivePlayerController();
+        final PlayerController playerController = this.gameController.getActivePlayerController();
         Assertions.assertEquals(playerController.getPlayerObjectiveProperty().getValue(),
                 PlayerController.PlayerObjective.SELECT_ROBBER_TILE);
         playerController.endTurn();
@@ -186,21 +186,19 @@ public class GameControllerTests {
 
     @Test
     void tradeWithBank() {
-        int resourceAmount = setupPlayerResources();
+        final int resourceAmount = setupPlayerResources();
         this.gameController.startGame();
-        PlayerController playerController = this.gameController.getActivePlayerController();
+        final PlayerController playerController = this.gameController.getActivePlayerController();
         playerController.tradeWithBank(ResourceType.CLAY, 4, ResourceType.WOOD);
-        Assertions.assertTrue(
-                playerController.getPlayer().getResources().get(ResourceType.CLAY) == resourceAmount - 4);
-        Assertions.assertTrue(
-                playerController.getPlayer().getResources().get(ResourceType.WOOD) == resourceAmount + 1);
+        Assertions.assertEquals((int) playerController.getPlayer().getResources().get(ResourceType.CLAY), resourceAmount - 4);
+        Assertions.assertEquals((int) playerController.getPlayer().getResources().get(ResourceType.WOOD), resourceAmount + 1);
     }
 
     @Test
     void distributeResources() {
-        Player player0 = gameState.getPlayers().get(0);
-        Player player1 = gameState.getPlayers().get(1);
-        Tile tile = hexGrid.getTileAt(0, 0);
+        final Player player0 = gameState.getPlayers().get(0);
+        final Player player1 = gameState.getPlayers().get(1);
+        final Tile tile = hexGrid.getTileAt(0, 0);
         tile.getIntersection(IntersectionDirection.NORTH).placeVillage(player0, true);
         tile.getIntersection(IntersectionDirection.SOUTH).placeVillage(player1, true);
         tile.getIntersection(IntersectionDirection.SOUTH).upgradeSettlement(player1);
@@ -208,34 +206,34 @@ public class GameControllerTests {
 
         Assertions.assertNotNull(player0.getResources().get(tile.getType().resourceType));
         Assertions.assertNotNull(player1.getResources().get(tile.getType().resourceType));
-        Assertions.assertTrue(player0.getResources()
-                .get(tile.getType().resourceType) == Settlement.Type.VILLAGE.resourceAmount);
-        Assertions.assertTrue(player1.getResources()
-                .get(tile.getType().resourceType) == Settlement.Type.CITY.resourceAmount);
+        Assertions.assertEquals((int) player0.getResources()
+            .get(tile.getType().resourceType), Settlement.Type.VILLAGE.resourceAmount);
+        Assertions.assertEquals((int) player1.getResources()
+            .get(tile.getType().resourceType), Settlement.Type.CITY.resourceAmount);
     }
 
     @Test
     void thirdVillageNeedsConnectedRoad() {
         this.gameController.startGame();
         setupPlayerResources();
-        Player player = this.gameController.getActivePlayerController().getPlayer();
-        Tile tile = setupThirdVillage(player);
+        final Player player = this.gameController.getActivePlayerController().getPlayer();
+        final Tile tile = setupThirdVillage(player);
 
         Assertions.assertFalse(this.gameController.getActivePlayerController()
                 .buildVillage(tile.getIntersection(IntersectionDirection.NORTH_WEST)));
-        Assertions.assertTrue(player.getSettlements().size() == 2);
+        Assertions.assertEquals(2, player.getSettlements().size());
     }
 
     @Test
     void thirdVillageNeedsResources() {
         this.gameController.startGame();
-        Player player = this.gameController.getActivePlayerController().getPlayer();
-        Tile tile = setupThirdVillage(player);
+        final Player player = this.gameController.getActivePlayerController().getPlayer();
+        final Tile tile = setupThirdVillage(player);
         tile.addRoad(EdgeDirection.SOUTH_WEST, player, false);
         tile.addRoad(EdgeDirection.NORTH_WEST, player, false);
         Assertions.assertFalse(this.gameController.getActivePlayerController()
                 .buildVillage(tile.getIntersection(IntersectionDirection.NORTH_WEST)));
-        Assertions.assertTrue(player.getSettlements().size() == 2);
+        Assertions.assertEquals(2, player.getSettlements().size());
     }
 
 }

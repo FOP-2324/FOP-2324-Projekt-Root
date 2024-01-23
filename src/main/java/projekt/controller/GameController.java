@@ -29,7 +29,7 @@ public class GameController {
         this.state = state;
         this.dice = dice;
         this.playerControllers = new HashMap<>();
-        for (Player player : state.getPlayers()) {
+        for (final Player player : state.getPlayers()) {
             playerControllers.put(player, new PlayerController(this, player));
         }
     }

@@ -19,7 +19,7 @@ public class PlayerController {
 
     private Runnable callback;
 
-    public static enum PlayerObjective {
+    public enum PlayerObjective {
         DROP_HALF_CARDS,
         SELECT_CARD_TO_STEAL,
         SELECT_ROBBER_TILE,
