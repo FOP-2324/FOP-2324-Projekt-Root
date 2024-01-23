@@ -44,6 +44,7 @@ public abstract class SceneController extends Controller {
     }
 
     public static Runnable gameSceneLoader(final Stage stage) {
-        return () -> SceneSwitcher.loadScene(SceneSwitcher.SceneType.GAME_BOARD, stage);
+        return () -> {
+        }; // () -> SceneSwitcher.loadScene(SceneSwitcher.SceneType.GAME_BOARD, stage);
     }
 }
