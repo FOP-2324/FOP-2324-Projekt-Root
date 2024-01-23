@@ -61,7 +61,7 @@ public class GameControllerTests {
     @Test
     void testInstantWin() {
         this.gameState.getPlayers().get(0).getVictoryPointsProperty().set(100);
-        this.gameController.startGame();
+        this.gameController.nextPlayer();
         Assertions.assertTrue(this.gameState.isGameOver());
     }
 
@@ -139,6 +139,7 @@ public class GameControllerTests {
     @Test
     void regularTurnCorrectPlayerObjective() {
         this.gameController.startGame();
+        this.gameController.nextPlayer();
         Assertions.assertEquals(this.gameController.getActivePlayerController().getPlayerObjectiveProperty().getValue(),
                 PlayerController.PlayerObjective.REGULAR_TURN);
     }
@@ -148,6 +149,7 @@ public class GameControllerTests {
         dice = Stream.generate(() -> 7).iterator();
         this.gameController = new GameController(gameState, dice);
         this.gameController.startGame();
+        this.gameController.nextPlayer();
         PlayerController playerController = this.gameController.getActivePlayerController();
         Assertions.assertEquals(playerController.getPlayerObjectiveProperty().getValue(),
                 PlayerController.PlayerObjective.SELECT_ROBBER_TILE);
