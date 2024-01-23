@@ -98,7 +98,32 @@ public class GameController {
             throw new IllegalStateException("Not enough players");
         }
         setActivePlayerControllerProperty(this.state.getPlayers().get(0));
-        nextPlayer();
+        setupRound(getActivePlayerController().getPlayer());
+    }
+
+    private void setupRound(final Player activePlayer) {
+        setupRound(activePlayer, this.getState().getPlayers().iterator());
+    }
+
+    private void setupRound(final Player activePlayer, final Iterator<Player> remainingPlayers) {
+        if (!remainingPlayers.hasNext()) {
+            setActivePlayerControllerProperty(activePlayer);
+            getActivePlayerController().setPlayerObjective(PlayerController.PlayerObjective.PLACE_TWO_ROADS);
+            getActivePlayerController().setCallback(() -> {
+                getActivePlayerController().setPlayerObjective(PlayerController.PlayerObjective.PLACE_TWO_VILLAGES);
+                getActivePlayerController().setCallback(() -> {
+                    getActivePlayerController().setCallback(this::nextPlayer);
+                });
+            });
+            return;
+        }
+        final var player = remainingPlayers.next();
+        setActivePlayerControllerProperty(player);
+        getActivePlayerController().setPlayerObjective(PlayerController.PlayerObjective.PLACE_TWO_VILLAGES);
+        getActivePlayerController().setCallback(() -> {
+            getActivePlayerController().setPlayerObjective(PlayerController.PlayerObjective.PLACE_TWO_ROADS);
+            getActivePlayerController().setCallback(() -> setupRound(activePlayer, remainingPlayers));
+        });
     }
 
     private void diceRollSeven(final Player activePlayer) {
