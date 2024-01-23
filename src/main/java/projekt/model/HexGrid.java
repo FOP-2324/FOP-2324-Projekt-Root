@@ -103,25 +103,32 @@ public interface HexGrid {
     Intersection getIntersectionAt(TilePosition position0, TilePosition position1, TilePosition position2);
 
     /**
-     * Adds the given road to the grid. Also Checks if the player has a connected road. Does not check or remove
-     * Player's resources.
+     * Adds the given road to the grid. Also either checks if the player has a
+     * connected road or a connected village with no other roads. Does not check or
+     * remove Player's resources.
      *
-     * @param position0 the first position of the road
-     * @param position1 the second position of the road
-     * @param player    the player that owns the road
+     * @param position0     the first position of the road
+     * @param position1     the second position of the road
+     * @param player        the player that owns the road
+     * @param checkVillages whether to check if the player has a connected village
      * @return whether the road was added
      */
-    boolean addRoad(TilePosition position0, TilePosition position1, Player player);
+    boolean addRoad(TilePosition position0, TilePosition position1, Player player, boolean checkVillages);
 
     /**
      * Adds the given road to the grid relative to the given tile.
+     * Check {@link HexGrid#addRoad(TilePosition, TilePosition, Player, boolean)}
+     * for details.
      *
      * @param tile          the tile the road is next to
      * @param edgeDirection the direction of the edge the road is on
+     * @param player        the player that owns the road
+     * @param checkVillages whether to check if the player has a connected village
      * @return whether the road was added
      */
-    default boolean addRoad(final Tile tile, final EdgeDirection edgeDirection, final Player player) {
-        return tile.addRoad(edgeDirection, player);
+    default boolean addRoad(final Tile tile, final EdgeDirection edgeDirection, final Player player,
+            final boolean checkVillages) {
+        return tile.addRoad(edgeDirection, player, checkVillages);
     }
 
     /**

@@ -24,13 +24,15 @@ public interface Intersection {
     Settlement getSettlement();
 
     /**
-     * Places a village on this intersection for the given player. Verifies that the player has a connected road to this intersection.
+     * Places a village on this intersection for the given player. Verifies that the
+     * player has a connected road to this intersection if not explicitly ignored.
      * Does not check or remove resources.
      *
-     * @param player the player who places the settlement
+     * @param player          the player who places the settlement
+     * @param ignoreRoadCheck whether to ignore the condition that the player needs a connected road
      * @return whether the placement was successful
      */
-    boolean placeVillage(Player player);
+    boolean placeVillage(Player player, boolean ignoreRoadCheck);
 
     /**
      * Upgrades the settlement on this intersection to a city. Player resources are not checked or removed.
@@ -48,7 +50,15 @@ public interface Intersection {
     Port getPort();
 
     /**
+     * Sets the port on this intersection
+     *
+     * @param port the port to set
+     */
+    void setPort(Port port);
+
+    /**
      * Returns true if the player has a connected road to this intersection
+     *
      * @param player the player to check
      * @return true if the player has a connected road to this intersection
      */
@@ -82,8 +92,8 @@ public interface Intersection {
      */
     default Set<Tile> getAdjacentTiles() {
         return getHexGrid().getTiles().entrySet().stream()
-                .filter(entrySet -> getAdjacentTilePositions().contains(entrySet.getKey()))
-                .map(entrySet -> entrySet.getValue()).collect(Collectors.toSet());
+            .filter(entrySet -> getAdjacentTilePositions().contains(entrySet.getKey()))
+            .map(entrySet -> entrySet.getValue()).collect(Collectors.toSet());
     }
 
     /**

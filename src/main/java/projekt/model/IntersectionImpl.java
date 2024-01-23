@@ -80,24 +80,29 @@ public class IntersectionImpl implements Intersection {
     }
 
     @Override
-    public boolean placeVillage(final Player player) {
-        if (settlment != null || !playerHasConnectedRoad(player))
+    public boolean placeVillage(final Player player, final boolean ignoreRoadCheck) {
+        if (settlment != null || (!playerHasConnectedRoad(player) && !ignoreRoadCheck))
             return false;
-        settlment = new Settlement(player, Settlement.Type.VILLAGE);
+        settlment = new Settlement(player, Settlement.Type.VILLAGE, this);
         return true;
     }
 
     @Override
     public boolean upgradeSettlement(final Player player) {
-        if (settlment == null || settlment.type() != Settlement.Type.VILLAGE)
+        if (settlment == null || settlment.type() != Settlement.Type.VILLAGE || !settlment.owner().equals(player))
             return false;
-        settlment = new Settlement(player, Settlement.Type.CITY);
+        settlment = new Settlement(player, Settlement.Type.CITY, this);
         return true;
     }
 
     @Override
     public Port getPort() {
         return port;
+    }
+
+    @Override
+    public void setPort(final Port port) {
+        this.port = port;
     }
 
     @Override
