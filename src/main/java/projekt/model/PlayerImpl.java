@@ -67,10 +67,12 @@ public class PlayerImpl implements Player {
     public int getTradeRatio(final ResourceType resourceType) {
         final var intersections = getHexGrid().getIntersections();
         return intersections.values().stream()
-            .filter(intersection -> intersection.getPort() != null && intersection.getPort().resourceType() == resourceType)
-            .filter(intersection -> intersection.getSettlement() != null && intersection.getSettlement().owner() == this)
-            .map(Intersection::getPort)
-            .findAny().map(Port::ratio).orElse(4);
+                .filter(intersection -> intersection.getPort() != null
+                        && intersection.getPort().resourceType().equals(resourceType))
+                .filter(intersection -> intersection.getSettlement() != null
+                        && intersection.getSettlement().owner().equals(this))
+                .map(Intersection::getPort)
+                .findAny().map(Port::ratio).orElse(4);
     }
 
     @Override
