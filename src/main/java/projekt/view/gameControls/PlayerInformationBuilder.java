@@ -8,6 +8,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.util.Builder;
 import javafx.util.Duration;
 import projekt.model.DevelopmentCardType;
@@ -25,9 +26,21 @@ public class PlayerInformationBuilder implements Builder<Region> {
     @Override
     public Region build() {
         VBox mainBox = new VBox();
+        // TODO: get player name when correctly implemented...
+        Label playerName = new Label("Placeholder for name");
+
+        Rectangle playerColor = new Rectangle(20, 20, player.getColor());
+        playerColor.setStroke(Color.BLACK);
+        playerColor.setStrokeWidth(2);
+        playerName.setGraphic(playerColor);
+
         Label resourcesLabel = new Label("Deine Resourcen:");
         FlowPane resourcesBox = new FlowPane(5, 5);
         for (ResourceType resourceType : player.getResources().keySet()) {
+            if (player.getResources().get(resourceType) == 0) {
+                continue;
+            }
+
             CardPane resourceCard = new CardPane(resourceType.color,
                     Integer.toString(player.getResources().get(resourceType)));
             attachTooltip(resourceCard, resourceType.name());
@@ -45,14 +58,16 @@ public class PlayerInformationBuilder implements Builder<Region> {
 
         Label remainingRoadsLabel = new Label(
                 String.format("Deine verbleibenden Straßen: %d", player.getRemainingRoads()));
-        Label remainingSettlementsLabel = new Label(
-                String.format("Deine verbleibenden Siedlungen: %d", player.getRemainingSettlements()));
+        Label remainingVillagesLabel = new Label(
+                String.format("Deine verbleibenden Dörfer: %d", player.getRemainingVillages()));
+        Label remainingCitiesLabel = new Label(
+                String.format("Deine verbleibenden Städte: %d", player.getRemainingCities()));
 
-        // TODO: get correct victory points
-        Label victoryPointsLabel = new Label(String.format("Deine Siegpunkte: %d", 0));
+        Label victoryPointsLabel = new Label(String.format("Deine Siegpunkte: %d", player.getVictoryPoints()));
 
-        mainBox.getChildren().addAll(resourcesLabel, resourcesBox, developmentCardsLabel, developmentCardsBox,
-                remainingRoadsLabel, remainingSettlementsLabel, victoryPointsLabel);
+        mainBox.getChildren().addAll(playerName, resourcesLabel, resourcesBox, developmentCardsLabel,
+                developmentCardsBox, remainingRoadsLabel, remainingVillagesLabel, remainingCitiesLabel,
+                victoryPointsLabel);
         mainBox.setPadding(new Insets(5));
         mainBox.setSpacing(5);
         return mainBox;
