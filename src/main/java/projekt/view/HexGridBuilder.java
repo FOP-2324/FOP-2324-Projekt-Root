@@ -189,12 +189,17 @@ public class HexGridBuilder implements Builder<Region> {
         highlightedRoads.clear();
     }
 
-    public void drawRoads() {
+    private void drawRoads() {
         hexGridPane.getChildren().removeIf(node -> roads.contains(node));
         roads.clear();
         hexGridPane.getChildren().addAll(grid.getRoads().values().stream().map((road) -> {
             return placeRoad(road);
         }).toList());
+    }
+
+    public void reDrawRoads() {
+        drawRoads();
+        drawIntersections();
     }
 
     private Node placeRoad(final Road road) {

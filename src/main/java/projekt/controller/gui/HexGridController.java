@@ -73,7 +73,7 @@ public class HexGridController implements Controller {
     }
 
     public void drawRoads() {
-        builder.drawRoads();
+        builder.reDrawRoads();
     }
 
     public void highlightRoad(Intersection intersection0, Intersection intersection1, Consumer<MouseEvent> handler) {
