@@ -110,6 +110,7 @@ public class GameControllerTests {
 
     @Test
     void buildFirstVillage() {
+        this.gameController.startGame();
         final PlayerController playerController = this.gameController.getPlayerControllers()
                 .get(gameState.getPlayers().get(0));
         playerController.getPlayerObjectiveProperty().setValue(PlayerObjective.PLACE_TWO_VILLAGES);
@@ -120,6 +121,7 @@ public class GameControllerTests {
 
     @Test
     void buildFirstRoad() {
+        this.gameController.startGame();
         final Tile tile = hexGrid.getTileAt(0, 0);
         final PlayerController playerController = this.gameController.getPlayerControllers()
                 .get(gameState.getPlayers().get(0));
@@ -131,9 +133,11 @@ public class GameControllerTests {
 
     @Test
     void firstRoadRequiresVillage() {
+        this.gameController.startGame();
         final Tile tile = hexGrid.getTileAt(0, 0);
         final PlayerController playerController = this.gameController.getPlayerControllers()
                 .get(gameState.getPlayers().get(0));
+
         playerController.getPlayerObjectiveProperty().setValue(PlayerObjective.PLACE_TWO_ROADS);
         Assertions.assertFalse(playerController.buildRoad(tile, EdgeDirection.EAST));
         Assertions.assertTrue(playerController.getPlayer().getRoads().isEmpty());
@@ -141,6 +145,7 @@ public class GameControllerTests {
 
     @Test
     void firstRoadRequiresOwnVillage() {
+        this.gameController.startGame();
         final Tile tile = hexGrid.getTileAt(0, 0);
         final PlayerController playerController = this.gameController.getPlayerControllers()
                 .get(gameState.getPlayers().get(0));
