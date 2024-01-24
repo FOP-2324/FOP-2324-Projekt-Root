@@ -49,7 +49,7 @@ public class PlayersOverviewBuilder implements Builder<Region> {
         detailsBox.add(createValuePane(
                 Integer.toString(player.getDevelopmentCards().values().stream().reduce(0, Integer::sum))), 1, 1);
 
-        Label victoryPointsLabel = new Label("Siegpunkte:");
+        Label victoryPointsLabel = new Label(String.format("Siegpunkte: %d", player.getVictoryPoints()));
         detailsBox.add(victoryPointsLabel, 0, 2);
 
         Label knightCardsLabel = new Label("Ritterkarten:");
