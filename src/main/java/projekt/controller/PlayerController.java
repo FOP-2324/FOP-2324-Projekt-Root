@@ -104,9 +104,15 @@ public class PlayerController {
                 || player.removeResources(requiredResources);
     }
 
+    public boolean canUpgradeVillage() {
+        final var requiredResources = Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.CITY);
+        return player.hasResources(requiredResources) && player.getSettlements().stream()
+                .anyMatch(settlement -> settlement.type() == Settlement.Type.VILLAGE);
+    }
+
     public boolean upgradeVillage(final Intersection intersection) {
         final var requiredResources = Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.CITY);
-        if (!player.hasResources(requiredResources)) {
+        if (!canBuildVillage()) {
             return false;
         }
         if (!intersection.upgradeSettlement(player)) {
@@ -162,7 +168,8 @@ public class PlayerController {
     }
 
     /**
-     * Trades the given resources with the given player. Does not check for consent of the other player.
+     * Trades the given resources with the given player. Does not check for consent
+     * of the other player.
      *
      * @param otherPlayer the player to trade with
      * @param offer       the resources to offer
@@ -191,7 +198,8 @@ public class PlayerController {
     }
 
     /**
-     * Selects the resources to drop when a 7 is rolled. Also invokes {@link #endTurn()} to proceed to the next player.
+     * Selects the resources to drop when a 7 is rolled. Also invokes
+     * {@link #endTurn()} to proceed to the next player.
      *
      * @param resourcesToDrop the resources to drop
      */
