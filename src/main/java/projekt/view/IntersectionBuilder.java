@@ -2,7 +2,6 @@ package projekt.view;
 
 import java.util.function.Consumer;
 
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
@@ -49,7 +48,16 @@ public class IntersectionBuilder implements Builder<Region> {
 
     public void highlight(Consumer<MouseEvent> handler) {
         unhighlight();
-        Circle circle = new Circle(10, Color.RED);
+        Circle circle = new Circle(15, Color.TRANSPARENT);
+        circle.setStroke(Color.RED);
+        circle.setStrokeWidth(4);
+        circle.hoverProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                circle.setStroke(Color.LIME);
+            } else {
+                circle.setStroke(Color.RED);
+            }
+        });
         pane.getChildren().add(circle);
         pane.setOnMouseClicked(handler::accept);
     }
