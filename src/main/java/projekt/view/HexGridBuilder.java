@@ -180,6 +180,14 @@ public class HexGridBuilder implements Builder<Region> {
         final Line highlightedRoad = drawLineBetweenIntersections(intersection0, intersection1, Color.RED, 0.2, 8);
         highlightedRoad.getStrokeDashArray().add(20.0);
         highlightedRoad.setOnMouseClicked(handler::accept);
+        highlightedRoad.hoverProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                highlightedRoad.setStroke(Color.LIME);
+            } else {
+                highlightedRoad.setStroke(Color.RED);
+            }
+        });
+
         highlightedRoads.add(highlightedRoad);
         hexGridPane.getChildren().add(highlightedRoad);
     }
