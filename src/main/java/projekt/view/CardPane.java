@@ -3,8 +3,6 @@ package projekt.view;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.effect.Light;
-import javafx.scene.effect.Lighting;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -45,23 +43,11 @@ public class CardPane extends StackPane {
     public CardPane(Color cardColor, String iconPath, String labelText) {
         super();
         this.setAlignment(Pos.CENTER);
-        ImageView cardImage = new ImageView("img/empty_card.png");
-
-        Lighting lighting = new Lighting();
-        lighting.setDiffuseConstant(1.0);
-        lighting.setSpecularConstant(0.0);
-        lighting.setSpecularExponent(0.0);
-        lighting.setSurfaceScale(0.0);
-
-        // idk why but these values produces accurate colors, azimuth seems to not
-        // matter that much
-        lighting.setLight(new Light.Distant(0.0, 90.0, cardColor));
+        ImageView cardImage = new ColoredImageView("img/empty_card.png", cardColor);
 
         double cardWidth = 30;
         cardImage.setFitWidth(cardWidth);
         cardImage.setPreserveRatio(true);
-
-        cardImage.setEffect(lighting);
         this.getChildren().add(cardImage);
 
         if (iconPath != null && !iconPath.isBlank()) {
