@@ -2,6 +2,7 @@ package projekt.model;
 
 import static projekt.Config.MAX_CITIES;
 import static projekt.Config.MAX_ROADS;
+import static projekt.Config.MAX_VILLAGES;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.paint.Color;
 import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 import projekt.model.buildings.Port;
+import projekt.model.buildings.Settlement;
 
 public class PlayerImpl implements Player {
     private final HexGrid hexGrid;
@@ -90,8 +92,15 @@ public class PlayerImpl implements Player {
     }
 
     @Override
-    public int getRemainingSettlements() {
-        return MAX_CITIES - getSettlements().size();
+    public int getRemainingCities() {
+        return (int) (MAX_CITIES - getSettlements().stream()
+                .filter(settlement -> settlement.type().equals(Settlement.Type.CITY)).count());
+    }
+
+    @Override
+    public int getRemainingVillages() {
+        return (int) (MAX_VILLAGES - getSettlements().stream()
+                .filter(settlement -> settlement.type().equals(Settlement.Type.VILLAGE)).count());
     }
 
     @Override

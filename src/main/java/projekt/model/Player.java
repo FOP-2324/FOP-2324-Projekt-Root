@@ -107,11 +107,18 @@ public interface Player {
     }
 
     /**
-     * Returns the amount of settlements the player can still build.
+     * Returns the amount of villages the player can still build.
      *
-     * @return the amount of settlements the player can still build
+     * @return the amount of villages the player can still build
      */
-    int getRemainingSettlements();
+    int getRemainingVillages();
+
+    /**
+     * Returns the amount of cities the player can still build.
+     *
+     * @return the amount of cities the player can still build
+     */
+    int getRemainingCities();
 
     /**
      * Returns a map of all development cards the player currently has and how many.
