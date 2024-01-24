@@ -11,10 +11,10 @@ public class MainMenuBuilder extends MenuBuilder {
     private final Runnable loadHighscoreScene;
 
     public MainMenuBuilder(
-        final Runnable quitHandler, final Runnable loadGameScene, final Runnable loadSettingsScene,
-        final Runnable loadHighscoreScene) {
+            final Runnable quitHandler, final Runnable createGameScene, final Runnable loadSettingsScene,
+            final Runnable loadHighscoreScene) {
         super("Main Menu", quitHandler);
-        this.loadGameScene = loadGameScene;
+        this.loadGameScene = createGameScene;
         this.loadSettingsScene = loadSettingsScene;
         this.loadHighscoreScene = loadHighscoreScene;
     }
@@ -25,7 +25,7 @@ public class MainMenuBuilder extends MenuBuilder {
         mainBox.setAlignment(Pos.CENTER);
         mainBox.setSpacing(10);
 
-        final Button startButton = new Button("Start Game");
+        final Button startButton = new Button("Create Game");
         startButton.setOnAction((e) -> loadGameScene.run());
 
         final Button settingsButton = new Button("Settings");
