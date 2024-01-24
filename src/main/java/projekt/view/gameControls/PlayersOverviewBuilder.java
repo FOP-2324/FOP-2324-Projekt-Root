@@ -25,9 +25,6 @@ public class PlayersOverviewBuilder implements Builder<Region> {
 
     @Override
     public Region build() {
-        // TitledPane für jeden Spieler mit Resourcenkarten (verdeckt),
-        // Entwicklungskarten (verdeckt), Siegpunkte, Ritterkarten
-        // alles zusammengefasst in einer VBox mit Titel "Spielerübersicht" oder so
         VBox mainBox = new VBox();
         for (Player player : players) {
             mainBox.getChildren().add(createPlayerTiltedPane(player, players.indexOf(player) + 1));
@@ -62,8 +59,10 @@ public class PlayersOverviewBuilder implements Builder<Region> {
         valueColumn.setPercentWidth(50);
 
         detailsBox.getColumnConstraints().addAll(titleColumn, valueColumn);
+        // TODO: remove for release
         // detailsBox.setGridLinesVisible(true);
 
+        // TODO: replace with player name
         TitledPane playerPane = new TitledPane(String.format("Spieler %d", playerNumber), detailsBox);
         return playerPane;
     }

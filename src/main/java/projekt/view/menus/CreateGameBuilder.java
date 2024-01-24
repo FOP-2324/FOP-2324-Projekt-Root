@@ -58,7 +58,7 @@ public class CreateGameBuilder extends MenuBuilder {
                 if (empty) {
                     setText(null);
                 } else {
-                    setText(String.format("Spieler %d", getIndex()));
+                    setText(String.format("Spieler %d", getIndex() + 1));
                     Rectangle colorRectangle = new Rectangle(15, 15, player.getColor());
                     colorRectangle.setStroke(Color.BLACK);
                     colorRectangle.setStrokeWidth(2);
