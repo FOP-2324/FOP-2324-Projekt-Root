@@ -14,18 +14,19 @@ import javafx.util.Builder;
 import projekt.model.HexGrid;
 import projekt.model.Intersection;
 import projekt.view.HexGridBuilder;
+import java.util.Collections;
 
 public class HexGridController implements Controller {
     private final HexGrid hexGrid;
     private final HexGridBuilder builder;
-    private final Set<IntersectionController> intersectionControllers;
+    private final Map<Intersection, IntersectionController> intersectionControllers;
     private static double lastX, lastY;
 
     public HexGridController(final HexGrid hexGrid) {
-        this.intersectionControllers = hexGrid.getIntersections().values().stream()
-                .map(intersection -> new IntersectionController(intersection)).collect(Collectors.toSet());
-        this.builder = getHexGridBuilder(hexGrid, intersectionControllers.stream().collect(
-                Collectors.toMap(IntersectionController::getIntersection, controller -> controller.getBuilder())));
+        this.intersectionControllers = hexGrid.getIntersections().values().stream().map(IntersectionController::new)
+                .collect(Collectors.toMap(IntersectionController::getIntersection, controller -> controller));
+        this.builder = getHexGridBuilder(hexGrid, intersectionControllers.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getBuilder())));
         this.hexGrid = hexGrid;
     }
 
@@ -60,8 +61,11 @@ public class HexGridController implements Controller {
     }
 
     public Set<IntersectionController> getIntersectionControllers() {
-        return intersectionControllers;
+        return intersectionControllers.values().stream().collect(Collectors.toSet());
     }
+
+    public Map<Intersection, IntersectionController> getIntersectionControllersMap() {
+        return Collections.unmodifiableMap(intersectionControllers);
     }
 
     public HexGrid getHexGrid() {
