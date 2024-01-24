@@ -177,7 +177,7 @@ public interface Tile {
      */
     enum Type {
         WOODLAND(Color.DARKGREEN, ResourceType.WOOD),
-        MEADOW(Color.GREEN, ResourceType.CLAY),
+        MEADOW(Color.TAN, ResourceType.CLAY),
         FARMLAND(Color.YELLOW, ResourceType.GRAIN),
         HILL(Color.LIGHTGREEN, ResourceType.WOOL),
         MOUNTAIN(Color.GRAY, ResourceType.ORE),
