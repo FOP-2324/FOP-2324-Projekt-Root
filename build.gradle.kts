@@ -13,9 +13,27 @@ jagr {
     assignmentId.set("projekt")
     submissions {
         val main by creating {
-            // studentId.set("")
-            // firstName.set("")
-            // lastName.set("")
+             studentId.set("")
+             firstName.set("")
+             lastName.set("")
+        }
+    }
+    graders {
+        val graderPrivate by creating {
+            graderName.set("Projekt-Private")
+            rubricProviderName.set("projekt.Projekt_RubricProvider")
+            config.set(
+                org.sourcegrade.jagr.launcher.env.Config(
+                    executor = org.sourcegrade.jagr.launcher.env.Executor(),
+                    transformers = org.sourcegrade.jagr.launcher.env.Transformers(
+                        timeout = org.sourcegrade.jagr.launcher.env.Transformers.TimeoutTransformer(enabled = false),
+                    ),
+                ),
+            )
+            configureDependencies {
+                implementation(libs.algoutils.tutor)
+                implementation(libs.junit.pioneer)
+            }
         }
     }
 }
