@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.scene.paint.Color;
-import projekt.model.buildings.Road;
+import projekt.model.buildings.Edge;
 import projekt.model.buildings.Settlement;
 
 public interface Player {
@@ -82,7 +82,7 @@ public interface Player {
      *
      * @return all roads the player currently has
      */
-    default Map<Set<TilePosition>, Road> getRoads() {
+    default Map<Set<TilePosition>, Edge> getRoads() {
         return getHexGrid().getRoads(this);
     }
 

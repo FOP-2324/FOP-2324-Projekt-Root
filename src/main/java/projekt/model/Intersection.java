@@ -3,8 +3,8 @@ package projekt.model;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import projekt.model.buildings.Edge;
 import projekt.model.buildings.Port;
-import projekt.model.buildings.Road;
 import projekt.model.buildings.Settlement;
 import projekt.model.tiles.Tile;
 
@@ -50,13 +50,6 @@ public interface Intersection {
     Port getPort();
 
     /**
-     * Sets the port on this intersection
-     *
-     * @param port the port to set
-     */
-    void setPort(Port port);
-
-    /**
      * Returns true if the player has a connected road to this intersection
      *
      * @param player the player to check
@@ -65,11 +58,11 @@ public interface Intersection {
     boolean playerHasConnectedRoad(Player player);
 
     /**
-     * Returns all Roads connected to this intersection.
+     * Returns all edges connected to this intersection.
      *
-     * @return all Roads connected to this intersection
+     * @return all edges connected to this intersection
      */
-    Set<Road> getConnectedRoads();
+    Set<Edge> getConnectedEdges();
 
     /**
      * Returns all Intersection that are adjacent to this intersection.
