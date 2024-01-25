@@ -1,10 +1,13 @@
 package projekt.controller;
 
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import projekt.Config;
+import projekt.controller.actions.EndTurnAction;
 import projekt.model.GameState;
 import projekt.model.HexGridImpl;
 import projekt.model.Player;
@@ -17,6 +20,8 @@ public class GameController {
     private final GameState state;
     private final Map<Player, PlayerController> playerControllers;
     private final Iterator<Integer> dice;
+    private final IntegerProperty currentDiceRoll = new SimpleIntegerProperty(0);
+
     private final Property<PlayerController> activePlayerControllerProperty = new SimpleObjectProperty<>();
 
     public GameController(
@@ -66,7 +71,8 @@ public class GameController {
     }
 
     public int castDice() {
-        return dice.next();
+        currentDiceRoll.set(dice.next());
+        return currentDiceRoll.get();
     }
 
     @StudentImplementationRequired
@@ -76,80 +82,65 @@ public class GameController {
             .collect(Collectors.toUnmodifiableSet());
     }
 
-    public void nextPlayer() {
-        // check for winner
-        if (!getWinners().isEmpty()) {
-            getState().setGameOver(true);
-            return;
-        }
-        // advance to next player
-        final var index = state.getPlayers().indexOf(getActivePlayerController().getPlayer());
-        final var newActivePlayer = state.getPlayers().get((index + 1) % state.getPlayers().size());
-        // roll dice
-        final var diceRoll = castDice();
-        // special case: 7
-        if (diceRoll == 7) {
-            diceRollSeven(newActivePlayer);
-            return;
-        }
-        // normal case
-        distributeResources(diceRoll);
-        setActivePlayerControllerProperty(newActivePlayer);
-        getActivePlayerController().setCallback(this::nextPlayer);
-        getActivePlayerController().setPlayerObjective(PlayerController.PlayerObjective.REGULAR_TURN);
-    }
-
     public void startGame() {
         if (this.state.getPlayers().size() < Config.MIN_PLAYERS) {
             throw new IllegalStateException("Not enough players");
         }
         setActivePlayerControllerProperty(this.state.getPlayers().get(0));
-        setupRound(getActivePlayerController().getPlayer());
-    }
+        firstRound(getActivePlayerController().getPlayer());
 
-    private void setupRound(final Player activePlayer) {
-        setupRound(activePlayer, this.getState().getPlayers().iterator());
-    }
+        while (!getWinners().isEmpty()) {
+            for (final PlayerController playerController : playerControllers.values()) {
+                activePlayerControllerProperty.setValue(playerController);
 
-    private void setupRound(final Player activePlayer, final Iterator<Player> remainingPlayers) {
-        if (!remainingPlayers.hasNext()) {
-            nextPlayer();
-            return;
+                // Dice roll
+                playerController.setPlayerObjective(PlayerObjective.DICE_ROLL);
+                playerController.waitForNextAction();
+                final var diceRoll = currentDiceRoll.get();
+
+                if (diceRoll == 7) {
+                    diceRollSeven();
+                } else {
+                    distributeResources(diceRoll);
+                }
+                // Regular turn
+                playerController.setPlayerObjective(PlayerObjective.REGULAR_TURN);
+                var action = playerController.waitForNextAction();
+                while (!(action instanceof EndTurnAction)) {
+                    action = playerController.waitForNextAction();
+                }
+                playerController.setPlayerObjective(PlayerObjective.IDLE);
+                activePlayerControllerProperty.setValue(null);
+            }
         }
-        final var player = remainingPlayers.next();
-        setActivePlayerControllerProperty(player);
-        getActivePlayerController().setPlayerObjective(PlayerController.PlayerObjective.PLACE_TWO_VILLAGES);
-        getActivePlayerController().setCallback(() -> {
-            getActivePlayerController().setPlayerObjective(PlayerController.PlayerObjective.PLACE_TWO_ROADS);
-            getActivePlayerController().setCallback(() -> setupRound(activePlayer, remainingPlayers));
-        });
+
+        // Game End
+        getState().setGameOver(true);
     }
 
-    private void diceRollSeven(final Player activePlayer) {
-        diceRollSeven(activePlayer, this.getState().getPlayers().iterator());
+    private void firstRound(final Player activePlayer) {
+        for (final PlayerController playerController : playerControllers.values()) {
+            playerController.setPlayerObjective(PlayerObjective.PLACE_TWO_VILLAGES);
+            playerController.waitForNextAction();
+            playerController.setPlayerObjective(PlayerObjective.PLACE_TWO_ROADS);
+            playerController.waitForNextAction();
+        }
     }
 
-    private void diceRollSeven(final Player activePlayer, final Iterator<Player> remainingPlayers) {
-        if (!remainingPlayers.hasNext()) {
-            setActivePlayerControllerProperty(activePlayer);
-            getActivePlayerController().setPlayerObjective(PlayerController.PlayerObjective.SELECT_ROBBER_TILE);
-            getActivePlayerController().setCallback(() -> {
-                getActivePlayerController().setPlayerObjective(PlayerController.PlayerObjective.SELECT_CARD_TO_STEAL);
-                getActivePlayerController().setCallback(() -> {
-                    getActivePlayerController().setCallback(this::nextPlayer);
-                    getActivePlayerController().setPlayerObjective(PlayerController.PlayerObjective.REGULAR_TURN);
-                });
-            });
-            return;
+    private void diceRollSeven() {
+        final var origPC = getActivePlayerController();
+        for (final PlayerController playerController : playerControllers.values()) {
+            activePlayerControllerProperty.setValue(playerController);
+            if (playerController.getPlayer().getResources().values().stream().mapToInt(Integer::intValue).sum() > 7) {
+                playerController.setPlayerObjective(PlayerObjective.DROP_HALF_CARDS);
+                playerController.waitForNextAction();
+            }
         }
-        final var player = remainingPlayers.next();
-        if (player.getResources().values().stream().mapToInt(Integer::intValue).sum() > 7) {
-            setActivePlayerControllerProperty(player);
-            getActivePlayerController().setPlayerObjective(PlayerController.PlayerObjective.DROP_HALF_CARDS);
-            getActivePlayerController().setCallback(() -> diceRollSeven(activePlayer, remainingPlayers));
-        } else {
-            diceRollSeven(activePlayer, remainingPlayers);
-        }
+        activePlayerControllerProperty.setValue(origPC);
+        origPC.setPlayerObjective(PlayerObjective.SELECT_ROBBER_TILE);
+        origPC.waitForNextAction();
+        origPC.setPlayerObjective(PlayerObjective.SELECT_CARD_TO_STEAL);
+        origPC.waitForNextAction();
     }
 
     @StudentImplementationRequired
