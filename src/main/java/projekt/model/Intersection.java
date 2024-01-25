@@ -58,9 +58,9 @@ public interface Intersection {
     boolean playerHasConnectedRoad(Player player);
 
     /**
-     * Returns all Roads connected to this intersection.
+     * Returns all edges connected to this intersection.
      *
-     * @return all Roads connected to this intersection
+     * @return all edges connected to this intersection
      */
     Set<Edge> getConnectedEdges();
 

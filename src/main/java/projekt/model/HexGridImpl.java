@@ -34,7 +34,6 @@ public class HexGridImpl implements HexGrid {
     private final ObservableDoubleValue tileHeight;
     private final DoubleProperty tileSize = new SimpleDoubleProperty(50);
 
-
     public HexGridImpl(final int radius, final Stack<Integer> yieldPool, final Stack<Tile.Type> availableTileTypes) {
         this.tileHeight = Bindings.createDoubleBinding(() -> tileSize.get() * 2, tileSize);
         this.tileWidth = Bindings.createDoubleBinding(() -> Math.sqrt(3) * tileSize.get(), tileSize);
@@ -164,13 +163,14 @@ public class HexGridImpl implements HexGrid {
     }
 
     @Override
-    public Edge getRoad(final TilePosition position0, final TilePosition position1) {
+    public Edge getEdge(final TilePosition position0, final TilePosition position1) {
         return edges.get(Set.of(position0, position1));
     }
 
     @Override
     public boolean removeRoad(final TilePosition position0, final TilePosition position1) {
-        return edges.remove(Set.of(position0, position1)) != null;
+        edges.get(Set.of(position0, position1)).roadOwner().setValue(null);
+        return true;
     }
 
     @Override

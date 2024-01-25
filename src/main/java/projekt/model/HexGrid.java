@@ -132,9 +132,9 @@ public interface HexGrid {
     }
 
     /**
-     * Returns all roads of the grid.
+     * Returns all edges of the grid.
      *
-     * @return all roads of the grid
+     * @return all edges of the grid
      */
     Map<Set<TilePosition>, Edge> getEdges();
 
@@ -147,13 +147,13 @@ public interface HexGrid {
     Map<Set<TilePosition>, Edge> getRoads(Player player);
 
     /**
-     * Returns the road between the given positions.
+     * Returns the edge between the given positions.
      *
      * @param position0 the first position
      * @param position1 the second position
-     * @return the road between the given intersections
+     * @return the edge between the given intersections
      */
-    Edge getRoad(TilePosition position0, TilePosition position1);
+    Edge getEdge(TilePosition position0, TilePosition position1);
 
     /**
      * Removes the road between the given positions.
@@ -165,7 +165,7 @@ public interface HexGrid {
     boolean removeRoad(TilePosition position0, TilePosition position1);
 
     /**
-     * Removes the given road from the grid.
+     * Removes the road at the given edge.
      */
     default boolean removeRoad(final Edge road) {
         return removeRoad(road.position1(), road.position2());
