@@ -120,7 +120,7 @@ public class GameController {
     }
 
     @DoNotTouch
-    public void withActivePlayer(PlayerController pc, Runnable r) {
+    public void withActivePlayer(final PlayerController pc, final Runnable r) {
         activePlayerControllerProperty.setValue(pc);
         r.run();
         pc.setPlayerObjective(PlayerObjective.IDLE);

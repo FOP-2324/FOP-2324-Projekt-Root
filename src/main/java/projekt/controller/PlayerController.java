@@ -2,6 +2,7 @@ package projekt.controller;
 
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import projekt.Config;
 import projekt.controller.actions.IllegalActionException;
 import projekt.controller.actions.PlayerAction;
@@ -78,6 +79,7 @@ public class PlayerController {
         return waitForNextAction();
     }
 
+    @DoNotTouch
     public PlayerAction waitForNextAction() {
         try {
             // blocking, waiting for viewing thread
