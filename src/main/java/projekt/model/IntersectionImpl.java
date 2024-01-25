@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 
 /**
  * An intersection represented by the three adjacent positions (tiles).
- * As an exmaple, the following intersection has the positions ordered clockwise:
+ * As an example, the following intersection has the positions ordered clockwise:
  * @formatter:off
  *      |
  *      |
@@ -26,7 +26,7 @@ public class IntersectionImpl implements Intersection {
     private final TilePosition position1;
     private final TilePosition position2;
     private final HexGrid hexGrid;
-    private Settlement settlment;
+    private Settlement settlement;
     private Port port;
 
     public IntersectionImpl(final HexGrid hexGrid, final List<TilePosition> positions) {
@@ -76,22 +76,22 @@ public class IntersectionImpl implements Intersection {
 
     @Override
     public Settlement getSettlement() {
-        return settlment;
+        return settlement;
     }
 
     @Override
     public boolean placeVillage(final Player player, final boolean ignoreRoadCheck) {
-        if (settlment != null || (!playerHasConnectedRoad(player) && !ignoreRoadCheck))
+        if (settlement != null || (!playerHasConnectedRoad(player) && !ignoreRoadCheck))
             return false;
-        settlment = new Settlement(player, Settlement.Type.VILLAGE, this);
+        settlement = new Settlement(player, Settlement.Type.VILLAGE, this);
         return true;
     }
 
     @Override
     public boolean upgradeSettlement(final Player player) {
-        if (settlment == null || settlment.type() != Settlement.Type.VILLAGE || !settlment.owner().equals(player))
+        if (settlement == null || settlement.type() != Settlement.Type.VILLAGE || !settlement.owner().equals(player))
             return false;
-        settlment = new Settlement(player, Settlement.Type.CITY, this);
+        settlement = new Settlement(player, Settlement.Type.CITY, this);
         return true;
     }
 
