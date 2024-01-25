@@ -3,20 +3,10 @@ package projekt.controller.actions;
 import projekt.controller.PlayerController;
 import projekt.model.Intersection;
 
-public class BuildVillageAction implements PlayerAction {
-
-    private final Intersection intersection;
-
-    public BuildVillageAction(Intersection intersection) {
-        this.intersection = intersection;
-    }
-
-    public Intersection getSlot() {
-        return intersection;
-    }
+public record BuildVillageAction(Intersection intersection) implements PlayerAction {
 
     @Override
-    public void execute(PlayerController pc) throws IllegalActionException {
+    public void execute(final PlayerController pc) throws IllegalActionException {
         pc.buildVillage(intersection);
     }
 }

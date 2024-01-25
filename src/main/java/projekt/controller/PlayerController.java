@@ -55,8 +55,8 @@ public class PlayerController {
         return playerObjectiveProperty;
     }
 
-    public void setPlayerObjective(final PlayerObjective playerObjectiveProperty) {
-        this.playerObjectiveProperty.setValue(playerObjectiveProperty);
+    public void setPlayerObjective(final PlayerObjective nextObjective) {
+        playerObjectiveProperty.setValue(nextObjective);
     }
 
     /**
@@ -71,6 +71,11 @@ public class PlayerController {
 
     public PlayerAction blockingGetNextAction() throws InterruptedException {
         return actions.take();
+    }
+
+    public PlayerAction waitForNextAction(final PlayerObjective nextObjective) {
+        setPlayerObjective(nextObjective);
+        return waitForNextAction();
     }
 
     public PlayerAction waitForNextAction() {
