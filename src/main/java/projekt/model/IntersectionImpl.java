@@ -1,7 +1,7 @@
 package projekt.model;
 
 import projekt.model.buildings.Port;
-import projekt.model.buildings.Road;
+import projekt.model.buildings.Edge;
 import projekt.model.buildings.Settlement;
 
 import java.util.List;
@@ -27,7 +27,6 @@ public class IntersectionImpl implements Intersection {
     private final TilePosition position2;
     private final HexGrid hexGrid;
     private Settlement settlement;
-    private Port port;
 
     public IntersectionImpl(final HexGrid hexGrid, final List<TilePosition> positions) {
         this(positions.get(0), positions.get(1), positions.get(2), hexGrid);
@@ -97,28 +96,27 @@ public class IntersectionImpl implements Intersection {
 
     @Override
     public Port getPort() {
-        return port;
-    }
-
-    @Override
-    public void setPort(final Port port) {
-        this.port = port;
+        return getConnectedEdges().stream()
+            .filter(Edge::hasPort)
+            .map(Edge::port)
+            .findAny()
+            .orElse(null);
     }
 
     @Override
     public boolean playerHasConnectedRoad(final Player player) {
-        return getConnectedRoads().stream().anyMatch(road -> road.owner() == player);
+        return getConnectedEdges().stream().anyMatch(road -> road.roadOwner().getValue().equals(player));
     }
 
     @Override
-    public Set<Road> getConnectedRoads() {
+    public Set<Edge> getConnectedEdges() {
         return Stream.of(
                 Set.of(this.position1, this.position2),
                 Set.of(this.position2, this.position0),
                 Set.of(this.position0, this.position1)
             )
-            .filter(this.hexGrid.getRoads()::containsKey)
-            .map(this.hexGrid.getRoads()::get)
+            .filter(this.hexGrid.getEdges()::containsKey)
+            .map(this.hexGrid.getEdges()::get)
             .collect(Collectors.toSet());
     }
 

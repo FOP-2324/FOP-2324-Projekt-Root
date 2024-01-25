@@ -2,6 +2,7 @@ package projekt.model.tiles;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -14,7 +15,7 @@ import projekt.model.TilePosition;
 import projekt.model.ResourceType;
 import projekt.model.TilePosition.EdgeDirection;
 import projekt.model.TilePosition.IntersectionDirection;
-import projekt.model.buildings.Road;
+import projekt.model.buildings.Edge;
 import projekt.model.buildings.Settlement;
 
 public interface Tile {
@@ -120,8 +121,8 @@ public interface Tile {
      * @return all settlements adjacent to this tile
      */
     default Set<Settlement> getSettlements() {
-        return Collections.unmodifiableSet(getIntersections().stream().map(Intersection::getSettlement)
-                                               .filter(settlement -> settlement != null).collect(Collectors.toSet()));
+        return getIntersections().stream().map(Intersection::getSettlement)
+            .filter(Objects::nonNull).collect(Collectors.toUnmodifiableSet());
     }
 
     /**
@@ -160,7 +161,7 @@ public interface Tile {
      * @param direction the direction of the edge
      * @return the road on the given edge
      */
-    Road getRoad(EdgeDirection direction);
+    Edge getEdge(EdgeDirection direction);
 
     /**
      * Returns whether the robber is currently on this tile.
