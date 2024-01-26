@@ -2,7 +2,10 @@ package projekt.controller;
 
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import projekt.Config;
+import projekt.controller.actions.IllegalActionException;
+import projekt.controller.actions.PlayerAction;
 import projekt.model.Intersection;
 import projekt.model.Player;
 import projekt.model.ResourceType;
@@ -11,21 +14,18 @@ import projekt.model.buildings.Settlement;
 import projekt.model.tiles.Tile;
 
 import java.util.Map;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
 
 public class PlayerController {
     private final Player player;
 
     private final GameController gameController;
 
-    private Runnable callback;
+    private final BlockingDeque<PlayerAction> actions = new LinkedBlockingDeque<>();
 
-    public enum PlayerObjective {
-        DROP_HALF_CARDS,
-        SELECT_CARD_TO_STEAL,
-        SELECT_ROBBER_TILE,
-        REGULAR_TURN,
-        PLACE_TWO_VILLAGES,
-        PLACE_TWO_ROADS,
+    public void rollDice() {
+        gameController.castDice();
     }
 
     private final Property<PlayerObjective> playerObjectiveProperty;
@@ -46,42 +46,70 @@ public class PlayerController {
      * {@link Player} instance of this {@link PlayerController}.
      *
      * @return a {@link Property} that represents the currently active
-     *         {@link Player} instance of this {@link PlayerController}.
+     * {@link Player} instance of this {@link PlayerController}.
      */
     public Player getPlayer() {
         return player;
-    }
-
-    /**
-     * Returns the {@link GameController} instance of this {@link PlayerController}.
-     *
-     * @return the {@link GameController} instance of this {@link PlayerController}.
-     */
-    public GameController getGameController() {
-        return gameController;
-    }
-
-    public Runnable getCallback() {
-        return callback;
-    }
-
-    public void setCallback(final Runnable callback) {
-        this.callback = callback;
     }
 
     public Property<PlayerObjective> getPlayerObjectiveProperty() {
         return playerObjectiveProperty;
     }
 
-    public void setPlayerObjective(final PlayerObjective playerObjectiveProperty) {
-        this.playerObjectiveProperty.setValue(playerObjectiveProperty);
+    public void setPlayerObjective(final PlayerObjective nextObjective) {
+        playerObjectiveProperty.setValue(nextObjective);
+    }
+
+    /**
+     * Gets called from viewer thread to trigger an Action. This action will then be waited for using the method
+     * {@link #waitForNextAction()}
+     *
+     * @param action The Action that should be triggered next
+     */
+    public void triggerAction(final PlayerAction action) {
+        actions.add(action);
+    }
+
+    public PlayerAction blockingGetNextAction() throws InterruptedException {
+        return actions.take();
+    }
+
+    public PlayerAction waitForNextAction(final PlayerObjective nextObjective) {
+        setPlayerObjective(nextObjective);
+        return waitForNextAction();
+    }
+
+    @DoNotTouch
+    public PlayerAction waitForNextAction() {
+        try {
+            // blocking, waiting for viewing thread
+            final PlayerAction action = blockingGetNextAction();
+
+            System.out.println("TRIGGER " + action + " [" + player.getName() + "]");
+
+            if (!playerObjectiveProperty.getValue().allowedActions.contains(action)) {
+                throw new IllegalActionException(String.format(
+                    "Illegal Action %s performed. Allowed Actions: %s",
+                    action,
+                    playerObjectiveProperty.getValue().getAllowedActions()
+                ));
+            }
+            action.execute(this);
+            return action;
+        } catch (final IllegalActionException e) {
+            // Ignore and keep going
+            e.printStackTrace();
+            return waitForNextAction();
+        } catch (final InterruptedException e) {
+            throw new RuntimeException("Main thread was interrupted!", e);
+        }
     }
 
     /**
      * Ends the turn of the current {@link Player}.
      */
     public void endTurn() {
-        callback.run();
+//        callback.run();
     }
 
     // -- Building methods --
@@ -89,7 +117,7 @@ public class PlayerController {
     public boolean canBuildVillage() {
         final var requiredResources = Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.VILLAGE);
         return playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_TWO_VILLAGES)
-                || player.hasResources(requiredResources);
+            || player.hasResources(requiredResources);
     }
 
     public boolean buildVillage(final Intersection intersection) {
@@ -101,7 +129,7 @@ public class PlayerController {
             return false;
         }
         return playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_TWO_VILLAGES)
-                || player.removeResources(requiredResources);
+            || player.removeResources(requiredResources);
     }
 
     public boolean canUpgradeVillage() {
@@ -124,7 +152,7 @@ public class PlayerController {
     public boolean canBuildRoad() {
         final var requiredResources = Config.ROAD_BUILDING_COST;
         return playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_TWO_ROADS)
-                || player.hasResources(requiredResources);
+            || player.hasResources(requiredResources);
     }
 
     public boolean buildRoad(final Tile tile, final TilePosition.EdgeDirection edgeDirection) {
@@ -136,12 +164,13 @@ public class PlayerController {
             return false;
         }
         if (!gameController.getState().getGrid().addRoad(position0, position1, player,
-                playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_TWO_ROADS))) {
+                                                         playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_TWO_ROADS)
+        )) {
             return false;
         }
         final var requiredResources = Config.ROAD_BUILDING_COST;
         return playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_TWO_ROADS)
-                || player.removeResources(requiredResources);
+            || player.removeResources(requiredResources);
     }
 
     // -- Trading methods --
@@ -176,8 +205,10 @@ public class PlayerController {
      * @param request     the resources to request
      * @return whether the trade was successful
      */
-    public boolean tradeWithPlayer(final Player otherPlayer, final Map<ResourceType, Integer> offer,
-            final Map<ResourceType, Integer> request) {
+    public boolean tradeWithPlayer(
+        final Player otherPlayer, final Map<ResourceType, Integer> offer,
+        final Map<ResourceType, Integer> request
+    ) {
         if (!player.hasResources(offer)) {
             return false;
         }

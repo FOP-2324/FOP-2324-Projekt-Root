@@ -1,19 +1,18 @@
 package projekt.model;
 
 import projekt.model.buildings.Port;
-import projekt.model.buildings.Road;
+import projekt.model.buildings.Edge;
 import projekt.model.buildings.Settlement;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  * An intersection represented by the three adjacent positions (tiles).
- * As an exmaple, the following intersection has the positions ordered clockwise:
+ * As an example, the following intersection has the positions ordered clockwise:
  * @formatter:off
  *      |
  *      |
@@ -27,8 +26,7 @@ public class IntersectionImpl implements Intersection {
     private final TilePosition position1;
     private final TilePosition position2;
     private final HexGrid hexGrid;
-    private Settlement settlment;
-    private Port port;
+    private Settlement settlement;
 
     public IntersectionImpl(final HexGrid hexGrid, final List<TilePosition> positions) {
         this(positions.get(0), positions.get(1), positions.get(2), hexGrid);
@@ -42,8 +40,7 @@ public class IntersectionImpl implements Intersection {
      * @param position1 the second position
      * @param position2 the third position
      */
-    public IntersectionImpl(final TilePosition position0, final TilePosition position1, final TilePosition position2,
-            final HexGrid hexGrid) {
+    public IntersectionImpl(final TilePosition position0, final TilePosition position1, final TilePosition position2, final HexGrid hexGrid) {
         if (position0 == null || position1 == null || position2 == null)
             throw new IllegalArgumentException("Positions must not be null");
 
@@ -51,9 +48,10 @@ public class IntersectionImpl implements Intersection {
             throw new IllegalArgumentException("Positions must not be equal");
 
         if (!TilePosition.neighbours(position0).containsAll(Set.of(position1, position2))
-                || !TilePosition.neighbours(position1).containsAll(Set.of(position0, position2)))
+            || !TilePosition.neighbours(position1).containsAll(Set.of(position0, position2)))
             throw new IllegalArgumentException(String.format("Positions must be neighbours: %s, %s, %s",
-                    position0, position1, position2));
+                                                             position0, position1, position2
+            ));
 
         this.position0 = position0;
         this.position1 = position1;
@@ -77,60 +75,60 @@ public class IntersectionImpl implements Intersection {
 
     @Override
     public Settlement getSettlement() {
-        return settlment;
+        return settlement;
     }
 
     @Override
     public boolean placeVillage(final Player player, final boolean ignoreRoadCheck) {
-        if (settlment != null || (!playerHasConnectedRoad(player) && !ignoreRoadCheck))
+        if (settlement != null || (!playerHasConnectedRoad(player) && !ignoreRoadCheck))
             return false;
-        settlment = new Settlement(player, Settlement.Type.VILLAGE, this);
+        settlement = new Settlement(player, Settlement.Type.VILLAGE, this);
         return true;
     }
 
     @Override
     public boolean upgradeSettlement(final Player player) {
-        if (settlment == null || settlment.type() != Settlement.Type.VILLAGE || !settlment.owner().equals(player))
+        if (settlement == null || settlement.type() != Settlement.Type.VILLAGE || !settlement.owner().equals(player))
             return false;
-        settlment = new Settlement(player, Settlement.Type.CITY, this);
+        settlement = new Settlement(player, Settlement.Type.CITY, this);
         return true;
     }
 
     @Override
     public Port getPort() {
-        return port;
-    }
-
-    @Override
-    public void setPort(final Port port) {
-        this.port = port;
+        return getConnectedEdges().stream()
+            .filter(Edge::hasPort)
+            .map(Edge::port)
+            .findAny()
+            .orElse(null);
     }
 
     @Override
     public boolean playerHasConnectedRoad(final Player player) {
-        return getConnectedRoads().stream().anyMatch(road -> road.owner() == player);
+        return getConnectedEdges().stream().anyMatch(road -> road.roadOwner().getValue().equals(player));
     }
 
     @Override
-    public Set<Road> getConnectedRoads() {
+    public Set<Edge> getConnectedEdges() {
         return Stream.of(
                 Set.of(this.position1, this.position2),
                 Set.of(this.position2, this.position0),
-                Set.of(this.position0, this.position1))
-                .filter(this.hexGrid.getRoads()::containsKey)
-                .map(this.hexGrid.getRoads()::get)
-                .collect(Collectors.toSet());
+                Set.of(this.position0, this.position1)
+            )
+            .filter(this.hexGrid.getEdges()::containsKey)
+            .map(this.hexGrid.getEdges()::get)
+            .collect(Collectors.toSet());
     }
 
     @Override
     public Set<Intersection> getAdjacentIntersections() {
         return hexGrid.getIntersections().entrySet().stream().filter(
                 entry -> entry.getKey().containsAll(Set.of(position0, position1)) ||
-                        entry.getKey().containsAll(Set.of(position1, position2)) ||
-                        entry.getKey().containsAll(Set.of(position2, position0)))
-                .map(Map.Entry::getValue)
-                .filter(Predicate.not(this::equals))
-                .collect(Collectors.toSet());
+                    entry.getKey().containsAll(Set.of(position1, position2)) ||
+                    entry.getKey().containsAll(Set.of(position2, position0)))
+            .map(Map.Entry::getValue)
+            .filter(this::equals)
+            .collect(Collectors.toSet());
     }
 
     @Override
@@ -149,11 +147,6 @@ public class IntersectionImpl implements Intersection {
     }
 
     @Override
-    public boolean hasConnectingRoad(Intersection intersection) {
-        return getConnectedRoads().stream().anyMatch(r -> r.getIntersections().contains(intersection));
-    }
-
-    @Override
     public int hashCode() {
         return getAdjacentPositions().hashCode();
     }
@@ -166,14 +159,5 @@ public class IntersectionImpl implements Intersection {
             return false;
         final IntersectionImpl intersection = (IntersectionImpl) o;
         return getAdjacentPositions().equals(intersection.getAdjacentPositions());
-    }
-
-    @Override
-    public String toString() {
-        return "Intersection{" +
-                "position0=" + position0 +
-                ", position1=" + position1 +
-                ", position2=" + position2 +
-                '}';
     }
 }

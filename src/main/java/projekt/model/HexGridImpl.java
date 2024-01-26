@@ -1,10 +1,6 @@
 package projekt.model;
 
-import static projekt.Config.TILE_FORMULA;
-import static projekt.Config.TILE_RATIOS;
 import static projekt.Config.YIELD_POOL;
-import static projekt.Config.GRID_RADIUS;
-import static projekt.Config.RANDOM;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -18,8 +14,10 @@ import java.util.stream.Collectors;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableDoubleValue;
-import projekt.model.buildings.Road;
+import projekt.Config;
+import projekt.model.buildings.Edge;
 import projekt.model.tiles.Tile;
 import projekt.model.tiles.TileImpl;
 
@@ -30,65 +28,72 @@ import projekt.model.tiles.TileImpl;
 public class HexGridImpl implements HexGrid {
     private final Map<TilePosition, Tile> tiles = new HashMap<>();
     private final Map<Set<TilePosition>, Intersection> intersections = new HashMap<>();
-    private final Map<Set<TilePosition>, Road> roads = new HashMap<>();
+    private final Map<Set<TilePosition>, Edge> edges = new HashMap<>();
     private TilePosition robberPosition;
     private final ObservableDoubleValue tileWidth;
     private final ObservableDoubleValue tileHeight;
     private final DoubleProperty tileSize = new SimpleDoubleProperty(50);
 
-    public HexGridImpl(final int radius) {
+    public HexGridImpl(final int radius, final Stack<Integer> yieldPool, final Stack<Tile.Type> availableTileTypes) {
         this.tileHeight = Bindings.createDoubleBinding(() -> tileSize.get() * 2, tileSize);
         this.tileWidth = Bindings.createDoubleBinding(() -> Math.sqrt(3) * tileSize.get(), tileSize);
-        initTiles(radius);
+        initTiles(radius, yieldPool, availableTileTypes);
         initIntersections();
+        initEdges();
         initRobber();
+    }
+
+    public HexGridImpl(final int radius) {
+        this(radius, YIELD_POOL, Config.generateAvailableTileTypes());
     }
 
     private void initRobber() {
         this.tiles.values().stream().filter(tile -> tile.getType() == Tile.Type.DESERT).findAny()
-                .ifPresent(tile -> robberPosition = tile.getPosition());
+            .ifPresent(tile -> robberPosition = tile.getPosition());
     }
 
-    private void initTiles(final int grid_radius) {
-        final Stack<Tile.Type> availableTileTypes = generateAvailableTileTypes();
-
+    private void initTiles(final int grid_radius, final Stack<Integer> yieldPool, final Stack<Tile.Type> availableTileTypes) {
         final TilePosition center = new TilePosition(0, 0);
 
-        TilePosition.forEachSpiral(center, grid_radius, (position, params) -> {
-            addTile(position, availableTileTypes.pop());
-        });
+        TilePosition.forEachSpiral(
+            center,
+            grid_radius,
+            (position, params) -> addTile(position, availableTileTypes.pop(), yieldPool)
+        );
     }
 
     private void initIntersections() {
         for (final var tile : this.tiles.values()) {
             Arrays.stream(TilePosition.IntersectionDirection.values())
-                    .map(tile::getIntersectionPositions)
-                    .forEach(
-                            ps -> this.intersections.putIfAbsent(ps, new IntersectionImpl(this, ps.stream().toList())));
+                .map(tile::getIntersectionPositions)
+                .forEach(
+                    ps -> this.intersections.putIfAbsent(ps, new IntersectionImpl(this, ps.stream().toList())));
         }
     }
 
-    private Stack<Tile.Type> generateAvailableTileTypes() {
-        final Stack<Tile.Type> availableTileTypes = new Stack<>() {
-            {
-                for (final Tile.Type tileType : Tile.Type.values()) {
-                    final double tileAmount = TILE_RATIOS.get(tileType) * TILE_FORMULA.apply(GRID_RADIUS);
-                    for (int i = 0; i < tileAmount; i++) {
-                        push(tileType);
-                    }
-                }
-            }
-        };
-        if (availableTileTypes.size() < TILE_FORMULA.apply(GRID_RADIUS)) {
-            throw new IllegalStateException(
-                    "The amount of tiles does not match the formula. If this error occured please rerun or report to Per");
+    private void initEdges() {
+        for (final var tile : this.tiles.values()) {
+            Arrays.stream(TilePosition.EdgeDirection.values())
+                .forEach(
+                    ed -> this.edges.putIfAbsent(
+                        Set.of(
+                            tile.getPosition(),
+                            TilePosition.neighbour(tile.getPosition(), ed)
+                        ),
+                        new Edge(
+                            this,
+                            tile.getPosition(),
+                            TilePosition.neighbour(tile.getPosition(), ed),
+                            new SimpleObjectProperty<>(null),
+                            null // TODO
+                        )
+                    )
+                );
         }
-        Collections.shuffle(availableTileTypes, RANDOM);
-        return availableTileTypes;
     }
 
-    private void addTile(final TilePosition position, final Tile.Type type) {
-        final int rollNumber = type.resourceType != null ? !YIELD_POOL.empty() ? YIELD_POOL.pop() : 0 : 0;
+    private void addTile(final TilePosition position, final Tile.Type type, final Stack<Integer> yieldPool) {
+        final int rollNumber = type.resourceType != null ? !yieldPool.empty() ? yieldPool.pop() : 0 : 0;
         tiles.put(position, new TileImpl(position, type, rollNumber, tileHeight, tileWidth, this));
     }
 
@@ -153,29 +158,30 @@ public class HexGridImpl implements HexGrid {
     }
 
     @Override
-    public Map<Set<TilePosition>, Road> getRoads() {
-        return Collections.unmodifiableMap(roads);
+    public Map<Set<TilePosition>, Edge> getEdges() {
+        return Collections.unmodifiableMap(edges);
     }
 
     @Override
-    public Road getRoad(final TilePosition position0, final TilePosition position1) {
-        return roads.get(Set.of(position0, position1));
+    public Edge getEdge(final TilePosition position0, final TilePosition position1) {
+        return edges.get(Set.of(position0, position1));
     }
 
     @Override
     public boolean removeRoad(final TilePosition position0, final TilePosition position1) {
-        return roads.remove(Set.of(position0, position1)) != null;
+        edges.get(Set.of(position0, position1)).roadOwner().setValue(null);
+        return true;
     }
 
     @Override
-    public Map<Set<TilePosition>, Road> getRoads(final Player player) {
-        return Collections.unmodifiableMap(roads.entrySet().stream()
-                .filter(entry -> entry.getValue().owner().equals(player))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+    public Map<Set<TilePosition>, Edge> getRoads(final Player player) {
+        return Collections.unmodifiableMap(edges.entrySet().stream()
+                                               .filter(entry -> entry.getValue().roadOwner().getValue().equals(player))
+                                               .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
     }
 
     @Override
-    public List<Road> getLongestRoad(final Player player) {
+    public List<Edge> getLongestRoad(final Player player) {
         throw new UnsupportedOperationException("Unimplemented method 'getLongestRoad'");
     }
 
@@ -190,20 +196,25 @@ public class HexGridImpl implements HexGrid {
     }
 
     @Override
-    public boolean addRoad(final TilePosition position0, final TilePosition position1, final Player player,
-            final boolean checkVillages) {
-        if (roads.containsKey(Set.of(position0, position1))) {
+    public boolean addRoad(
+        final TilePosition position0, final TilePosition position1, final Player player,
+        final boolean checkVillages
+    ) {
+        final var edge = this.edges.get(Set.of(position0, position1));
+        if (edge == null) {
+            throw new IllegalArgumentException("Edge does not exist");
+        }
+        if (edge.hasRoad()
+            || (!checkVillages && edge.getConnectedEdges().stream().noneMatch(e -> e.hasRoad() && e.roadOwner().getValue().equals(player)))
+            || (
+            checkVillages && edge.getIntersections().stream()
+                .noneMatch(intersection -> intersection.getSettlement() != null
+                    && intersection.getSettlement().owner().equals(player)
+                    && intersection.getConnectedEdges().isEmpty())
+        )) {
             return false;
         }
-        final var newRoad = new Road(this, position0, position1, player);
-        if ((!checkVillages && newRoad.getConnectedRoads().stream().noneMatch(road -> road.owner().equals(player)))
-                || (checkVillages && newRoad.getIntersections().stream()
-                        .noneMatch(intersection -> intersection.getSettlement() != null
-                                && intersection.getSettlement().owner().equals(player)
-                                && intersection.getConnectedRoads().isEmpty()))) {
-            return false;
-        }
-        roads.put(Set.of(position0, position1), newRoad);
+        edge.roadOwner().setValue(player);
         return true;
     }
 }

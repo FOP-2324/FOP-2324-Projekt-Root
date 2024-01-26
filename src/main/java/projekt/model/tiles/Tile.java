@@ -2,6 +2,7 @@ package projekt.model.tiles;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -14,7 +15,7 @@ import projekt.model.TilePosition;
 import projekt.model.ResourceType;
 import projekt.model.TilePosition.EdgeDirection;
 import projekt.model.TilePosition.IntersectionDirection;
-import projekt.model.buildings.Road;
+import projekt.model.buildings.Edge;
 import projekt.model.buildings.Settlement;
 
 public interface Tile {
@@ -67,9 +68,9 @@ public interface Tile {
      */
     default Set<Tile> getNeighbours() {
         return getHexGrid().getTiles().entrySet().stream()
-            .filter(entrySet -> TilePosition.neighbours(getPosition()).contains(entrySet.getKey()))
-            .map(Map.Entry::getValue)
-            .collect(Collectors.toSet());
+                .filter(entrySet -> TilePosition.neighbours(getPosition()).contains(entrySet.getKey()))
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -98,10 +99,9 @@ public interface Tile {
      */
     default Set<TilePosition> getIntersectionPositions(final IntersectionDirection direction) {
         return Set.of(
-            getPosition(),
-            TilePosition.neighbour(getPosition(), direction.leftDirection),
-            TilePosition.neighbour(getPosition(), direction.rightDirection)
-        );
+                getPosition(),
+                TilePosition.neighbour(getPosition(), direction.leftDirection),
+                TilePosition.neighbour(getPosition(), direction.rightDirection));
     }
 
     /**
@@ -120,8 +120,8 @@ public interface Tile {
      * @return all settlements adjacent to this tile
      */
     default Set<Settlement> getSettlements() {
-        return Collections.unmodifiableSet(getIntersections().stream().map(Intersection::getSettlement)
-                                               .filter(settlement -> settlement != null).collect(Collectors.toSet()));
+        return getIntersections().stream().map(Intersection::getSettlement)
+                .filter(Objects::nonNull).collect(Collectors.toUnmodifiableSet());
     }
 
     /**
@@ -131,14 +131,14 @@ public interface Tile {
      *
      * @param direction       the direction of the intersection
      * @param player          the player who owns the settlement
-     * @param ignoreRoadCheck whether to ignore the condition that the player needs a connected road
+     * @param ignoreRoadCheck whether to ignore the condition that the player needs
+     *                        a connected road
      * @return whether the settlement was placed
      */
     default boolean placeVillage(
-        final IntersectionDirection direction,
-        final Player player,
-        final boolean ignoreRoadCheck
-    ) {
+            final IntersectionDirection direction,
+            final Player player,
+            final boolean ignoreRoadCheck) {
         return getIntersection(direction).placeVillage(player, ignoreRoadCheck);
     }
 
@@ -155,12 +155,12 @@ public interface Tile {
     boolean addRoad(EdgeDirection direction, Player owner, boolean checkVillages);
 
     /**
-     * Returns the road on the given edge
+     * Returns the edge on the given edge
      *
      * @param direction the direction of the edge
-     * @return the road on the given edge
+     * @return the edge on the given edge
      */
-    Road getRoad(EdgeDirection direction);
+    Edge getEdge(EdgeDirection direction);
 
     /**
      * Returns whether the robber is currently on this tile.

@@ -5,7 +5,7 @@ import projekt.model.Intersection;
 import projekt.model.Player;
 import projekt.model.TilePosition;
 import projekt.model.TilePosition.EdgeDirection;
-import projekt.model.buildings.Road;
+import projekt.model.buildings.Edge;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -68,8 +68,8 @@ public record TileImpl(
     }
 
     @Override
-    public Road getRoad(final EdgeDirection direction) {
+    public Edge getEdge(final EdgeDirection direction) {
         final var neighbour = TilePosition.neighbour(this.position, direction);
-        return this.hexGrid.getRoads().get(Set.of(this.position, neighbour));
+        return this.hexGrid.getEdges().get(Set.of(this.position, neighbour));
     }
 }
