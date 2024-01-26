@@ -1,16 +1,21 @@
 package projekt;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junitpioneer.jupiter.json.JsonClasspathSource;
 import org.opentest4j.AssertionFailedError;
 import org.sourcegrade.jagr.api.rubric.TestForSubmission;
+import org.tudalgo.algoutils.tutor.general.json.JsonParameterSet;
+import org.tudalgo.algoutils.tutor.general.json.JsonParameterSetTest;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -20,7 +25,17 @@ import static org.tudalgo.algoutils.tutor.general.assertions.Assertions2.*;
 @TestForSubmission
 public class SanityCheck {
 
-    private static final Collector<CharSequence, ?, String> JOINING_COLLECTOR = Collectors.joining(", ", "[", "]");
+    private static final List<String> PACKAGE_NAMES = List.of(
+        "projekt",
+        "projekt.controller",
+        "projekt.controller.tiles",
+        "projekt.model",
+        "projekt.model.buildings",
+        "projekt.model.tiles",
+        "projekt.view",
+        "projekt.view.menus",
+        "projekt.view.tiles"
+    );
     private static final Map<String, Integer> MODIFIERS = Map.ofEntries(
         Map.entry("PUBLIC",       0x001),
         Map.entry("PRIVATE",      0x002),
@@ -37,11 +52,12 @@ public class SanityCheck {
     );
 
     @ParameterizedTest
-    @JsonClasspathSource("structure.json")
-    public void test(ClassRecord classRecord) throws Throwable {
+    @JsonParameterSetTest("/structure.json")
+    public void test(JsonParameterSet jsonParameterSet) throws Throwable {
+        ClassRecord classRecord = ClassRecord.deserialize(jsonParameterSet.getRootNode());
         Class<?> clazz;
         try {
-             clazz = Class.forName(classRecord.identifier);
+            clazz = Class.forName(classRecord.identifier);
         } catch (ClassNotFoundException e) {
             throw new AssertionFailedError("Could not find class " + classRecord.identifier);
         }
@@ -94,8 +110,8 @@ public class SanityCheck {
             Method method = actualMethods.stream()
                 .filter(m ->
                     m.getName().equals(methodRecord.identifier) &&
-                    m.getParameterCount() == methodRecord.parameterTypes.size() &&
-                    Arrays.stream(m.getParameterTypes()).map(Class::getName).toList().containsAll(methodRecord.parameterTypes))
+                        m.getParameterCount() == methodRecord.parameterTypes.size() &&
+                        Arrays.stream(m.getParameterTypes()).map(Class::getName).toList().containsAll(methodRecord.parameterTypes))
                 .findAny()
                 .orElseThrow(() -> fail(emptyContext(), result ->
                     "Method %s(%s) does not exist in class %s"
@@ -115,26 +131,20 @@ public class SanityCheck {
         }
     }
 
-    public String generateJson() {
-        return Stream.of(
-                "projekt",
-                "projekt.controller",
-                "projekt.controller.tiles",
-                "projekt.model",
-                "projekt.model.buildings",
-                "projekt.model.tiles",
-                "projekt.view",
-                "projekt.view.menus",
-                "projekt.view.tiles"
-            )
+    public static JsonNode generateJson(List<String> packageNames) {
+        JsonNodeFactory jsonNodeFactory = new JsonNodeFactory(false);
+        ArrayNode rootNode = jsonNodeFactory.arrayNode();
+        packageNames.stream()
             .flatMap(packageName ->
                 new BufferedReader(new InputStreamReader(ClassLoader.getSystemClassLoader().getResourceAsStream(packageName.replaceAll("[.]", "/"))))
                     .lines()
                     .filter(s -> s.endsWith(".class"))
                     .map(className -> getClass(packageName, className))
                     .filter(Objects::nonNull)
-                    .map(SanityCheck::serializeClass))
-            .collect(Collectors.joining(",\n", "[\n", "\n]"));
+                    .map(ClassRecord::fromClass))
+            .forEach(rootNode::addPOJO);
+
+        return rootNode;
     }
 
     private static Class<?> getClass(String packageName, String className) {
@@ -156,69 +166,17 @@ public class SanityCheck {
         return IntStream.range(0, modifierNames.length)
             .filter(i -> (1 << i & modifiers) != 0)
             .mapToObj(i -> "\"%s\"".formatted(modifierNames[i]))
-            .collect(JOINING_COLLECTOR);
+            .collect(Collectors.joining(", ", "[", "]"));
     }
 
-    private static String serializeClass(Class<?> clazz) {
-        return """
-                {
-                    "modifiers": %s,
-                    "identifier": "%s",
-                    "superclass": "%s",
-                    "interfaces": %s,
-                    "fields": [%s],
-                    "methods": [%s]
-                }
-            """.formatted(
-                expandModifiers(clazz.getModifiers()),
-                clazz.getName(),
-                clazz.getSuperclass() != null ? clazz.getSuperclass().getName() : "",
-                Arrays.stream(clazz.getInterfaces())
-                    .map(c -> "\"%s\"".formatted(c.getName()))
-                    .collect(JOINING_COLLECTOR),
-                Arrays.stream(clazz.getDeclaredFields())
-                    .map(SanityCheck::serializeField)
-                    .collect(Collectors.joining(", ")),
-                Arrays.stream(clazz.getDeclaredMethods())
-                    .filter(m -> !m.getName().startsWith("lambda$") && !m.isSynthetic())
-                    .map(SanityCheck::serializeMethod)
-                    .collect(Collectors.joining(", "))
-            )
-            .replaceAll("\n$", "");
-    }
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    private static String serializeField(Field field) {
-        return """
-            {
-                "modifiers": %s,
-                "identifier": "%s",
-                "type": "%s"
-            }""".formatted(
-                expandModifiers(field.getModifiers()),
-                field.getName(),
-                field.getType().getName()
-            )
-            .replaceAll(",\n", ", \n")
-            .replaceAll("\n\\s*", "");
-    }
-
-    private static String serializeMethod(Method method) {
-        return """
-            {
-                "modifiers": %s,
-                "identifier": "%s",
-                "returnType": "%s",
-                "parameterTypes": %s
-            }""".formatted(
-                expandModifiers(method.getModifiers()),
-                method.getName(),
-                method.getReturnType().getName(),
-                Arrays.stream(method.getParameterTypes())
-                    .map(c -> "\"%s\"".formatted(c.getName()))
-                    .collect(JOINING_COLLECTOR)
-            )
-            .replaceAll(",\n", ", \n")
-            .replaceAll("\n\\s*", "");
+    private static <T> T jsonNodeToRecord(JsonNode node, Class<T> tClass) {
+        try {
+            return OBJECT_MAPPER.readValue(node.traverse(), tClass);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public record ClassRecord(
@@ -228,18 +186,82 @@ public class SanityCheck {
         List<String> interfaces,
         List<FieldRecord> fields,
         List<MethodRecord> methods
-    ) {}
+    ) {
+        public static ClassRecord fromClass(Class<?> clazz) {
+            return new ClassRecord(
+                MODIFIERS.entrySet()
+                    .stream()
+                    .filter(entry -> (clazz.getModifiers() & entry.getValue()) != 0)
+                    .sorted(Comparator.comparingInt(Map.Entry::getValue))
+                    .map(Map.Entry::getKey)
+                    .toList(),
+                clazz.getName(),
+                clazz.getSuperclass() != null ? clazz.getSuperclass().getName() : "",
+                Arrays.stream(clazz.getInterfaces())
+                    .map(Class::getName)
+                    .toList(),
+                Arrays.stream(clazz.getDeclaredFields())
+                    .map(FieldRecord::fromField)
+                    .toList(),
+                Arrays.stream(clazz.getDeclaredMethods())
+                    .filter(m -> !m.getName().startsWith("lambda$") && !m.isSynthetic())
+                    .map(MethodRecord::fromMethod)
+                    .toList()
+            );
+        }
+
+        public static ClassRecord deserialize(JsonNode node) {
+            return jsonNodeToRecord(node, ClassRecord.class);
+        }
+    }
 
     public record FieldRecord(
         List<String> modifiers,
         String identifier,
         String type
-    ) {}
+    ) {
+        public static FieldRecord fromField(Field field) {
+            return new FieldRecord(
+                MODIFIERS.entrySet()
+                    .stream()
+                    .filter(entry -> (field.getModifiers() & entry.getValue()) != 0)
+                    .sorted(Comparator.comparingInt(Map.Entry::getValue))
+                    .map(Map.Entry::getKey)
+                    .toList(),
+                field.getName(),
+                field.getType().getName()
+            );
+        }
+
+        private static FieldRecord deserialize(JsonNode node) {
+            return jsonNodeToRecord(node, FieldRecord.class);
+        }
+    }
 
     public record MethodRecord(
         List<String> modifiers,
         String identifier,
         String returnType,
         List<String> parameterTypes
-    ) {}
+    ) {
+        public static MethodRecord fromMethod(Method method) {
+            return new MethodRecord(
+                MODIFIERS.entrySet()
+                    .stream()
+                    .filter(entry -> (method.getModifiers() & entry.getValue()) != 0)
+                    .sorted(Comparator.comparingInt(Map.Entry::getValue))
+                    .map(Map.Entry::getKey)
+                    .toList(),
+                method.getName(),
+                method.getReturnType().getName(),
+                Arrays.stream(method.getParameterTypes())
+                    .map(Class::getName)
+                    .toList()
+            );
+        }
+
+        private static MethodRecord deserialize(JsonNode node) {
+            return jsonNodeToRecord(node, MethodRecord.class);
+        }
+    }
 }

@@ -67,7 +67,7 @@ public class Projekt_RubricProvider implements RubricProvider {
                     .addChildCriteria(Criterion.builder()
                         .shortDescription("Sanity Check")
                         .grader(Grader.testAwareBuilder()
-                            .requirePass(JUnitTestRef.ofMethod(() -> SanityCheck.class.getDeclaredMethod("test", SanityCheck.ClassRecord.class)))
+                            .requirePass(JUnitTestRef.ofMethod(() -> SanityCheck.class.getDeclaredMethod("test", JsonParameterSet.class)))
                             .pointsFailedMin()
                             .pointsPassedMax()
                             .build())
