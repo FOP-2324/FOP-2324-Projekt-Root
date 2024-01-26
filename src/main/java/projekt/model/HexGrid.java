@@ -7,7 +7,7 @@ import java.util.Set;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.value.ObservableDoubleValue;
 import projekt.model.TilePosition.EdgeDirection;
-import projekt.model.buildings.Road;
+import projekt.model.buildings.Edge;
 import projekt.model.tiles.Tile;
 
 public interface HexGrid {
@@ -103,33 +103,40 @@ public interface HexGrid {
     Intersection getIntersectionAt(TilePosition position0, TilePosition position1, TilePosition position2);
 
     /**
-     * Adds the given road to the grid. Also Checks if the player has a connected road. Does not check or remove
-     * Player's resources.
+     * Adds the given road to the grid. Also either checks if the player has a
+     * connected road or a connected village with no other roads. Does not check or
+     * remove Player's resources.
      *
-     * @param position0 the first position of the road
-     * @param position1 the second position of the road
-     * @param player    the player that owns the road
+     * @param position0     the first position of the road
+     * @param position1     the second position of the road
+     * @param player        the player that owns the road
+     * @param checkVillages whether to check if the player has a connected village
      * @return whether the road was added
      */
-    boolean addRoad(TilePosition position0, TilePosition position1, Player player);
+    boolean addRoad(TilePosition position0, TilePosition position1, Player player, boolean checkVillages);
 
     /**
      * Adds the given road to the grid relative to the given tile.
+     * Check {@link HexGrid#addRoad(TilePosition, TilePosition, Player, boolean)}
+     * for details.
      *
      * @param tile          the tile the road is next to
      * @param edgeDirection the direction of the edge the road is on
+     * @param player        the player that owns the road
+     * @param checkVillages whether to check if the player has a connected village
      * @return whether the road was added
      */
-    default boolean addRoad(final Tile tile, final EdgeDirection edgeDirection, final Player player) {
-        return tile.addRoad(edgeDirection, player);
+    default boolean addRoad(final Tile tile, final EdgeDirection edgeDirection, final Player player,
+            final boolean checkVillages) {
+        return tile.addRoad(edgeDirection, player, checkVillages);
     }
 
     /**
-     * Returns all roads of the grid.
+     * Returns all edges of the grid.
      *
-     * @return all roads of the grid
+     * @return all edges of the grid
      */
-    Map<Set<TilePosition>, Road> getRoads();
+    Map<Set<TilePosition>, Edge> getEdges();
 
     /**
      * Returns all roads of the given player.
@@ -137,16 +144,16 @@ public interface HexGrid {
      * @param player the player to get the roads of
      * @return all roads of the given player
      */
-    Map<Set<TilePosition>, Road> getRoads(Player player);
+    Map<Set<TilePosition>, Edge> getRoads(Player player);
 
     /**
-     * Returns the road between the given positions.
+     * Returns the edge between the given positions.
      *
      * @param position0 the first position
      * @param position1 the second position
-     * @return the road between the given intersections
+     * @return the edge between the given intersections
      */
-    Road getRoad(TilePosition position0, TilePosition position1);
+    Edge getEdge(TilePosition position0, TilePosition position1);
 
     /**
      * Removes the road between the given positions.
@@ -158,9 +165,9 @@ public interface HexGrid {
     boolean removeRoad(TilePosition position0, TilePosition position1);
 
     /**
-     * Removes the given road from the grid.
+     * Removes the road at the given edge.
      */
-    default boolean removeRoad(final Road road) {
+    default boolean removeRoad(final Edge road) {
         return removeRoad(road.position1(), road.position2());
     }
 
@@ -168,9 +175,9 @@ public interface HexGrid {
      * Returns the longest road of the given player
      *
      * @param player the player to get the longest road of
-     * @return set of all roads that make up the longest road
+     * @return list of all roads that make up the longest road
      */
-    List<Road> getLongestRoad(Player player);
+    List<Edge> getLongestRoad(Player player);
 
     /**
      * Returns the current position of the robber

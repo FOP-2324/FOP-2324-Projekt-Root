@@ -3,8 +3,8 @@ package projekt.model;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import projekt.model.buildings.Edge;
 import projekt.model.buildings.Port;
-import projekt.model.buildings.Road;
 import projekt.model.buildings.Settlement;
 import projekt.model.tiles.Tile;
 
@@ -24,13 +24,15 @@ public interface Intersection {
     Settlement getSettlement();
 
     /**
-     * Places a village on this intersection for the given player. Verifies that the player has a connected road to this intersection.
+     * Places a village on this intersection for the given player. Verifies that the
+     * player has a connected road to this intersection if not explicitly ignored.
      * Does not check or remove resources.
      *
-     * @param player the player who places the settlement
+     * @param player          the player who places the settlement
+     * @param ignoreRoadCheck whether to ignore the condition that the player needs a connected road
      * @return whether the placement was successful
      */
-    boolean placeVillage(Player player);
+    boolean placeVillage(Player player, boolean ignoreRoadCheck);
 
     /**
      * Upgrades the settlement on this intersection to a city. Player resources are not checked or removed.
@@ -49,17 +51,18 @@ public interface Intersection {
 
     /**
      * Returns true if the player has a connected road to this intersection
+     *
      * @param player the player to check
      * @return true if the player has a connected road to this intersection
      */
     boolean playerHasConnectedRoad(Player player);
 
     /**
-     * Returns all Roads connected to this intersection.
+     * Returns all edges connected to this intersection.
      *
-     * @return all Roads connected to this intersection
+     * @return all edges connected to this intersection
      */
-    Set<Road> getConnectedRoads();
+    Set<Edge> getConnectedEdges();
 
     /**
      * Returns all Intersection that are adjacent to this intersection.
@@ -82,8 +85,8 @@ public interface Intersection {
      */
     default Set<Tile> getAdjacentTiles() {
         return getHexGrid().getTiles().entrySet().stream()
-                .filter(entrySet -> getAdjacentTilePositions().contains(entrySet.getKey()))
-                .map(entrySet -> entrySet.getValue()).collect(Collectors.toSet());
+            .filter(entrySet -> getAdjacentTilePositions().contains(entrySet.getKey()))
+            .map(entrySet -> entrySet.getValue()).collect(Collectors.toSet());
     }
 
     /**

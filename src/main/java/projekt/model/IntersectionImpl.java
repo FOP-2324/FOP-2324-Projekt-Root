@@ -1,7 +1,7 @@
 package projekt.model;
 
 import projekt.model.buildings.Port;
-import projekt.model.buildings.Road;
+import projekt.model.buildings.Edge;
 import projekt.model.buildings.Settlement;
 
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 
 /**
  * An intersection represented by the three adjacent positions (tiles).
- * As an exmaple, the following intersection has the positions ordered clockwise:
+ * As an example, the following intersection has the positions ordered clockwise:
  * @formatter:off
  *      |
  *      |
@@ -26,8 +26,7 @@ public class IntersectionImpl implements Intersection {
     private final TilePosition position1;
     private final TilePosition position2;
     private final HexGrid hexGrid;
-    private Settlement settlment;
-    private Port port;
+    private Settlement settlement;
 
     public IntersectionImpl(final HexGrid hexGrid, final List<TilePosition> positions) {
         this(positions.get(0), positions.get(1), positions.get(2), hexGrid);
@@ -76,44 +75,48 @@ public class IntersectionImpl implements Intersection {
 
     @Override
     public Settlement getSettlement() {
-        return settlment;
+        return settlement;
     }
 
     @Override
-    public boolean placeVillage(final Player player) {
-        if (settlment != null || !playerHasConnectedRoad(player))
+    public boolean placeVillage(final Player player, final boolean ignoreRoadCheck) {
+        if (settlement != null || (!playerHasConnectedRoad(player) && !ignoreRoadCheck))
             return false;
-        settlment = new Settlement(player, Settlement.Type.VILLAGE);
+        settlement = new Settlement(player, Settlement.Type.VILLAGE, this);
         return true;
     }
 
     @Override
     public boolean upgradeSettlement(final Player player) {
-        if (settlment == null || settlment.type() != Settlement.Type.VILLAGE)
+        if (settlement == null || settlement.type() != Settlement.Type.VILLAGE || !settlement.owner().equals(player))
             return false;
-        settlment = new Settlement(player, Settlement.Type.CITY);
+        settlement = new Settlement(player, Settlement.Type.CITY, this);
         return true;
     }
 
     @Override
     public Port getPort() {
-        return port;
+        return getConnectedEdges().stream()
+            .filter(Edge::hasPort)
+            .map(Edge::port)
+            .findAny()
+            .orElse(null);
     }
 
     @Override
     public boolean playerHasConnectedRoad(final Player player) {
-        return getConnectedRoads().stream().anyMatch(road -> road.owner() == player);
+        return getConnectedEdges().stream().anyMatch(road -> road.roadOwner().getValue().equals(player));
     }
 
     @Override
-    public Set<Road> getConnectedRoads() {
+    public Set<Edge> getConnectedEdges() {
         return Stream.of(
                 Set.of(this.position1, this.position2),
                 Set.of(this.position2, this.position0),
                 Set.of(this.position0, this.position1)
             )
-            .filter(this.hexGrid.getRoads()::containsKey)
-            .map(this.hexGrid.getRoads()::get)
+            .filter(this.hexGrid.getEdges()::containsKey)
+            .map(this.hexGrid.getEdges()::get)
             .collect(Collectors.toSet());
     }
 

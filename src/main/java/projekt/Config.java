@@ -114,4 +114,23 @@ public final class Config {
             Settlement.Type.CITY, Map.of(
                     ResourceType.GRAIN, 2,
                     ResourceType.ORE, 3));
+
+    public static Stack<Tile.Type> generateAvailableTileTypes() {
+        final Stack<Tile.Type> availableTileTypes = new Stack<>() {
+            {
+                for (final Tile.Type tileType : Tile.Type.values()) {
+                    final double tileAmount = TILE_RATIOS.get(tileType) * TILE_FORMULA.apply(GRID_RADIUS);
+                    for (int i = 0; i < tileAmount; i++) {
+                        push(tileType);
+                    }
+                }
+            }
+        };
+        if (availableTileTypes.size() < TILE_FORMULA.apply(GRID_RADIUS)) {
+            throw new IllegalStateException(
+                "The amount of tiles does not match the formula. If this error occured please rerun or report to Per");
+        }
+        Collections.shuffle(availableTileTypes, RANDOM);
+        return availableTileTypes;
+    }
 }

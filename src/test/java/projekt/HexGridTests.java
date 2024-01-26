@@ -1,6 +1,5 @@
 package projekt;
 
-
 import javafx.scene.paint.Color;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,10 +17,8 @@ public class HexGridTests {
     @BeforeEach
     void setUp() {
         gameState = new GameState(
-            new HexGridImpl(6), List.of(
-                new PlayerImpl(this.hexGrid, Color.AQUA)
-            )
-        );
+            new HexGridImpl(3), List.of(
+            new PlayerImpl(this.hexGrid, Color.AQUA)));
         this.hexGrid = gameState.getGrid();
         this.player = gameState.getPlayers().get(0);
     }
@@ -46,102 +43,104 @@ public class HexGridTests {
             TilePosition.EdgeDirection.stream().forEach(dir -> {
                 final var neighbour = TilePosition.neighbour(p, dir);
                 if (this.hexGrid.getTiles().containsKey(neighbour)) {
-                    tile.addRoad(dir, this.player);
+                    Assertions.assertFalse(tile.addRoad(dir, this.player, false));
                 }
             });
         });
 
         final var center = this.hexGrid.getTiles().get(new TilePosition(0, 0));
         for (final var intersection : center.getIntersections()) {
-            Assertions.assertEquals(3, intersection.getConnectedRoads().size());
+            Assertions.assertEquals(3, intersection.getConnectedEdges().size());
         }
 
-        for (final var road : this.hexGrid.getRoads().values()) {
+        for (final var road : this.hexGrid.getEdges().values()) {
             final var intersections = road.getIntersections();
             Assertions.assertEquals(2, intersections.size());
         }
     }
 
     @Test
-    @DisplayName("longest Road: trivial case of one road")
+    @DisplayName("longest Edge: trivial case of one road")
     void testLongestRoad1() {
         // trivial case of one road
         final var tile = this.hexGrid.getTiles().get(new TilePosition(0, 0));
-        tile.addRoad(TilePosition.EdgeDirection.EAST, this.player);
+        tile.addRoad(TilePosition.EdgeDirection.EAST, this.player, false);
 
         final var longestRoadLength = this.hexGrid.getLongestRoad(this.player).size();
         Assertions.assertEquals(1, longestRoadLength);
     }
 
     @Test
-    @DisplayName("longest Road: two roads of length 1")
+    @DisplayName("longest Edge: two roads of length 1")
     void testLongestRoad2() {
         // two roads of length 1
         final var tile = this.hexGrid.getTiles().get(new TilePosition(0, 0));
-        tile.addRoad(TilePosition.EdgeDirection.EAST, this.player);
-        tile.addRoad(TilePosition.EdgeDirection.WEST, this.player);
+        tile.addRoad(TilePosition.EdgeDirection.EAST, this.player, false);
+        tile.addRoad(TilePosition.EdgeDirection.WEST, this.player, false);
 
         final var longestRoadLength = this.hexGrid.getLongestRoad(this.player).size();
         Assertions.assertEquals(1, longestRoadLength);
     }
 
     @Test
-    @DisplayName("longest Road: one road with length 1 and one with length 2")
+    @DisplayName("longest Edge: one road with length 1 and one with length 2")
     void testLongestRoad3() {
         // one road with length 1 and one with length 2
         final var tile = this.hexGrid.getTiles().get(new TilePosition(0, 0));
-        tile.addRoad(TilePosition.EdgeDirection.EAST, this.player);
-        tile.addRoad(TilePosition.EdgeDirection.NORTH_EAST, this.player);
-        tile.addRoad(TilePosition.EdgeDirection.WEST, this.player);
+        tile.addRoad(TilePosition.EdgeDirection.EAST, this.player, false);
+        tile.addRoad(TilePosition.EdgeDirection.NORTH_EAST, this.player, false);
+        tile.addRoad(TilePosition.EdgeDirection.WEST, this.player, false);
 
         final var longestRoadLength = this.hexGrid.getLongestRoad(this.player).size();
         Assertions.assertEquals(2, longestRoadLength);
     }
 
     @Test
-    @DisplayName("longest Road: one cycle around the center")
+    @DisplayName("longest Edge: one cycle around the center")
     void testLongestRoad4() {
         // one cycle around the center
         final var tile = this.hexGrid.getTiles().get(new TilePosition(0, 0));
-        TilePosition.EdgeDirection.stream().forEach(dir -> tile.addRoad(dir, this.player));
+        TilePosition.EdgeDirection.stream().forEach(dir -> tile.addRoad(dir, this.player, false));
 
         final var longestRoadLength = this.hexGrid.getLongestRoad(this.player).size();
         Assertions.assertEquals(6, longestRoadLength);
     }
 
     @Test
-    @DisplayName("longest Road: one cycle around the center and one offspring")
+    @DisplayName("longest Edge: one cycle around the center and one offspring")
     void testLongestRoad5() {
         // one cycle around the center and one offspring
         final var tile = this.hexGrid.getTiles().get(new TilePosition(0, 0));
-        TilePosition.EdgeDirection.stream().forEach(dir -> tile.addRoad(dir, this.player));
-        tile.getNeighbour(TilePosition.EdgeDirection.WEST).addRoad(TilePosition.EdgeDirection.NORTH_EAST, this.player);
+        TilePosition.EdgeDirection.stream().forEach(dir -> tile.addRoad(dir, this.player, false));
+        tile.getNeighbour(TilePosition.EdgeDirection.WEST).addRoad(TilePosition.EdgeDirection.NORTH_EAST, this.player,
+                                                                   false
+        );
 
         final var longestRoadLength = this.hexGrid.getLongestRoad(this.player).size();
         Assertions.assertEquals(7, longestRoadLength);
     }
 
     @Test
-    @DisplayName("longest Road: two tiles")
+    @DisplayName("longest Edge: two tiles")
     void testLongestRoad6() {
         // twoTiles
         final var tile = this.hexGrid.getTiles().get(new TilePosition(0, 0));
-        TilePosition.EdgeDirection.stream().forEach(dir -> tile.addRoad(dir, this.player));
+        TilePosition.EdgeDirection.stream().forEach(dir -> tile.addRoad(dir, this.player, false));
         final var neighbour = tile.getNeighbour(TilePosition.EdgeDirection.WEST);
-        TilePosition.EdgeDirection.stream().forEach(dir -> neighbour.addRoad(dir, this.player));
+        TilePosition.EdgeDirection.stream().forEach(dir -> neighbour.addRoad(dir, this.player, false));
 
         final var longestRoadLength = this.hexGrid.getLongestRoad(this.player).size();
         Assertions.assertEquals(11, longestRoadLength);
     }
 
     @Test
-    @DisplayName("longest Road: two tiles without middle road")
+    @DisplayName("longest Edge: two tiles without middle road")
     void testLongestRoad7() {
         // twoTiles without middle road
         final var tile = this.hexGrid.getTiles().get(new TilePosition(0, 0));
-        TilePosition.EdgeDirection.stream().forEach(dir -> tile.addRoad(dir, this.player));
+        TilePosition.EdgeDirection.stream().forEach(dir -> tile.addRoad(dir, this.player, false));
         final var neighbour = tile.getNeighbour(TilePosition.EdgeDirection.WEST);
-        TilePosition.EdgeDirection.stream().forEach(dir -> neighbour.addRoad(dir, this.player));
+        TilePosition.EdgeDirection.stream().forEach(dir -> neighbour.addRoad(dir, this.player, false));
 
         this.hexGrid.removeRoad(tile.getPosition(), neighbour.getPosition());
 
@@ -150,30 +149,30 @@ public class HexGridTests {
     }
 
     @Test
-    @DisplayName("longest Road: three tiles")
+    @DisplayName("longest Edge: three tiles")
     void testLongestRoad8() {
         // threeTiles
         final var tile = this.hexGrid.getTiles().get(new TilePosition(0, 0));
-        TilePosition.EdgeDirection.stream().forEach(dir -> tile.addRoad(dir, this.player));
+        TilePosition.EdgeDirection.stream().forEach(dir -> tile.addRoad(dir, this.player, false));
         final var neighbour1 = tile.getNeighbour(TilePosition.EdgeDirection.WEST);
-        TilePosition.EdgeDirection.stream().forEach(dir -> neighbour1.addRoad(dir, this.player));
+        TilePosition.EdgeDirection.stream().forEach(dir -> neighbour1.addRoad(dir, this.player, false));
         final var neighbour2 = tile.getNeighbour(TilePosition.EdgeDirection.NORTH_WEST);
-        TilePosition.EdgeDirection.stream().forEach(dir -> neighbour2.addRoad(dir, this.player));
+        TilePosition.EdgeDirection.stream().forEach(dir -> neighbour2.addRoad(dir, this.player, false));
 
         final var longestRoadLength = this.hexGrid.getLongestRoad(this.player).size();
         Assertions.assertEquals(14, longestRoadLength);
     }
 
     @Test
-    @DisplayName("longest Road: three tiles without middle road")
+    @DisplayName("longest Edge: three tiles without middle road")
     void testLongestRoad9() {
         // threeTiles outline
         final var tile = this.hexGrid.getTiles().get(new TilePosition(0, 0));
-        TilePosition.EdgeDirection.stream().forEach(dir -> tile.addRoad(dir, this.player));
+        TilePosition.EdgeDirection.stream().forEach(dir -> tile.addRoad(dir, this.player, false));
         final var neighbour1 = tile.getNeighbour(TilePosition.EdgeDirection.WEST);
-        TilePosition.EdgeDirection.stream().forEach(dir -> neighbour1.addRoad(dir, this.player));
+        TilePosition.EdgeDirection.stream().forEach(dir -> neighbour1.addRoad(dir, this.player, false));
         final var neighbour2 = tile.getNeighbour(TilePosition.EdgeDirection.NORTH_WEST);
-        TilePosition.EdgeDirection.stream().forEach(dir -> neighbour2.addRoad(dir, this.player));
+        TilePosition.EdgeDirection.stream().forEach(dir -> neighbour2.addRoad(dir, this.player, false));
 
         this.hexGrid.removeRoad(tile.getPosition(), neighbour1.getPosition());
         this.hexGrid.removeRoad(tile.getPosition(), neighbour2.getPosition());

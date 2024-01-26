@@ -9,12 +9,15 @@ import org.tudalgo.algoutils.tutor.general.assertions.Context;
 import org.tudalgo.algoutils.tutor.general.json.JsonParameterSet;
 import org.tudalgo.algoutils.tutor.general.json.JsonParameterSetTest;
 import projekt.model.*;
+import projekt.model.buildings.Edge;
 import projekt.model.buildings.Port;
 import projekt.model.buildings.Settlement;
 
 import java.lang.reflect.Field;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -188,32 +191,34 @@ public class PlayerImplTest {
 
         Field intersectionsField = HexGridImpl.class.getDeclaredField("intersections");
         intersectionsField.trySetAccessible();
-        Field portField = IntersectionImpl.class.getDeclaredField("port");
-        portField.trySetAccessible();
-        Field settlementField = IntersectionImpl.class.getDeclaredField("settlment");
+        Field edgesField = HexGridImpl.class.getDeclaredField("edges");
+        edgesField.trySetAccessible();
+        Field settlementField = IntersectionImpl.class.getDeclaredField("settlement");
         settlementField.trySetAccessible();
-        AtomicInteger i = new AtomicInteger();
-        List<Port> ports = List.of(
-            new Port(3),
-            new Port(2, ResourceType.ORE)
+
+        Map<Set<TilePosition>, Port> ports = Map.of(
+            Set.of(new TilePosition(-1, 0), new TilePosition(0, 0)), new Port(3),
+            Set.of(new TilePosition(1, 0), new TilePosition(0, 0)), new Port(2, ResourceType.ORE)
         );
-        ((Map<?, IntersectionImpl>) intersectionsField.get(hexGrid))
-            .values()
-            .stream()
-            .limit(ports.size())
-            .forEach(intersection -> {
-                try {
-                    settlementField.set(intersection, new Settlement(player, Settlement.Type.VILLAGE));
-                    portField.set(intersection, ports.get(i.getAndIncrement()));
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
-            });
         Context context = contextBuilder()
             .add("hexGrid", "radius=1, intersections=6, one port with ratio=3 and one with ratio=2 and resourceType=ORE owned by player")
             .build();
 
-        for (Port port : ports) {
+        ports.forEach((tilePositions, port) -> {
+            try {
+                Map<Set<TilePosition>, Edge> edges = (Map<Set<TilePosition>, Edge>) edgesField.get(hexGrid);
+                Edge oldEdge = edges.get(tilePositions);
+                Edge newEdge = new Edge(oldEdge.grid(), oldEdge.position1(), oldEdge.position2(), oldEdge.roadOwner(), port);
+                edges.put(tilePositions, newEdge);
+
+                Intersection intersection = newEdge.getIntersections().stream().findAny().get();
+                settlementField.set(intersection, new Settlement(player, Settlement.Type.VILLAGE, intersection));
+            } catch (Throwable t) {
+                throw new RuntimeException(t);
+            }
+        });
+
+        for (Port port : ports.values()) {
             ResourceType resourceType = port.resourceType() == null ? ResourceType.values()[0] : port.resourceType();
             assertEquals(port.ratio(),
                 player.getTradeRatio(resourceType),
