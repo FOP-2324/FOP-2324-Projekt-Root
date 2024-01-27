@@ -3,6 +3,7 @@ package projekt.controller.gui;
 import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 
 import javafx.application.Platform;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.Property;
 import javafx.scene.layout.Region;
 import javafx.util.Builder;

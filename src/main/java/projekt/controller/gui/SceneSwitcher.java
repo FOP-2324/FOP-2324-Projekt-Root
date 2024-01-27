@@ -52,7 +52,8 @@ public class SceneSwitcher {
             getInstance().gameLoopStarter.run();
             final GameBoardController gameBoardController = new GameBoardController(
                     getInstance().gameController.getState(),
-                    getInstance().gameController.getActivePlayerControllerProperty());
+                    getInstance().gameController.getActivePlayerControllerProperty(),
+                    getInstance().gameController.getCurrentDiceRollProperty());
 
             return gameBoardController;
         });
