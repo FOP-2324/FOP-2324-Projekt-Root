@@ -1,13 +1,15 @@
 package projekt.view.menus;
 
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
+
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
+import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
@@ -21,11 +23,11 @@ import javafx.scene.shape.Rectangle;
 import projekt.model.Player;
 
 public class CreateGameBuilder extends MenuBuilder {
-
     private final BiFunction<String, Color, Boolean> addPlayerHandler;
     private final ObservableList<Player> observablePlayers;
     private final Supplier<Boolean> startGameHandler;
 
+    @DoNotTouch
     public CreateGameBuilder(final List<Player> players, final Runnable quitHandler,
             final BiFunction<String, Color, Boolean> addPlayerHandler, final Supplier<Boolean> startGameHandler) {
         super("Create Game", quitHandler);
@@ -35,6 +37,7 @@ public class CreateGameBuilder extends MenuBuilder {
     }
 
     @Override
+    @StudentImplementationRequired
     protected Node initCenter() {
         VBox mainBox = new VBox();
 
@@ -77,6 +80,7 @@ public class CreateGameBuilder extends MenuBuilder {
 
         mainBox.getChildren().addAll(playerColorPicker, playerNameField, addPlayerButton, playerErrorLabel, playersList,
                 startGameButton, startGameErrorLabel);
+        mainBox.setPadding(new Insets(10));
         return mainBox;
     }
 
