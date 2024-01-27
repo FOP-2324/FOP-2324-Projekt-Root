@@ -43,6 +43,21 @@ public interface Intersection {
     boolean upgradeSettlement(Player player);
 
     /**
+     * Returns true if the player has a settlement on this intersection
+     *
+     * @param player the player to check
+     * @return true if the player has a settlement on this intersection
+     */
+    boolean playerHasSettlement(Player player);
+
+    /**
+     * Returns true if there is a settlement on this intersection
+     *
+     * @return true if there is a settlement on this intersection
+     */
+    boolean hasSettlement();
+
+    /**
      * Returns the port on this intersection or null
      *
      * @return the port on this intersection
@@ -104,12 +119,4 @@ public interface Intersection {
      * @return whether all positions are connected
      */
     boolean isConnectedTo(TilePosition... position);
-
-    /**
-     * Checks whether has a connecting road to the given intersection
-     *
-     * @param intersection the intersection to check
-     * @return whether there is a connecting road
-     */
-    boolean hasConnectingRoad(Intersection intersection);
 }

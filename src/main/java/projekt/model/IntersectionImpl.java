@@ -7,6 +7,7 @@ import projekt.model.buildings.Settlement;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -105,7 +106,8 @@ public class IntersectionImpl implements Intersection {
 
     @Override
     public boolean playerHasConnectedRoad(final Player player) {
-        return getConnectedEdges().stream().anyMatch(road -> road.roadOwner().getValue().equals(player));
+        return getConnectedEdges().stream()
+                .anyMatch(edge -> edge.hasRoad() && edge.roadOwner().getValue().equals(player));
     }
 
     @Override
@@ -124,11 +126,11 @@ public class IntersectionImpl implements Intersection {
     public Set<Intersection> getAdjacentIntersections() {
         return hexGrid.getIntersections().entrySet().stream().filter(
                 entry -> entry.getKey().containsAll(Set.of(position0, position1)) ||
-                    entry.getKey().containsAll(Set.of(position1, position2)) ||
-                    entry.getKey().containsAll(Set.of(position2, position0)))
-            .map(Map.Entry::getValue)
-            .filter(this::equals)
-            .collect(Collectors.toSet());
+                        entry.getKey().containsAll(Set.of(position1, position2)) ||
+                        entry.getKey().containsAll(Set.of(position2, position0)))
+                .map(Map.Entry::getValue)
+                .filter(Predicate.not(this::equals))
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -159,5 +161,15 @@ public class IntersectionImpl implements Intersection {
             return false;
         final IntersectionImpl intersection = (IntersectionImpl) o;
         return getAdjacentPositions().equals(intersection.getAdjacentPositions());
+    }
+
+    @Override
+    public boolean playerHasSettlement(Player player) {
+        return settlement != null && settlement.owner().equals(player);
+    }
+
+    @Override
+    public boolean hasSettlement() {
+        return settlement != null;
     }
 }
