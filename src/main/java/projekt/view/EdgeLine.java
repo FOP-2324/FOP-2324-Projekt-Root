@@ -17,7 +17,7 @@ public class EdgeLine extends Line {
     private double distance = 0;
     private final int strokeWidth = 5;
     private final double positionOffset = 10;
-    private final Color highlightColor = Color.RED;
+    private final Color highlightColor = Color.CRIMSON;
     private final Color hoverColor = Color.LIME;
     private final ChangeListener<? super Boolean> hoverListener = (observable, oldValue, newValue) -> {
         if (newValue) {
@@ -64,7 +64,8 @@ public class EdgeLine extends Line {
      * @param handler the handler to call when the EdgeLine is clicked
      */
     public void highlight(Consumer<MouseEvent> handler) {
-        init(0.2);
+        init(0.1);
+        getStrokeDashArray().add(10.0);
         setStroke(highlightColor);
         setStrokeWidth(strokeWidth * 1.2);
         hoverProperty().addListener(hoverListener);
@@ -76,9 +77,9 @@ public class EdgeLine extends Line {
     }
 
     /**
-     * Initializes the EdgeLine with the given dash scale.
+     * Initializes the EdgeLine with the given dashScale.
      *
-     * @param dashScale how much the dashes should be scaled
+     * @param dashScale factor to scale the dash length by
      */
     public void init(double dashScale) {
         this.distance = calculateDistance(getStartX(), getStartY(), getEndX(), getEndY());
