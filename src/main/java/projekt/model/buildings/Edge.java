@@ -54,14 +54,15 @@ public record Edge(
     }
 
     /**
-     * Returns the roads that connect to this current Edge. Note that the road owners must match for roads to be
-     * connected.
+     * Returns the connected roads of the given player.
      *
+     * @param player the player to check for.
      * @return the connected roads.
      */
-    public Set<Edge> getConnectedRoads() {
+    public Set<Edge> getConnectedRoads(Player player) {
         return getConnectedEdges().stream()
-            .filter(x -> x.roadOwner.getValue().equals(this.roadOwner.getValue()))
-            .collect(Collectors.toUnmodifiableSet());
+                .filter(edge -> edge.hasRoad())
+                .filter(edge -> edge.roadOwner.getValue().equals(player))
+                .collect(Collectors.toUnmodifiableSet());
     }
 }
