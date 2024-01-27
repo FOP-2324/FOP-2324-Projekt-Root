@@ -176,8 +176,9 @@ public class HexGridImpl implements HexGrid {
     @Override
     public Map<Set<TilePosition>, Edge> getRoads(final Player player) {
         return Collections.unmodifiableMap(edges.entrySet().stream()
-                                               .filter(entry -> entry.getValue().roadOwner().getValue().equals(player))
-                                               .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+                .filter(entry -> entry.getValue().hasRoad())
+                .filter(entry -> entry.getValue().roadOwner().getValue().equals(player))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
     }
 
     @Override
@@ -205,13 +206,13 @@ public class HexGridImpl implements HexGrid {
             throw new IllegalArgumentException("Edge does not exist");
         }
         if (edge.hasRoad()
-            || (!checkVillages && edge.getConnectedEdges().stream().noneMatch(e -> e.hasRoad() && e.roadOwner().getValue().equals(player)))
-            || (
-            checkVillages && edge.getIntersections().stream()
-                .noneMatch(intersection -> intersection.getSettlement() != null
-                    && intersection.getSettlement().owner().equals(player)
-                    && intersection.getConnectedEdges().isEmpty())
-        )) {
+                || (!checkVillages && edge.getConnectedEdges().stream()
+                        .noneMatch(e -> e.hasRoad() && e.roadOwner().getValue().equals(player)))
+                || (checkVillages && edge.getIntersections().stream()
+                        .noneMatch(intersection -> intersection.getSettlement() != null
+                                && intersection.getSettlement().owner().equals(player)
+                                && intersection.getConnectedEdges().stream().filter(e -> e.hasRoad())
+                                        .noneMatch(e -> e.roadOwner().getValue().equals(player))))) {
             return false;
         }
         edge.roadOwner().setValue(player);
