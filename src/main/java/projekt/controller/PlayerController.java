@@ -1,21 +1,27 @@
 package projekt.controller;
 
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
+
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
-import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import projekt.Config;
 import projekt.controller.actions.IllegalActionException;
 import projekt.controller.actions.PlayerAction;
 import projekt.model.Intersection;
 import projekt.model.Player;
+import projekt.model.PlayerState;
 import projekt.model.ResourceType;
 import projekt.model.TilePosition;
+import projekt.model.buildings.Edge;
 import projekt.model.buildings.Settlement;
 import projekt.model.tiles.Tile;
-
-import java.util.Map;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.LinkedBlockingDeque;
 
 public class PlayerController {
     private final Player player;
@@ -24,9 +30,7 @@ public class PlayerController {
 
     private final BlockingDeque<PlayerAction> actions = new LinkedBlockingDeque<>();
 
-    public void rollDice() {
-        gameController.castDice();
-    }
+    private final Property<PlayerState> playerStateProperty = new SimpleObjectProperty<>();
 
     private final Property<PlayerObjective> playerObjectiveProperty;
 
@@ -39,6 +43,9 @@ public class PlayerController {
         this.gameController = gameController;
         this.player = player;
         this.playerObjectiveProperty = new SimpleObjectProperty<>();
+        this.playerObjectiveProperty.addListener((observable, oldValue, newValue) -> {
+            updatePlayerState();
+        });
     }
 
     /**
@@ -52,12 +59,31 @@ public class PlayerController {
         return player;
     }
 
+    public Property<PlayerState> getPlayerStateProperty() {
+        return playerStateProperty;
+    }
+
+    public PlayerState getPlayerState() {
+        return playerStateProperty.getValue();
+    }
+
     public Property<PlayerObjective> getPlayerObjectiveProperty() {
         return playerObjectiveProperty;
     }
 
     public void setPlayerObjective(final PlayerObjective nextObjective) {
         playerObjectiveProperty.setValue(nextObjective);
+        updatePlayerState();
+    }
+
+    @DoNotTouch
+    private void updatePlayerState() {
+        playerStateProperty.setValue(new PlayerState(getBuildableVillageIntersections(),
+                getUpgradeableVillageIntersections(), getBuildableRoadEdges()));
+    }
+
+    public void rollDice() {
+        gameController.castDice();
     }
 
     /**
@@ -87,14 +113,12 @@ public class PlayerController {
 
             System.out.println("TRIGGER " + action + " [" + player.getName() + "]");
 
-            if (!playerObjectiveProperty.getValue().allowedActions.contains(action)) {
-                throw new IllegalActionException(String.format(
-                    "Illegal Action %s performed. Allowed Actions: %s",
-                    action,
-                    playerObjectiveProperty.getValue().getAllowedActions()
-                ));
+            if (!playerObjectiveProperty.getValue().allowedActions.contains(action.getClass())) {
+                throw new IllegalActionException(String.format("Illegal Action %s performed. Allowed Actions: %s",
+                        action, playerObjectiveProperty.getValue().getAllowedActions()));
             }
             action.execute(this);
+            updatePlayerState();
             return action;
         } catch (final IllegalActionException e) {
             // Ignore and keep going
@@ -105,19 +129,28 @@ public class PlayerController {
         }
     }
 
-    /**
-     * Ends the turn of the current {@link Player}.
-     */
-    public void endTurn() {
-//        callback.run();
-    }
-
     // -- Building methods --
+
+    private Set<Intersection> getBuildableVillageIntersections() {
+        if (!canBuildVillage()) {
+            return Set.of();
+        }
+        Stream<Intersection> intersections = gameController.getState().getGrid().getIntersections().values().stream()
+                .filter(intersection -> intersection.getSettlement() == null).filter(intersection -> intersection
+                        .getAdjacentIntersections().stream().noneMatch(Intersection::hasSettlement));
+        intersections = switch (playerObjectiveProperty.getValue()) {
+            case PLACE_VILLAGE -> intersections;
+            default ->
+                intersections.filter(intersection -> intersection.getConnectedEdges().stream()
+                        .anyMatch(edge -> edge.hasRoad() && edge.roadOwner().getValue().equals(player)));
+        };
+        return intersections.collect(Collectors.toUnmodifiableSet());
+    }
 
     public boolean canBuildVillage() {
         final var requiredResources = Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.VILLAGE);
-        return playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_TWO_VILLAGES)
-            || player.hasResources(requiredResources);
+        return playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_VILLAGE)
+                || player.hasResources(requiredResources);
     }
 
     public boolean buildVillage(final Intersection intersection) {
@@ -125,11 +158,20 @@ public class PlayerController {
         if (!canBuildVillage()) {
             return false;
         }
-        if (!intersection.placeVillage(player, player.getSettlements().size() < 2)) {
+        if (!intersection.placeVillage(player,
+                playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_VILLAGE))) {
             return false;
         }
-        return playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_TWO_VILLAGES)
-            || player.removeResources(requiredResources);
+        return playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_VILLAGE)
+                || player.removeResources(requiredResources);
+    }
+
+    private Set<Intersection> getUpgradeableVillageIntersections() {
+        if (!canUpgradeVillage()) {
+            return Set.of();
+        }
+        return player.getSettlements().stream().filter(settlement -> settlement.type() == Settlement.Type.VILLAGE)
+                .map(Settlement::intersection).collect(Collectors.toUnmodifiableSet());
     }
 
     public boolean canUpgradeVillage() {
@@ -140,7 +182,7 @@ public class PlayerController {
 
     public boolean upgradeVillage(final Intersection intersection) {
         final var requiredResources = Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.CITY);
-        if (!canBuildVillage()) {
+        if (!canUpgradeVillage()) {
             return false;
         }
         if (!intersection.upgradeSettlement(player)) {
@@ -149,10 +191,28 @@ public class PlayerController {
         return player.removeResources(requiredResources);
     }
 
+    private Set<Edge> getBuildableRoadEdges() {
+        if (!canBuildRoad()) {
+            return Set.of();
+        }
+        Stream<Edge> edges = gameController.getState().getGrid().getEdges().values().stream()
+                .filter(edge -> !edge.hasRoad());
+        edges = switch (playerObjectiveProperty.getValue()) {
+            case PLACE_ROAD ->
+                edges.filter(edge -> edge.getIntersections().stream()
+                        .anyMatch(intersection -> intersection.playerHasSettlement(player) && intersection
+                                .getConnectedEdges().stream().noneMatch(otherEdge -> otherEdge.hasRoad())));
+            default ->
+                edges.filter(edge -> edge.getConnectedRoads(player).size() < 4)
+                        .filter(edge -> !edge.getConnectedRoads(player).isEmpty());
+        };
+        return edges.collect(Collectors.toUnmodifiableSet());
+    }
+
     public boolean canBuildRoad() {
         final var requiredResources = Config.ROAD_BUILDING_COST;
-        return playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_TWO_ROADS)
-            || player.hasResources(requiredResources);
+        return playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_ROAD)
+                || player.hasResources(requiredResources);
     }
 
     public boolean buildRoad(final Tile tile, final TilePosition.EdgeDirection edgeDirection) {
@@ -164,13 +224,12 @@ public class PlayerController {
             return false;
         }
         if (!gameController.getState().getGrid().addRoad(position0, position1, player,
-                                                         playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_TWO_ROADS)
-        )) {
+                playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_ROAD))) {
             return false;
         }
         final var requiredResources = Config.ROAD_BUILDING_COST;
-        return playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_TWO_ROADS)
-            || player.removeResources(requiredResources);
+        return playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_ROAD)
+                || player.removeResources(requiredResources);
     }
 
     // -- Trading methods --
@@ -246,6 +305,5 @@ public class PlayerController {
         }
         // remove resources from player
         player.removeResources(resourcesToDrop);
-        endTurn();
     }
 }
