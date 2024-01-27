@@ -1,5 +1,7 @@
 package projekt.view.gameControls;
 
+import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
+
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -24,6 +26,7 @@ public class PlayerInformationBuilder implements Builder<Region> {
     }
 
     @Override
+    @StudentImplementationRequired
     public Region build() {
         VBox mainBox = new VBox();
         // TODO: get player name when correctly implemented...

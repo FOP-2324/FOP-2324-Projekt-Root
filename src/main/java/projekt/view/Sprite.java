@@ -1,10 +1,18 @@
 package projekt.view;
 
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
+
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.paint.Color;
 
+/**
+ * A Sprite is used to display a single image from a sprite sheet and can be
+ * dynamically changed.
+ * The sprite sheet must be a rectangle a display all images in a single column.
+ */
+@DoNotTouch
 public class Sprite extends ColoredImageView {
     private final IntegerProperty imageIndex;
 

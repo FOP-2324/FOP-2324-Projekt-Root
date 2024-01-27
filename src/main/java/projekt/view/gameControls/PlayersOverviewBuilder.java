@@ -2,6 +2,8 @@ package projekt.view.gameControls;
 
 import java.util.List;
 
+import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
+
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.Background;
@@ -24,6 +26,7 @@ public class PlayersOverviewBuilder implements Builder<Region> {
     }
 
     @Override
+    @StudentImplementationRequired
     public Region build() {
         VBox mainBox = new VBox();
         for (Player player : players) {

@@ -7,6 +7,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
+
 import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.scene.input.MouseEvent;
@@ -20,6 +22,7 @@ import projekt.view.EdgeLine;
 import projekt.view.HexGridBuilder;
 import projekt.view.IntersectionBuilder;
 
+@DoNotTouch
 public class HexGridController implements Controller {
     private final HexGrid hexGrid;
     private final HexGridBuilder builder;

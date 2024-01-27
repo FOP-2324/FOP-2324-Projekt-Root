@@ -1,5 +1,7 @@
 package projekt.view;
 
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -13,6 +15,7 @@ import javafx.scene.paint.Color;
 /**
  * A StackPane that displays a card with an icon and a label.
  */
+@DoNotTouch
 public class CardPane extends StackPane {
     /**
      * Creates a new CardPane with the given color and no icon or label.

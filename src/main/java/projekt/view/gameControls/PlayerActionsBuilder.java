@@ -2,6 +2,7 @@ package projekt.view.gameControls;
 
 import java.util.function.Consumer;
 
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 
 import javafx.event.ActionEvent;
@@ -32,6 +33,7 @@ public class PlayerActionsBuilder implements Builder<Region> {
     private Node rollDiceNode;
     private Node tradeNode;
 
+    @DoNotTouch
     public PlayerActionsBuilder(Consumer<ActionEvent> buildVillageButtonAction,
             Consumer<ActionEvent> upgradeVillageButtonAction, Consumer<ActionEvent> buildRoadButtonAction,
             Consumer<ActionEvent> buyDevelopmentCardButtonAction, Consumer<ActionEvent> endTurnButtonAction,

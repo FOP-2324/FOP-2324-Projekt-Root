@@ -1,11 +1,17 @@
 package projekt.view;
 
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
+
 import javafx.scene.effect.Light;
 import javafx.scene.effect.Lighting;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 
+/**
+ * An ImageView that can be colored with the provided color.
+ */
+@DoNotTouch
 public class ColoredImageView extends ImageView {
 
     public ColoredImageView(String imagePath, Color color) {

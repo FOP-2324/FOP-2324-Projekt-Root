@@ -1,5 +1,7 @@
 package projekt.controller.gui;
 
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
+
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -20,6 +22,7 @@ public interface SceneController extends Controller {
 
     // --Setup Methods-- //
 
+    @DoNotTouch
     public static void quit() {
         Platform.exit();
     }

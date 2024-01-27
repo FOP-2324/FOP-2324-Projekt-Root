@@ -22,7 +22,6 @@ import projekt.controller.actions.UpgradeVillageAction;
 import projekt.model.Player;
 import projekt.model.PlayerState;
 import projekt.view.gameControls.PlayerActionsBuilder;
-import projekt.model.buildings.Settlement;
 
 public class PlayerActionsController implements Controller {
     private final PlayerActionsBuilder builder;
