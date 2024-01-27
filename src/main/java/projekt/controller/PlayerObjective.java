@@ -2,6 +2,8 @@ package projekt.controller;
 
 import java.util.Set;
 
+import org.tudalgo.algoutils.student.annotation.StudentCreationRequired;
+
 import projekt.controller.actions.BuildRoadAction;
 import projekt.controller.actions.BuildVillageAction;
 import projekt.controller.actions.EndTurnAction;
@@ -9,6 +11,11 @@ import projekt.controller.actions.PlayerAction;
 import projekt.controller.actions.RollDiceAction;
 import projekt.controller.actions.UpgradeVillageAction;
 
+/**
+ * This enum represents the different objectives a player can have and what
+ * actions are allowed when the player has this objective.
+ */
+@StudentCreationRequired
 public enum PlayerObjective {
     DROP_HALF_CARDS(Set.of(EndTurnAction.class)),
     SELECT_CARD_TO_STEAL(Set.of(EndTurnAction.class)),
@@ -26,6 +33,11 @@ public enum PlayerObjective {
         this.allowedActions = allowedActions;
     }
 
+    /**
+     * Returns the actions that are allowed when the player has this objective.
+     *
+     * @return the actions that are allowed when the player has this objective
+     */
     public Set<Class<? extends PlayerAction>> getAllowedActions() {
         return allowedActions;
     }

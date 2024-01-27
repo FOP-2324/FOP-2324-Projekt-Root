@@ -13,17 +13,33 @@ import javafx.scene.paint.Color;
  */
 @DoNotTouch
 public class ColoredImageView extends ImageView {
-
+    /**
+     * Creates a new ColoredImageView with the image at the given path and color.
+     *
+     * @param imagePath path to the image
+     * @param color     color to colorize the image with
+     */
     public ColoredImageView(String imagePath, Color color) {
         super(imagePath);
         colorize(color);
     }
 
+    /**
+     * Creates a new ColoredImageView with the given image and color.
+     *
+     * @param image image to display
+     * @param color color to colorize the image with
+     */
     public ColoredImageView(Image image, Color color) {
         super(image);
         colorize(color);
     }
 
+    /**
+     * Colors the image with the given color.
+     *
+     * @param color color to colorize the image with
+     */
     private void colorize(Color color) {
         if (color == null) {
             return;
