@@ -7,6 +7,7 @@ import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 
 import javafx.application.Platform;
 import javafx.beans.property.Property;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
 import javafx.scene.input.MouseEvent;
@@ -26,7 +27,7 @@ import projekt.view.gameControls.PlayerActionsBuilder;
 public class PlayerActionsController implements Controller {
     private final PlayerActionsBuilder builder;
     private final GameBoardController gameBoardController;
-    private final Property<PlayerController> playerControllerProperty;
+    private final Property<PlayerController> playerControllerProperty = new SimpleObjectProperty<>();
     @DoNotTouch
     private final ChangeListener<PlayerObjective> playerObjectiveListener = (observableObjective, oldObjective,
             newObjective) -> {
@@ -35,9 +36,17 @@ public class PlayerActionsController implements Controller {
 
     @DoNotTouch
     public PlayerActionsController(GameBoardController gameBoardController,
-            Property<PlayerController> playerController) {
+            Property<PlayerController> playerControllerProperty) {
         this.gameBoardController = gameBoardController;
-        this.playerControllerProperty = playerController;
+        playerControllerProperty.addListener((observable, oldValue, newValue) -> {
+            Platform.runLater(() -> {
+                if (newValue == null) {
+                    return;
+                }
+                this.playerControllerProperty.setValue(newValue);
+            });
+        });
+        this.playerControllerProperty.setValue(playerControllerProperty.getValue());
 
         this.builder = new PlayerActionsBuilder(actionWrapper(this::buildVillageButtonAction, true),
                 actionWrapper(this::upgradeVillageButtonAction, true), actionWrapper(this::buildRoadButtonAction, true),
@@ -50,8 +59,8 @@ public class PlayerActionsController implements Controller {
         System.out.println("objective: " + objective);
         removeAllHighlights();
         drawRoads();
-        gameBoardController.updatePlayerInformation(getPlayer());
         builder.disableAllButtons();
+        gameBoardController.updatePlayerInformation(getPlayer());
         switch (objective) {
             case REGULAR_TURN:
                 updateBuildVillageButtonState();
@@ -157,7 +166,6 @@ public class PlayerActionsController implements Controller {
                 .forEach(ic -> ic.highlight(buildActionWrapper(e -> {
                     getPlayerController().triggerAction(new BuildVillageAction(ic.getIntersection()));
                     drawIntersections();
-                    enableButtonBasedOnObjective(getPlayerObjective());
                 })));
     }
 
@@ -177,7 +185,6 @@ public class PlayerActionsController implements Controller {
                 .forEach(ic -> ic.highlight(buildActionWrapper(e -> {
                     getPlayerController().triggerAction(new UpgradeVillageAction(ic.getIntersection()));
                     drawIntersections();
-                    enableButtonBasedOnObjective(getPlayerObjective());
                 })));
     }
 
@@ -197,7 +204,6 @@ public class PlayerActionsController implements Controller {
                 .forEach(ec -> ec.highlight(buildActionWrapper(e -> {
                     getPlayerController().triggerAction(new BuildRoadAction(ec.getEdge()));
                     drawRoads();
-                    enableButtonBasedOnObjective(getPlayerObjective());
                 })));
     }
 
@@ -238,26 +244,15 @@ public class PlayerActionsController implements Controller {
         Region view = builder.build();
         playerControllerProperty.addListener((observable, oldValue, newValue) -> {
             Platform.runLater(() -> {
-                if (oldValue != null) {
-                    oldValue.getPlayerObjectiveProperty().removeListener(playerObjectiveListener);
-                }
-                if (newValue == null) {
-                    builder.disableAllButtons();
-                    return;
-                }
-
+                oldValue.getPlayerObjectiveProperty().removeListener(playerObjectiveListener);
                 attachObjectiveListener(newValue);
                 if (newValue.getPlayerObjectiveProperty().getValue() != null) {
                     enableButtonBasedOnObjective(newValue.getPlayerObjectiveProperty().getValue());
                 }
             });
         });
-        if (getPlayerController() != null) {
-            attachObjectiveListener(getPlayerController());
-            enableButtonBasedOnObjective(getPlayerObjective());
-        } else {
-            builder.disableAllButtons();
-        }
+        attachObjectiveListener(getPlayerController());
+        enableButtonBasedOnObjective(getPlayerObjective());
         return view;
     }
 
