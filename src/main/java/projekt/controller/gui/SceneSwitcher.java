@@ -2,6 +2,8 @@ package projekt.controller.gui;
 
 import java.util.function.Supplier;
 
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
+
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
