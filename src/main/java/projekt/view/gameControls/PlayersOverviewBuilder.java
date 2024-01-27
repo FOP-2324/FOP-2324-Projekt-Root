@@ -14,6 +14,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.util.Builder;
 import projekt.model.Player;
 import projekt.view.CardPane;
@@ -62,11 +63,13 @@ public class PlayersOverviewBuilder implements Builder<Region> {
         valueColumn.setPercentWidth(50);
 
         detailsBox.getColumnConstraints().addAll(titleColumn, valueColumn);
-        // TODO: remove for release
-        // detailsBox.setGridLinesVisible(true);
 
         // TODO: replace with player name
         TitledPane playerPane = new TitledPane(String.format("Spieler %d", playerNumber), detailsBox);
+        Rectangle playerColor = new Rectangle(20, 20, player.getColor());
+        playerColor.setStroke(Color.BLACK);
+        playerColor.setStrokeWidth(2);
+        playerPane.setGraphic(playerColor);
         return playerPane;
     }
 
