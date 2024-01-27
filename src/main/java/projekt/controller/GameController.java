@@ -1,17 +1,5 @@
 package projekt.controller;
 
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.Property;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import org.tudalgo.algoutils.student.annotation.DoNotTouch;
-import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
-import projekt.Config;
-import projekt.controller.actions.EndTurnAction;
-import projekt.model.GameState;
-import projekt.model.HexGridImpl;
-import projekt.model.Player;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -19,6 +7,19 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
+import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
+
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.Property;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import projekt.Config;
+import projekt.controller.actions.EndTurnAction;
+import projekt.model.GameState;
+import projekt.model.HexGridImpl;
+import projekt.model.Player;
 
 public class GameController {
 
@@ -30,32 +31,35 @@ public class GameController {
     private final Property<PlayerController> activePlayerControllerProperty = new SimpleObjectProperty<>();
 
     public GameController(
-        final GameState state,
-        final Map<Player, PlayerController> playerControllers,
-        final Iterator<Integer> dice
-    ) {
+            final GameState state,
+            final Map<Player, PlayerController> playerControllers,
+            final Iterator<Integer> dice) {
         this.state = state;
         this.playerControllers = playerControllers;
         this.dice = dice;
+    }
+
+    public GameController(final GameState state) {
+        this(state, Config.RANDOM.ints(
+                1,
+                Config.DICE_SIDES * Config.NUMBER_OF_DICE + 1).iterator());
     }
 
     public GameController(final GameState state, final Iterator<Integer> dice) {
         this.state = state;
         this.dice = dice;
         this.playerControllers = new HashMap<>();
-        for (final Player player : state.getPlayers()) {
-            playerControllers.put(player, new PlayerController(this, player));
-        }
+        initPlayerControllers();
     }
 
     public GameController() {
-        this(
-            new GameState(new HexGridImpl(Config.GRID_RADIUS), new ArrayList<>()),
-            Config.RANDOM.ints(
-                1,
-                2 * Config.DICE_SIDES * Config.NUMBER_OF_DICE + 1
-            ).iterator()
-        );
+        this(new GameState(new HexGridImpl(Config.GRID_RADIUS), new ArrayList<>()));
+    }
+
+    public void initPlayerControllers() {
+        for (final Player player : state.getPlayers()) {
+            playerControllers.put(player, new PlayerController(this, player));
+        }
     }
 
     public GameState getState() {
@@ -95,9 +99,11 @@ public class GameController {
         if (this.state.getPlayers().size() < Config.MIN_PLAYERS) {
             throw new IllegalStateException("Not enough players");
         }
-        firstRound(getActivePlayerController().getPlayer());
+        initPlayerControllers();
 
-        while (!getWinners().isEmpty()) {
+        firstRound();
+
+        while (getWinners().isEmpty()) {
             for (final PlayerController playerController : playerControllers.values()) {
                 withActivePlayer(playerController, () -> {
                     // Dice roll
@@ -140,11 +146,13 @@ public class GameController {
     }
 
     @StudentImplementationRequired
-    private void firstRound(final Player activePlayer) {
+    private void firstRound() {
         for (final PlayerController playerController : playerControllers.values()) {
             withActivePlayer(playerController, () -> {
-                playerController.waitForNextAction(PlayerObjective.PLACE_TWO_VILLAGES);
-                playerController.waitForNextAction(PlayerObjective.PLACE_TWO_ROADS);
+                playerController.waitForNextAction(PlayerObjective.PLACE_VILLAGE);
+                playerController.waitForNextAction(PlayerObjective.PLACE_ROAD);
+                playerController.waitForNextAction(PlayerObjective.PLACE_VILLAGE);
+                playerController.waitForNextAction(PlayerObjective.PLACE_ROAD);
             });
         }
     }
