@@ -2,9 +2,8 @@ package projekt.controller.gui;
 
 import java.util.function.Consumer;
 
+import javafx.application.Platform;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Region;
-import javafx.util.Builder;
 import projekt.model.Intersection;
 import projekt.view.IntersectionBuilder;
 
@@ -20,15 +19,15 @@ public class IntersectionController implements Controller {
     }
 
     public void highlight(Consumer<MouseEvent> handler) {
-        buidler.highlight(handler);
+        Platform.runLater(() -> buidler.highlight(handler));
     }
 
     public void unhighlight() {
-        buidler.unhighlight();
+        Platform.runLater(() -> buidler.unhighlight());
     }
 
     @Override
-    public Builder<Region> getBuilder() {
+    public IntersectionBuilder getBuilder() {
         return buidler;
     }
 }
