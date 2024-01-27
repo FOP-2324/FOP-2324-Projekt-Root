@@ -1,11 +1,11 @@
 package projekt.controller.gui;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
+import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
+
+import javafx.application.Platform;
 import javafx.beans.property.Property;
 import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
@@ -13,10 +13,14 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.util.Builder;
 import projekt.controller.PlayerController;
-import projekt.controller.PlayerController.PlayerObjective;
-import projekt.model.Intersection;
+import projekt.controller.PlayerObjective;
+import projekt.controller.actions.BuildRoadAction;
+import projekt.controller.actions.BuildVillageAction;
+import projekt.controller.actions.EndTurnAction;
+import projekt.controller.actions.RollDiceAction;
+import projekt.controller.actions.UpgradeVillageAction;
 import projekt.model.Player;
-import projekt.model.TilePosition;
+import projekt.model.PlayerState;
 import projekt.view.gameControls.PlayerActionsBuilder;
 import projekt.model.buildings.Settlement;
 
@@ -24,11 +28,13 @@ public class PlayerActionsController implements Controller {
     private final PlayerActionsBuilder builder;
     private final GameBoardController gameBoardController;
     private final Property<PlayerController> playerControllerProperty;
+    @DoNotTouch
     private final ChangeListener<PlayerObjective> playerObjectiveListener = (observableObjective, oldObjective,
             newObjective) -> {
-        enableButtonBasedOnObjective(newObjective);
+        Platform.runLater(() -> enableButtonBasedOnObjective(newObjective));
     };
 
+    @DoNotTouch
     public PlayerActionsController(GameBoardController gameBoardController,
             Property<PlayerController> playerController) {
         this.gameBoardController = gameBoardController;
@@ -43,12 +49,15 @@ public class PlayerActionsController implements Controller {
 
     private void enableButtonBasedOnObjective(PlayerObjective objective) {
         System.out.println("objective: " + objective);
+        removeAllHighlights();
+        drawRoads();
+        gameBoardController.updatePlayerInformation(getPlayer());
         builder.disableAllButtons();
         switch (objective) {
             case REGULAR_TURN:
-                this.updateBuildVillageButtonState();
-                this.updateBuildCityButtonState();
-                this.updateBuildRoadButtonState();
+                updateBuildVillageButtonState();
+                updateUpgradeVillageButtonState();
+                updateBuildRoadButtonState();
                 builder.enableTradeButton();
                 builder.enableEndTurnButton();
                 break;
@@ -61,25 +70,27 @@ public class PlayerActionsController implements Controller {
             case SELECT_ROBBER_TILE:
                 builder.enableEndTurnButton();
                 break;
-            case PLACE_TWO_ROADS:
-                if (getPlayer().getRoads().size() >= 2) {
-                    builder.enableEndTurnButton();
-                    break;
-                }
-                buildRoadButtonAction(null);
+            case PLACE_ROAD:
+                updateBuildRoadButtonState();
                 break;
-            case PLACE_TWO_VILLAGES:
-                if (getPlayer().getSettlements().size() >= 2) {
-                    builder.enableEndTurnButton();
-                    break;
-                }
-                buildVillageButtonAction(null);
+            case PLACE_VILLAGE:
+                updateBuildVillageButtonState();
+                break;
+            case DICE_ROLL:
+                builder.enableRollDiceButton();
+                break;
+            case IDLE:
+                builder.disableAllButtons();
                 break;
         }
     }
 
     private PlayerController getPlayerController() {
         return playerControllerProperty.getValue();
+    }
+
+    private PlayerState getPlayerState() {
+        return getPlayerController().getPlayerState();
     }
 
     private Player getPlayer() {
@@ -91,7 +102,7 @@ public class PlayerActionsController implements Controller {
     }
 
     private void removeAllHighlights() {
-        getHexGridController().unhighlightRoads();
+        getHexGridController().getEdgeControllers().forEach(ec -> ec.unhighlight());
         getHexGridController().getIntersectionControllers().forEach(ic -> ic.unhighlight());
     }
 
@@ -99,6 +110,11 @@ public class PlayerActionsController implements Controller {
         return gameBoardController.getHexGridController();
     }
 
+    private PlayerObjective getPlayerObjective() {
+        return getPlayerController().getPlayerObjectiveProperty().getValue();
+    }
+
+    @DoNotTouch
     private Consumer<ActionEvent> actionWrapper(Consumer<ActionEvent> handler, boolean abortable) {
         return e -> {
             removeAllHighlights();
@@ -113,103 +129,77 @@ public class PlayerActionsController implements Controller {
         };
     }
 
+    @DoNotTouch
     private Consumer<MouseEvent> buildActionWrapper(Consumer<MouseEvent> handler) {
         return e -> {
             handler.accept(e);
 
             removeAllHighlights();
-            enableButtonBasedOnObjective(getPlayerController().getPlayerObjectiveProperty().getValue());
-            gameBoardController.updatePlayerInformation(getPlayer());
+            if (getPlayerController() != null) {
+                enableButtonBasedOnObjective(getPlayerObjective());
+                gameBoardController.updatePlayerInformation(getPlayer());
+            }
         };
     }
 
     private void updateBuildVillageButtonState() {
-        if (getPlayerController().canBuildVillage()) {
+        if (getPlayerObjective().getAllowedActions().contains(BuildVillageAction.class)
+                && getPlayerState().buildableVillageIntersections().size() > 0) {
             builder.enableBuildVillageButton();
             return;
         }
         builder.disableBuildVillageButton();
     }
 
+    @StudentImplementationRequired
     private void buildVillageButtonAction(ActionEvent event) {
-        Set<IntersectionController> intersectionControllers = getHexGridController()
-                .getIntersectionControllers().stream()
-                .filter(ic -> ic.getIntersection().getSettlement() == null)
-                .filter(ic -> ic.getIntersection().getAdjacentIntersections().stream()
-                        .allMatch(i -> i.getSettlement() == null))
-                .collect(Collectors.toSet());
-
-        if (!getPlayerController().getPlayerObjectiveProperty().getValue().equals(PlayerObjective.PLACE_TWO_VILLAGES)) {
-            intersectionControllers = intersectionControllers.stream()
-                    .filter(ic -> ic.getIntersection().getConnectedRoads().stream()
-                            .anyMatch(road -> road.owner().equals(getPlayer())))
-                    .collect(Collectors.toSet());
-        } else if (getPlayer().getSettlements().size() >= 2) {
-            return;
-        }
-
-        intersectionControllers.forEach(ic -> ic.highlight(buildActionWrapper(e -> {
-            getPlayerController().buildVillage(ic.getIntersection());
-            drawIntersections();
-        })));
+        getPlayerState().buildableVillageIntersections().stream()
+                .map(intersection -> getHexGridController().getIntersectionControllersMap().get(intersection))
+                .forEach(ic -> ic.highlight(buildActionWrapper(e -> {
+                    getPlayerController().triggerAction(new BuildVillageAction(ic.getIntersection()));
+                    drawIntersections();
+                    enableButtonBasedOnObjective(getPlayerObjective());
+                })));
     }
 
-    private void updateBuildCityButtonState() {
-        if (getPlayerController().canUpgradeVillage()) {
+    private void updateUpgradeVillageButtonState() {
+        if (getPlayerObjective().getAllowedActions().contains(UpgradeVillageAction.class)
+                && getPlayerState().upgradebleVillageIntersections().size() > 0) {
             builder.enableUpgradeVillageButton();
             return;
         }
         builder.disableUpgradeVillageButton();
     }
 
+    @StudentImplementationRequired
     private void upgradeVillageButtonAction(ActionEvent event) {
-        getPlayer().getSettlements().stream().filter(settlement -> settlement.type() == Settlement.Type.VILLAGE).map(
-                settlement -> getHexGridController().getIntersectionControllersMap().get(settlement.intersection()))
+        getPlayerState().upgradebleVillageIntersections().stream()
+                .map(intersection -> getHexGridController().getIntersectionControllersMap().get(intersection))
                 .forEach(ic -> ic.highlight(buildActionWrapper(e -> {
-                    getPlayerController().upgradeVillage(ic.getIntersection());
+                    getPlayerController().triggerAction(new UpgradeVillageAction(ic.getIntersection()));
                     drawIntersections();
+                    enableButtonBasedOnObjective(getPlayerObjective());
                 })));
     }
 
     private void updateBuildRoadButtonState() {
-        if (getPlayerController().canBuildRoad()) {
+        if (getPlayerObjective().getAllowedActions().contains(BuildRoadAction.class)
+                && getPlayerState().buildableRoadEdges().size() > 0) {
             builder.enableBuildRoadButton();
             return;
         }
         builder.disableBuildRoadButton();
     }
 
+    @StudentImplementationRequired
     private void buildRoadButtonAction(ActionEvent event) {
-        Set<Intersection> intersections;
-
-        if (getPlayerController().getPlayerObjectiveProperty().getValue().equals(PlayerObjective.PLACE_TWO_ROADS)) {
-            if (getPlayer().getRoads().size() >= 2) {
-                return;
-            }
-
-            intersections = getHexGridController().getHexGrid().getIntersections().values().stream()
-                    .filter(intersection -> getPlayer().getSettlements().contains(intersection.getSettlement()))
-                    .filter(intersection -> intersection.getConnectedRoads().isEmpty())
-                    .collect(Collectors.toSet());
-        } else {
-            intersections = getHexGridController().getHexGrid().getRoads(getPlayer()).values().stream()
-                    .filter(road -> road.getConnectedRoads().size() < 4)
-                    .flatMap(road -> road.getIntersections().stream()).collect(Collectors.toSet());
-        }
-
-        intersections.forEach(intersection -> intersection.getAdjacentIntersections().stream()
-                .filter(intersection2 -> !intersection2.hasConnectingRoad(intersection))
-                .forEach(intersection2 -> {
-                    getHexGridController()
-                            .highlightRoad(intersection, intersection2, buildActionWrapper(e -> {
-                                final Set<TilePosition> positions = new HashSet<>(
-                                        intersection.getAdjacentTilePositions());
-                                positions.retainAll(intersection2.getAdjacentTilePositions());
-                                List<TilePosition> positionsList = positions.stream().toList();
-                                getPlayerController().buildRoad(positionsList.get(0), positionsList.get(1));
-                                drawRoads();
-                            }));
-                }));
+        getPlayerState().buildableRoadEdges().stream()
+                .map(edge -> getHexGridController().getEdgeControllersMap().get(edge))
+                .forEach(ec -> ec.highlight(buildActionWrapper(e -> {
+                    getPlayerController().triggerAction(new BuildRoadAction(ec.getEdge()));
+                    drawRoads();
+                    enableButtonBasedOnObjective(getPlayerObjective());
+                })));
     }
 
     private void drawRoads() {
@@ -221,11 +211,11 @@ public class PlayerActionsController implements Controller {
     }
 
     private void endTurnButtonAction(ActionEvent event) {
-        getPlayerController().endTurn();
+        getPlayerController().triggerAction(new EndTurnAction());
     }
 
     private void rollDiceButtonAction(ActionEvent event) {
-        System.out.println("Rolling dice");
+        getPlayerController().triggerAction(new RollDiceAction());
     }
 
     private void tradeButtonAction(ActionEvent event) {
@@ -234,7 +224,7 @@ public class PlayerActionsController implements Controller {
 
     private void abortButtonAction(ActionEvent event) {
         removeAllHighlights();
-        enableButtonBasedOnObjective(getPlayerController().getPlayerObjectiveProperty().getValue());
+        enableButtonBasedOnObjective(getPlayerObjective());
         builder.disableAbortButton();
     }
 
@@ -244,23 +234,37 @@ public class PlayerActionsController implements Controller {
     }
 
     @Override
+    @DoNotTouch
     public Region buildView() {
         Region view = builder.build();
-        enableButtonBasedOnObjective(getPlayerController().getPlayerObjectiveProperty().getValue());
         playerControllerProperty.addListener((observable, oldValue, newValue) -> {
-            System.out.println("New player: " + newValue.getPlayer().getColor());
-            oldValue.getPlayerObjectiveProperty().removeListener(playerObjectiveListener);
-            attachObjectiveListener(newValue);
-            if (newValue.getPlayerObjectiveProperty().getValue() != null) {
-                enableButtonBasedOnObjective(newValue.getPlayerObjectiveProperty().getValue());
-            }
+            Platform.runLater(() -> {
+                if (oldValue != null) {
+                    oldValue.getPlayerObjectiveProperty().removeListener(playerObjectiveListener);
+                }
+                if (newValue == null) {
+                    builder.disableAllButtons();
+                    return;
+                }
+
+                attachObjectiveListener(newValue);
+                if (newValue.getPlayerObjectiveProperty().getValue() != null) {
+                    enableButtonBasedOnObjective(newValue.getPlayerObjectiveProperty().getValue());
+                }
+            });
         });
-        attachObjectiveListener(getPlayerController());
+        if (getPlayerController() != null) {
+            attachObjectiveListener(getPlayerController());
+            enableButtonBasedOnObjective(getPlayerObjective());
+        } else {
+            builder.disableAllButtons();
+        }
         return view;
     }
 
-    private void attachObjectiveListener(PlayerController newValue) {
-        newValue.getPlayerObjectiveProperty()
+    private void attachObjectiveListener(PlayerController value) {
+        value.getPlayerObjectiveProperty().removeListener(playerObjectiveListener);
+        value.getPlayerObjectiveProperty()
                 .addListener(playerObjectiveListener);
     }
 }
