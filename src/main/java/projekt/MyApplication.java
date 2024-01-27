@@ -2,10 +2,18 @@ package projekt;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
+import projekt.controller.GameController;
 import projekt.controller.gui.SceneSwitcher;
 import projekt.controller.gui.SceneSwitcher.SceneType;
 
 public class MyApplication extends Application {
+    private final GameController gameController = new GameController();
+    private final Runnable gameLoopStart = () -> {
+        Thread gameLoopThread = new Thread(() -> gameController.startGame());
+        gameLoopThread.setName("GameLoopThread");
+        gameLoopThread.setDaemon(true);
+        gameLoopThread.start();
+    };
 
     @Override
     public void start(final Stage stage) throws Exception {
@@ -14,7 +22,7 @@ public class MyApplication extends Application {
         stage.setWidth(1280);
         stage.setHeight(720);
 
-        SceneSwitcher.getInstance(stage).loadScene(SceneType.MAIN_MENU);
+        SceneSwitcher.getInstance(stage, gameController, gameLoopStart).loadScene(SceneType.MAIN_MENU);
     }
 
     /**

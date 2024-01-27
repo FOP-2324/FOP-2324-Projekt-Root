@@ -15,23 +15,24 @@ public class SceneSwitcher {
     private final Stage stage;
     private final GameController gameController;
     private static SceneSwitcher INSTANCE;
+    private final Runnable gameLoopStarter;
 
-    private SceneSwitcher(Stage stage, GameController gameController) {
+    @DoNotTouch
+    private SceneSwitcher(Stage stage, GameController gameController, Runnable gameLoopStarter) {
         this.stage = stage;
         this.gameController = gameController;
+        this.gameLoopStarter = gameLoopStarter;
     }
 
-    public static SceneSwitcher getInstance(Stage stage, GameController gameController) {
+    @DoNotTouch
+    public static SceneSwitcher getInstance(Stage stage, GameController gameController, Runnable gameLoopStarter) {
         if (INSTANCE == null) {
-            INSTANCE = new SceneSwitcher(stage, gameController);
+            INSTANCE = new SceneSwitcher(stage, gameController, gameLoopStarter);
         }
         return INSTANCE;
     }
 
-    public static SceneSwitcher getInstance(Stage stage) {
-        return getInstance(stage, new GameController());
-    }
-
+    @DoNotTouch
     public static SceneSwitcher getInstance() {
         if (INSTANCE == null) {
             throw new IllegalStateException("SceneSwitcher has not been initialized yet.");
@@ -45,7 +46,14 @@ public class SceneSwitcher {
     public static enum SceneType {
         MAIN_MENU(() -> new MainMenuSceneController()),
         CREATE_GAME(() -> new CreateGameController(SceneSwitcher.getInstance().gameController.getState())),
-        GAME_BOARD(() -> new GameBoardController(SceneSwitcher.getInstance().gameController));
+        GAME_BOARD(() -> {
+            getInstance().gameLoopStarter.run();
+            final GameBoardController gameBoardController = new GameBoardController(
+                    getInstance().gameController.getState(),
+                    getInstance().gameController.getActivePlayerControllerProperty());
+
+            return gameBoardController;
+        });
 
         private final Supplier<SceneController> controller;
 
@@ -63,15 +71,14 @@ public class SceneSwitcher {
      * @return The {@link Scene} that was switched to.
      * @see #loadScene(SceneAndController, Stage)
      */
-    public Scene loadScene(final SceneType sceneType) {
+    @DoNotTouch
+    public void loadScene(final SceneType sceneType) {
         System.out.println("Loading scene: " + sceneType);
-        stage.hide();
         final SceneController controller = sceneType.controller.get();
         final Scene scene = new Scene(controller.buildView());
         scene.setFill(Color.PINK);
         stage.setScene(scene);
         stage.setTitle(controller.getTitle());
         stage.show();
-        return scene;
     }
 }
