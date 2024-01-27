@@ -78,6 +78,10 @@ public class GameController {
         return activePlayerControllerProperty.getValue();
     }
 
+    public IntegerProperty getCurrentDiceRollProperty() {
+        return currentDiceRoll;
+    }
+
     private void setActivePlayerControllerProperty(final Player activePlayer) {
         this.activePlayerControllerProperty.setValue(playerControllers.get(activePlayer));
     }
