@@ -19,7 +19,7 @@ public class GameBoardController implements SceneController {
     private GameBoardBuilder gameBoardBuilder;
 
     public GameBoardController(final GameState gameState,
-            final Property<PlayerController> activePlayerControllerProperty) {
+            final Property<PlayerController> activePlayerControllerProperty, final IntegerProperty diceRollProperty) {
         this.gameState = gameState;
         this.playerActionsController = new PlayerActionsController(this,
                 activePlayerControllerProperty);
@@ -30,6 +30,12 @@ public class GameBoardController implements SceneController {
                 return;
             }
             Platform.runLater(() -> updatePlayerInformation(newValue.getPlayer()));
+        });
+        diceRollProperty.addListener((observable, oldValue, newValue) -> {
+            if (newValue == null) {
+                return;
+            }
+            Platform.runLater(() -> gameBoardBuilder.setDiceRoll(newValue.intValue()));
         });
     }
 

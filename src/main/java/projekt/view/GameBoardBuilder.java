@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Background;
@@ -25,6 +28,7 @@ public class GameBoardBuilder implements Builder<Region> {
     private final Region hexGrid;
     private final Supplier<Region> actions;
     private final Pane playerInformation = new VBox();
+    private final IntegerProperty diceRollProperty = new SimpleIntegerProperty(0);
 
     public GameBoardBuilder(final Region hexGrid, final Supplier<Region> actions) {
         this.hexGrid = hexGrid;
@@ -39,8 +43,6 @@ public class GameBoardBuilder implements Builder<Region> {
         // Right box which holds the Players information
 
         VBox rightBox = new VBox();
-        Label diceRoll = new Label(String.format("Rolled Number: %d", 0));
-        rightBox.getChildren().add(diceRoll);
         rightBox.getChildren().add(playerInformation);
 
         rightBox.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
@@ -54,11 +56,18 @@ public class GameBoardBuilder implements Builder<Region> {
         // Bottom box which holds the Player controls
 
         HBox bottomBox = new HBox();
-        bottomBox.getChildren().add(actions.get());
+        Label diceRoll = new Label();
+        diceRoll.textProperty().bind(Bindings.createStringBinding(() -> String.format("Rolled Number: %s",
+                diceRollProperty.get() == 0 ? "" : diceRollProperty.get()), diceRollProperty));
+        bottomBox.getChildren().addAll(actions.get(), diceRoll);
+        bottomBox.setAlignment(Pos.CENTER);
+        bottomBox.setSpacing(10);
         bottomBox.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
 
         mainPane.add(bottomBox, 0, 1);
         mainPane.add(playersInformationPane, 1, 0, 1, 2);
+
+        // TODO: Remove for release
         mainPane.setGridLinesVisible(true);
 
         // Make it look pretty
@@ -88,5 +97,9 @@ public class GameBoardBuilder implements Builder<Region> {
         playerInformation.getChildren().clear();
         playerInformation.getChildren().add(new PlayerInformationBuilder(player).build());
         playerInformation.getChildren().add(new PlayersOverviewBuilder(players).build());
+    }
+
+    public void setDiceRoll(int diceRoll) {
+        diceRollProperty.set(diceRoll);
     }
 }
