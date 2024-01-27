@@ -1,26 +1,35 @@
 package projekt.controller.gui;
 
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
+
+import javafx.application.Platform;
+import javafx.beans.property.Property;
 import javafx.scene.layout.Region;
 import javafx.util.Builder;
-import projekt.controller.GameController;
+import projekt.controller.PlayerController;
+import projekt.model.GameState;
 import projekt.model.Player;
 import projekt.view.GameBoardBuilder;
 
+@DoNotTouch
 public class GameBoardController implements SceneController {
-    private final GameController gameController;
-    private final PlayerActionsController playerActionsController;
-    private final HexGridController hexGridController;
+    private final GameState gameState;
+    private PlayerActionsController playerActionsController;
+    private HexGridController hexGridController;
+    private GameBoardBuilder gameBoardBuilder;
 
-    private final GameBoardBuilder gameBoardBuilder;
-
-    public GameBoardController(final GameController gameController) {
+    public GameBoardController(final GameState gameState,
+            final Property<PlayerController> activePlayerControllerProperty) {
+        this.gameState = gameState;
         this.playerActionsController = new PlayerActionsController(this,
-                gameController.getActivePlayerControllerProperty());
-        this.hexGridController = new HexGridController(gameController.getState().getGrid());
+                activePlayerControllerProperty);
+        this.hexGridController = new HexGridController(gameState.getGrid());
         this.gameBoardBuilder = new GameBoardBuilder(hexGridController.buildView(), playerActionsController::buildView);
-        this.gameController = gameController;
-        gameController.getActivePlayerControllerProperty().addListener((observable, oldValue, newValue) -> {
-            updatePlayerInformation(newValue.getPlayer());
+        activePlayerControllerProperty.addListener((observable, oldValue, newValue) -> {
+            if (newValue == null) {
+                return;
+            }
+            Platform.runLater(() -> updatePlayerInformation(newValue.getPlayer()));
         });
     }
 
@@ -28,12 +37,8 @@ public class GameBoardController implements SceneController {
         return hexGridController;
     }
 
-    public GameController getGameController() {
-        return gameController;
-    }
-
     public void updatePlayerInformation(Player player) {
-        gameBoardBuilder.updatePlayerInformation(player, gameController.getState().getPlayers());
+        Platform.runLater(() -> gameBoardBuilder.updatePlayerInformation(player, gameState.getPlayers()));
     }
 
     @Override
@@ -48,8 +53,6 @@ public class GameBoardController implements SceneController {
 
     @Override
     public Region buildView() {
-        gameController.startGame();
         return gameBoardBuilder.build();
     }
-
 }
