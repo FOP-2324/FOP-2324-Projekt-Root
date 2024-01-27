@@ -1,11 +1,13 @@
 package projekt.controller.gui;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -13,25 +15,31 @@ import javafx.scene.layout.Region;
 import javafx.util.Builder;
 import projekt.model.HexGrid;
 import projekt.model.Intersection;
+import projekt.model.buildings.Edge;
+import projekt.view.EdgeLine;
 import projekt.view.HexGridBuilder;
-import java.util.Collections;
+import projekt.view.IntersectionBuilder;
 
 public class HexGridController implements Controller {
     private final HexGrid hexGrid;
     private final HexGridBuilder builder;
     private final Map<Intersection, IntersectionController> intersectionControllers;
+    private final Map<Edge, EdgeController> edgeControllers;
     private static double lastX, lastY;
 
     public HexGridController(final HexGrid hexGrid) {
         this.intersectionControllers = hexGrid.getIntersections().values().stream().map(IntersectionController::new)
                 .collect(Collectors.toMap(IntersectionController::getIntersection, controller -> controller));
-        this.builder = getHexGridBuilder(hexGrid, intersectionControllers.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getBuilder())));
+        this.edgeControllers = hexGrid.getEdges().values().stream().map(EdgeController::new)
+                .collect(Collectors.toMap(EdgeController::getEdge, controller -> controller));
+        this.builder = getHexGridBuilder(hexGrid,
+                intersectionControllers.values().stream().map(ic -> ic.getBuilder()).collect(Collectors.toSet()),
+                edgeControllers.values().stream().map(ec -> ec.getEdgeLine()).collect(Collectors.toSet()));
         this.hexGrid = hexGrid;
     }
 
     private static HexGridBuilder getHexGridBuilder(final HexGrid hexGrid,
-            final Map<Intersection, Builder<Region>> intersectionBuilders) {
+            final Set<IntersectionBuilder> intersectionBuilders, final Set<EdgeLine> edgeLines) {
         final double minTileScale = 0.5;
         final BiConsumer<ScrollEvent, Region> scrollHandler = (event, pane) -> {
             if (pane.getScaleX() <= minTileScale && event.getDeltaY() < 0 || event.getDeltaY() == 0) {
@@ -56,8 +64,8 @@ public class HexGridController implements Controller {
             pane.setTranslateX(0);
             pane.setTranslateY(0);
         };
-        return new HexGridBuilder(hexGrid, intersectionBuilders, scrollHandler, pressedHandler, draggedHandler,
-                centerButtonHandler);
+        return new HexGridBuilder(hexGrid, intersectionBuilders, edgeLines, scrollHandler, pressedHandler,
+                draggedHandler, centerButtonHandler);
     }
 
     public Set<IntersectionController> getIntersectionControllers() {
@@ -68,24 +76,24 @@ public class HexGridController implements Controller {
         return Collections.unmodifiableMap(intersectionControllers);
     }
 
+    public Set<EdgeController> getEdgeControllers() {
+        return edgeControllers.values().stream().collect(Collectors.toSet());
+    }
+
+    public Map<Edge, EdgeController> getEdgeControllersMap() {
+        return Collections.unmodifiableMap(edgeControllers);
+    }
+
     public HexGrid getHexGrid() {
         return hexGrid;
     }
 
     public void drawIntersections() {
-        builder.drawIntersections();
+        Platform.runLater(() -> builder.drawIntersections());
     }
 
     public void drawRoads() {
-        builder.reDrawRoads();
-    }
-
-    public void highlightRoad(Intersection intersection0, Intersection intersection1, Consumer<MouseEvent> handler) {
-        builder.highlightRoad(intersection0, intersection1, handler);
-    }
-
-    public void unhighlightRoads() {
-        builder.unhighlightRoads();
+        Platform.runLater(() -> builder.reDrawRoads());
     }
 
     @Override
