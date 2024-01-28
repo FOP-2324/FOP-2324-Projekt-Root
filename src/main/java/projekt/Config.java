@@ -32,12 +32,12 @@ public final class Config {
     /**
      * The number of sides the dice have.
      */
-    public static final int DICE_SIDES = 3;
+    public static final int DICE_SIDES = 6;
 
     /**
      * The radius of the grid, center is included.
      */
-    public static final int GRID_RADIUS = 6;
+    public static final int GRID_RADIUS = 3;
 
     /**
      * Maximum amount of roads a player can place / own.
