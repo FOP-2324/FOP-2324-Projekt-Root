@@ -53,6 +53,6 @@ tasks {
 }
 
 javafx {
-    version = "17.0.1"
+    version = "21"
     modules("javafx.controls", "javafx.fxml", "javafx.swing")
 }
