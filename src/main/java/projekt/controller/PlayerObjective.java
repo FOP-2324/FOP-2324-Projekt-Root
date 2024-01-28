@@ -6,6 +6,7 @@ import org.tudalgo.algoutils.student.annotation.StudentCreationRequired;
 
 import projekt.controller.actions.BuildRoadAction;
 import projekt.controller.actions.BuildVillageAction;
+import projekt.controller.actions.DropCardsAction;
 import projekt.controller.actions.EndTurnAction;
 import projekt.controller.actions.PlayerAction;
 import projekt.controller.actions.RollDiceAction;
@@ -19,7 +20,7 @@ import projekt.controller.actions.UpgradeVillageAction;
  */
 @StudentCreationRequired
 public enum PlayerObjective {
-    DROP_HALF_CARDS(Set.of(EndTurnAction.class)), SELECT_CARD_TO_STEAL(Set.of(EndTurnAction.class)),
+    DROP_HALF_CARDS(Set.of(DropCardsAction.class)), SELECT_CARD_TO_STEAL(Set.of(EndTurnAction.class)),
     SELECT_ROBBER_TILE(Set.of(SelectRobberTileAction.class)),
     REGULAR_TURN(Set.of(BuildRoadAction.class, EndTurnAction.class, BuildVillageAction.class, UpgradeVillageAction.class,
             TradeAction.class)),
