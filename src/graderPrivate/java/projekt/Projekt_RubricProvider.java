@@ -11,7 +11,7 @@ public class Projekt_RubricProvider implements RubricProvider {
             .title("Projekt")
             .addChildCriteria(
                 Criterion.builder()
-                    .shortDescription("PlayerImpl")
+                    .shortDescription("Inventory")
                     .addChildCriteria(
                         Criterion.builder()
                             .shortDescription("getResources() funktioniert wie beschrieben")
@@ -57,6 +57,34 @@ public class Projekt_RubricProvider implements RubricProvider {
                             .shortDescription("getTradeRatio(ResourceType) funktioniert wie beschrieben")
                             .grader(Grader.testAwareBuilder()
                                 .requirePass(JUnitTestRef.ofMethod(() -> PlayerImplTest.class.getDeclaredMethod("testGetTradeRatio")))
+                                .pointsFailedMin()
+                                .pointsPassedMax()
+                                .build())
+                            .build())
+                    .build(),
+                Criterion.builder()
+                    .shortDescription("Buildings")
+                    .addChildCriteria(
+                        Criterion.builder()
+                            .shortDescription("placeVillage(Player, boolean) funktioniert wie beschrieben wenn nicht auf angrenzende Straßen geprüft werden soll")
+                            .grader(Grader.testAwareBuilder()
+                                .requirePass(JUnitTestRef.ofMethod(() -> IntersectionImplTest.class.getDeclaredMethod("testPlaceVillage_noRoadCheck", JsonParameterSet.class)))
+                                .pointsFailedMin()
+                                .pointsPassedMax()
+                                .build())
+                            .build(),
+                        Criterion.builder()
+                            .shortDescription("placeVillage(Player, boolean) funktioniert wie beschrieben wenn auf angrenzende Straßen geprüft werden soll")
+                            .grader(Grader.testAwareBuilder()
+                                .requirePass(JUnitTestRef.ofMethod(() -> IntersectionImplTest.class.getDeclaredMethod("testPlaceVillage_roadCheck", JsonParameterSet.class)))
+                                .pointsFailedMin()
+                                .pointsPassedMax()
+                                .build())
+                            .build(),
+                        Criterion.builder()
+                            .shortDescription("upgradeSettlement(Player) funktioniert wie beschrieben")
+                            .grader(Grader.testAwareBuilder()
+                                .requirePass(JUnitTestRef.ofMethod(() -> IntersectionImplTest.class.getDeclaredMethod("testUpgradeSettlement", JsonParameterSet.class)))
                                 .pointsFailedMin()
                                 .pointsPassedMax()
                                 .build())
