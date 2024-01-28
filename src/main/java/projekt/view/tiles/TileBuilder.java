@@ -17,15 +17,20 @@ import projekt.view.ColoredImageView;
 
 public class TileBuilder implements Builder<Region> {
     private final Tile tile;
+    private final StackPane pane = new StackPane();
 
     public TileBuilder(final Tile tile) {
         this.tile = tile;
+        styleAndSizeTile(pane);
+    }
+
+    public Tile getTile() {
+        return tile;
     }
 
     @Override
     public Region build() {
-        final StackPane pane = new StackPane();
-        styleAndSizeTile(pane);
+        pane.getChildren().clear();
         if (tile.hasRobber()) {
             ImageView robber = new ColoredImageView("img/knight.png", Color.BLACK);
             robber.setPreserveRatio(true);
@@ -42,7 +47,7 @@ public class TileBuilder implements Builder<Region> {
         stackPane.maxWidthProperty().bind(tile.widthProperty());
         stackPane.minHeightProperty().bind(tile.heightProperty());
         stackPane.minWidthProperty().bind(tile.widthProperty());
-        stackPane.setBackground(new Background(new BackgroundFill(tile.getType().color, null, null)));
+        stackPane.setBackground(Background.fill(tile.getType().color));
     }
 
     private VBox createCoordinateLabel() {
@@ -58,5 +63,15 @@ public class TileBuilder implements Builder<Region> {
         rollNumberLabel.setBackground(new Background(
                 new BackgroundFill(new Color(1, 1, 1, 0.9), new CornerRadii(2), new Insets(0, -2, 0, -2))));
         return detailsBox;
+    }
+
+    public void highlight(Runnable hanlder) {
+        pane.getStyleClass().add("selectable");
+        pane.setOnMouseClicked(e -> hanlder.run());
+    }
+
+    public void unhighlight() {
+        pane.getStyleClass().remove("selectable");
+        pane.setOnMouseClicked(null);
     }
 }

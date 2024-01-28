@@ -10,7 +10,6 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -45,7 +44,7 @@ public class GameBoardBuilder implements Builder<Region> {
         VBox rightBox = new VBox();
         rightBox.getChildren().add(playerInformation);
 
-        rightBox.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
+        rightBox.setBackground(Background.fill(Color.WHITE));
 
         ScrollPane playersInformationPane = new ScrollPane(rightBox);
         rightBox.setMinWidth(150);
@@ -62,7 +61,7 @@ public class GameBoardBuilder implements Builder<Region> {
         bottomBox.getChildren().addAll(actions.get(), diceRoll);
         bottomBox.setAlignment(Pos.CENTER);
         bottomBox.setSpacing(10);
-        bottomBox.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
+        bottomBox.setBackground(Background.fill(Color.WHITE));
 
         mainPane.add(bottomBox, 0, 1);
         mainPane.add(playersInformationPane, 1, 0, 1, 2);

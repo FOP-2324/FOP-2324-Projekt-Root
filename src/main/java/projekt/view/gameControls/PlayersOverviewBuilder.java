@@ -6,8 +6,6 @@ import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
@@ -33,7 +31,6 @@ public class PlayersOverviewBuilder implements Builder<Region> {
         for (Player player : players) {
             mainBox.getChildren().add(createPlayerTiltedPane(player, players.indexOf(player) + 1));
         }
-        mainBox.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
         return mainBox;
     }
 

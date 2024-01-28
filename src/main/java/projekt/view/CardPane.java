@@ -17,13 +17,15 @@ import javafx.scene.paint.Color;
  */
 @DoNotTouch
 public class CardPane extends StackPane {
+    private static final int defaultCardWidth = 30;
+
     /**
      * Creates a new CardPane with the given color and no icon or label.
      *
      * @param cardColor The color of the card.
      */
     public CardPane(Color cardColor) {
-        this(cardColor, null, null);
+        this(cardColor, null, null, 0);
     }
 
     /**
@@ -33,22 +35,36 @@ public class CardPane extends StackPane {
      * @param labelText The text of the label.
      */
     public CardPane(Color cardColor, String labelText) {
-        this(cardColor, null, labelText);
+        this(cardColor, null, labelText, 0);
     }
 
     /**
-     * Creates a card with the given color, icon and label.
+     * Creates a new CardPane with the given color and icon and label.
+     *
+     * @param cardColor The color of the card.
+     * @param labelText The text of the label.
+     * @param iconPath  The path to the icon.
+     */
+    public CardPane(Color cardColor, String iconPath, String labelText) {
+        this(cardColor, iconPath, labelText, 0);
+    }
+
+    /**
+     * Creates a card with the given color, icon and label. With the given width.
      *
      * @param cardColor The color of the card.
      * @param iconPath  The path to the icon.
      * @param labelText The text of the label.
      */
-    public CardPane(Color cardColor, String iconPath, String labelText) {
+    public CardPane(Color cardColor, String iconPath, String labelText, double cardWidth) {
         super();
         this.setAlignment(Pos.CENTER);
         ImageView cardImage = new ColoredImageView("img/empty_card.png", cardColor);
 
-        double cardWidth = 30;
+        if (cardWidth <= 0) {
+            cardWidth = defaultCardWidth;
+        }
+
         cardImage.setFitWidth(cardWidth);
         cardImage.setPreserveRatio(true);
         this.getChildren().add(cardImage);

@@ -11,6 +11,10 @@ import javafx.util.Builder;
 import projekt.model.Intersection;
 import projekt.model.buildings.Settlement;
 
+/**
+ * A Builder to create views for {@link Intersection}s. Has methods to highlight
+ * and unhighlight the intersection.
+ */
 public class IntersectionBuilder implements Builder<Region> {
     private final Intersection intersection;
     private final StackPane pane = new StackPane();
@@ -51,13 +55,7 @@ public class IntersectionBuilder implements Builder<Region> {
         Circle circle = new Circle(15, Color.TRANSPARENT);
         circle.setStroke(Color.RED);
         circle.setStrokeWidth(4);
-        circle.hoverProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) {
-                circle.setStroke(Color.LIME);
-            } else {
-                circle.setStroke(Color.RED);
-            }
-        });
+        circle.getStyleClass().add("selectable");
         pane.getChildren().add(circle);
         pane.setOnMouseClicked(handler::accept);
     }

@@ -32,7 +32,7 @@ public class PlayerController {
 
     private final Property<PlayerState> playerStateProperty = new SimpleObjectProperty<>();
 
-    private final Property<PlayerObjective> playerObjectiveProperty;
+    private final Property<PlayerObjective> playerObjectiveProperty = new SimpleObjectProperty<>(PlayerObjective.IDLE);
 
     /**
      * Creates a new {@link PlayerController} with the given {@link GameController}.
@@ -42,7 +42,6 @@ public class PlayerController {
     public PlayerController(final GameController gameController, final Player player) {
         this.gameController = gameController;
         this.player = player;
-        this.playerObjectiveProperty = new SimpleObjectProperty<>();
         this.playerObjectiveProperty.addListener((observable, oldValue, newValue) -> {
             updatePlayerState();
         });
@@ -305,5 +304,9 @@ public class PlayerController {
         }
         // remove resources from player
         player.removeResources(resourcesToDrop);
+    }
+
+    public void setRobberPosition(final TilePosition position) {
+        gameController.getState().getGrid().setRobberPosition(position);
     }
 }

@@ -2,7 +2,6 @@ package projekt.view;
 
 import java.util.function.Consumer;
 
-import javafx.beans.value.ChangeListener;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
@@ -17,15 +16,6 @@ public class EdgeLine extends Line {
     private double distance = 0;
     private final int strokeWidth = 5;
     private final double positionOffset = 10;
-    private final Color highlightColor = Color.CRIMSON;
-    private final Color hoverColor = Color.LIME;
-    private final ChangeListener<? super Boolean> hoverListener = (observable, oldValue, newValue) -> {
-        if (newValue) {
-            setStroke(hoverColor);
-        } else {
-            setStroke(highlightColor);
-        }
-    };
 
     /**
      * Creates a new EdgeLine for the given {@link Edge}.
@@ -58,20 +48,6 @@ public class EdgeLine extends Line {
         return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     }
 
-    /**
-     * Highlights the EdgeLine with the given handler.
-     *
-     * @param handler the handler to call when the EdgeLine is clicked
-     */
-    public void highlight(Consumer<MouseEvent> handler) {
-        init(0.1);
-        getStrokeDashArray().add(10.0);
-        setStroke(highlightColor);
-        setStrokeWidth(strokeWidth * 1.2);
-        hoverProperty().addListener(hoverListener);
-        setOnMouseClicked(handler::accept);
-    }
-
     public void init() {
         init(1);
     }
@@ -91,11 +67,24 @@ public class EdgeLine extends Line {
     }
 
     /**
+     * Highlights the EdgeLine with the given handler.
+     *
+     * @param handler the handler to call when the EdgeLine is clicked
+     */
+    public void highlight(Consumer<MouseEvent> handler) {
+        init(0.1);
+        getStyleClass().add("selectable");
+        getStrokeDashArray().add(10.0);
+        setStrokeWidth(strokeWidth * 1.2);
+        setOnMouseClicked(handler::accept);
+    }
+
+    /**
      * Removes the highlight from the EdgeLine.
      */
     public void unhighlight() {
         setOnMouseClicked(null);
-        hoverProperty().removeListener(hoverListener);
+        getStyleClass().remove("selectable");
         init();
     }
 }
