@@ -20,6 +20,7 @@ import projekt.controller.actions.BuildVillageAction;
 import projekt.controller.actions.EndTurnAction;
 import projekt.controller.actions.RollDiceAction;
 import projekt.controller.actions.SelectRobberTileAction;
+import projekt.controller.actions.TradeAction;
 import projekt.controller.actions.UpgradeVillageAction;
 import projekt.model.Player;
 import projekt.model.PlayerState;
@@ -37,8 +38,7 @@ public class PlayerActionsController implements Controller {
     private Subscription playerObjectiveSubscription = Subscription.EMPTY;
 
     @DoNotTouch
-    public PlayerActionsController(GameBoardController gameBoardController,
-            Property<PlayerController> playerControllerProperty) {
+    public PlayerActionsController(GameBoardController gameBoardController, Property<PlayerController> playerControllerProperty) {
         this.playerControllerProperty.subscribe((oldValue, newValue) -> {
             Platform.runLater(() -> {
                 playerObjectiveSubscription.unsubscribe();
@@ -62,8 +62,7 @@ public class PlayerActionsController implements Controller {
 
         this.builder = new PlayerActionsBuilder(actionWrapper(this::buildVillageButtonAction, true),
                 actionWrapper(this::upgradeVillageButtonAction, true), actionWrapper(this::buildRoadButtonAction, true),
-                actionWrapper(this::buyDevelopmentCardButtonAction, false),
-                actionWrapper(this::endTurnButtonAction, false),
+                actionWrapper(this::buyDevelopmentCardButtonAction, false), actionWrapper(this::endTurnButtonAction, false),
                 this::rollDiceButtonAction, this::tradeButtonAction, this::abortButtonAction);
     }
 
@@ -218,8 +217,7 @@ public class PlayerActionsController implements Controller {
 
     @StudentImplementationRequired
     private void buildRoadButtonAction(ActionEvent event) {
-        getPlayerState().buildableRoadEdges().stream()
-                .map(edge -> getHexGridController().getEdgeControllersMap().get(edge))
+        getPlayerState().buildableRoadEdges().stream().map(edge -> getHexGridController().getEdgeControllersMap().get(edge))
                 .forEach(ec -> ec.highlight(buildActionWrapper(e -> {
                     getPlayerController().triggerAction(new BuildRoadAction(ec.getEdge()));
                     drawEdges();
@@ -253,8 +251,7 @@ public class PlayerActionsController implements Controller {
         System.out.println("Trading");
         TradeDialog dialog = new TradeDialog(new TradePayload(null, null, false, getPlayer()));
         dialog.showAndWait().ifPresentOrElse(payload -> {
-            System.out.println(Thread.currentThread().getName());
-            System.out.println(payload);
+            getPlayerController().triggerAction(new TradeAction(payload));
         }, () -> System.out.println("Trade cancelled"));
     }
 
@@ -269,8 +266,7 @@ public class PlayerActionsController implements Controller {
         return builder;
     }
 
-    @Override
-    @DoNotTouch
+    @Override @DoNotTouch
     public Region buildView() {
         Region view = builder.build();
 
