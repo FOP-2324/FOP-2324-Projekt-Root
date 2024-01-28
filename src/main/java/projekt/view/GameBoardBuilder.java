@@ -10,12 +10,10 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Background;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
-import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.Builder;
@@ -36,8 +34,8 @@ public class GameBoardBuilder implements Builder<Region> {
 
     @Override
     public Region build() {
-        final GridPane mainPane = new GridPane();
-        mainPane.add(hexGrid, 0, 0);
+        final BorderPane mainPane = new BorderPane();
+        mainPane.setCenter(hexGrid);
 
         // Right box which holds the Players information
 
@@ -52,42 +50,21 @@ public class GameBoardBuilder implements Builder<Region> {
                 .createDoubleBinding(() -> playersInformationPane.getWidth() - 2,
                         playersInformationPane.widthProperty()));
 
+        mainPane.setRight(playersInformationPane);
+
         // Bottom box which holds the Player controls
 
-        HBox bottomBox = new HBox();
+        FlowPane bottomBox = new FlowPane(10, 10);
         Label diceRoll = new Label();
         diceRoll.textProperty().bind(Bindings.createStringBinding(() -> String.format("Rolled Number: %s",
                 diceRollProperty.get() == 0 ? "" : diceRollProperty.get()), diceRollProperty));
         bottomBox.getChildren().addAll(actions.get(), diceRoll);
         bottomBox.setAlignment(Pos.CENTER);
-        bottomBox.setSpacing(10);
         bottomBox.setBackground(Background.fill(Color.WHITE));
 
-        mainPane.add(bottomBox, 0, 1);
-        mainPane.add(playersInformationPane, 1, 0, 1, 2);
-
-        // TODO: Remove for release
-        mainPane.setGridLinesVisible(true);
+        mainPane.setBottom(bottomBox);
 
         // Make it look pretty
-
-        ColumnConstraints hexGridColumn = new ColumnConstraints();
-        hexGridColumn.setPercentWidth(75);
-        ColumnConstraints playersInformationColumn = new ColumnConstraints();
-        playersInformationColumn.setPercentWidth(25);
-
-        RowConstraints hexGridRow = new RowConstraints();
-        hexGridRow.setPercentHeight(90);
-        RowConstraints playerActionRow = new RowConstraints();
-        playerActionRow.setPercentHeight(10);
-
-        mainPane.getColumnConstraints().addAll(hexGridColumn, playersInformationColumn);
-        mainPane.getRowConstraints().addAll(hexGridRow, playerActionRow);
-
-        hexGrid.minWidthProperty().bind(Bindings.createDoubleBinding(() -> hexGridColumn.getPercentWidth(),
-                hexGridColumn.percentWidthProperty()));
-        hexGrid.minHeightProperty().bind(
-                Bindings.createDoubleBinding(() -> hexGridRow.getPercentHeight(), hexGridRow.percentHeightProperty()));
 
         return mainPane;
     }
