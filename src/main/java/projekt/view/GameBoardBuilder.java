@@ -11,7 +11,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -46,21 +46,25 @@ public class GameBoardBuilder implements Builder<Region> {
 
         ScrollPane playersInformationPane = new ScrollPane(rightBox);
         rightBox.setMinWidth(150);
-        rightBox.maxWidthProperty().bind(Bindings
-                .createDoubleBinding(() -> playersInformationPane.getWidth() - 2,
-                        playersInformationPane.widthProperty()));
+        rightBox.maxWidthProperty().bind(Bindings.createDoubleBinding(() -> playersInformationPane.getWidth() - 2,
+                playersInformationPane.widthProperty()));
 
         mainPane.setRight(playersInformationPane);
 
         // Bottom box which holds the Player controls
 
-        FlowPane bottomBox = new FlowPane(10, 10);
+        HBox bottomBox = new HBox();
         Label diceRoll = new Label();
-        diceRoll.textProperty().bind(Bindings.createStringBinding(() -> String.format("Rolled Number: %s",
-                diceRollProperty.get() == 0 ? "" : diceRollProperty.get()), diceRollProperty));
-        bottomBox.getChildren().addAll(actions.get(), diceRoll);
-        bottomBox.setAlignment(Pos.CENTER);
+        diceRoll.textProperty()
+                .bind(Bindings.createStringBinding(
+                        () -> String.format("Rolled Number: %s", diceRollProperty.get() == 0 ? "" : diceRollProperty.get()),
+                        diceRollProperty));
+        Region actionsRegion = actions.get();
+        bottomBox.getChildren().addAll(actionsRegion, diceRoll);
+        bottomBox.setAlignment(Pos.CENTER_LEFT);
         bottomBox.setBackground(Background.fill(Color.WHITE));
+        bottomBox.setMinHeight(50);
+        bottomBox.setSpacing(10);
 
         mainPane.setBottom(bottomBox);
 
