@@ -3,6 +3,10 @@
     -highlight-color: lime;
 }
 
+.hex-grid {
+    -fx-background-color: dodgerblue;
+}
+
 .hex-tile {
     -fx-shape: "m 280, 75 0, 150 -130, 75 L 20, 225 20, 75 150, -0 Z";
     -fx-border-color: burlywood;
