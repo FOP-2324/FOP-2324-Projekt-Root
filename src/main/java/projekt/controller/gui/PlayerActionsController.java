@@ -1,5 +1,7 @@
 package projekt.controller.gui;
 
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.tudalgo.algoutils.student.annotation.DoNotTouch;
@@ -17,6 +19,7 @@ import projekt.controller.PlayerController;
 import projekt.controller.PlayerObjective;
 import projekt.controller.actions.BuildRoadAction;
 import projekt.controller.actions.BuildVillageAction;
+import projekt.controller.actions.DropCardsAction;
 import projekt.controller.actions.EndTurnAction;
 import projekt.controller.actions.RollDiceAction;
 import projekt.controller.actions.SelectRobberTileAction;
@@ -24,6 +27,7 @@ import projekt.controller.actions.TradeAction;
 import projekt.controller.actions.UpgradeVillageAction;
 import projekt.model.Player;
 import projekt.model.PlayerState;
+import projekt.model.ResourceType;
 import projekt.model.TradePayload;
 import projekt.model.tiles.Tile;
 import projekt.view.gameControls.DropCardsDialog;
@@ -38,7 +42,8 @@ public class PlayerActionsController implements Controller {
     private Subscription playerObjectiveSubscription = Subscription.EMPTY;
 
     @DoNotTouch
-    public PlayerActionsController(GameBoardController gameBoardController, Property<PlayerController> playerControllerProperty) {
+    public PlayerActionsController(final GameBoardController gameBoardController,
+            final Property<PlayerController> playerControllerProperty) {
         this.playerControllerProperty.subscribe((oldValue, newValue) -> {
             Platform.runLater(() -> {
                 playerObjectiveSubscription.unsubscribe();
@@ -66,7 +71,7 @@ public class PlayerActionsController implements Controller {
                 this::rollDiceButtonAction, this::tradeButtonAction, this::abortButtonAction);
     }
 
-    private void enableButtonBasedOnObjective(PlayerObjective objective) {
+    private void enableButtonBasedOnObjective(final PlayerObjective objective) {
         System.out.println("objective: " + objective);
         removeAllHighlights();
         drawEdges();
@@ -86,8 +91,7 @@ public class PlayerActionsController implements Controller {
                 builder.enableEndTurnButton();
                 break;
             case DROP_HALF_CARDS:
-                new DropCardsDialog(getPlayer().getResources()).showAndWait();
-                builder.enableEndTurnButton();
+                dropCardsAction(getPlayer().getResources().values().stream().mapToInt(Integer::intValue).sum() / 2);
                 break;
             case SELECT_CARD_TO_STEAL:
                 builder.enableEndTurnButton();
@@ -127,8 +131,8 @@ public class PlayerActionsController implements Controller {
     }
 
     private void removeAllHighlights() {
-        getHexGridController().getEdgeControllers().forEach(ec -> ec.unhighlight());
-        getHexGridController().getIntersectionControllers().forEach(ic -> ic.unhighlight());
+        getHexGridController().getEdgeControllers().forEach(EdgeController::unhighlight);
+        getHexGridController().getIntersectionControllers().forEach(IntersectionController::unhighlight);
         getHexGridController().unhighlightTiles();
     }
 
@@ -141,7 +145,7 @@ public class PlayerActionsController implements Controller {
     }
 
     @DoNotTouch
-    private Consumer<ActionEvent> actionWrapper(Consumer<ActionEvent> handler, boolean abortable) {
+    private Consumer<ActionEvent> actionWrapper(final Consumer<ActionEvent> handler, final boolean abortable) {
         return e -> {
             removeAllHighlights();
             drawIntersections();
@@ -156,7 +160,7 @@ public class PlayerActionsController implements Controller {
     }
 
     @DoNotTouch
-    private Consumer<MouseEvent> buildActionWrapper(Consumer<MouseEvent> handler) {
+    private Consumer<MouseEvent> buildActionWrapper(final Consumer<MouseEvent> handler) {
         return e -> {
             handler.accept(e);
 
@@ -178,7 +182,7 @@ public class PlayerActionsController implements Controller {
     }
 
     @StudentImplementationRequired
-    private void buildVillageButtonAction(ActionEvent event) {
+    private void buildVillageButtonAction(final ActionEvent event) {
         getPlayerState().buildableVillageIntersections().stream()
                 .map(intersection -> getHexGridController().getIntersectionControllersMap().get(intersection))
                 .forEach(ic -> ic.highlight(buildActionWrapper(e -> {
@@ -197,7 +201,7 @@ public class PlayerActionsController implements Controller {
     }
 
     @StudentImplementationRequired
-    private void upgradeVillageButtonAction(ActionEvent event) {
+    private void upgradeVillageButtonAction(final ActionEvent event) {
         getPlayerState().upgradebleVillageIntersections().stream()
                 .map(intersection -> getHexGridController().getIntersectionControllersMap().get(intersection))
                 .forEach(ic -> ic.highlight(buildActionWrapper(e -> {
@@ -216,7 +220,7 @@ public class PlayerActionsController implements Controller {
     }
 
     @StudentImplementationRequired
-    private void buildRoadButtonAction(ActionEvent event) {
+    private void buildRoadButtonAction(final ActionEvent event) {
         getPlayerState().buildableRoadEdges().stream().map(edge -> getHexGridController().getEdgeControllersMap().get(edge))
                 .forEach(ec -> ec.highlight(buildActionWrapper(e -> {
                     getPlayerController().triggerAction(new BuildRoadAction(ec.getEdge()));
@@ -228,34 +232,47 @@ public class PlayerActionsController implements Controller {
         getHexGridController().drawEdges();
     }
 
-    private void buyDevelopmentCardButtonAction(ActionEvent event) {
+    private void buyDevelopmentCardButtonAction(final ActionEvent event) {
         System.out.println("Buying development card");
     }
 
-    private void endTurnButtonAction(ActionEvent event) {
+    private void endTurnButtonAction(final ActionEvent event) {
         getPlayerController().triggerAction(new EndTurnAction());
     }
 
-    private void rollDiceButtonAction(ActionEvent event) {
+    private void rollDiceButtonAction(final ActionEvent event) {
         getPlayerController().triggerAction(new RollDiceAction());
     }
 
-    private void selectRobberTileAction(Tile tile) {
+    private void selectRobberTileAction(final Tile tile) {
         System.out.println(Thread.currentThread().getName());
         getHexGridController().unhighlightTiles();
         getPlayerController().triggerAction(new SelectRobberTileAction(tile.getPosition()));
         getHexGridController().drawTiles();
     }
 
-    private void tradeButtonAction(ActionEvent event) {
+    private void selectCardToStealAction(final ActionEvent event) {
+        System.out.println("Selecting card to steal");
+    }
+
+    private void dropCardsAction(final int amountToDrop) {
+        final DropCardsDialog dropCardsDialog = new DropCardsDialog(getPlayer().getResources(), amountToDrop);
+        Optional<Map<ResourceType, Integer>> result = dropCardsDialog.showAndWait();
+        while (result.isEmpty() || result.get() == null) {
+            result = dropCardsDialog.showAndWait();
+        }
+        getPlayerController().triggerAction(new DropCardsAction(result.get()));
+    }
+
+    private void tradeButtonAction(final ActionEvent event) {
         System.out.println("Trading");
-        TradeDialog dialog = new TradeDialog(new TradePayload(null, null, false, getPlayer()));
+        final TradeDialog dialog = new TradeDialog(new TradePayload(null, null, false, getPlayer()));
         dialog.showAndWait().ifPresentOrElse(payload -> {
             getPlayerController().triggerAction(new TradeAction(payload));
         }, () -> System.out.println("Trade cancelled"));
     }
 
-    private void abortButtonAction(ActionEvent event) {
+    private void abortButtonAction(final ActionEvent event) {
         removeAllHighlights();
         enableButtonBasedOnObjective(getPlayerObjective());
         builder.disableAbortButton();
@@ -268,7 +285,7 @@ public class PlayerActionsController implements Controller {
 
     @Override @DoNotTouch
     public Region buildView() {
-        Region view = builder.build();
+        final Region view = builder.build();
 
         playerObjectiveProperty.subscribe((oldValue, newValue) -> enableButtonBasedOnObjective(newValue));
         builder.disableAllButtons();
