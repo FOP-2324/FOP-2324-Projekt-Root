@@ -1,11 +1,6 @@
-.root {
-    -border-colour: teal;
-}
-
-.red-box-label {
-    -fx-font-size: 25px;
-    -fx-border-color: -border-colour;
-    -fx-border-width: 1px;
+* {
+    -selected-color: crimson;
+    -highlight-color: lime;
 }
 
 .hex-tile {
@@ -18,17 +13,26 @@
     -fx-font-size: 10px;
 }
 
-.title-text {
-    -fx-font-size: 25px;
+.selectable {
+    -fx-stroke: -selected-color;
+    -fx-border-color: transparent;
+    -fx-border-width: 5px;
 }
 
-.label-text {
-    -fx-font-size: 12px;
-    -fx-font-color: teal;
-    -fx-font-weight: bold;
+.hex-tile.selectable {
+    -fx-border-color: -selected-color;
 }
 
-.label-text {
-    -fx-font-size: 14px;
-    -fx-font-color: darkgrey;
+.selectable:hover,
+.selectable:focus,
+.selectable:focused,
+.hex-tile.selectable:hover,
+.hex-tile.selectable:focus {
+    -fx-stroke: -highlight-color;
+    -fx-border-color: -highlight-color;
+}
+
+.selectable.selected,
+.selectable:selected {
+    -fx-border-color: -selected-color;
 }
