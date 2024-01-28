@@ -17,7 +17,7 @@ public class MyApplication extends Application {
 
     @Override
     public void start(final Stage stage) throws Exception {
-        stage.setMinWidth(854);
+        stage.setMinWidth(1000);
         stage.setMinHeight(480);
         stage.setWidth(1280);
         stage.setHeight(720);
