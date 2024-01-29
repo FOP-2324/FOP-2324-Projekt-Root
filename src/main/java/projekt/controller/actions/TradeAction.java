@@ -14,8 +14,7 @@ public record TradeAction(TradePayload payload) implements PlayerAction {
             final Entry<ResourceType, Integer> offer = payload.offer().entrySet().iterator().next();
             pc.tradeWithBank(offer.getKey(), offer.getValue(), payload.request().keySet().iterator().next());
         } else {
-            // TODO: implement trade with other players
+            pc.offerTrade(payload.offer(), payload.request());
         }
     }
-
 }

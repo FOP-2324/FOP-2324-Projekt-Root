@@ -265,35 +265,13 @@ public class PlayerController {
     }
 
     /**
-     * Trades the given resources with the given player. Does not check for consent
-     * of the other player.
+     * Offers the trade to all other players that can accept the trade.
      *
-     * @param otherPlayer the player to trade with
-     * @param offer       the resources to offer
-     * @param request     the resources to request
-     * @return whether the trade was successful
+     * @param offer   the offered resources
+     * @param request the requested resources
      */
-    public boolean tradeWithPlayer(
-        final Player otherPlayer, final Map<ResourceType, Integer> offer,
-        final Map<ResourceType, Integer> request
-    ) {
-        if (!player.hasResources(offer)) {
-            return false;
-        }
-        if (!otherPlayer.hasResources(request)) {
-            return false;
-        }
-        // remove resources from players
-        player.removeResources(offer);
-        otherPlayer.removeResources(request);
-        // add resources to players
-        for (final var entry : offer.entrySet()) {
-            otherPlayer.addResource(entry.getKey(), entry.getValue());
-        }
-        for (final var entry : request.entrySet()) {
-            player.addResource(entry.getKey(), entry.getValue());
-        }
-        return true;
+    public void offerTrade(final Map<ResourceType, Integer> offer, final Map<ResourceType, Integer> request) {
+        gameController.offerTrade(player, offer, request);
     }
 
     /**
