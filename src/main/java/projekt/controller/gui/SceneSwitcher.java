@@ -20,14 +20,15 @@ public class SceneSwitcher {
     private final Runnable gameLoopStarter;
 
     @DoNotTouch
-    private SceneSwitcher(Stage stage, GameController gameController, Runnable gameLoopStarter) {
+    private SceneSwitcher(final Stage stage, final GameController gameController, final Runnable gameLoopStarter) {
         this.stage = stage;
         this.gameController = gameController;
         this.gameLoopStarter = gameLoopStarter;
     }
 
     @DoNotTouch
-    public static SceneSwitcher getInstance(Stage stage, GameController gameController, Runnable gameLoopStarter) {
+    public static SceneSwitcher getInstance(final Stage stage, final GameController gameController,
+            final Runnable gameLoopStarter) {
         if (INSTANCE == null) {
             INSTANCE = new SceneSwitcher(stage, gameController, gameLoopStarter);
         }
@@ -46,7 +47,7 @@ public class SceneSwitcher {
      * An enum that represents the different scenes that can be switched to.
      */
     public static enum SceneType {
-        MAIN_MENU(() -> new MainMenuSceneController()),
+        MAIN_MENU(MainMenuSceneController::new),
         CREATE_GAME(() -> new CreateGameController(SceneSwitcher.getInstance().gameController.getState())),
         GAME_BOARD(() -> {
             getInstance().gameLoopStarter.run();

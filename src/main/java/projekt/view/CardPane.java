@@ -24,7 +24,7 @@ public class CardPane extends StackPane {
      *
      * @param cardColor The color of the card.
      */
-    public CardPane(Color cardColor) {
+    public CardPane(final Color cardColor) {
         this(cardColor, null, null, 0);
     }
 
@@ -34,7 +34,7 @@ public class CardPane extends StackPane {
      * @param cardColor The color of the card.
      * @param labelText The text of the label.
      */
-    public CardPane(Color cardColor, String labelText) {
+    public CardPane(final Color cardColor, final String labelText) {
         this(cardColor, null, labelText, 0);
     }
 
@@ -45,7 +45,7 @@ public class CardPane extends StackPane {
      * @param labelText The text of the label.
      * @param iconPath  The path to the icon.
      */
-    public CardPane(Color cardColor, String iconPath, String labelText) {
+    public CardPane(final Color cardColor, final String iconPath, final String labelText) {
         this(cardColor, iconPath, labelText, 0);
     }
 
@@ -56,10 +56,10 @@ public class CardPane extends StackPane {
      * @param iconPath  The path to the icon.
      * @param labelText The text of the label.
      */
-    public CardPane(Color cardColor, String iconPath, String labelText, double cardWidth) {
+    public CardPane(final Color cardColor, final String iconPath, final String labelText, double cardWidth) {
         super();
         this.setAlignment(Pos.CENTER);
-        ImageView cardImage = new ColoredImageView("img/empty_card.png", cardColor);
+        final ImageView cardImage = new ColoredImageView("img/empty_card.png", cardColor);
 
         if (cardWidth <= 0) {
             cardWidth = defaultCardWidth;
@@ -70,14 +70,14 @@ public class CardPane extends StackPane {
         this.getChildren().add(cardImage);
 
         if (iconPath != null && !iconPath.isBlank()) {
-            ImageView iconImage = new ImageView(iconPath);
+            final ImageView iconImage = new ImageView(iconPath);
             iconImage.setFitWidth(cardWidth * 0.9);
             iconImage.setPreserveRatio(true);
             this.getChildren().add(iconImage);
         }
 
         if (labelText != null && !labelText.isBlank()) {
-            Label valueLabel = new Label(labelText);
+            final Label valueLabel = new Label(labelText);
             valueLabel.setBackground(
                     new Background(
                             new BackgroundFill(new Color(1, 1, 1, 0.9), new CornerRadii(2), new Insets(0, -2, 0, -2))));
