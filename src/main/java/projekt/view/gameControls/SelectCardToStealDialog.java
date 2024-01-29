@@ -52,7 +52,7 @@ public class SelectCardToStealDialog extends Dialog<Entry<Player, ResourceType>>
         dialogPane.getButtonTypes().add(ButtonType.OK);
 
         setResultConverter(buttonType -> {
-            if (buttonType.equals(ButtonType.OK)) {
+            if (ButtonType.OK.equals(buttonType)) {
                 if (selectedCard.isEmpty()) {
                     return null;
                 }

@@ -33,21 +33,21 @@ public class TradeDialog extends Dialog<TradePayload> {
     private final ObjectProperty<ResourceType> selectedBankRequest = new SimpleObjectProperty<>();
     private final Map<ResourceType, Integer> playerOffer = new HashMap<>();
     private final Map<ResourceType, Integer> playerRequest = new HashMap<>();
-    private final TabPane tabPane = new TabPane();
 
-    public TradeDialog(TradePayload payload) {
+    public TradeDialog(final TradePayload payload) {
+        final TabPane tabPane = new TabPane();
         tabPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
         tabPane.getStylesheets().add("css/hexmap.css");
         tabPane.getTabs().addAll(createBankTradeTab(payload), createPlayerTradeTab());
         setTitle("Trade");
 
-        DialogPane dialogPane = getDialogPane();
+        final DialogPane dialogPane = getDialogPane();
         dialogPane.setContent(tabPane);
         dialogPane.getButtonTypes().add(ButtonType.OK);
         dialogPane.getButtonTypes().add(ButtonType.CANCEL);
 
-        setResultConverter((buttonType) -> {
-            if (buttonType.equals(ButtonType.OK)) {
+        setResultConverter(buttonType -> {
+            if (ButtonType.OK.equals(buttonType)) {
                 if (selectedBankOffer.getValue() == null || selectedBankRequest.getValue() == null) {
                     if (playerOffer.isEmpty() || playerRequest.isEmpty()) {
                         return null;
@@ -63,29 +63,29 @@ public class TradeDialog extends Dialog<TradePayload> {
         });
     }
 
-    private Tab createBankTradeTab(TradePayload payload) {
-        Tab bankTradeTab = new Tab("Bank");
-        GridPane mainPane = new GridPane(10, 10);
+    private Tab createBankTradeTab(final TradePayload payload) {
+        final Tab bankTradeTab = new Tab("Bank");
+        final GridPane mainPane = new GridPane(10, 10);
 
         mainPane.add(new Label("Offer:"), 0, 0);
         mainPane.add(new Label("Request:"), 0, 1);
 
-        for (ResourceType resourceType : ResourceType.values()) {
-            HBox offeredResourceCard = new HBox(getSelectableResourceCard(resourceType, selectedBankOffer));
+        for (final ResourceType resourceType : ResourceType.values()) {
+            final HBox offeredResourceCard = new HBox(getSelectableResourceCard(resourceType, selectedBankOffer));
             offeredResourceCard.setAlignment(Pos.CENTER);
 
-            Label ratio = new Label(String.format("%d", payload.player().getTradeRatio(resourceType)));
+            final Label ratio = new Label(String.format("%d", payload.player().getTradeRatio(resourceType)));
 
-            VBox offeredResourceBox = new VBox(offeredResourceCard, ratio);
+            final VBox offeredResourceBox = new VBox(offeredResourceCard, ratio);
             offeredResourceBox.setSpacing(5);
             offeredResourceBox.setAlignment(Pos.CENTER);
             mainPane.add(offeredResourceBox, resourceType.ordinal() + 1, 0);
             GridPane.setHgrow(offeredResourceBox, Priority.ALWAYS);
 
-            HBox requestedResourceCard = new HBox(getSelectableResourceCard(resourceType, selectedBankRequest));
+            final HBox requestedResourceCard = new HBox(getSelectableResourceCard(resourceType, selectedBankRequest));
             requestedResourceCard.setAlignment(Pos.CENTER);
 
-            VBox requestedResourceBox = new VBox(requestedResourceCard);
+            final VBox requestedResourceBox = new VBox(requestedResourceCard);
             requestedResourceBox.setSpacing(5);
             requestedResourceBox.setAlignment(Pos.CENTER);
             mainPane.add(requestedResourceBox, resourceType.ordinal() + 1, 1);
@@ -97,16 +97,16 @@ public class TradeDialog extends Dialog<TradePayload> {
     }
 
     private Tab createPlayerTradeTab() {
-        Tab playerTradeTab = new Tab("Player");
-        GridPane mainPane = new GridPane(10, 10);
+        final Tab playerTradeTab = new Tab("Player");
+        final GridPane mainPane = new GridPane(10, 10);
         mainPane.add(new Label("Offer:"), 0, 1);
         mainPane.add(new Label("Request:"), 0, 2);
 
-        for (ResourceType resourceType : ResourceType.values()) {
-            CardPane resourceCard = new ResourceCardPane(resourceType, "", 50);
+        for (final ResourceType resourceType : ResourceType.values()) {
+            final CardPane resourceCard = new ResourceCardPane(resourceType, "", 50);
             mainPane.add(resourceCard, resourceType.ordinal() + 1, 0);
 
-            TextField offeredResourcesField = new TextField();
+            final TextField offeredResourcesField = new TextField();
             offeredResourcesField
                     .setTextFormatter(
                             new TextFormatter<>(new IntegerStringConverter(), 0, Utils.positiveIntegerFilter));
@@ -119,7 +119,7 @@ public class TradeDialog extends Dialog<TradePayload> {
             });
             mainPane.add(offeredResourcesField, resourceType.ordinal() + 1, 1);
 
-            TextField requestedResourcesField = new TextField();
+            final TextField requestedResourcesField = new TextField();
             requestedResourcesField
                     .setTextFormatter(
                             new TextFormatter<>(new IntegerStringConverter(), 0, Utils.positiveIntegerFilter));
@@ -138,8 +138,9 @@ public class TradeDialog extends Dialog<TradePayload> {
         return playerTradeTab;
     }
 
-    private CardPane getSelectableResourceCard(ResourceType resourceType, Property<ResourceType> selectedResourceType) {
-        CardPane requestedResourceCard = new ResourceCardPane(resourceType, "", 50);
+    private CardPane getSelectableResourceCard(final ResourceType resourceType,
+            final Property<ResourceType> selectedResourceType) {
+        final CardPane requestedResourceCard = new ResourceCardPane(resourceType, "", 50);
         requestedResourceCard.getStyleClass().add("selectable");
         requestedResourceCard.setOnMouseClicked(e -> {
             if (Objects.equals(selectedResourceType.getValue(), resourceType)) {

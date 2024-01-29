@@ -29,12 +29,14 @@ public class DropCardsDialog extends Dialog<Map<ResourceType, Integer>> {
         this.setHeaderText(String.format(this.tooFewCardsText, amountToDrop));
 
         for (final ResourceType resourceType : playerResources.keySet()) {
-            final CardPane resourceCard = new ResourceCardPane(resourceType, Integer.toString(playerResources.get(resourceType)),
+            final CardPane resourceCard = new ResourceCardPane(resourceType,
+                    Integer.toString(playerResources.get(resourceType)),
                     50);
             mainPane.add(resourceCard, resourceType.ordinal(), 0);
 
             final TextField amountField = new TextField();
-            amountField.setTextFormatter(new TextFormatter<>(new IntegerStringConverter(), 0, Utils.positiveIntegerFilter));
+            amountField.setTextFormatter(
+                    new TextFormatter<>(new IntegerStringConverter(), 0, Utils.positiveIntegerFilter));
             amountField.textProperty().subscribe((oldText, newText) -> {
 
                 if (newText.isEmpty()) {
@@ -64,7 +66,7 @@ public class DropCardsDialog extends Dialog<Map<ResourceType, Integer>> {
         }
 
         this.setResultConverter(buttonType -> {
-            if (buttonType == ButtonType.OK) {
+            if (ButtonType.OK.equals(buttonType)) {
                 return this.droppedCards;
             }
             return null;
