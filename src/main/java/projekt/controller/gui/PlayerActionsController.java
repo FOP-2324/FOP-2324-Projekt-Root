@@ -258,6 +258,7 @@ public class PlayerActionsController implements Controller {
     private void selectCardToStealAction() {
         if (getPlayerState().playersToStealFrom().isEmpty()) {
             getPlayerController().triggerAction(new EndTurnAction());
+            return;
         }
         final SelectCardToStealDialog dialog = new SelectCardToStealDialog(getPlayerState().playersToStealFrom());
         dialog.showAndWait().ifPresentOrElse(
