@@ -1,15 +1,16 @@
 package projekt.model;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.scene.paint.Color;
-import org.jetbrains.annotations.Nullable;
-import projekt.Config;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+
+import org.jetbrains.annotations.Nullable;
+
+import javafx.beans.property.Property;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.scene.paint.Color;
+import projekt.Config;
 
 public final class GameState {
     /**
@@ -24,10 +25,11 @@ public final class GameState {
     /**
      * The game over flag.
      */
-    private final BooleanProperty gameOverProperty = new SimpleBooleanProperty(false);
+    private final Property<Player> winnerProperty = new SimpleObjectProperty<>();
 
     /**
-     * Creates a new {@link GameState} with the given {@link HexGrid} and {@link Player}s.
+     * Creates a new {@link GameState} with the given {@link HexGrid} and
+     * {@link Player}s.
      *
      * @param grid    the {@link HexGrid}
      * @param players the {@link Player}s
@@ -47,21 +49,23 @@ public final class GameState {
     }
 
     /**
-     * Returns an unmodifiable list of all {@link Player}s in this {@link GameState}.
+     * Returns an unmodifiable list of all {@link Player}s in this
+     * {@link GameState}.
      *
-     * @return an unmodifiable list of all {@link Player}s in this {@link GameState}.
+     * @return an unmodifiable list of all {@link Player}s in this
+     *         {@link GameState}.
      */
     public List<Player> getPlayers() {
         return Collections.unmodifiableList(players);
     }
 
     /**
-     * Returns a {@link BooleanProperty} that represents the game over flag.
+     * Returns a {@link Property} containing the winner of this {@link GameState}.
      *
-     * @return a {@link BooleanProperty} that represents the game over flag.
+     * @return a {@link Property} containing the winner of this {@link GameState}.
      */
-    public BooleanProperty getGameOverProperty() {
-        return gameOverProperty;
+    public Property<Player> getWinnerProperty() {
+        return winnerProperty;
     }
 
     /**
@@ -70,16 +74,16 @@ public final class GameState {
      * @return true if the game is over, false otherwise.
      */
     public boolean isGameOver() {
-        return gameOverProperty.get();
+        return winnerProperty.getValue() != null;
     }
 
     /**
-     * Sets the game over flag.
+     * Sets the winner of this {@link GameState}.
      *
-     * @param gameOverProperty the new game over flag
+     * @param winner the winner of this {@link GameState}
      */
-    public void setGameOver(final boolean gameOverProperty) {
-        this.gameOverProperty.set(gameOverProperty);
+    public void setWinner(final Player winner) {
+        winnerProperty.setValue(winner);
     }
 
     /**
@@ -107,7 +111,8 @@ public final class GameState {
     }
 
     /**
-     * Creates a new {@link Player} with the given {@link Color} and adds it to this {@link GameState}.
+     * Creates a new {@link Player} with the given {@link Color} and adds it to this
+     * {@link GameState}.
      *
      * @param name  the name of the new {@link Player}
      * @param color the {@link Color} of the new {@link Player}
@@ -116,9 +121,9 @@ public final class GameState {
      */
     public Player newPlayer(final @Nullable String name, final Color color) {
         final Player player = new PlayerImpl.Builder(this.players.size() + 1)
-            .color(color)
-            .name(name)
-            .build(this.grid);
+                .color(color)
+                .name(name)
+                .build(this.grid);
         if (!addPlayer(player)) {
             throw new IllegalStateException("Cannot add more players");
         }
@@ -133,8 +138,8 @@ public final class GameState {
     @Override
     public String toString() {
         return "GameState[" +
-            "grid=" + grid + ", " +
-            "players=" + players + ']';
+                "grid=" + grid + ", " +
+                "players=" + players + ']';
     }
 
 }
