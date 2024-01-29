@@ -304,7 +304,7 @@ public class PlayerController {
         if (tradingPlayer == null || playerTradingOffer == null || playerTradingRequest == null) {
             return null;
         }
-        return new TradePayload(playerTradingOffer, playerTradingRequest, false, player);
+        return new TradePayload(playerTradingOffer, playerTradingRequest, false, tradingPlayer);
     }
 
     /**
