@@ -280,7 +280,8 @@ public class PlayerActionsController implements Controller {
     }
 
     private void dropCardsAction(final int amountToDrop) {
-        final DropCardsDialog dropCardsDialog = new DropCardsDialog(getPlayer().getResources(), amountToDrop);
+        final DropCardsDialog dropCardsDialog = new DropCardsDialog(getPlayer().getResources(), amountToDrop,
+                getPlayer());
         Optional<Map<ResourceType, Integer>> result = dropCardsDialog.showAndWait();
         while (result.isEmpty() || result.get() == null) {
             result = dropCardsDialog.showAndWait();
