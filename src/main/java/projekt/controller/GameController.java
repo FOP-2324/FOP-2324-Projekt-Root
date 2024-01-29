@@ -11,15 +11,20 @@ import java.util.stream.Collectors;
 import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.Property;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import projekt.Config;
+import projekt.controller.actions.AcceptTradeAction;
 import projekt.controller.actions.EndTurnAction;
+import projekt.controller.actions.PlayerAction;
 import projekt.model.GameState;
 import projekt.model.HexGridImpl;
 import projekt.model.Player;
+import projekt.model.ResourceType;
 
 public class GameController {
 
@@ -159,6 +164,32 @@ public class GameController {
                 playerController.waitForNextAction(PlayerObjective.PLACE_ROAD);
             });
         }
+    }
+
+    /**
+     * Offer the trade to all players that can accept the trade. As soon as one
+     * player accepts the trade, the offering player can continue with his round.
+     */
+    public void offerTrade(final Player offeringPlayer, final Map<ResourceType, Integer> offer,
+            final Map<ResourceType, Integer> request) {
+        final BooleanProperty tradeAccepted = new SimpleBooleanProperty(true);
+        for (final PlayerController playerController : playerControllers.values().stream()
+                .filter(pc -> pc.canAcceptTradeOffer(offeringPlayer, request)).collect(Collectors.toList())) {
+            playerController.setPlayerTradeOffer(offeringPlayer, offer, request);
+            withActivePlayer(playerController, () -> {
+                final PlayerAction action = playerController.waitForNextAction(PlayerObjective.ACCEPT_TRADE);
+                if (action instanceof final AcceptTradeAction tradeAction) {
+                    if (tradeAction.accepted()) {
+                        tradeAccepted.set(true);
+                    }
+                }
+            });
+            playerController.resetPlayerTradeOffer();
+            if (tradeAccepted.get()) {
+                break;
+            }
+        }
+        activePlayerControllerProperty.setValue(playerControllers.get(offeringPlayer));
     }
 
     @StudentImplementationRequired
