@@ -9,7 +9,7 @@ import projekt.controller.gui.SceneSwitcher.SceneType;
 public class MyApplication extends Application {
     private final GameController gameController = new GameController();
     private final Runnable gameLoopStart = () -> {
-        Thread gameLoopThread = new Thread(() -> gameController.startGame());
+        final Thread gameLoopThread = new Thread(() -> gameController.startGame());
         gameLoopThread.setName("GameLoopThread");
         gameLoopThread.setDaemon(true);
         gameLoopThread.start();
@@ -18,7 +18,7 @@ public class MyApplication extends Application {
     @Override
     public void start(final Stage stage) throws Exception {
         stage.setMinWidth(1000);
-        stage.setMinHeight(480);
+        stage.setMinHeight(520);
         stage.setWidth(1280);
         stage.setHeight(720);
 
