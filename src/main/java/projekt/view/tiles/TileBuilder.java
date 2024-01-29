@@ -54,6 +54,7 @@ public class TileBuilder implements Builder<Region> {
     }
 
     private void styleAndSizeTile(final StackPane stackPane) {
+        stackPane.getStylesheets().add("css/hexmap.css");
         stackPane.getStyleClass().add("hex-tile");
         stackPane.maxHeightProperty().bind(tile.heightProperty());
         stackPane.maxWidthProperty().bind(tile.widthProperty());
@@ -65,15 +66,13 @@ public class TileBuilder implements Builder<Region> {
     private VBox createCoordinateLabel() {
         final VBox detailsBox = new VBox();
         final Label positionLabel = new Label(tile.getPosition().toString());
-        positionLabel.getStyleClass().add("coordinate-label");
+        positionLabel.getStyleClass().add("highlighted-label");
         final Label resourceLabel = new Label(tile.getType().toString());
+        resourceLabel.getStyleClass().add("highlighted-label");
         final Label rollNumberLabel = new Label(Integer.toString(tile.getRollNumber()));
-        resourceLabel.getStyleClass().add("coordinate-label");
-        rollNumberLabel.getStyleClass().add("coordinate-label");
-        detailsBox.getChildren().addAll(positionLabel, resourceLabel, rollNumberLabel);
+        rollNumberLabel.getStyleClass().add("highlighted-label");
+        detailsBox.getChildren().addAll(rollNumberLabel);
         detailsBox.setAlignment(Pos.CENTER);
-        rollNumberLabel.setBackground(new Background(
-                new BackgroundFill(new Color(1, 1, 1, 0.9), new CornerRadii(2), new Insets(0, -2, 0, -2))));
         return detailsBox;
     }
 

@@ -40,3 +40,10 @@
 .selectable:selected {
     -fx-border-color: -selected-color;
 }
+
+.highlighted-label {
+    -fx-background-color: #ffffffe0;
+    -fx-background-radius: 2;
+    -fx-background-insets: 0 -2 0 -2;
+    /* -fx-font-size: 15px; */
+}
