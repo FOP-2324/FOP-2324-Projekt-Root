@@ -21,6 +21,7 @@ import projekt.model.Player;
 import projekt.model.PlayerState;
 import projekt.model.ResourceType;
 import projekt.model.TilePosition;
+import projekt.model.TradePayload;
 import projekt.model.buildings.Edge;
 import projekt.model.buildings.Settlement;
 import projekt.model.tiles.Tile;
@@ -319,6 +320,13 @@ public class PlayerController {
         this.tradingPlayer = null;
         this.playerTradingOffer = null;
         this.playerTradingRequest = null;
+    }
+
+    private TradePayload getPlayerTradingPayload() {
+        if (tradingPlayer == null || playerTradingOffer == null || playerTradingRequest == null) {
+            return null;
+        }
+        return new TradePayload(playerTradingOffer, playerTradingRequest, false, player);
     }
 
     /**
