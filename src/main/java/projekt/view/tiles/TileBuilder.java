@@ -46,7 +46,7 @@ public class TileBuilder implements Builder<Region> {
         if (tile.hasRobber()) {
             final ImageView robber = new ColoredImageView(Utils.knightImage, Color.BLACK);
             robber.setPreserveRatio(true);
-            robber.setFitWidth(tile.widthProperty().get() * 0.3);
+            robber.setFitWidth(tile.widthProperty().get() * 0.4);
             pane.getChildren().add(robber);
         }
         pane.getChildren().addAll(createCoordinateLabel());
