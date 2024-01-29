@@ -156,7 +156,7 @@ public class PlayerImpl implements Player {
 
     @Override
     public int getID() {
-        return 0;
+        return id;
     }
 
     @Override
