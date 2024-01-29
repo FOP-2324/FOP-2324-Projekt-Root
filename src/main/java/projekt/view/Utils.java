@@ -7,6 +7,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.TextFormatter.Change;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
 import javafx.util.Duration;
 
 public final class Utils {
@@ -29,9 +30,17 @@ public final class Utils {
      * @param text   The text to display in the tooltip.
      * @param target The node to attach the tooltip to.
      */
-    public static final void attachTooltip(String text, Node target) {
-        Tooltip tooltip = new Tooltip(text);
+    public static final void attachTooltip(final String text, final Node target) {
+        final Tooltip tooltip = new Tooltip(text);
         tooltip.setShowDelay(Duration.millis(100));
         Tooltip.install(target, tooltip);
     }
+
+    public static final Image resourcesSpriteSheet = new Image("img/resources.png");
+
+    public static final Image settlementsSpriteSheet = new Image("img/settlements.png");
+
+    public static final Image emptyCardImage = new Image("img/empty_card.png");
+
+    public static final Image knightImage = new Image("img/knight.png");
 }
