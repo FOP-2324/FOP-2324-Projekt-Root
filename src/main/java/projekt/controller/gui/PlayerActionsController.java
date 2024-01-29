@@ -17,6 +17,7 @@ import javafx.util.Builder;
 import javafx.util.Subscription;
 import projekt.controller.PlayerController;
 import projekt.controller.PlayerObjective;
+import projekt.controller.actions.AcceptTradeAction;
 import projekt.controller.actions.BuildRoadAction;
 import projekt.controller.actions.BuildVillageAction;
 import projekt.controller.actions.DropCardsAction;
@@ -31,6 +32,7 @@ import projekt.model.PlayerState;
 import projekt.model.ResourceType;
 import projekt.model.TradePayload;
 import projekt.model.tiles.Tile;
+import projekt.view.gameControls.AcceptTradeDialog;
 import projekt.view.gameControls.DropCardsDialog;
 import projekt.view.gameControls.PlayerActionsBuilder;
 import projekt.view.gameControls.SelectCardToStealDialog;
@@ -118,6 +120,9 @@ public class PlayerActionsController implements Controller {
             case IDLE:
                 builder.disableAllButtons();
                 break;
+            case ACCEPT_TRADE:
+                acceptTradeOffer();
+                break;
         }
     }
 
@@ -165,6 +170,8 @@ public class PlayerActionsController implements Controller {
             gameBoardController.updatePlayerInformation(getPlayer());
         };
     }
+
+    // Build actions
 
     @DoNotTouch
     private Consumer<MouseEvent> buildActionWrapper(final Consumer<MouseEvent> handler) {
@@ -252,6 +259,8 @@ public class PlayerActionsController implements Controller {
         getPlayerController().triggerAction(new RollDiceAction());
     }
 
+    // Robber actions
+
     private void selectRobberTileAction(final Tile tile) {
         System.out.println(Thread.currentThread().getName());
         getHexGridController().unhighlightTiles();
@@ -279,12 +288,20 @@ public class PlayerActionsController implements Controller {
         getPlayerController().triggerAction(new DropCardsAction(result.get()));
     }
 
+    // Trade actions
+
     private void tradeButtonAction(final ActionEvent event) {
         System.out.println("Trading");
         final TradeDialog dialog = new TradeDialog(new TradePayload(null, null, false, getPlayer()));
         dialog.showAndWait().ifPresentOrElse(payload -> {
             getPlayerController().triggerAction(new TradeAction(payload));
         }, () -> System.out.println("Trade cancelled"));
+    }
+
+    private void acceptTradeOffer() {
+        final Optional<Boolean> optionalResult = new AcceptTradeDialog(getPlayerState().offeredTrade(), getPlayer())
+                .showAndWait();
+        optionalResult.ifPresent(result -> getPlayerController().triggerAction(new AcceptTradeAction(result)));
     }
 
     private void abortButtonAction(final ActionEvent event) {
