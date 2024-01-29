@@ -5,6 +5,7 @@ import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.Property;
+import javafx.scene.control.Alert;
 import javafx.scene.layout.Region;
 import javafx.util.Builder;
 import projekt.controller.PlayerController;
@@ -20,7 +21,8 @@ public class GameBoardController implements SceneController {
     private GameBoardBuilder gameBoardBuilder;
 
     public GameBoardController(final GameState gameState,
-            final Property<PlayerController> activePlayerControllerProperty, final IntegerProperty diceRollProperty) {
+            final Property<PlayerController> activePlayerControllerProperty, final IntegerProperty diceRollProperty,
+            final Property<Player> winnerProperty) {
         this.gameState = gameState;
         this.playerActionsController = new PlayerActionsController(this,
                 activePlayerControllerProperty);
@@ -38,13 +40,23 @@ public class GameBoardController implements SceneController {
             }
             Platform.runLater(() -> gameBoardBuilder.setDiceRoll(newValue.intValue()));
         });
+        winnerProperty.subscribe((oldValue, newValue) -> {
+            if (newValue == null) {
+                return;
+            }
+            Platform.runLater(() -> {
+                new Alert(Alert.AlertType.INFORMATION, String.format("Player %s won!", newValue.getName()))
+                        .showAndWait();
+                SceneController.loadMainMenuScene();
+            });
+        });
     }
 
     public HexGridController getHexGridController() {
         return hexGridController;
     }
 
-    public void updatePlayerInformation(Player player) {
+    public void updatePlayerInformation(final Player player) {
         Platform.runLater(() -> gameBoardBuilder.updatePlayerInformation(player, gameState.getPlayers()));
     }
 

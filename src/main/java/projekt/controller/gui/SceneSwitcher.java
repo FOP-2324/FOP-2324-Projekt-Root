@@ -54,7 +54,8 @@ public class SceneSwitcher {
             final GameBoardController gameBoardController = new GameBoardController(
                     getInstance().gameController.getState(),
                     getInstance().gameController.getActivePlayerControllerProperty(),
-                    getInstance().gameController.getCurrentDiceRollProperty());
+                    getInstance().gameController.getCurrentDiceRollProperty(),
+                    getInstance().gameController.getState().getWinnerProperty());
 
             return gameBoardController;
         });
