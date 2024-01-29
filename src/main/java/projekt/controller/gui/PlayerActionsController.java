@@ -68,10 +68,13 @@ public class PlayerActionsController implements Controller {
         });
 
         this.builder = new PlayerActionsBuilder(actionWrapper(this::buildVillageButtonAction, true),
-                actionWrapper(this::upgradeVillageButtonAction, true), actionWrapper(this::buildRoadButtonAction, true),
+                actionWrapper(this::upgradeVillageButtonAction, true),
+                actionWrapper(this::buildRoadButtonAction, true),
                 actionWrapper(this::buyDevelopmentCardButtonAction, false),
                 actionWrapper(this::endTurnButtonAction, false),
-                this::rollDiceButtonAction, this::tradeButtonAction, this::abortButtonAction);
+                actionWrapper(this::rollDiceButtonAction, false),
+                actionWrapper(this::tradeButtonAction, false),
+                this::abortButtonAction);
     }
 
     private void enableButtonBasedOnObjective(final PlayerObjective objective) {
@@ -79,6 +82,7 @@ public class PlayerActionsController implements Controller {
         removeAllHighlights();
         drawEdges();
         drawIntersections();
+        gameBoardController.updatePlayerInformation(getPlayer());
         builder.disableAllButtons();
         if (objective == null) {
             System.out.println("I am confusion");
