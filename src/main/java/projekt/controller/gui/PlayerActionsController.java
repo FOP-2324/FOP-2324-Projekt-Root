@@ -168,7 +168,6 @@ public class PlayerActionsController implements Controller {
 
             handler.accept(e);
             gameBoardController.updatePlayerInformation(getPlayer());
-            enableButtonBasedOnObjective(getPlayerObjective());
         };
     }
 
