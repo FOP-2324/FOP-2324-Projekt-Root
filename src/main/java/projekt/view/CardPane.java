@@ -5,6 +5,7 @@ import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -25,7 +26,7 @@ public class CardPane extends StackPane {
      * @param cardColor The color of the card.
      */
     public CardPane(final Color cardColor) {
-        this(cardColor, null, null, 0);
+        this(cardColor, "", "");
     }
 
     /**
@@ -35,7 +36,7 @@ public class CardPane extends StackPane {
      * @param labelText The text of the label.
      */
     public CardPane(final Color cardColor, final String labelText) {
-        this(cardColor, null, labelText, 0);
+        this(cardColor, "", labelText);
     }
 
     /**
@@ -46,7 +47,11 @@ public class CardPane extends StackPane {
      * @param iconPath  The path to the icon.
      */
     public CardPane(final Color cardColor, final String iconPath, final String labelText) {
-        this(cardColor, iconPath, labelText, 0);
+        this(cardColor, new Image(iconPath), labelText);
+    }
+
+    public CardPane(final Color cardColor, final Image icon, final String labelText) {
+        this(cardColor, new ImageView(icon), labelText, 0);
     }
 
     /**
@@ -56,10 +61,10 @@ public class CardPane extends StackPane {
      * @param iconPath  The path to the icon.
      * @param labelText The text of the label.
      */
-    public CardPane(final Color cardColor, final String iconPath, final String labelText, double cardWidth) {
+    public CardPane(final Color cardColor, final ImageView icon, final String labelText, double cardWidth) {
         super();
         this.setAlignment(Pos.CENTER);
-        final ImageView cardImage = new ColoredImageView("img/empty_card.png", cardColor);
+        final ImageView cardImage = new ColoredImageView(Utils.emptyCardImage, cardColor);
 
         if (cardWidth <= 0) {
             cardWidth = defaultCardWidth;
@@ -69,11 +74,10 @@ public class CardPane extends StackPane {
         cardImage.setPreserveRatio(true);
         this.getChildren().add(cardImage);
 
-        if (iconPath != null && !iconPath.isBlank()) {
-            final ImageView iconImage = new ImageView(iconPath);
-            iconImage.setFitWidth(cardWidth * 0.9);
-            iconImage.setPreserveRatio(true);
-            this.getChildren().add(iconImage);
+        if (icon != null) {
+            icon.setFitWidth(cardWidth * 0.7);
+            icon.setPreserveRatio(true);
+            this.getChildren().add(icon);
         }
 
         if (labelText != null && !labelText.isBlank()) {
