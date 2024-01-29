@@ -1,49 +1,68 @@
 package projekt.view.gameControls;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
+import projekt.Config;
 import projekt.model.Player;
 import projekt.model.ResourceType;
 import projekt.view.CardPane;
 import projekt.view.PlayerLabel;
 
 public class SelectCardToStealDialog extends Dialog<Entry<Player, ResourceType>> {
-    private final ObservableMap<Player, ResourceType> selectedCard = FXCollections.observableMap(new HashMap<>());
+    private final ObservableMap<Player, ResourceType> selectedResource = FXCollections.observableMap(new HashMap<>());
+    private final ObjectProperty<CardPane> selectedCard = new SimpleObjectProperty<>();
 
     public SelectCardToStealDialog(final List<Player> players) {
         this.setTitle("Select card to steal");
         this.setHeaderText("Select a card to steal from a player");
         final GridPane mainPane = new GridPane(10, 10);
+        mainPane.getStylesheets().add("css/hexmap.css");
 
         for (final Player player : players) {
             mainPane.add(new PlayerLabel(player), 0, players.indexOf(player));
-            for (final ResourceType resourceType : player.getResources().keySet()) {
-                final CardPane resourceCard = new CardPane(Color.LIGHTGRAY, null, null, 40.0);
-                resourceCard.getStyleClass().add("selectable");
-                resourceCard.setOnMouseClicked(e -> {
-                    if (selectedCard.containsValue(resourceType)) {
-                        return;
-                    }
-                    selectedCard.put(player, resourceType);
-                });
-                selectedCard.addListener((MapChangeListener<Player, ResourceType>) change -> {
-                    if (resourceType.equals(change.getValueAdded())) {
-                        resourceCard.getStyleClass().add("selected");
-                        return;
-                    }
-                    resourceCard.getStyleClass().remove("selected");
-                });
-                mainPane.add(resourceCard, resourceType.ordinal() + 1, players.indexOf(player));
+            final List<ResourceType> resourceTypes = player.getResources().keySet().stream()
+                    .collect(Collectors.toList());
+            Collections.shuffle(resourceTypes, Config.RANDOM);
+            int cardCount = 0;
+            for (int i = 0; i < resourceTypes.size(); i++) {
+                final ResourceType resourceType = resourceTypes.get(i);
+                for (int j = 0; j < player.getResources().get(resourceType); j++) {
+                    final CardPane resourceCard = new CardPane(Color.LIGHTGRAY, null, null, 40.0);
+                    resourceCard.getStyleClass().add("selectable");
+                    resourceCard.setOnMouseClicked(e -> {
+                        selectedCard.set(resourceCard);
+                        if (selectedResource.containsValue(resourceType)) {
+                            return;
+                        }
+                        selectedResource.put(player, resourceType);
+                    });
+                    selectedCard.subscribe((oldValue, newValue) -> {
+                        if (resourceCard.equals(newValue)) {
+                            resourceCard.getStyleClass().add("selected");
+                            return;
+                        }
+                        resourceCard.getStyleClass().remove("selected");
+                    });
+                    final HBox resourceBox = new HBox(resourceCard);
+                    GridPane.setHgrow(resourceBox, Priority.ALWAYS);
+                    mainPane.add(resourceBox, j + cardCount + 1, players.indexOf(player));
+                    cardCount++;
+                }
             }
         }
 
@@ -53,10 +72,10 @@ public class SelectCardToStealDialog extends Dialog<Entry<Player, ResourceType>>
 
         setResultConverter(buttonType -> {
             if (ButtonType.OK.equals(buttonType)) {
-                if (selectedCard.isEmpty()) {
+                if (selectedResource.isEmpty()) {
                     return null;
                 }
-                return selectedCard.entrySet().iterator().next();
+                return selectedResource.entrySet().iterator().next();
             }
             return null;
         });
