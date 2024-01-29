@@ -88,6 +88,14 @@ public class Projekt_RubricProvider implements RubricProvider {
                                 .pointsFailedMin()
                                 .pointsPassedMax()
                                 .build())
+                            .build(),
+                        Criterion.builder()
+                            .shortDescription("playerHasConnectedRoad(Player) funktioniert wie beschrieben")
+                            .grader(Grader.testAwareBuilder()
+                                .requirePass(JUnitTestRef.ofMethod(() -> IntersectionImplTest.class.getDeclaredMethod("testPlayerHasConnectedRoad", JsonParameterSet.class)))
+                                .pointsFailedMin()
+                                .pointsPassedMax()
+                                .build())
                             .build())
                     .build(),
                 Criterion.builder()

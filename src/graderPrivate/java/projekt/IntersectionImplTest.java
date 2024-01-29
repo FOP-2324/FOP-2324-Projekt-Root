@@ -19,6 +19,9 @@ import static org.tudalgo.algoutils.tutor.general.assertions.Assertions2.*;
 @TestForSubmission
 public class IntersectionImplTest {
 
+    private final HexGrid hexGrid = new HexGridImpl(1);
+    private final Player player = new PlayerImpl(hexGrid, null);
+
     @ParameterizedTest
     @JsonParameterSetTest("/IntersectionImpl/tilePositions.json")
     public void testPlaceVillage_roadCheck(JsonParameterSet params) {
@@ -31,9 +34,7 @@ public class IntersectionImplTest {
         testPlaceVillage(true, params);
     }
 
-    private static void testPlaceVillage(boolean ignoreRoadCheck, JsonParameterSet params) {
-        HexGrid hexGrid = new HexGridImpl(1);
-        Player player = new PlayerImpl(hexGrid, null);
+    private void testPlaceVillage(boolean ignoreRoadCheck, JsonParameterSet params) {
         List<TilePosition> tilePositions = params.<List<Map<String, Integer>>>get("tilePositions")
             .stream()
             .map(map -> new TilePosition(map.get("q"), map.get("r")))
@@ -67,8 +68,6 @@ public class IntersectionImplTest {
     @ParameterizedTest
     @JsonParameterSetTest("/IntersectionImpl/tilePositions.json")
     public void testUpgradeSettlement(JsonParameterSet params) throws ReflectiveOperationException {
-        HexGrid hexGrid = new HexGridImpl(1);
-        Player player = new PlayerImpl(hexGrid, null);
         List<TilePosition> tilePositions = params.<List<Map<String, Integer>>>get("tilePositions")
             .stream()
             .map(map -> new TilePosition(map.get("q"), map.get("r")))
@@ -103,5 +102,34 @@ public class IntersectionImplTest {
 
         assertCallEquals(new Settlement(player, Settlement.Type.CITY, intersection), intersection::getSettlement, context, result ->
             "Upgraded settlement does not have the expected specifications");
+    }
+
+    @ParameterizedTest
+    @JsonParameterSetTest("/IntersectionImpl/tilePositions.json")
+    public void testPlayerHasConnectedRoad(JsonParameterSet params) {
+        List<TilePosition> tilePositions = params.<List<Map<String, Integer>>>get("tilePositions")
+            .stream()
+            .map(map -> new TilePosition(map.get("q"), map.get("r")))
+            .toList();
+        Intersection intersection = hexGrid.getIntersectionAt(tilePositions.get(0), tilePositions.get(1), tilePositions.get(2));
+        Context context = contextBuilder()
+            .add("intersection", intersection)
+            .add("player", player)
+            .build();
+
+        assertCallFalse(() -> intersection.playerHasConnectedRoad(player), context, result ->
+            "The player does not own any roads that connect to this intersection");
+
+        hexGrid.getEdge(tilePositions.get(0), tilePositions.get(1)).roadOwner().setValue(new PlayerImpl(hexGrid, null));
+        assertCallFalse(() -> intersection.playerHasConnectedRoad(player), context, result ->
+            "The player does not own any roads that connect to this intersection");
+
+        hexGrid.getEdge(tilePositions.get(0), tilePositions.get(1)).roadOwner().setValue(player);
+        assertCallTrue(() -> intersection.playerHasConnectedRoad(player), context, result ->
+            "The player owns at least one road that connects to this intersection");
+
+        hexGrid.getEdge(tilePositions.get(0), tilePositions.get(2)).roadOwner().setValue(player);
+        assertCallTrue(() -> intersection.playerHasConnectedRoad(player), context, result ->
+            "The player owns at least one road that connects to this intersection");
     }
 }
