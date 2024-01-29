@@ -9,10 +9,10 @@ import projekt.model.TradePayload;
 public record TradeAction(TradePayload payload) implements PlayerAction {
 
     @Override
-    public void execute(PlayerController pc) throws IllegalActionException {
+    public void execute(final PlayerController pc) throws IllegalActionException {
         if (payload.withBank()) {
-            Entry<ResourceType, Integer> offer = payload.offer().entrySet().stream().findFirst().get();
-            pc.tradeWithBank(offer.getKey(), offer.getValue(), payload.request().keySet().stream().findFirst().get());
+            final Entry<ResourceType, Integer> offer = payload.offer().entrySet().iterator().next();
+            pc.tradeWithBank(offer.getKey(), offer.getValue(), payload.request().keySet().iterator().next());
         } else {
             // TODO: implement trade with other players
         }
