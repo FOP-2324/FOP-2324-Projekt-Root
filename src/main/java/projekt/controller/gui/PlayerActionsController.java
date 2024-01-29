@@ -23,6 +23,7 @@ import projekt.controller.actions.DropCardsAction;
 import projekt.controller.actions.EndTurnAction;
 import projekt.controller.actions.RollDiceAction;
 import projekt.controller.actions.SelectRobberTileAction;
+import projekt.controller.actions.StealCardAction;
 import projekt.controller.actions.TradeAction;
 import projekt.controller.actions.UpgradeVillageAction;
 import projekt.model.Player;
@@ -32,6 +33,7 @@ import projekt.model.TradePayload;
 import projekt.model.tiles.Tile;
 import projekt.view.gameControls.DropCardsDialog;
 import projekt.view.gameControls.PlayerActionsBuilder;
+import projekt.view.gameControls.SelectCardToStealDialog;
 import projekt.view.gameControls.TradeDialog;
 
 public class PlayerActionsController implements Controller {
@@ -67,7 +69,8 @@ public class PlayerActionsController implements Controller {
 
         this.builder = new PlayerActionsBuilder(actionWrapper(this::buildVillageButtonAction, true),
                 actionWrapper(this::upgradeVillageButtonAction, true), actionWrapper(this::buildRoadButtonAction, true),
-                actionWrapper(this::buyDevelopmentCardButtonAction, false), actionWrapper(this::endTurnButtonAction, false),
+                actionWrapper(this::buyDevelopmentCardButtonAction, false),
+                actionWrapper(this::endTurnButtonAction, false),
                 this::rollDiceButtonAction, this::tradeButtonAction, this::abortButtonAction);
     }
 
@@ -94,7 +97,7 @@ public class PlayerActionsController implements Controller {
                 dropCardsAction(getPlayer().getResources().values().stream().mapToInt(Integer::intValue).sum() / 2);
                 break;
             case SELECT_CARD_TO_STEAL:
-                builder.enableEndTurnButton();
+                selectCardToStealAction();
                 break;
             case SELECT_ROBBER_TILE:
                 getHexGridController().highlightTiles(this::selectRobberTileAction);
@@ -221,7 +224,8 @@ public class PlayerActionsController implements Controller {
 
     @StudentImplementationRequired
     private void buildRoadButtonAction(final ActionEvent event) {
-        getPlayerState().buildableRoadEdges().stream().map(edge -> getHexGridController().getEdgeControllersMap().get(edge))
+        getPlayerState().buildableRoadEdges().stream()
+                .map(edge -> getHexGridController().getEdgeControllersMap().get(edge))
                 .forEach(ec -> ec.highlight(buildActionWrapper(e -> {
                     getPlayerController().triggerAction(new BuildRoadAction(ec.getEdge()));
                     drawEdges();
@@ -251,8 +255,10 @@ public class PlayerActionsController implements Controller {
         getHexGridController().drawTiles();
     }
 
-    private void selectCardToStealAction(final ActionEvent event) {
-        System.out.println("Selecting card to steal");
+    private void selectCardToStealAction() {
+        final SelectCardToStealDialog dialog = new SelectCardToStealDialog(getPlayerState().playersToStealFrom());
+        dialog.showAndWait().ifPresent(
+                result -> getPlayerController().triggerAction(new StealCardAction(result.getValue(), result.getKey())));
     }
 
     private void dropCardsAction(final int amountToDrop) {
@@ -283,7 +289,8 @@ public class PlayerActionsController implements Controller {
         return builder;
     }
 
-    @Override @DoNotTouch
+    @Override
+    @DoNotTouch
     public Region buildView() {
         final Region view = builder.build();
 
