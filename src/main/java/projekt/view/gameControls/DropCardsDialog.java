@@ -18,7 +18,6 @@ import projekt.view.Utils;
 
 public class DropCardsDialog extends Dialog<Map<ResourceType, Integer>> {
     private final Map<ResourceType, Integer> droppedCards = new HashMap<>();
-    private final String tooFewCardsText = "You (%s) still need to drop %d cards";
 
     public DropCardsDialog(final Map<ResourceType, Integer> playerResources, final int amountToDrop,
             final Player player) {
@@ -28,7 +27,7 @@ public class DropCardsDialog extends Dialog<Map<ResourceType, Integer>> {
         dialogPane.getButtonTypes().add(ButtonType.OK);
         dialogPane.lookupButton(ButtonType.OK).setDisable(true);
         this.setTitle(String.format("Drop %d cards", amountToDrop));
-        this.setHeaderText(String.format(this.tooFewCardsText, player.getName(), amountToDrop));
+        this.setHeaderText(constructTooFewCardsString(amountToDrop, player));
 
         for (final ResourceType resourceType : playerResources.keySet()) {
             final CardPane resourceCard = new ResourceCardPane(resourceType,
@@ -58,7 +57,8 @@ public class DropCardsDialog extends Dialog<Map<ResourceType, Integer>> {
                     this.setHeaderText(
                             String.format("You (%s) can only drop %d cards", player.getName(), amountToDrop));
                 } else if (currentTotalAmount < amountToDrop) {
-                    this.setHeaderText(String.format(this.tooFewCardsText, amountToDrop - currentTotalAmount));
+                    this.setHeaderText(
+                            constructTooFewCardsString(amountToDrop - currentTotalAmount, player));
                 } else {
                     this.setHeaderText("");
                     dialogPane.lookupButton(ButtonType.OK).setDisable(false);
@@ -74,5 +74,9 @@ public class DropCardsDialog extends Dialog<Map<ResourceType, Integer>> {
             }
             return null;
         });
+    }
+
+    private String constructTooFewCardsString(final int amount, final Player player) {
+        return String.format("You (%s) still need to drop %d cards", player.getName(), amount);
     }
 }
