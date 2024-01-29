@@ -256,9 +256,13 @@ public class PlayerActionsController implements Controller {
     }
 
     private void selectCardToStealAction() {
+        if (getPlayerState().playersToStealFrom().isEmpty()) {
+            getPlayerController().triggerAction(new EndTurnAction());
+        }
         final SelectCardToStealDialog dialog = new SelectCardToStealDialog(getPlayerState().playersToStealFrom());
-        dialog.showAndWait().ifPresent(
-                result -> getPlayerController().triggerAction(new StealCardAction(result.getValue(), result.getKey())));
+        dialog.showAndWait().ifPresentOrElse(
+                result -> getPlayerController().triggerAction(new StealCardAction(result.getValue(), result.getKey())),
+                () -> getPlayerController().triggerAction(new EndTurnAction()));
     }
 
     private void dropCardsAction(final int amountToDrop) {
