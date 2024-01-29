@@ -23,7 +23,7 @@ import projekt.controller.actions.UpgradeVillageAction;
 @StudentCreationRequired
 public enum PlayerObjective {
     DROP_HALF_CARDS(Set.of(DropCardsAction.class)),
-    SELECT_CARD_TO_STEAL(Set.of(StealCardAction.class)),
+    SELECT_CARD_TO_STEAL(Set.of(StealCardAction.class, EndTurnAction.class)),
     SELECT_ROBBER_TILE(Set.of(SelectRobberTileAction.class)),
     REGULAR_TURN(Set.of(BuildRoadAction.class, EndTurnAction.class, BuildVillageAction.class,
             UpgradeVillageAction.class, TradeAction.class)),
