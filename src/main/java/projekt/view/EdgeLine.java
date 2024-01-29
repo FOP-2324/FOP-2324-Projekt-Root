@@ -2,6 +2,7 @@ package projekt.view;
 
 import java.util.function.Consumer;
 
+import javafx.collections.ListChangeListener;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
@@ -16,14 +17,26 @@ public class EdgeLine extends Line {
     private double distance = 0;
     private final int strokeWidth = 5;
     private final double positionOffset = 10;
+    private final Line outline = new Line();
 
     /**
      * Creates a new EdgeLine for the given {@link Edge}.
      *
      * @param edge the edge to represent
      */
-    public EdgeLine(Edge edge) {
+    public EdgeLine(final Edge edge) {
         this.edge = edge;
+        outline.startXProperty().bind(startXProperty());
+        outline.startYProperty().bind(startYProperty());
+        outline.endXProperty().bind(endXProperty());
+        outline.endYProperty().bind(endYProperty());
+        outline.strokeDashOffsetProperty().bind(strokeDashOffsetProperty());
+        outline.setStrokeWidth(strokeWidth * 1.4);
+        outline.setStroke(Color.TRANSPARENT);
+        getStrokeDashArray().addListener((ListChangeListener<Double>) change -> {
+            outline.getStrokeDashArray().clear();
+            outline.getStrokeDashArray().addAll(change.getList());
+        });
     }
 
     /**
@@ -33,6 +46,10 @@ public class EdgeLine extends Line {
      */
     public Edge getEdge() {
         return edge;
+    }
+
+    public Line getOutline() {
+        return outline;
     }
 
     /**
@@ -57,13 +74,16 @@ public class EdgeLine extends Line {
      *
      * @param dashScale factor to scale the dash length by
      */
-    public void init(double dashScale) {
+    public void init(final double dashScale) {
         this.distance = calculateDistance(getStartX(), getStartY(), getEndX(), getEndY());
         setStrokeWidth(strokeWidth);
         setStroke(edge.hasRoad() ? edge.roadOwner().getValue().getColor() : Color.TRANSPARENT);
         setStrokeDashOffset(-positionOffset / 2);
         getStrokeDashArray().clear();
         getStrokeDashArray().add((distance - positionOffset) * dashScale);
+        if (edge.hasRoad()) {
+            outline.setStroke(Color.BLACK);
+        }
     }
 
     /**
@@ -71,8 +91,10 @@ public class EdgeLine extends Line {
      *
      * @param handler the handler to call when the EdgeLine is clicked
      */
-    public void highlight(Consumer<MouseEvent> handler) {
+    public void highlight(final Consumer<MouseEvent> handler) {
         init(0.1);
+        outline.setStroke(Color.BLACK);
+        outline.setStrokeWidth(strokeWidth * 1.6);
         getStyleClass().add("selectable");
         getStrokeDashArray().add(10.0);
         setStrokeWidth(strokeWidth * 1.2);
@@ -83,6 +105,7 @@ public class EdgeLine extends Line {
      * Removes the highlight from the EdgeLine.
      */
     public void unhighlight() {
+        outline.setStroke(Color.TRANSPARENT);
         setOnMouseClicked(null);
         getStyleClass().remove("selectable");
         init();
