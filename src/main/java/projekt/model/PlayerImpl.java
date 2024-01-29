@@ -9,39 +9,47 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.paint.Color;
+import org.jetbrains.annotations.Nullable;
 import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
+import projekt.Config;
 import projekt.model.buildings.Port;
 import projekt.model.buildings.Settlement;
 
 public class PlayerImpl implements Player {
     private final HexGrid hexGrid;
     private final Color color;
-    private String name;
+    private final int id;
+    protected boolean ai;
+    private final String name;
     private final IntegerProperty victoryPoints;
     private final Map<ResourceType, Integer> resources = new HashMap<>();
     private final Map<DevelopmentCardType, Integer> developmentCards = new HashMap<>();
 
-    public PlayerImpl(final HexGrid hexGrid, final Color color) {
+    private PlayerImpl(final HexGrid hexGrid, final Color color, final int id, final String name, final boolean ai) {
         this.hexGrid = hexGrid;
         this.color = color;
         this.victoryPoints = new SimpleIntegerProperty(0);
+        this.id = id;
+        this.name = name;
+        this.ai = ai;
     }
 
     @Override
     public HexGrid getHexGrid() {
-        return hexGrid;
+        return this.hexGrid;
     }
 
     @Override
     public Map<ResourceType, Integer> getResources() {
-        return Collections.unmodifiableMap(resources);
+        return Collections.unmodifiableMap(this.resources);
     }
 
     @Override
     public void addResource(final ResourceType resourceType, final int amount) {
-        resources.put(resourceType, resources.getOrDefault(resourceType, 0) + amount);
+        this.resources.put(resourceType, this.resources.getOrDefault(resourceType, 0) + amount);
     }
 
     @Override
@@ -49,7 +57,7 @@ public class PlayerImpl implements Player {
         if (!hasResources(Map.of(resourceType, amount))) {
             return false;
         }
-        resources.put(resourceType, resources.getOrDefault(resourceType, 0) - amount);
+        this.resources.put(resourceType, this.resources.getOrDefault(resourceType, 0) - amount);
         return true;
     }
 
@@ -69,12 +77,12 @@ public class PlayerImpl implements Player {
     public int getTradeRatio(final ResourceType resourceType) {
         final var intersections = getHexGrid().getIntersections();
         return intersections.values().stream()
-                .filter(intersection -> intersection.getPort() != null
-                        && intersection.getPort().resourceType().equals(resourceType))
-                .filter(intersection -> intersection.getSettlement() != null
-                        && intersection.getSettlement().owner().equals(this))
-                .map(Intersection::getPort)
-                .findAny().map(Port::ratio).orElse(4);
+            .filter(intersection -> intersection.getPort() != null
+                && intersection.getPort().resourceType().equals(resourceType))
+            .filter(intersection -> intersection.getSettlement() != null
+                && intersection.getSettlement().owner().equals(this))
+            .map(Intersection::getPort)
+            .findAny().map(Port::ratio).orElse(4);
     }
 
     @Override
@@ -93,62 +101,143 @@ public class PlayerImpl implements Player {
 
     @Override
     public int getRemainingCities() {
-        return (int) (MAX_CITIES - getSettlements().stream()
-                .filter(settlement -> settlement.type().equals(Settlement.Type.CITY)).count());
+        return (int) (
+            MAX_CITIES - getSettlements().stream()
+                .filter(settlement -> settlement.type().equals(Settlement.Type.CITY)).count()
+        );
     }
 
     @Override
     public int getRemainingVillages() {
-        return (int) (MAX_VILLAGES - getSettlements().stream()
-                .filter(settlement -> settlement.type().equals(Settlement.Type.VILLAGE)).count());
+        return (int) (
+            MAX_VILLAGES - getSettlements().stream()
+                .filter(settlement -> settlement.type().equals(Settlement.Type.VILLAGE)).count()
+        );
     }
 
     @Override
     public Map<DevelopmentCardType, Integer> getDevelopmentCards() {
-        return Collections.unmodifiableMap(developmentCards);
+        return Collections.unmodifiableMap(this.developmentCards);
     }
 
     @Override
     public void addDevelopmentCard(final DevelopmentCardType developmentCardType) {
-        developmentCards.put(developmentCardType, developmentCards.getOrDefault(developmentCardType, 0) + 1);
+        this.developmentCards.put(developmentCardType, this.developmentCards.getOrDefault(developmentCardType, 0) + 1);
     }
 
     @Override
     public boolean removeDevelopmentCard(final DevelopmentCardType developmentCardType) {
-        if (developmentCards.getOrDefault(developmentCardType, 0) <= 0) {
+        if (this.developmentCards.getOrDefault(developmentCardType, 0) <= 0) {
             return false;
         }
-        developmentCards.put(developmentCardType, developmentCards.getOrDefault(developmentCardType, 0) - 1);
+        this.developmentCards.put(developmentCardType, this.developmentCards.getOrDefault(developmentCardType, 0) - 1);
         return true;
     }
 
     @Override
     public int getTotalDevelopmentCards() {
-        return developmentCards.values().stream().mapToInt(Integer::intValue).sum();
+        return this.developmentCards.values().stream().mapToInt(Integer::intValue).sum();
     }
 
     @Override
     public int getKnightsPlayed() {
-        return developmentCards.getOrDefault(DevelopmentCardType.KNIGHT, 0);
+        return this.developmentCards.getOrDefault(DevelopmentCardType.KNIGHT, 0);
     }
 
     @Override
     public Color getColor() {
-        return color;
+        return this.color;
     }
 
     @Override
     public String getName() {
-        return name;
+        return this.name;
+    }
+
+    @Override
+    public int getID() {
+        return 0;
     }
 
     @Override
     public IntegerProperty getVictoryPointsProperty() {
-        return victoryPoints;
+        return this.victoryPoints;
     }
 
     @Override
     public int getVictoryPoints() {
-        return victoryPoints.get();
+        return this.victoryPoints.get();
+    }
+
+    @Override
+    public boolean isAi() {
+        return this.ai;
+    }
+
+    public static class Builder {
+        private int id;
+        private Color color;
+        private @Nullable String name;
+        private final SimpleBooleanProperty ai = new SimpleBooleanProperty(false);
+
+        public Builder(final int id) {
+            this.id = id;
+            color(null);
+        }
+
+        public Color getColor() {
+            return this.color;
+        }
+
+        public Builder color(final Color playerColor) {
+            this.color = playerColor == null
+                ? new Color(
+                Config.RANDOM.nextDouble(),
+                Config.RANDOM.nextDouble(),
+                Config.RANDOM.nextDouble(),
+                1
+            )
+                : playerColor;
+            return this;
+        }
+
+        public @Nullable String getName() {
+            return this.name;
+        }
+
+        public Builder name(final @Nullable String playerName) {
+            this.name = playerName;
+            return this;
+        }
+
+        public String nameOrDefault() {
+            return this.name == null ? String.format("Player%d", this.id) : this.name;
+        }
+
+        public Builder id(final int newId) {
+            this.id = newId;
+            return this;
+        }
+
+        public int getId() {
+            return this.id;
+        }
+
+        public boolean isAi() {
+            return this.ai.get();
+        }
+
+        public SimpleBooleanProperty aiProperty() {
+            return this.ai;
+        }
+
+        public Builder ai(final boolean ai) {
+            this.ai.set(ai);
+            return this;
+        }
+
+        public Player build(final HexGrid grid) {
+            return new PlayerImpl(grid, this.color, this.id, nameOrDefault(), this.ai.get());
+        }
     }
 }
