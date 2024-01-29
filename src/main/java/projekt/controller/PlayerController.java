@@ -342,7 +342,11 @@ public class PlayerController {
      */
     public List<Player> getPlayersToStealFrom() {
         return gameController.getState().getGrid().getTileAt(gameController.getState().getGrid().getRobberPosition())
-                .getIntersections().stream().filter(Intersection::hasSettlement).map(i -> i.getSettlement().owner())
-                .filter(Predicate.not(player::equals)).collect(Collectors.toUnmodifiableList());
+                .getIntersections().stream()
+                .filter(Intersection::hasSettlement)
+                .map(i -> i.getSettlement().owner())
+                .filter(Predicate.not(player::equals))
+                .filter(otherPlayer -> !otherPlayer.getResources().isEmpty())
+                .collect(Collectors.toUnmodifiableList());
     }
 }
