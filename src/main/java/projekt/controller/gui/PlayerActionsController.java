@@ -297,6 +297,7 @@ public class PlayerActionsController implements Controller {
         dialog.showAndWait().ifPresentOrElse(payload -> {
             getPlayerController().triggerAction(new TradeAction(payload));
         }, () -> System.out.println("Trade cancelled"));
+        enableButtonBasedOnObjective(getPlayerObjective());
     }
 
     private void acceptTradeOffer() {
