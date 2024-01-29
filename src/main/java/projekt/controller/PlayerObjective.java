@@ -11,21 +11,26 @@ import projekt.controller.actions.EndTurnAction;
 import projekt.controller.actions.PlayerAction;
 import projekt.controller.actions.RollDiceAction;
 import projekt.controller.actions.SelectRobberTileAction;
+import projekt.controller.actions.StealCardAction;
 import projekt.controller.actions.TradeAction;
 import projekt.controller.actions.UpgradeVillageAction;
 
 /**
- * This enum represents the different objectives a player can have and what actions are allowed when the player has this
+ * This enum represents the different objectives a player can have and what
+ * actions are allowed when the player has this
  * objective.
  */
 @StudentCreationRequired
 public enum PlayerObjective {
-    DROP_HALF_CARDS(Set.of(DropCardsAction.class)), SELECT_CARD_TO_STEAL(Set.of(EndTurnAction.class)),
+    DROP_HALF_CARDS(Set.of(DropCardsAction.class)),
+    SELECT_CARD_TO_STEAL(Set.of(StealCardAction.class)),
     SELECT_ROBBER_TILE(Set.of(SelectRobberTileAction.class)),
-    REGULAR_TURN(Set.of(BuildRoadAction.class, EndTurnAction.class, BuildVillageAction.class, UpgradeVillageAction.class,
-            TradeAction.class)),
-    PLACE_VILLAGE(Set.of(BuildVillageAction.class)), PLACE_ROAD(Set.of(BuildRoadAction.class)),
-    DICE_ROLL(Set.of(RollDiceAction.class)), IDLE(Set.of());
+    REGULAR_TURN(Set.of(BuildRoadAction.class, EndTurnAction.class, BuildVillageAction.class,
+            UpgradeVillageAction.class, TradeAction.class)),
+    PLACE_VILLAGE(Set.of(BuildVillageAction.class)),
+    PLACE_ROAD(Set.of(BuildRoadAction.class)),
+    DICE_ROLL(Set.of(RollDiceAction.class)),
+    IDLE(Set.of());
 
     final Set<Class<? extends PlayerAction>> allowedActions;
 

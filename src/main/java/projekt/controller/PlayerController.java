@@ -306,6 +306,23 @@ public class PlayerController {
         player.removeResources(resourcesToDrop);
     }
 
+    /**
+     * Selects the player and resource to steal from when a 7 is rolled.
+     *
+     * @param playerToStealFrom the player to steal from
+     * @param resourceToSteal   the resource to steal
+     */
+    public void selectPlayerAndResourceToSteal(final Player playerToStealFrom, final ResourceType resourceToSteal)
+            throws IllegalActionException {
+        if (!playerToStealFrom.hasResources(Map.of(resourceToSteal, 1))) {
+            throw new IllegalActionException("Player does not have the selected resource");
+        }
+        // remove resource from player
+        playerToStealFrom.removeResources(Map.of(resourceToSteal, 1));
+        // add resource to player
+        player.addResource(resourceToSteal, 1);
+    }
+
     public void setRobberPosition(final TilePosition position) {
         gameController.getState().getGrid().setRobberPosition(position);
     }
