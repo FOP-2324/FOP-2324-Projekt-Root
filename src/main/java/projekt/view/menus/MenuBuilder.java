@@ -32,6 +32,7 @@ public abstract class MenuBuilder implements Builder<Region> {
         final Label titleLabel = new Label(title);
         titleLabel.setPadding(new Insets(20, 20, 20, 20));
         titleLabel.setId("Title");
+        titleLabel.setStyle("-fx-font-size: 50");
 
         root.setTop(titleLabel);
         BorderPane.setAlignment(titleLabel, Pos.CENTER);

@@ -100,10 +100,10 @@ public interface Player {
      */
     default Set<Settlement> getSettlements() {
         return getHexGrid().getIntersections().values().stream()
-                .filter(intersection -> intersection.getSettlement() != null)
-                .filter(intersection -> intersection.getSettlement().owner().equals(this))
-                .map(Intersection::getSettlement)
-                .collect(Collectors.toSet());
+            .filter(intersection -> intersection.getSettlement() != null)
+            .filter(intersection -> intersection.getSettlement().owner().equals(this))
+            .map(Intersection::getSettlement)
+            .collect(Collectors.toSet());
     }
 
     /**
@@ -168,6 +168,13 @@ public interface Player {
      * @return the name of the player
      */
     String getName();
+
+    /**
+     * Returns the Player ID, aka the Index of the Player, starting with 1
+     *
+     * @return the Player ID
+     */
+    int getID();
 
     /**
      * Returns true if the player is an AI, false otherwise.

@@ -18,7 +18,7 @@ public class HexGridTests {
     void setUp() {
         gameState = new GameState(
             new HexGridImpl(3), List.of(
-            new PlayerImpl(this.hexGrid, Color.AQUA)));
+            new PlayerImpl.Builder(1).color(Color.AQUA).build(this.hexGrid)));
         this.hexGrid = gameState.getGrid();
         this.player = gameState.getPlayers().get(0);
     }

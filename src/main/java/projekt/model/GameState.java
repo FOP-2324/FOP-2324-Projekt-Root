@@ -3,6 +3,7 @@ package projekt.model;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.paint.Color;
+import org.jetbrains.annotations.Nullable;
 import projekt.Config;
 
 import java.util.Collections;
@@ -108,12 +109,16 @@ public final class GameState {
     /**
      * Creates a new {@link Player} with the given {@link Color} and adds it to this {@link GameState}.
      *
+     * @param name  the name of the new {@link Player}
      * @param color the {@link Color} of the new {@link Player}
      * @return the new {@link Player}
      * @throws IllegalStateException if the {@link Player} could not be added
      */
-    public Player newPlayer(final Color color) {
-        final Player player = new PlayerImpl(this.grid, color);
+    public Player newPlayer(final @Nullable String name, final Color color) {
+        final Player player = new PlayerImpl.Builder(this.players.size() + 1)
+            .color(color)
+            .name(name)
+            .build(this.grid);
         if (!addPlayer(player)) {
             throw new IllegalStateException("Cannot add more players");
         }
