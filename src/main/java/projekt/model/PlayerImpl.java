@@ -240,4 +240,9 @@ public class PlayerImpl implements Player {
             return new PlayerImpl(grid, this.color, this.id, nameOrDefault(), this.ai.get());
         }
     }
+
+    @Override
+    public String toString() {
+        return String.format("Player %d %s (%s)", getID(), getName(), getColor());
+    }
 }
