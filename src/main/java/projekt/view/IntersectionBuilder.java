@@ -19,7 +19,7 @@ public class IntersectionBuilder implements Builder<Region> {
     private final Intersection intersection;
     private final StackPane pane = new StackPane();
 
-    public IntersectionBuilder(Intersection intersection) {
+    public IntersectionBuilder(final Intersection intersection) {
         this.intersection = intersection;
     }
 
@@ -33,12 +33,12 @@ public class IntersectionBuilder implements Builder<Region> {
     }
 
     private void addSettlement() {
-        Settlement settlement = intersection.getSettlement();
+        final Settlement settlement = intersection.getSettlement();
         if (settlement == null) {
             return;
         }
 
-        Sprite settlementSprite = new Sprite("img/settlements.png", settlement.type().ordinal(),
+        final Sprite settlementSprite = new Sprite(Utils.settlementsSpriteSheet, settlement.type().ordinal(),
                 settlement.owner().getColor());
         settlementSprite.setFitWidth(25);
         settlementSprite.setPreserveRatio(true);
@@ -50,9 +50,9 @@ public class IntersectionBuilder implements Builder<Region> {
         return intersection;
     }
 
-    public void highlight(Consumer<MouseEvent> handler) {
+    public void highlight(final Consumer<MouseEvent> handler) {
         unhighlight();
-        Circle circle = new Circle(15, Color.TRANSPARENT);
+        final Circle circle = new Circle(15, Color.TRANSPARENT);
         circle.setStroke(Color.RED);
         circle.setStrokeWidth(4);
         circle.getStyleClass().add("selectable");
@@ -61,7 +61,7 @@ public class IntersectionBuilder implements Builder<Region> {
     }
 
     public void unhighlight() {
-        pane.getChildren().removeIf(node -> node instanceof Circle);
+        pane.getChildren().removeIf(Circle.class::isInstance);
         pane.setOnMouseClicked(null);
     }
 }
