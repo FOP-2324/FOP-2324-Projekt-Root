@@ -54,6 +54,13 @@ public interface Player {
     void addResource(ResourceType resourceType, int amount);
 
     /**
+     * Adds the given resources to the player.
+     *
+     * @param resources
+     */
+    void addResources(Map<ResourceType, Integer> resources);
+
+    /**
      * Removes the given amount of the given resource from the player.
      *
      * @param resourceType the ResourceType to remove from
@@ -100,10 +107,10 @@ public interface Player {
      */
     default Set<Settlement> getSettlements() {
         return getHexGrid().getIntersections().values().stream()
-            .filter(intersection -> intersection.getSettlement() != null)
-            .filter(intersection -> intersection.getSettlement().owner().equals(this))
-            .map(Intersection::getSettlement)
-            .collect(Collectors.toSet());
+                .filter(intersection -> intersection.getSettlement() != null)
+                .filter(intersection -> intersection.getSettlement().owner().equals(this))
+                .map(Intersection::getSettlement)
+                .collect(Collectors.toSet());
     }
 
     /**

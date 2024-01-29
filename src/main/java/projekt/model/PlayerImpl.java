@@ -8,12 +8,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jetbrains.annotations.Nullable;
+import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
+
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.paint.Color;
-import org.jetbrains.annotations.Nullable;
-import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 import projekt.Config;
 import projekt.model.buildings.Port;
 import projekt.model.buildings.Settlement;
@@ -53,6 +54,13 @@ public class PlayerImpl implements Player {
     }
 
     @Override
+    public void addResources(final Map<ResourceType, Integer> resources) {
+        for (final var entry : resources.entrySet()) {
+            addResource(entry.getKey(), entry.getValue());
+        }
+    }
+
+    @Override
     public boolean removeResource(final ResourceType resourceType, final int amount) {
         if (!hasResources(Map.of(resourceType, amount))) {
             return false;
@@ -77,21 +85,21 @@ public class PlayerImpl implements Player {
     public int getTradeRatio(final ResourceType resourceType) {
         final var intersections = getHexGrid().getIntersections();
         return intersections.values().stream()
-            .filter(intersection -> intersection.getPort() != null
-                && intersection.getPort().resourceType().equals(resourceType))
-            .filter(intersection -> intersection.getSettlement() != null
-                && intersection.getSettlement().owner().equals(this))
-            .map(Intersection::getPort)
-            .findAny().map(Port::ratio).orElse(4);
+                .filter(intersection -> intersection.getPort() != null
+                        && intersection.getPort().resourceType().equals(resourceType))
+                .filter(intersection -> intersection.getSettlement() != null
+                        && intersection.getSettlement().owner().equals(this))
+                .map(Intersection::getPort)
+                .findAny().map(Port::ratio).orElse(4);
     }
 
     @Override
     @StudentImplementationRequired
     public boolean hasResources(final Map<ResourceType, Integer> resources) {
         return resources
-            .entrySet()
-            .stream()
-            .noneMatch(e -> this.resources.getOrDefault(e.getKey(), 0) < e.getValue());
+                .entrySet()
+                .stream()
+                .noneMatch(e -> this.resources.getOrDefault(e.getKey(), 0) < e.getValue());
     }
 
     @Override
@@ -101,18 +109,14 @@ public class PlayerImpl implements Player {
 
     @Override
     public int getRemainingCities() {
-        return (int) (
-            MAX_CITIES - getSettlements().stream()
-                .filter(settlement -> settlement.type().equals(Settlement.Type.CITY)).count()
-        );
+        return (int) (MAX_CITIES - getSettlements().stream()
+                .filter(settlement -> settlement.type().equals(Settlement.Type.CITY)).count());
     }
 
     @Override
     public int getRemainingVillages() {
-        return (int) (
-            MAX_VILLAGES - getSettlements().stream()
-                .filter(settlement -> settlement.type().equals(Settlement.Type.VILLAGE)).count()
-        );
+        return (int) (MAX_VILLAGES - getSettlements().stream()
+                .filter(settlement -> settlement.type().equals(Settlement.Type.VILLAGE)).count());
     }
 
     @Override
@@ -191,13 +195,12 @@ public class PlayerImpl implements Player {
 
         public Builder color(final Color playerColor) {
             this.color = playerColor == null
-                ? new Color(
-                Config.RANDOM.nextDouble(),
-                Config.RANDOM.nextDouble(),
-                Config.RANDOM.nextDouble(),
-                1
-            )
-                : playerColor;
+                    ? new Color(
+                            Config.RANDOM.nextDouble(),
+                            Config.RANDOM.nextDouble(),
+                            Config.RANDOM.nextDouble(),
+                            1)
+                    : playerColor;
             return this;
         }
 
