@@ -36,6 +36,12 @@ public class PlayerController {
 
     private final Property<PlayerObjective> playerObjectiveProperty = new SimpleObjectProperty<>(PlayerObjective.IDLE);
 
+    private Player tradingPlayer;
+
+    private Map<ResourceType, Integer> playerTradingOffer;
+
+    private Map<ResourceType, Integer> playerTradingRequest;
+
     /**
      * Creates a new {@link PlayerController} with the given {@link GameController}.
      *
@@ -288,6 +294,41 @@ public class PlayerController {
         }
         return true;
     }
+
+    protected void setPlayerTradeOffer(final Player player, final Map<ResourceType, Integer> offer,
+            final Map<ResourceType, Integer> request) {
+        this.tradingPlayer = player;
+        this.playerTradingOffer = offer;
+        this.playerTradingRequest = request;
+    }
+
+    protected void resetPlayerTradeOffer() {
+        this.tradingPlayer = null;
+        this.playerTradingOffer = null;
+        this.playerTradingRequest = null;
+    }
+
+    /**
+     * Accepts the trade offer from the other player if one exists.
+     */
+    public void acceptTradeOffer() throws IllegalActionException {
+        if (tradingPlayer == null || playerTradingOffer == null || playerTradingRequest == null) {
+            throw new IllegalActionException("No trade offer to accept");
+        }
+        if (!player.hasResources(playerTradingRequest)) {
+            throw new IllegalActionException("Player does not have the requested resources");
+        }
+        if (!tradingPlayer.hasResources(playerTradingOffer)) {
+            throw new IllegalActionException("Other player does not have the offered resources");
+        }
+
+        player.removeResources(playerTradingRequest);
+        tradingPlayer.addResources(playerTradingRequest);
+        player.addResources(playerTradingOffer);
+        tradingPlayer.removeResources(playerTradingOffer);
+    }
+
+    // Robber methods
 
     /**
      * Selects the resources to drop when a 7 is rolled. Also invokes
