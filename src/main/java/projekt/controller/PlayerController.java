@@ -1,9 +1,11 @@
 package projekt.controller;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -77,8 +79,9 @@ public class PlayerController {
 
     @DoNotTouch
     private void updatePlayerState() {
-        playerStateProperty.setValue(new PlayerState(getBuildableVillageIntersections(),
-                getUpgradeableVillageIntersections(), getBuildableRoadEdges()));
+        playerStateProperty
+                .setValue(new PlayerState(getBuildableVillageIntersections(), getUpgradeableVillageIntersections(),
+                        getBuildableRoadEdges(), getPlayersToStealFrom()));
     }
 
     public void rollDice() {
@@ -323,7 +326,23 @@ public class PlayerController {
         player.addResource(resourceToSteal, 1);
     }
 
+    /**
+     * Sets the robber position.
+     *
+     * @param position the position to set the robber to
+     */
     public void setRobberPosition(final TilePosition position) {
         gameController.getState().getGrid().setRobberPosition(position);
+    }
+
+    /**
+     * Returns all players that are next to the robber and not the current player.
+     *
+     * @return all players that are next to the robber and not the current player.
+     */
+    public List<Player> getPlayersToStealFrom() {
+        return gameController.getState().getGrid().getTileAt(gameController.getState().getGrid().getRobberPosition())
+                .getIntersections().stream().filter(Intersection::hasSettlement).map(i -> i.getSettlement().owner())
+                .filter(Predicate.not(player::equals)).collect(Collectors.toUnmodifiableList());
     }
 }
