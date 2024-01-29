@@ -1,12 +1,9 @@
 package projekt.view.tiles;
 
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -14,14 +11,26 @@ import javafx.scene.paint.Color;
 import javafx.util.Builder;
 import projekt.model.tiles.Tile;
 import projekt.view.ColoredImageView;
+import projekt.view.Sprite;
+import projekt.view.Utils;
 
 public class TileBuilder implements Builder<Region> {
     private final Tile tile;
     private final StackPane pane = new StackPane();
+    private final Sprite resourceIcon;
 
     public TileBuilder(final Tile tile) {
         this.tile = tile;
         styleAndSizeTile(pane);
+        if (tile.getType().resourceType != null) {
+            this.resourceIcon = new Sprite(Utils.resourcesSpriteSheet,
+                    tile.getType().resourceType.iconIndex,
+                    tile.getType().resourceType.color);
+            resourceIcon.setPreserveRatio(true);
+            resourceIcon.setFitWidth(tile.widthProperty().get() * 0.5);
+        } else {
+            this.resourceIcon = null;
+        }
     }
 
     public Tile getTile() {
@@ -31,8 +40,11 @@ public class TileBuilder implements Builder<Region> {
     @Override
     public Region build() {
         pane.getChildren().clear();
+        if (resourceIcon != null) {
+            pane.getChildren().add(resourceIcon);
+        }
         if (tile.hasRobber()) {
-            ImageView robber = new ColoredImageView("img/knight.png", Color.BLACK);
+            final ImageView robber = new ColoredImageView(Utils.knightImage, Color.BLACK);
             robber.setPreserveRatio(true);
             robber.setFitWidth(tile.widthProperty().get() * 0.3);
             pane.getChildren().add(robber);
@@ -65,7 +77,7 @@ public class TileBuilder implements Builder<Region> {
         return detailsBox;
     }
 
-    public void highlight(Runnable hanlder) {
+    public void highlight(final Runnable hanlder) {
         pane.getStyleClass().add("selectable");
         pane.setOnMouseClicked(e -> hanlder.run());
     }
