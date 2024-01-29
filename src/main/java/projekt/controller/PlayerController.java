@@ -295,6 +295,19 @@ public class PlayerController {
         return true;
     }
 
+    /**
+     * Checks whether this player can accept a trade offer from the other player.
+     * A player cannot accept a trade offer from himself or if he has not enough
+     * resources.
+     *
+     * @param otherPlayer the player to trade with
+     * @param request     the resources to request
+     * @return whether this player can accept a trade offer from the other player
+     */
+    public boolean canAcceptTradeOffer(final Player otherPlayer, final Map<ResourceType, Integer> request) {
+        return !player.equals(otherPlayer) && player.hasResources(request);
+    }
+
     protected void setPlayerTradeOffer(final Player player, final Map<ResourceType, Integer> offer,
             final Map<ResourceType, Integer> request) {
         this.tradingPlayer = player;
