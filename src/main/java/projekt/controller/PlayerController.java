@@ -88,7 +88,7 @@ public class PlayerController {
     private void updatePlayerState() {
         playerStateProperty
                 .setValue(new PlayerState(getBuildableVillageIntersections(), getUpgradeableVillageIntersections(),
-                        getBuildableRoadEdges(), getPlayersToStealFrom()));
+                        getBuildableRoadEdges(), getPlayersToStealFrom(), getPlayerTradingPayload()));
     }
 
     public void rollDice() {
