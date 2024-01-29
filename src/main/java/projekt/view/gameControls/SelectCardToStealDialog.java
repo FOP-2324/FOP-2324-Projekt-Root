@@ -42,7 +42,7 @@ public class SelectCardToStealDialog extends Dialog<Entry<Player, ResourceType>>
             for (int i = 0; i < resourceTypes.size(); i++) {
                 final ResourceType resourceType = resourceTypes.get(i);
                 for (int j = 0; j < player.getResources().get(resourceType); j++) {
-                    final CardPane resourceCard = new CardPane(Color.LIGHTGRAY, null, null, 40.0);
+                    final CardPane resourceCard = new CardPane(Color.LIGHTGRAY, null, "", 40.0);
                     resourceCard.getStyleClass().add("selectable");
                     resourceCard.setOnMouseClicked(e -> {
                         selectedCard.set(resourceCard);
