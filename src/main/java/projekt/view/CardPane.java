@@ -18,7 +18,7 @@ import javafx.scene.paint.Color;
  */
 @DoNotTouch
 public class CardPane extends StackPane {
-    private static final int defaultCardWidth = 30;
+    private static final int defaultCardWidth = 40;
 
     /**
      * Creates a new CardPane with the given color and no icon or label.
