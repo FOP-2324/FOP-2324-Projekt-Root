@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.tudalgo.algoutils.student.annotation.DoNotTouch;
@@ -25,6 +26,7 @@ import projekt.model.GameState;
 import projekt.model.HexGridImpl;
 import projekt.model.Player;
 import projekt.model.ResourceType;
+import projekt.model.tiles.Tile;
 
 public class GameController {
 
@@ -209,14 +211,13 @@ public class GameController {
 
     @StudentImplementationRequired
     public void distributeResources(final int diceRoll) {
-        for (final var tile : state.getGrid().getTiles(diceRoll)) {
+        for (final var tile : state.getGrid().getTiles(diceRoll).stream().filter(Predicate.not(Tile::hasRobber))
+                .collect(Collectors.toSet())) {
             for (final var intersection : tile.getIntersections()) {
                 Optional.ofNullable(intersection.getSettlement()).ifPresent(
-                    settlement -> settlement.owner().addResource(
-                        tile.getType().resourceType,
-                        settlement.type().resourceAmount
-                    )
-                );
+                        settlement -> settlement.owner().addResource(
+                                tile.getType().resourceType,
+                                settlement.type().resourceAmount));
             }
         }
     }
