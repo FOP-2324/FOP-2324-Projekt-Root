@@ -4,6 +4,7 @@ import java.util.Set;
 
 import org.tudalgo.algoutils.student.annotation.StudentCreationRequired;
 
+import projekt.controller.actions.AcceptTradeAction;
 import projekt.controller.actions.BuildRoadAction;
 import projekt.controller.actions.BuildVillageAction;
 import projekt.controller.actions.DropCardsAction;
@@ -30,6 +31,7 @@ public enum PlayerObjective {
     PLACE_VILLAGE(Set.of(BuildVillageAction.class)),
     PLACE_ROAD(Set.of(BuildRoadAction.class)),
     DICE_ROLL(Set.of(RollDiceAction.class)),
+    ACCEPT_TRADE(Set.of(AcceptTradeAction.class)),
     IDLE(Set.of());
 
     final Set<Class<? extends PlayerAction>> allowedActions;
