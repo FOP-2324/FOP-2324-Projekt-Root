@@ -6,7 +6,6 @@ import java.util.Map;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.GridPane;
@@ -20,42 +19,43 @@ public class DropCardsDialog extends Dialog<Map<ResourceType, Integer>> {
     private final Map<ResourceType, Integer> droppedCards = new HashMap<>();
     private final String tooFewCardsText = "You still need to drop %d cards";
 
-    public DropCardsDialog(Map<ResourceType, Integer> playerResources, int amountToDrop) {
-        GridPane mainPane = new GridPane(10, 10);
-        DialogPane dialogPane = getDialogPane();
+    public DropCardsDialog(final Map<ResourceType, Integer> playerResources, final int amountToDrop) {
+        final GridPane mainPane = new GridPane(10, 10);
+        final DialogPane dialogPane = this.getDialogPane();
         dialogPane.setContent(mainPane);
         dialogPane.getButtonTypes().add(ButtonType.OK);
         dialogPane.lookupButton(ButtonType.OK).setDisable(true);
-        setTitle(String.format("Drop %d cards", amountToDrop));
-        Label errorLabel = new Label(String.format(tooFewCardsText, amountToDrop));
+        this.setTitle(String.format("Drop %d cards", amountToDrop));
+        this.setHeaderText(String.format(this.tooFewCardsText, amountToDrop));
 
-        for (ResourceType resourceType : playerResources.keySet()) {
-            CardPane resourceCard = new ResourceCardPane(resourceType, Integer.toString(playerResources.get(resourceType)), 50);
+        for (final ResourceType resourceType : playerResources.keySet()) {
+            final CardPane resourceCard = new ResourceCardPane(resourceType, Integer.toString(playerResources.get(resourceType)),
+                    50);
             mainPane.add(resourceCard, resourceType.ordinal(), 0);
 
-            TextField amountField = new TextField();
+            final TextField amountField = new TextField();
             amountField.setTextFormatter(new TextFormatter<>(new IntegerStringConverter(), 0, Utils.positiveIntegerFilter));
             amountField.textProperty().subscribe((oldText, newText) -> {
 
                 if (newText.isEmpty()) {
-                    droppedCards.remove(resourceType);
+                    this.droppedCards.remove(resourceType);
                 } else {
-                    int enteredAmount = Integer.parseInt(newText);
+                    final int enteredAmount = Integer.parseInt(newText);
                     if (enteredAmount > playerResources.get(resourceType)) {
                         amountField.setText(oldText);
                         return;
                     }
-                    droppedCards.put(resourceType, enteredAmount);
+                    this.droppedCards.put(resourceType, enteredAmount);
                 }
 
-                int currentTotalAmount = droppedCards.values().stream().mapToInt(Integer::intValue).sum();
+                final int currentTotalAmount = this.droppedCards.values().stream().mapToInt(Integer::intValue).sum();
                 dialogPane.lookupButton(ButtonType.OK).setDisable(true);
                 if (currentTotalAmount > amountToDrop) {
-                    errorLabel.setText(String.format("You can only drop %d cards", amountToDrop));
+                    this.setHeaderText(String.format("You can only drop %d cards", amountToDrop));
                 } else if (currentTotalAmount < amountToDrop) {
-                    errorLabel.setText(String.format(tooFewCardsText, amountToDrop - currentTotalAmount));
+                    this.setHeaderText(String.format(this.tooFewCardsText, amountToDrop - currentTotalAmount));
                 } else {
-                    errorLabel.setText("");
+                    this.setHeaderText("");
                     dialogPane.lookupButton(ButtonType.OK).setDisable(false);
                 }
             });
@@ -63,12 +63,11 @@ public class DropCardsDialog extends Dialog<Map<ResourceType, Integer>> {
             mainPane.add(amountField, resourceType.ordinal(), 1);
         }
 
-        setResultConverter(buttonType -> {
+        this.setResultConverter(buttonType -> {
             if (buttonType == ButtonType.OK) {
-                return droppedCards;
+                return this.droppedCards;
             }
             return null;
         });
-        mainPane.add(errorLabel, 0, 2, mainPane.getColumnCount(), 1);
     }
 }
