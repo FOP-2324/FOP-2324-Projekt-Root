@@ -34,6 +34,7 @@ public class CreateGameBuilder extends MenuBuilder {
     protected Node initCenter() {
         // populate initial Players
         final VBox mainBox = new VBox();
+        mainBox.setStyle("-fx-font-size: 2em");
         // For icons see https://pictogrammers.com/library/mdi/
         final HBox addRemoveButtonRow = new HBox();
         addRemoveButtonRow.setAlignment(Pos.CENTER);
