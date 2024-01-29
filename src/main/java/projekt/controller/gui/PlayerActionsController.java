@@ -330,6 +330,7 @@ public class PlayerActionsController implements Controller {
         final Region view = builder.build();
 
         playerObjectiveProperty.subscribe((oldValue, newValue) -> enableButtonBasedOnObjective(newValue));
+        playerStateProperty.subscribe((oldValue, newValue) -> enableButtonBasedOnObjective(getPlayerObjective()));
         builder.disableAllButtons();
         if (getPlayerController() != null) {
             enableButtonBasedOnObjective(getPlayerObjective());
