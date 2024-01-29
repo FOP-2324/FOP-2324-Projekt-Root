@@ -63,8 +63,7 @@ public class PlayersOverviewBuilder implements Builder<Region> {
 
         detailsBox.getColumnConstraints().addAll(titleColumn, valueColumn);
 
-        // TODO: replace with player name
-        final TitledPane playerPane = new TitledPane(String.format("Spieler %d", playerNumber), detailsBox);
+        final TitledPane playerPane = new TitledPane(player.getName(), detailsBox);
         final Rectangle playerColor = new Rectangle(20, 20, player.getColor());
         playerColor.setStroke(Color.BLACK);
         playerColor.setStrokeWidth(2);
