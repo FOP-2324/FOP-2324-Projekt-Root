@@ -126,7 +126,7 @@ public class GameController {
         }
 
         // Game End
-        getState().setGameOver(true);
+        getState().setWinner(getWinners().iterator().next());
     }
 
     @DoNotTouch
