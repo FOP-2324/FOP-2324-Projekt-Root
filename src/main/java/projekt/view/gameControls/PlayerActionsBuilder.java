@@ -34,11 +34,15 @@ public class PlayerActionsBuilder implements Builder<Region> {
     private Node tradeNode;
 
     @DoNotTouch
-    public PlayerActionsBuilder(Consumer<ActionEvent> buildVillageButtonAction,
-            Consumer<ActionEvent> upgradeVillageButtonAction, Consumer<ActionEvent> buildRoadButtonAction,
-            Consumer<ActionEvent> buyDevelopmentCardButtonAction, Consumer<ActionEvent> endTurnButtonAction,
-            Consumer<ActionEvent> rollDiceButtonAction, Consumer<ActionEvent> tradeButtonAction,
-            Consumer<ActionEvent> abortButtonAction) {
+    public PlayerActionsBuilder(
+            final Consumer<ActionEvent> buildVillageButtonAction,
+            final Consumer<ActionEvent> upgradeVillageButtonAction,
+            final Consumer<ActionEvent> buildRoadButtonAction,
+            final Consumer<ActionEvent> buyDevelopmentCardButtonAction,
+            final Consumer<ActionEvent> endTurnButtonAction,
+            final Consumer<ActionEvent> rollDiceButtonAction,
+            final Consumer<ActionEvent> tradeButtonAction,
+            final Consumer<ActionEvent> abortButtonAction) {
         this.buildVillageButtonAction = buildVillageButtonAction;
         this.upgradeVillageButtonAction = upgradeVillageButtonAction;
         this.buildRoadButtonAction = buildRoadButtonAction;
@@ -54,36 +58,36 @@ public class PlayerActionsBuilder implements Builder<Region> {
     public Region build() {
         mainBox.getChildren().clear();
 
-        Button buildRoadButton = new Button("Straße bauen");
+        final Button buildRoadButton = new Button("Straße bauen");
         buildRoadButton.setOnAction(buildRoadButtonAction::accept);
         this.buildRoadNode = buildRoadButton;
 
-        Button buildVillageButton = new Button("Siedlung bauen");
+        final Button buildVillageButton = new Button("Siedlung bauen");
         buildVillageButton.setOnAction(buildVillageButtonAction::accept);
         this.buildVillageNode = buildVillageButton;
 
-        Button upgradeVillageButton = new Button("Stadt bauen");
+        final Button upgradeVillageButton = new Button("Stadt bauen");
         upgradeVillageButton.setOnAction(upgradeVillageButtonAction::accept);
         this.upgradeVillageNode = upgradeVillageButton;
 
-        Button buyDevelopmentCardButton = new Button("Entwicklungskarte kaufen");
+        final Button buyDevelopmentCardButton = new Button("Entwicklungskarte kaufen");
         buyDevelopmentCardButton.setOnAction(buyDevelopmentCardButtonAction::accept);
         this.buyDevelopmentCardNode = buyDevelopmentCardButton;
 
-        Button endTurnButton = new Button("Zug beenden");
+        final Button endTurnButton = new Button("Zug beenden");
         endTurnButton.setOnAction(endTurnButtonAction::accept);
         this.endTurnNode = endTurnButton;
 
-        Button rollDiceButton = new Button("Würfeln");
+        final Button rollDiceButton = new Button("Würfeln");
         rollDiceButton.setOnAction(rollDiceButtonAction::accept);
         this.rollDiceNode = rollDiceButton;
 
-        Button tradeButton = new Button("Handeln");
+        final Button tradeButton = new Button("Handeln");
         tradeButton.setDisable(true);
         tradeButton.setOnAction(tradeButtonAction::accept);
         this.tradeNode = tradeButton;
 
-        Button abortButton = new Button("Abbrechen");
+        final Button abortButton = new Button("Abbrechen");
         abortButton.setDisable(true);
         abortButton.setOnAction(abortButtonAction::accept);
         this.abortNode = abortButton;
@@ -96,12 +100,12 @@ public class PlayerActionsBuilder implements Builder<Region> {
     }
 
     public void disableAllButtons() {
-        mainBox.getChildren().stream().filter(node -> node instanceof Button).map(node -> (Button) node)
+        mainBox.getChildren().stream().filter(Button.class::isInstance).map(node -> (Button) node)
                 .forEach(button -> button.setDisable(true));
     }
 
     public void enableAllButtons() {
-        mainBox.getChildren().stream().filter(node -> node instanceof Button).map(node -> (Button) node)
+        mainBox.getChildren().stream().filter(Button.class::isInstance).map(node -> (Button) node)
                 .forEach(button -> button.setDisable(false));
     }
 
