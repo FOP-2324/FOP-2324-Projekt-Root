@@ -6,11 +6,13 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.IntBinaryOperator;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
 
 import javafx.beans.binding.Bindings;
 import javafx.event.Event;
+import javafx.geometry.Point2D;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -21,6 +23,7 @@ import javafx.util.Builder;
 import projekt.model.HexGrid;
 import projekt.model.Intersection;
 import projekt.model.TilePosition;
+import projekt.model.buildings.Edge;
 import projekt.model.tiles.Tile;
 import projekt.view.tiles.TileBuilder;
 
@@ -76,6 +79,8 @@ public class HexGridBuilder implements Builder<Region> {
     @Override
     public Region build() {
         hexGridPane.getChildren().clear();
+
+        edgeLines.stream().map(EdgeLine::getEdge).filter(edge -> edge.port() != null).forEach(this::placePort);
 
         hexGridPane.getChildren().addAll(tileBuilders.stream().map(this::placeTile).toList());
 
@@ -162,6 +167,35 @@ public class HexGridBuilder implements Builder<Region> {
         edgeLine.init();
         hexGridPane.getChildren().add(edgeLine.getOutline());
         hexGridPane.getChildren().add(edgeLine);
+    }
+
+    private void placePort(final Edge edge) {
+        final TilePosition position = edge.getAdjacentTilePositions().stream()
+                .filter(Predicate.not(grid.getTiles()::containsKey))
+                .findAny()
+                .orElseThrow();
+        final List<Intersection> intersections = edge.getIntersections().stream().toList();
+        final Point2D node0 = new Point2D((float) calculateIntersectionXTranslation(intersections.get(0)),
+                (float) calculateIntersectionYTranslation(intersections.get(0)));
+        final Point2D node1 = new Point2D((float) calculateIntersectionXTranslation(intersections.get(1)),
+                (float) calculateIntersectionYTranslation(intersections.get(1)));
+        final PortBuilder portBuilder = new PortBuilder(edge, grid.tileWidthProperty(), grid.tileHeightProperty(),
+                node0, node1);
+        final Region portView = portBuilder
+                .build();
+
+        portView.translateXProperty().bind(
+                Bindings.createDoubleBinding(
+                        () -> (calculatePositionXTranslationOffset(position).get() - portView.getWidth() / 2),
+                        grid.tileWidthProperty()));
+        portView.translateYProperty().bind(
+                Bindings.createDoubleBinding(
+                        () -> (calculatePositionYTranslationOffset(position).get() - portView.getHeight() / 2),
+                        grid.tileHeightProperty()));
+        hexGridPane.getChildren().addAll(portBuilder.initConnections(new Point2D(
+                (float) calculatePositionXCenterOffset(position),
+                (float) calculatePositionYCenterOffset(position))));
+        hexGridPane.getChildren().addAll(portView);
     }
 
     private double calculatePositionXTranslation(final TilePosition Position) {
