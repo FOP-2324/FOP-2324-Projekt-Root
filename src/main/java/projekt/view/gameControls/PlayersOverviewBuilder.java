@@ -39,20 +39,20 @@ public class PlayersOverviewBuilder implements Builder<Region> {
     public TitledPane createPlayerTiltedPane(final Player player, final int playerNumber) {
         final GridPane detailsBox = new GridPane();
 
-        final Label resourcesLabel = new Label("Rohstoffe:");
+        final Label resourcesLabel = new Label("Resources:");
         detailsBox.add(resourcesLabel, 0, 0);
         detailsBox.add(createValuePane(
                 Integer.toString(player.getResources().values().stream().reduce(0, Integer::sum))), 1, 0);
 
-        final Label developmentCardsLabel = new Label("Entwicklungskarten:");
+        final Label developmentCardsLabel = new Label("Development Cards:");
         detailsBox.add(developmentCardsLabel, 0, 1);
         detailsBox.add(createValuePane(
                 Integer.toString(player.getDevelopmentCards().values().stream().reduce(0, Integer::sum))), 1, 1);
 
-        final Label victoryPointsLabel = new Label(String.format("Siegpunkte: %d", player.getVictoryPoints()));
+        final Label victoryPointsLabel = new Label(String.format("Victory Points: %d", player.getVictoryPoints()));
         detailsBox.add(victoryPointsLabel, 0, 2);
 
-        final Label knightCardsLabel = new Label("Ritterkarten:");
+        final Label knightCardsLabel = new Label("Knights:");
         detailsBox.add(knightCardsLabel, 0, 3);
         detailsBox.add(createValuePane(Integer.toString(player.getKnightsPlayed()), Utils.knightImage), 1, 3);
 

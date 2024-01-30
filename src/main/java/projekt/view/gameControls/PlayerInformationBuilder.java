@@ -28,10 +28,9 @@ public class PlayerInformationBuilder implements Builder<Region> {
     @StudentImplementationRequired
     public Region build() {
         final VBox mainBox = new VBox();
-        // TODO: get player name when correctly implemented...
         final Label playerName = new PlayerLabel(player);
 
-        final Label resourcesLabel = new Label("Deine Resourcen:");
+        final Label resourcesLabel = new Label("Your Resources:");
         final FlowPane resourcesBox = new FlowPane(5, 5);
         for (final ResourceType resourceType : player.getResources().keySet()) {
             if (player.getResources().get(resourceType) == 0) {
@@ -43,7 +42,7 @@ public class PlayerInformationBuilder implements Builder<Region> {
             resourcesBox.getChildren().add(resourceCard);
         }
 
-        final Label developmentCardsLabel = new Label("Deine Entwicklungskarten:");
+        final Label developmentCardsLabel = new Label("Your Development Cards:");
         final FlowPane developmentCardsBox = new FlowPane(5, 5);
         for (final DevelopmentCardType developmentCardType : player.getDevelopmentCards().keySet()) {
             final CardPane developmentCardTypeCard = new CardPane(Color.LIGHTGRAY,
@@ -53,13 +52,13 @@ public class PlayerInformationBuilder implements Builder<Region> {
         }
 
         final Label remainingRoadsLabel = new Label(
-                String.format("Deine verbleibenden Straßen: %d", player.getRemainingRoads()));
+                String.format("Your remaining Roads: %d", player.getRemainingRoads()));
         final Label remainingVillagesLabel = new Label(
-                String.format("Deine verbleibenden Dörfer: %d", player.getRemainingVillages()));
+                String.format("Your remaining Villages: %d", player.getRemainingVillages()));
         final Label remainingCitiesLabel = new Label(
-                String.format("Deine verbleibenden Städte: %d", player.getRemainingCities()));
+                String.format("Your remaining Cities: %d", player.getRemainingCities()));
 
-        final Label victoryPointsLabel = new Label(String.format("Deine Siegpunkte: %d", player.getVictoryPoints()));
+        final Label victoryPointsLabel = new Label(String.format("Your Victory Points: %d", player.getVictoryPoints()));
 
         mainBox.getChildren().addAll(playerName, resourcesLabel, resourcesBox, developmentCardsLabel,
                 developmentCardsBox, remainingRoadsLabel, remainingVillagesLabel, remainingCitiesLabel,

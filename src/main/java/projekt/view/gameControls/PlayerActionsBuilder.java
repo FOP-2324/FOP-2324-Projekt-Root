@@ -58,36 +58,36 @@ public class PlayerActionsBuilder implements Builder<Region> {
     public Region build() {
         mainBox.getChildren().clear();
 
-        final Button buildRoadButton = new Button("Straße bauen");
+        final Button buildRoadButton = new Button("Build Road");
         buildRoadButton.setOnAction(buildRoadButtonAction::accept);
         this.buildRoadNode = buildRoadButton;
 
-        final Button buildVillageButton = new Button("Siedlung bauen");
+        final Button buildVillageButton = new Button("Build Village");
         buildVillageButton.setOnAction(buildVillageButtonAction::accept);
         this.buildVillageNode = buildVillageButton;
 
-        final Button upgradeVillageButton = new Button("Stadt bauen");
+        final Button upgradeVillageButton = new Button("Build City");
         upgradeVillageButton.setOnAction(upgradeVillageButtonAction::accept);
         this.upgradeVillageNode = upgradeVillageButton;
 
-        final Button buyDevelopmentCardButton = new Button("Entwicklungskarte kaufen");
+        final Button buyDevelopmentCardButton = new Button("Buy Development Card");
         buyDevelopmentCardButton.setOnAction(buyDevelopmentCardButtonAction::accept);
         this.buyDevelopmentCardNode = buyDevelopmentCardButton;
 
-        final Button endTurnButton = new Button("Zug beenden");
+        final Button endTurnButton = new Button("End Turn");
         endTurnButton.setOnAction(endTurnButtonAction::accept);
         this.endTurnNode = endTurnButton;
 
-        final Button rollDiceButton = new Button("Würfeln");
+        final Button rollDiceButton = new Button("Roll Dice");
         rollDiceButton.setOnAction(rollDiceButtonAction::accept);
         this.rollDiceNode = rollDiceButton;
 
-        final Button tradeButton = new Button("Handeln");
+        final Button tradeButton = new Button("Trade");
         tradeButton.setDisable(true);
         tradeButton.setOnAction(tradeButtonAction::accept);
         this.tradeNode = tradeButton;
 
-        final Button abortButton = new Button("Abbrechen");
+        final Button abortButton = new Button("Cancel");
         abortButton.setDisable(true);
         abortButton.setOnAction(abortButtonAction::accept);
         this.abortNode = abortButton;

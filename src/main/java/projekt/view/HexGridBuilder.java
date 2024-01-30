@@ -98,7 +98,7 @@ public class HexGridBuilder implements Builder<Region> {
         mapPane.setOnMousePressed(pressedHandler::accept);
         mapPane.setOnMouseDragged(event -> draggedHandler.accept(event, hexGridPane));
 
-        final Button centerButton = new Button("Zentrieren");
+        final Button centerButton = new Button("Center map");
         centerButton.setOnAction(event -> centerButtonHandler.accept(event, hexGridPane));
         centerButton.translateXProperty().bind(Bindings
                 .createDoubleBinding(() -> (centerButton.getWidth() - mapPane.getWidth()) / 2 + 10,
