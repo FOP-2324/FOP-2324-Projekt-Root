@@ -86,7 +86,7 @@ public class PlayerImpl implements Player {
         final var intersections = getHexGrid().getIntersections();
         return intersections.values().stream()
                 .filter(intersection -> intersection.getPort() != null
-                        && intersection.getPort().resourceType().equals(resourceType))
+                        && resourceType.equals(intersection.getPort().resourceType()))
                 .filter(intersection -> intersection.getSettlement() != null
                         && intersection.getSettlement().owner().equals(this))
                 .map(Intersection::getPort)
