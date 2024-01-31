@@ -7,6 +7,7 @@ import org.tudalgo.algoutils.student.annotation.StudentCreationRequired;
 import projekt.controller.actions.AcceptTradeAction;
 import projekt.controller.actions.BuildRoadAction;
 import projekt.controller.actions.BuildVillageAction;
+import projekt.controller.actions.BuyDevelopmentCardAction;
 import projekt.controller.actions.DropCardsAction;
 import projekt.controller.actions.EndTurnAction;
 import projekt.controller.actions.PlayerAction;
@@ -15,6 +16,7 @@ import projekt.controller.actions.SelectRobberTileAction;
 import projekt.controller.actions.StealCardAction;
 import projekt.controller.actions.TradeAction;
 import projekt.controller.actions.UpgradeVillageAction;
+import projekt.controller.actions.UseDevelopmentCardAction;
 
 /**
  * This enum represents the different objectives a player can have and what
@@ -27,7 +29,8 @@ public enum PlayerObjective {
     SELECT_CARD_TO_STEAL(Set.of(StealCardAction.class, EndTurnAction.class)),
     SELECT_ROBBER_TILE(Set.of(SelectRobberTileAction.class)),
     REGULAR_TURN(Set.of(BuildRoadAction.class, EndTurnAction.class, BuildVillageAction.class,
-            UpgradeVillageAction.class, TradeAction.class)),
+            UpgradeVillageAction.class, TradeAction.class, BuyDevelopmentCardAction.class,
+            UseDevelopmentCardAction.class)),
     PLACE_VILLAGE(Set.of(BuildVillageAction.class)),
     PLACE_ROAD(Set.of(BuildRoadAction.class)),
     DICE_ROLL(Set.of(RollDiceAction.class)),
