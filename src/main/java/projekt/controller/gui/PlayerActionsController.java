@@ -38,6 +38,17 @@ import projekt.view.gameControls.PlayerActionsBuilder;
 import projekt.view.gameControls.SelectCardToStealDialog;
 import projekt.view.gameControls.TradeDialog;
 
+/**
+ * This class is responsible for handling all player actions performed through
+ * the UI. It ensures that the correct buttons are enabled and disabled based on
+ * the current player objective and state.
+ * It also ensures that the correct actions are triggered when a button is
+ * clicked and that the user is prompted when a action requires user input.
+ * Additionally it triggers the respective actions based on the user input.
+ *
+ * <b>Do not touch any of the given attributes these are constructed in a way to
+ * ensure thread safety.</b>
+ */
 public class PlayerActionsController implements Controller {
     private final PlayerActionsBuilder builder;
     private final GameBoardController gameBoardController;
@@ -47,20 +58,34 @@ public class PlayerActionsController implements Controller {
     private Subscription playerObjectiveSubscription = Subscription.EMPTY;
     private Subscription playerStateSubscription = Subscription.EMPTY;
 
+    /**
+     * Creates a new PlayerActionsController.
+     * It attaches listeners to populate the playerController, playerState and
+     * playerObjective properties. This is necessary to ensure these properties are
+     * always on the correct thread.
+     * Additionally the PlayerActionsBuilder is created with all necessary event
+     * handlers.
+     *
+     * <b>Do not touch this constructor.</b>
+     *
+     * @param gameBoardController      the game board controller
+     * @param playerControllerProperty the property that contains the player
+     *                                 controller that is currently active
+     */
     @DoNotTouch
     public PlayerActionsController(final GameBoardController gameBoardController,
             final Property<PlayerController> playerControllerProperty) {
         this.playerControllerProperty.subscribe((oldValue, newValue) -> {
             Platform.runLater(() -> {
-                playerObjectiveSubscription.unsubscribe();
-                playerObjectiveSubscription = newValue.getPlayerObjectiveProperty().subscribe((oldObjective,
-                        newObjective) -> Platform.runLater(() -> this.playerObjectiveProperty.setValue(newObjective)));
-                this.playerObjectiveProperty.setValue(newValue.getPlayerObjectiveProperty().getValue());
-
                 playerStateSubscription.unsubscribe();
                 playerStateSubscription = newValue.getPlayerStateProperty().subscribe(
                         (oldState, newState) -> Platform.runLater(() -> this.playerStateProperty.setValue(newState)));
                 this.playerStateProperty.setValue(newValue.getPlayerStateProperty().getValue());
+
+                playerObjectiveSubscription.unsubscribe();
+                playerObjectiveSubscription = newValue.getPlayerObjectiveProperty().subscribe((oldObjective,
+                        newObjective) -> Platform.runLater(() -> this.playerObjectiveProperty.setValue(newObjective)));
+                this.playerObjectiveProperty.setValue(newValue.getPlayerObjectiveProperty().getValue());
             });
         });
         this.gameBoardController = gameBoardController;
@@ -86,7 +111,14 @@ public class PlayerActionsController implements Controller {
                 this::abortButtonAction);
     }
 
-    private void enableButtonBasedOnObjective(final PlayerObjective objective) {
+    /**
+     * Updates the UI based on the given objective. This includes enabling and
+     * disabling buttons and prompting the user if necessary.
+     *
+     * @param objective the objective to check
+     */
+    @StudentImplementationRequired
+    private void updateUIBasedOnObjective(final PlayerObjective objective) {
         System.out.println("objective: " + objective);
         removeAllHighlights();
         drawEdges();
@@ -97,7 +129,6 @@ public class PlayerActionsController implements Controller {
             System.out.println("I am confusion");
             return;
         }
-        gameBoardController.updatePlayerInformation(getPlayer());
         switch (objective) {
             case REGULAR_TURN:
                 updateBuildVillageButtonState();
@@ -133,36 +164,96 @@ public class PlayerActionsController implements Controller {
         }
     }
 
+    /**
+     * Returns the player controller that is currently active.
+     * Please do not use this method to get the playerState or playerObjective.
+     * Use the {@link PlayerActionsController#getPlayerState()} and
+     * {@link PlayerActionsController#getPlayerObjective()} instead.
+     *
+     * @return the player controller that is currently active
+     */
+    @DoNotTouch
     private PlayerController getPlayerController() {
         return playerControllerProperty.getValue();
     }
 
+    /**
+     * Returns the player state of the player that is currently active.
+     *
+     * @return the player state of the player that is currently active
+     */
+    @DoNotTouch
     private PlayerState getPlayerState() {
         return playerStateProperty.getValue();
     }
 
+    /**
+     * Returns the player objective of the player that is currently active.
+     *
+     * @return the player objective of the player that is currently active
+     */
+    @DoNotTouch
+    private PlayerObjective getPlayerObjective() {
+        return playerObjectiveProperty.getValue();
+    }
+
+    /**
+     * Returns the HexGridController of the game board.
+     *
+     * @return the HexGridController of the game board
+     */
+    @DoNotTouch
+    private HexGridController getHexGridController() {
+        return gameBoardController.getHexGridController();
+    }
+
+    /**
+     * Returns the player that is currently active.
+     *
+     * @return the player that is currently active
+     */
+    @DoNotTouch
     private Player getPlayer() {
         return getPlayerController().getPlayer();
     }
 
+    /**
+     * ReDraws the intersections.
+     */
+    @DoNotTouch
     private void drawIntersections() {
         getHexGridController().drawIntersections();
     }
 
+    /**
+     * ReDraws the edges.
+     */
+    @DoNotTouch
+    private void drawEdges() {
+        getHexGridController().drawEdges();
+    }
+
+    /**
+     * Removes all highlights from the game board.
+     */
+    @DoNotTouch
     private void removeAllHighlights() {
         getHexGridController().getEdgeControllers().forEach(EdgeController::unhighlight);
         getHexGridController().getIntersectionControllers().forEach(IntersectionController::unhighlight);
         getHexGridController().unhighlightTiles();
     }
 
-    private HexGridController getHexGridController() {
-        return gameBoardController.getHexGridController();
-    }
-
-    private PlayerObjective getPlayerObjective() {
-        return playerObjectiveProperty.getValue();
-    }
-
+    /**
+     * Wraps a event handler (primarily button Actions) to ensure that all
+     * highlights are removed, intersections are redrawn and all buttons except the
+     * abort button (if abortable) are disabled.
+     * This method is intended to be used when a button is clicked, to ensure a
+     * common state before a action is performed.
+     *
+     * @param handler   the handler to wrap
+     * @param abortable whether the action is abortable
+     * @return the wrapped handler
+     */
     @DoNotTouch
     private Consumer<ActionEvent> actionWrapper(final Consumer<ActionEvent> handler, final boolean abortable) {
         return e -> {
@@ -174,12 +265,22 @@ public class PlayerActionsController implements Controller {
             }
 
             handler.accept(e);
-            gameBoardController.updatePlayerInformation(getPlayer());
+            // gameBoardController.updatePlayerInformation(getPlayer());
         };
     }
 
     // Build actions
 
+    /**
+     * Wraps a event handler to ensure that all highlights are removed, the correct
+     * buttons are reenabled and the player information is up to date.
+     *
+     * This method is intended to be used when a action is triggered on the
+     * player controller to ensure a common state after the action is performed.
+     *
+     * @param handler the handler to wrap
+     * @return the wrapped handler
+     */
     @DoNotTouch
     private Consumer<MouseEvent> buildActionWrapper(final Consumer<MouseEvent> handler) {
         return e -> {
@@ -187,12 +288,17 @@ public class PlayerActionsController implements Controller {
 
             removeAllHighlights();
             if (getPlayerController() != null) {
-                enableButtonBasedOnObjective(getPlayerObjective());
+                updateUIBasedOnObjective(getPlayerObjective());
                 gameBoardController.updatePlayerInformation(getPlayer());
             }
         };
     }
 
+    /**
+     * Enables or disable the build village button based on the currently allowed
+     * actions and if there are any buildable intersections.
+     */
+    @StudentImplementationRequired
     private void updateBuildVillageButtonState() {
         if (getPlayerObjective().getAllowedActions().contains(BuildVillageAction.class)
                 && getPlayerState().buildableVillageIntersections().size() > 0) {
@@ -202,6 +308,17 @@ public class PlayerActionsController implements Controller {
         builder.disableBuildVillageButton();
     }
 
+    /**
+     * Attaches the logic to build a village to all buildable intersections and
+     * highlights them.
+     * When an intersection is selected, it triggers the BuildVillageAction.
+     * The logic is wrapped in a buildActionWrapper to ensure a common state after a
+     * village is built.
+     *
+     * This method is prepared to be used with a button.
+     *
+     * @param event the event that triggered the action
+     */
     @StudentImplementationRequired
     private void buildVillageButtonAction(final ActionEvent event) {
         getPlayerState().buildableVillageIntersections().stream()
@@ -212,6 +329,11 @@ public class PlayerActionsController implements Controller {
                 })));
     }
 
+    /**
+     * Enables or disable the upgrade village button based on the currently allowed
+     * actions and if there are any upgradeable villages.
+     */
+    @StudentImplementationRequired
     private void updateUpgradeVillageButtonState() {
         if (getPlayerObjective().getAllowedActions().contains(UpgradeVillageAction.class)
                 && getPlayerState().upgradebleVillageIntersections().size() > 0) {
@@ -221,6 +343,17 @@ public class PlayerActionsController implements Controller {
         builder.disableUpgradeVillageButton();
     }
 
+    /**
+     * Attaches the logic to upgrade a village to all upgradeable intersections and
+     * highlights them.
+     * When an intersection is selected, it triggers the UpgradeVillageAction.
+     * The logic is wrapped in a buildActionWrapper to ensure a common state after a
+     * village is upgraded.
+     *
+     * This method is prepared to be used with a button.
+     *
+     * @param event the event that triggered the action
+     */
     @StudentImplementationRequired
     private void upgradeVillageButtonAction(final ActionEvent event) {
         getPlayerState().upgradebleVillageIntersections().stream()
@@ -231,6 +364,11 @@ public class PlayerActionsController implements Controller {
                 })));
     }
 
+    /**
+     * Enables or disable the build road button based on the currently allowed
+     * actions and if there are any edges to build on.
+     */
+    @StudentImplementationRequired
     private void updateBuildRoadButtonState() {
         if (getPlayerObjective().getAllowedActions().contains(BuildRoadAction.class)
                 && getPlayerState().buildableRoadEdges().size() > 0) {
@@ -240,6 +378,17 @@ public class PlayerActionsController implements Controller {
         builder.disableBuildRoadButton();
     }
 
+    /**
+     * Attaches the logic to build a road to all buildable edges and highlights
+     * them.
+     * When an edge is selected, it triggers the BuildRoadAction.
+     * The logic is wrapped in a buildActionWrapper to ensure a common state after a
+     * road is built.
+     *
+     * This method is prepared to be used with a button.
+     *
+     * @param event the event that triggered the action
+     */
     @StudentImplementationRequired
     private void buildRoadButtonAction(final ActionEvent event) {
         getPlayerState().buildableRoadEdges().stream()
@@ -250,31 +399,59 @@ public class PlayerActionsController implements Controller {
                 })));
     }
 
-    private void drawEdges() {
-        getHexGridController().drawEdges();
-    }
-
+    /**
+     * Performs the action of buying a development card.
+     * Triggers the BuyDevelopmentCardAction.
+     *
+     * This method is prepared to be used with a button.
+     *
+     * @param event the event that triggered the action
+     */
     private void buyDevelopmentCardButtonAction(final ActionEvent event) {
         System.out.println("Buying development card");
     }
 
+    /**
+     * The action that is triggered when the end turn button is clicked.
+     *
+     * @param event the event that triggered the action
+     */
     private void endTurnButtonAction(final ActionEvent event) {
         getPlayerController().triggerAction(new EndTurnAction());
     }
 
+    /**
+     * The action that is triggered when the roll dice button is clicked.
+     *
+     * @param event the event that triggered the action
+     */
     private void rollDiceButtonAction(final ActionEvent event) {
         getPlayerController().triggerAction(new RollDiceAction());
     }
 
     // Robber actions
 
+    /**
+     * Triggers the SelectRobberTileAction with the selected tile and unhighlights
+     * all tiles. After the action is triggered, the tiles are redrawn.
+     *
+     * @param tile the tile that was clicked
+     */
+    @StudentImplementationRequired
     private void selectRobberTileAction(final Tile tile) {
-        System.out.println(Thread.currentThread().getName());
         getHexGridController().unhighlightTiles();
         getPlayerController().triggerAction(new SelectRobberTileAction(tile.getPosition()));
         getHexGridController().drawTiles();
     }
 
+    /**
+     * Performs the action of selecting a card to steal from another player.
+     * If there are no players to steal from, triggers the EndTurnAction.
+     * Prompts the user to select a card to steal from a player and triggers the
+     * StealCardAction with the selected card.
+     * If no card is selected, triggers the EndTurnAction.
+     */
+    @StudentImplementationRequired
     private void selectCardToStealAction() {
         if (getPlayerState().playersToStealFrom().isEmpty()) {
             getPlayerController().triggerAction(new EndTurnAction());
@@ -286,6 +463,16 @@ public class PlayerActionsController implements Controller {
                 () -> getPlayerController().triggerAction(new EndTurnAction()));
     }
 
+    /**
+     * Performs the DropCardsAction and prompts the user to select the cards to
+     * drop.
+     * If the use cancels or selects an invalid amount of cards, the user is
+     * prompted again.
+     * Triggers the DropCardsAction with the selected cards.
+     *
+     * @param amountToDrop the amount of cards to drop
+     */
+    @StudentImplementationRequired
     private void dropCardsAction(final int amountToDrop) {
         final DropCardsDialog dropCardsDialog = new DropCardsDialog(getPlayer().getResources(), amountToDrop,
                 getPlayer());
@@ -298,24 +485,49 @@ public class PlayerActionsController implements Controller {
 
     // Trade actions
 
+    /**
+     * Performs the trading action.
+     * Prompts the user to select the cards to offer and the cards to request.
+     * If the user cancels, the trade is cancelled.
+     * Triggers the TradeAction with the selected cards.
+     *
+     * This method is prepared to be used with a button.
+     *
+     * @param event the event that triggered the action
+     */
     private void tradeButtonAction(final ActionEvent event) {
         System.out.println("Trading");
         final TradeDialog dialog = new TradeDialog(new TradePayload(null, null, false, getPlayer()));
         dialog.showAndWait().ifPresentOrElse(payload -> {
             getPlayerController().triggerAction(new TradeAction(payload));
         }, () -> System.out.println("Trade cancelled"));
-        enableButtonBasedOnObjective(getPlayerObjective());
+        updateUIBasedOnObjective(getPlayerObjective());
     }
 
+    /**
+     * Performs the action of accepting a trade offer.
+     * Prompts the user to accept or decline the trade offer.
+     * If the user cancels, the trade is declined.
+     * Triggers the AcceptTradeAction with a boolean representing the players
+     * decision.
+     */
     private void acceptTradeOffer() {
         final Optional<Boolean> optionalResult = new AcceptTradeDialog(getPlayerState().offeredTrade(), getPlayer())
                 .showAndWait();
         optionalResult.ifPresent(result -> getPlayerController().triggerAction(new AcceptTradeAction(result)));
     }
 
+    /**
+     * Aborts the current action by remove all highlights and reenabling the correct
+     * buttons. Disables the abort button.
+     *
+     * This method is prepared to be used with a button.
+     *
+     * @param event the event that triggered the action
+     */
     private void abortButtonAction(final ActionEvent event) {
         removeAllHighlights();
-        enableButtonBasedOnObjective(getPlayerObjective());
+        updateUIBasedOnObjective(getPlayerObjective());
         builder.disableAbortButton();
     }
 
@@ -329,11 +541,11 @@ public class PlayerActionsController implements Controller {
     public Region buildView() {
         final Region view = builder.build();
 
-        playerObjectiveProperty.subscribe((oldValue, newValue) -> enableButtonBasedOnObjective(newValue));
-        playerStateProperty.subscribe((oldValue, newValue) -> enableButtonBasedOnObjective(getPlayerObjective()));
+        playerObjectiveProperty.subscribe((oldValue, newValue) -> updateUIBasedOnObjective(newValue));
+        playerStateProperty.subscribe((oldValue, newValue) -> updateUIBasedOnObjective(getPlayerObjective()));
         builder.disableAllButtons();
         if (getPlayerController() != null) {
-            enableButtonBasedOnObjective(getPlayerObjective());
+            updateUIBasedOnObjective(getPlayerObjective());
         }
         return view;
     }
