@@ -28,6 +28,7 @@ public class PlayerImpl implements Player {
     private final IntegerProperty victoryPoints;
     private final Map<ResourceType, Integer> resources = new HashMap<>();
     private final Map<DevelopmentCardType, Integer> developmentCards = new HashMap<>();
+    private final Map<DevelopmentCardType, Integer> playedDevelopmentCards = new HashMap<>();
 
     private PlayerImpl(final HexGrid hexGrid, final Color color, final int id, final String name, final boolean ai) {
         this.hexGrid = hexGrid;
@@ -135,6 +136,8 @@ public class PlayerImpl implements Player {
             return false;
         }
         this.developmentCards.put(developmentCardType, this.developmentCards.getOrDefault(developmentCardType, 0) - 1);
+        this.playedDevelopmentCards.put(developmentCardType,
+                this.playedDevelopmentCards.getOrDefault(developmentCardType, 0) + 1);
         return true;
     }
 
@@ -145,7 +148,7 @@ public class PlayerImpl implements Player {
 
     @Override
     public int getKnightsPlayed() {
-        return this.developmentCards.getOrDefault(DevelopmentCardType.KNIGHT, 0);
+        return this.playedDevelopmentCards.getOrDefault(DevelopmentCardType.KNIGHT, 0);
     }
 
     @Override
