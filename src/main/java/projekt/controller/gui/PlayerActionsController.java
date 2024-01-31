@@ -498,7 +498,7 @@ public class PlayerActionsController implements Controller {
 
     private void updateBuyDevelopmentCardButtonState() {
         if (getPlayerObjective().getAllowedActions().contains(BuyDevelopmentCardAction.class)
-            && getPlayerController().canBuyDevelopmentCard()) {
+                && getPlayerController().canBuyDevelopmentCard()) {
             builder.enableBuyDevelopmentCardButton();
             return;
         }
@@ -515,12 +515,13 @@ public class PlayerActionsController implements Controller {
      */
     private void buyDevelopmentCardButtonAction(final ActionEvent event) {
         getPlayerController().triggerAction(new BuyDevelopmentCardAction());
-        updateBuyDevelopmentCardButtonState();
+        updateUIBasedOnObjective(getPlayerObjective());
     }
 
     private void updateUseDevelopmentCardButtonState() {
-        if (getPlayerObjective().getAllowedActions().contains(UseDevelopmentCardAction.class)
-            && getPlayer().getDevelopmentCards().entrySet().stream().anyMatch(entry -> entry.getKey() != DevelopmentCardType.VICTORY_POINTS && entry.getValue() > 0)) {
+        if (getPlayerObjective().getAllowedActions().contains(PlayDevelopmentCardAction.class)
+                && getPlayer().getDevelopmentCards().entrySet().stream().anyMatch(
+                        entry -> entry.getKey() != DevelopmentCardType.VICTORY_POINTS && entry.getValue() > 0)) {
             builder.enablePlayDevelopmentCardButton();
             return;
         }
@@ -529,9 +530,9 @@ public class PlayerActionsController implements Controller {
 
     public void useDevelopmentCardButtonAction(final ActionEvent event) {
         final UseDevelopmentCardDialog dialog = new UseDevelopmentCardDialog(getPlayer());
-        dialog.showAndWait().ifPresentOrElse(
-            result -> getPlayerController().triggerAction(new UseDevelopmentCardAction(result)),
-            () -> getPlayerController().triggerAction(new EndTurnAction()));
+        dialog.showAndWait()
+                .ifPresent(result -> getPlayerController().triggerAction(new PlayDevelopmentCardAction(result)));
+        updateUIBasedOnObjective(getPlayerObjective());
     }
 
     // Trade actions
