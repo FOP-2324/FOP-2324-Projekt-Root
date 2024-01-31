@@ -26,7 +26,6 @@ import projekt.model.TradePayload;
 import projekt.model.buildings.Edge;
 import projekt.model.buildings.Settlement;
 import projekt.model.tiles.Tile;
-import projekt.view.gameControls.SelectResourceDialog;
 
 public class PlayerController {
     private final Player player;
@@ -117,6 +116,8 @@ public class PlayerController {
     public void rollDice() {
         gameController.castDice();
     }
+
+    // Process Actions
 
     /**
      * Gets called from viewer thread to trigger an Action. This action will then be waited for using the method
@@ -280,6 +281,39 @@ public class PlayerController {
         player.addDevelopmentCard(gameController.drawDevelopmentCard());
         player.removeResources(requiredResources);
         return true;
+    }
+
+    public void playDevelopmentCard(final DevelopmentCardType developmentCard) {
+        switch (developmentCard) {
+            case KNIGHT -> {
+                waitForNextAction(PlayerObjective.SELECT_ROBBER_TILE);
+                waitForNextAction(PlayerObjective.SELECT_CARD_TO_STEAL);
+            }
+            case ROAD_BUILDING -> {
+                waitForNextAction(PlayerObjective.PLACE_ROAD);
+                waitForNextAction(PlayerObjective.PLACE_ROAD);
+            }
+            case INVENTION -> {
+                cardsToSelect = 2;
+                waitForNextAction(PlayerObjective.SELECT_CARDS);
+            }
+            case MONOPOLY -> {
+                cardsToSelect = 1;
+                waitForNextAction(PlayerObjective.SELECT_CARDS);
+                final ResourceType resourceType = null;
+                for (final Player player : getOtherPlayers()) {
+                    final int amount = player.getResources().getOrDefault(resourceType, 0);
+                    player.removeResource(resourceType, amount);
+                    getPlayer().addResource(resourceType, amount);
+                }
+            }
+            default -> {
+                System.out.printf("No action for development card type %s registered%n", developmentCard);
+                return;
+            }
+        }
+        waitForNextAction(PlayerObjective.REGULAR_TURN);
+        getPlayer().removeDevelopmentCard(developmentCard);
     }
 
     // -- Trading methods --
