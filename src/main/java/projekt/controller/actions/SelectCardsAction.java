@@ -9,8 +9,7 @@ public record SelectCardsAction(Map<ResourceType, Integer> selectedCards) implem
 
     @Override
     public void execute(final PlayerController pc) throws IllegalActionException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'execute'");
+        pc.processSelectedResources(selectedCards);
     }
 
 }

@@ -44,6 +44,8 @@ public class PlayerController {
 
     private Map<ResourceType, Integer> playerTradingRequest;
 
+    private Map<ResourceType, Integer> selectedResources = new HashMap<>();
+
     private int cardsToSelect = 0;
 
     /**
@@ -115,6 +117,14 @@ public class PlayerController {
 
     public void rollDice() {
         gameController.castDice();
+    }
+
+    public void processSelectedResources(final Map<ResourceType, Integer> selectedResources)
+            throws IllegalActionException {
+        if (selectedResources.values().stream().mapToInt(Integer::intValue).sum() != getCardsToSelect()) {
+            throw new IllegalActionException("Wrong amount of cards selected");
+        }
+        this.selectedResources = selectedResources;
     }
 
     // Process Actions
