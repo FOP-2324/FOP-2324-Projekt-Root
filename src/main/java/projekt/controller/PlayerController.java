@@ -158,8 +158,8 @@ public class PlayerController {
 
     public boolean canBuildVillage() {
         final var requiredResources = Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.VILLAGE);
-        return playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_VILLAGE)
-                || player.hasResources(requiredResources);
+        return (playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_VILLAGE)
+                || player.hasResources(requiredResources)) && player.getRemainingVillages() > 0;
     }
 
     public boolean buildVillage(final Intersection intersection) {
@@ -186,7 +186,8 @@ public class PlayerController {
     public boolean canUpgradeVillage() {
         final var requiredResources = Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.CITY);
         return player.hasResources(requiredResources) && player.getSettlements().stream()
-                .anyMatch(settlement -> settlement.type() == Settlement.Type.VILLAGE);
+                .anyMatch(settlement -> settlement.type() == Settlement.Type.VILLAGE)
+                && player.getRemainingCities() > 0;
     }
 
     public boolean upgradeVillage(final Intersection intersection) {
@@ -220,8 +221,8 @@ public class PlayerController {
 
     public boolean canBuildRoad() {
         final var requiredResources = Config.ROAD_BUILDING_COST;
-        return playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_ROAD)
-                || player.hasResources(requiredResources);
+        return (playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_ROAD)
+                || player.hasResources(requiredResources)) && player.getRemainingRoads() > 0;
     }
 
     public boolean buildRoad(final Tile tile, final TilePosition.EdgeDirection edgeDirection) {
