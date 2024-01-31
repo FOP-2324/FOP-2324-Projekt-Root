@@ -306,11 +306,12 @@ public class PlayerController {
             case INVENTION -> {
                 cardsToSelect = 2;
                 waitForNextAction(PlayerObjective.SELECT_CARDS);
+                player.addResources(selectedResources);
             }
             case MONOPOLY -> {
                 cardsToSelect = 1;
                 waitForNextAction(PlayerObjective.SELECT_CARDS);
-                final ResourceType resourceType = null;
+                final ResourceType resourceType = selectedResources.keySet().iterator().next();
                 for (final Player player : getOtherPlayers()) {
                     final int amount = player.getResources().getOrDefault(resourceType, 0);
                     player.removeResource(resourceType, amount);
