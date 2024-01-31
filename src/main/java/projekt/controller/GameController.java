@@ -56,7 +56,6 @@ public class GameController {
         this.state = state;
         this.dice = dice;
         this.playerControllers = new HashMap<>();
-        initPlayerControllers();
     }
 
     public GameController() {
@@ -110,7 +109,9 @@ public class GameController {
         if (this.state.getPlayers().size() < Config.MIN_PLAYERS) {
             throw new IllegalStateException("Not enough players");
         }
-        initPlayerControllers();
+        if (playerControllers.isEmpty()) {
+            initPlayerControllers();
+        }
 
         firstRound();
 
