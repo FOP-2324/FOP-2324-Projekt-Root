@@ -16,10 +16,17 @@ import javafx.beans.property.SimpleObjectProperty;
 import projekt.Config;
 import projekt.controller.actions.IllegalActionException;
 import projekt.controller.actions.PlayerAction;
-import projekt.model.*;
+import projekt.model.DevelopmentCardType;
+import projekt.model.Intersection;
+import projekt.model.Player;
+import projekt.model.PlayerState;
+import projekt.model.ResourceType;
+import projekt.model.TilePosition;
+import projekt.model.TradePayload;
 import projekt.model.buildings.Edge;
 import projekt.model.buildings.Settlement;
 import projekt.model.tiles.Tile;
+import projekt.view.gameControls.SelectResourceDialog;
 
 public class PlayerController {
     private final Player player;
@@ -37,6 +44,8 @@ public class PlayerController {
     private Map<ResourceType, Integer> playerTradingOffer;
 
     private Map<ResourceType, Integer> playerTradingRequest;
+
+    private int cardsToSelect = 0;
 
     /**
      * Creates a new {@link PlayerController} with the given {@link GameController}.
@@ -83,7 +92,18 @@ public class PlayerController {
     private void updatePlayerState() {
         playerStateProperty
                 .setValue(new PlayerState(getBuildableVillageIntersections(), getUpgradeableVillageIntersections(),
-                        getBuildableRoadEdges(), getPlayersToStealFrom(), getPlayerTradingPayload()));
+                        getBuildableRoadEdges(), getPlayersToStealFrom(), getPlayerTradingPayload(),
+                        getCardsToSelect()));
+    }
+
+    private int getCardsToSelect() {
+        if (PlayerObjective.DROP_HALF_CARDS.equals(playerObjectiveProperty.getValue())) {
+            return player.getResources().values().stream().mapToInt(Integer::intValue).sum() / 2;
+        }
+        if (PlayerObjective.SELECT_CARDS.equals(playerObjectiveProperty.getValue())) {
+            return cardsToSelect;
+        }
+        return 0;
     }
 
     public List<Player> getOtherPlayers() {
