@@ -12,6 +12,7 @@ import projekt.controller.actions.DropCardsAction;
 import projekt.controller.actions.EndTurnAction;
 import projekt.controller.actions.PlayerAction;
 import projekt.controller.actions.RollDiceAction;
+import projekt.controller.actions.SelectCardsAction;
 import projekt.controller.actions.SelectRobberTileAction;
 import projekt.controller.actions.StealCardAction;
 import projekt.controller.actions.TradeAction;
@@ -35,6 +36,7 @@ public enum PlayerObjective {
     PLACE_ROAD(Set.of(BuildRoadAction.class)),
     DICE_ROLL(Set.of(RollDiceAction.class)),
     ACCEPT_TRADE(Set.of(AcceptTradeAction.class)),
+    SELECT_CARDS(Set.of(SelectCardsAction.class)),
     IDLE(Set.of());
 
     final Set<Class<? extends PlayerAction>> allowedActions;
