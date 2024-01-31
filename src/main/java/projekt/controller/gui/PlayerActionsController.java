@@ -17,10 +17,32 @@ import javafx.util.Builder;
 import javafx.util.Subscription;
 import projekt.controller.PlayerController;
 import projekt.controller.PlayerObjective;
-import projekt.controller.actions.*;
-import projekt.model.*;
+import projekt.controller.actions.AcceptTradeAction;
+import projekt.controller.actions.BuildRoadAction;
+import projekt.controller.actions.BuildVillageAction;
+import projekt.controller.actions.BuyDevelopmentCardAction;
+import projekt.controller.actions.DropCardsAction;
+import projekt.controller.actions.EndTurnAction;
+import projekt.controller.actions.PlayDevelopmentCardAction;
+import projekt.controller.actions.RollDiceAction;
+import projekt.controller.actions.SelectCardsAction;
+import projekt.controller.actions.SelectRobberTileAction;
+import projekt.controller.actions.StealCardAction;
+import projekt.controller.actions.TradeAction;
+import projekt.controller.actions.UpgradeVillageAction;
+import projekt.model.DevelopmentCardType;
+import projekt.model.Player;
+import projekt.model.PlayerState;
+import projekt.model.ResourceType;
+import projekt.model.TradePayload;
 import projekt.model.tiles.Tile;
-import projekt.view.gameControls.*;
+import projekt.view.gameControls.AcceptTradeDialog;
+import projekt.view.gameControls.DropCardsDialog;
+import projekt.view.gameControls.PlayerActionsBuilder;
+import projekt.view.gameControls.SelectCardToStealDialog;
+import projekt.view.gameControls.SelectResourceDialog;
+import projekt.view.gameControls.TradeDialog;
+import projekt.view.gameControls.UseDevelopmentCardDialog;
 
 /**
  * This class is responsible for handling all player actions performed through
@@ -147,6 +169,11 @@ public class PlayerActionsController implements Controller {
                 break;
             case ACCEPT_TRADE:
                 acceptTradeOffer();
+                break;
+            case SELECT_CARDS:
+                selectResources(getPlayerState().cradsToSelect());
+                break;
+            default:
                 break;
         }
     }
@@ -456,6 +483,15 @@ public class PlayerActionsController implements Controller {
             result = dropCardsDialog.showAndWait();
         }
         getPlayerController().triggerAction(new DropCardsAction(result.get()));
+    }
+
+    private void selectResources(final int amountToSelect) {
+        final SelectResourceDialog dialog = new SelectResourceDialog(amountToSelect, getPlayer());
+        Optional<Map<ResourceType, Integer>> result = dialog.showAndWait();
+        while (result.isEmpty() || result.get() == null) {
+            result = dialog.showAndWait();
+        }
+        getPlayerController().triggerAction(new SelectCardsAction(result.get()));
     }
 
     // Development card actions
