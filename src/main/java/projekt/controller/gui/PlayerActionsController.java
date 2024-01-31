@@ -17,26 +17,10 @@ import javafx.util.Builder;
 import javafx.util.Subscription;
 import projekt.controller.PlayerController;
 import projekt.controller.PlayerObjective;
-import projekt.controller.actions.AcceptTradeAction;
-import projekt.controller.actions.BuildRoadAction;
-import projekt.controller.actions.BuildVillageAction;
-import projekt.controller.actions.DropCardsAction;
-import projekt.controller.actions.EndTurnAction;
-import projekt.controller.actions.RollDiceAction;
-import projekt.controller.actions.SelectRobberTileAction;
-import projekt.controller.actions.StealCardAction;
-import projekt.controller.actions.TradeAction;
-import projekt.controller.actions.UpgradeVillageAction;
-import projekt.model.Player;
-import projekt.model.PlayerState;
-import projekt.model.ResourceType;
-import projekt.model.TradePayload;
+import projekt.controller.actions.*;
+import projekt.model.*;
 import projekt.model.tiles.Tile;
-import projekt.view.gameControls.AcceptTradeDialog;
-import projekt.view.gameControls.DropCardsDialog;
-import projekt.view.gameControls.PlayerActionsBuilder;
-import projekt.view.gameControls.SelectCardToStealDialog;
-import projekt.view.gameControls.TradeDialog;
+import projekt.view.gameControls.*;
 
 /**
  * This class is responsible for handling all player actions performed through
@@ -105,6 +89,7 @@ public class PlayerActionsController implements Controller {
                 actionWrapper(this::upgradeVillageButtonAction, true),
                 actionWrapper(this::buildRoadButtonAction, true),
                 actionWrapper(this::buyDevelopmentCardButtonAction, false),
+                actionWrapper(this::useDevelopmentCardButtonAction, false),
                 actionWrapper(this::endTurnButtonAction, false),
                 actionWrapper(this::rollDiceButtonAction, false),
                 actionWrapper(this::tradeButtonAction, false),
@@ -134,6 +119,8 @@ public class PlayerActionsController implements Controller {
                 updateBuildVillageButtonState();
                 updateUpgradeVillageButtonState();
                 updateBuildRoadButtonState();
+                updateBuyDevelopmentCardButtonState();
+                updateUseDevelopmentCardButtonState();
                 builder.enableTradeButton();
                 builder.enableEndTurnButton();
                 break;
@@ -400,18 +387,6 @@ public class PlayerActionsController implements Controller {
     }
 
     /**
-     * Performs the action of buying a development card.
-     * Triggers the BuyDevelopmentCardAction.
-     *
-     * This method is prepared to be used with a button.
-     *
-     * @param event the event that triggered the action
-     */
-    private void buyDevelopmentCardButtonAction(final ActionEvent event) {
-        System.out.println("Buying development card");
-    }
-
-    /**
      * The action that is triggered when the end turn button is clicked.
      *
      * @param event the event that triggered the action
@@ -481,6 +456,46 @@ public class PlayerActionsController implements Controller {
             result = dropCardsDialog.showAndWait();
         }
         getPlayerController().triggerAction(new DropCardsAction(result.get()));
+    }
+
+    // Development card actions
+
+    private void updateBuyDevelopmentCardButtonState() {
+        if (getPlayerObjective().getAllowedActions().contains(BuyDevelopmentCardAction.class)
+            && getPlayerController().canBuyDevelopmentCard()) {
+            builder.enableBuyDevelopmentCardButton();
+            return;
+        }
+        builder.disableBuyDevelopmentCardButton();
+    }
+
+    /**
+     * Performs the action of buying a development card.
+     * Triggers the BuyDevelopmentCardAction.
+     *
+     * This method is prepared to be used with a button.
+     *
+     * @param event the event that triggered the action
+     */
+    private void buyDevelopmentCardButtonAction(final ActionEvent event) {
+        getPlayerController().triggerAction(new BuyDevelopmentCardAction());
+        updateBuyDevelopmentCardButtonState();
+    }
+
+    private void updateUseDevelopmentCardButtonState() {
+        if (getPlayerObjective().getAllowedActions().contains(UseDevelopmentCardAction.class)
+            && getPlayer().getDevelopmentCards().entrySet().stream().anyMatch(entry -> entry.getKey() != DevelopmentCardType.VICTORY_POINTS && entry.getValue() > 0)) {
+            builder.enablePlayDevelopmentCardButton();
+            return;
+        }
+        builder.disablePlayDevelopmentCardButton();
+    }
+
+    public void useDevelopmentCardButtonAction(final ActionEvent event) {
+        final UseDevelopmentCardDialog dialog = new UseDevelopmentCardDialog(getPlayer());
+        dialog.showAndWait().ifPresentOrElse(
+            result -> getPlayerController().triggerAction(new UseDevelopmentCardAction(result)),
+            () -> getPlayerController().triggerAction(new EndTurnAction()));
     }
 
     // Trade actions

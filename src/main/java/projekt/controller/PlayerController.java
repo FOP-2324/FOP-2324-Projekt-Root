@@ -16,12 +16,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import projekt.Config;
 import projekt.controller.actions.IllegalActionException;
 import projekt.controller.actions.PlayerAction;
-import projekt.model.Intersection;
-import projekt.model.Player;
-import projekt.model.PlayerState;
-import projekt.model.ResourceType;
-import projekt.model.TilePosition;
-import projekt.model.TradePayload;
+import projekt.model.*;
 import projekt.model.buildings.Edge;
 import projekt.model.buildings.Settlement;
 import projekt.model.tiles.Tile;
@@ -89,6 +84,14 @@ public class PlayerController {
         playerStateProperty
                 .setValue(new PlayerState(getBuildableVillageIntersections(), getUpgradeableVillageIntersections(),
                         getBuildableRoadEdges(), getPlayersToStealFrom(), getPlayerTradingPayload()));
+    }
+
+    public List<Player> getOtherPlayers() {
+        return gameController.getState()
+            .getPlayers()
+            .stream()
+            .filter(p -> p != player)
+            .toList();
     }
 
     public void rollDice() {
@@ -240,6 +243,23 @@ public class PlayerController {
         final var requiredResources = Config.ROAD_BUILDING_COST;
         return playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_ROAD)
                 || player.removeResources(requiredResources);
+    }
+
+    // Development card methods
+
+    public boolean canBuyDevelopmentCard() {
+        return gameController.remainingDevelopmentCards() > 0 && player.hasResources(Config.DEVELOPMENT_CARD_COST);
+    }
+
+    public boolean buyDevelopmentCard() {
+        if (!canBuyDevelopmentCard()) {
+            return false;
+        }
+
+        final var requiredResources = Config.DEVELOPMENT_CARD_COST;
+        player.addDevelopmentCard(gameController.drawDevelopmentCard());
+        player.removeResources(requiredResources);
+        return true;
     }
 
     // -- Trading methods --

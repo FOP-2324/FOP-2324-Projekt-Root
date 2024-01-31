@@ -1,11 +1,6 @@
 package projekt.controller;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -22,10 +17,7 @@ import projekt.Config;
 import projekt.controller.actions.AcceptTradeAction;
 import projekt.controller.actions.EndTurnAction;
 import projekt.controller.actions.PlayerAction;
-import projekt.model.GameState;
-import projekt.model.HexGridImpl;
-import projekt.model.Player;
-import projekt.model.ResourceType;
+import projekt.model.*;
 import projekt.model.tiles.Tile;
 
 public class GameController {
@@ -34,6 +26,7 @@ public class GameController {
     private final Map<Player, PlayerController> playerControllers;
     private final Iterator<Integer> dice;
     private final IntegerProperty currentDiceRoll = new SimpleIntegerProperty(0);
+    private final Stack<DevelopmentCardType> availableDevelopmentCards = Config.generateDevelopmentCards();
 
     private final Property<PlayerController> activePlayerControllerProperty = new SimpleObjectProperty<>();
 
@@ -95,6 +88,14 @@ public class GameController {
     public int castDice() {
         currentDiceRoll.set(dice.next());
         return currentDiceRoll.get();
+    }
+
+    public int remainingDevelopmentCards() {
+        return availableDevelopmentCards.size();
+    }
+
+    public DevelopmentCardType drawDevelopmentCard() {
+        return availableDevelopmentCards.pop();
     }
 
     @StudentImplementationRequired
