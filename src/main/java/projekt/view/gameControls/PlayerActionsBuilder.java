@@ -19,6 +19,7 @@ public class PlayerActionsBuilder implements Builder<Region> {
     private final Consumer<ActionEvent> upgradeVillageButtonAction;
     private final Consumer<ActionEvent> buildRoadButtonAction;
     private final Consumer<ActionEvent> buyDevelopmentCardButtonAction;
+    private final Consumer<ActionEvent> playDevelopmentCardButtonAction;
     private final Consumer<ActionEvent> endTurnButtonAction;
     private final Consumer<ActionEvent> rollDiceButtonAction;
     private final Consumer<ActionEvent> tradeButtonAction;
@@ -29,6 +30,7 @@ public class PlayerActionsBuilder implements Builder<Region> {
     private Node buildVillageNode;
     private Node upgradeVillageNode;
     private Node buyDevelopmentCardNode;
+    private Node playDevelopmentCardNode;
     private Node endTurnNode;
     private Node rollDiceNode;
     private Node tradeNode;
@@ -39,6 +41,7 @@ public class PlayerActionsBuilder implements Builder<Region> {
             final Consumer<ActionEvent> upgradeVillageButtonAction,
             final Consumer<ActionEvent> buildRoadButtonAction,
             final Consumer<ActionEvent> buyDevelopmentCardButtonAction,
+            final Consumer<ActionEvent> playDevelopmentCardButtonAction,
             final Consumer<ActionEvent> endTurnButtonAction,
             final Consumer<ActionEvent> rollDiceButtonAction,
             final Consumer<ActionEvent> tradeButtonAction,
@@ -47,6 +50,7 @@ public class PlayerActionsBuilder implements Builder<Region> {
         this.upgradeVillageButtonAction = upgradeVillageButtonAction;
         this.buildRoadButtonAction = buildRoadButtonAction;
         this.buyDevelopmentCardButtonAction = buyDevelopmentCardButtonAction;
+        this.playDevelopmentCardButtonAction = playDevelopmentCardButtonAction;
         this.endTurnButtonAction = endTurnButtonAction;
         this.rollDiceButtonAction = rollDiceButtonAction;
         this.tradeButtonAction = tradeButtonAction;
@@ -74,6 +78,10 @@ public class PlayerActionsBuilder implements Builder<Region> {
         buyDevelopmentCardButton.setOnAction(buyDevelopmentCardButtonAction::accept);
         this.buyDevelopmentCardNode = buyDevelopmentCardButton;
 
+        final Button playDevelopmentCardButton = new Button("Play Development Card");
+        playDevelopmentCardButton.setOnAction(playDevelopmentCardButtonAction::accept);
+        this.playDevelopmentCardNode = playDevelopmentCardButton;
+
         final Button endTurnButton = new Button("End Turn");
         endTurnButton.setOnAction(endTurnButtonAction::accept);
         this.endTurnNode = endTurnButton;
@@ -93,7 +101,7 @@ public class PlayerActionsBuilder implements Builder<Region> {
         this.abortNode = abortButton;
 
         mainBox.getChildren().addAll(tradeButton, buildRoadButton, buildVillageButton, upgradeVillageButton,
-                buyDevelopmentCardButton, rollDiceButton, endTurnButton, abortButton);
+                buyDevelopmentCardButton, playDevelopmentCardButton, rollDiceButton, endTurnButton, abortButton);
         mainBox.setSpacing(5);
         mainBox.setPadding(new Insets(10));
         return mainBox;
@@ -147,6 +155,14 @@ public class PlayerActionsBuilder implements Builder<Region> {
 
     public void enableBuyDevelopmentCardButton() {
         buyDevelopmentCardNode.setDisable(false);
+    }
+
+    public void disablePlayDevelopmentCardButton() {
+        playDevelopmentCardNode.setDisable(true);
+    }
+
+    public void enablePlayDevelopmentCardButton() {
+        playDevelopmentCardNode.setDisable(false);
     }
 
     public void disableEndTurnButton() {

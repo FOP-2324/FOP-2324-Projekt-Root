@@ -1,5 +1,6 @@
 package projekt.controller;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,6 +17,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import projekt.Config;
 import projekt.controller.actions.IllegalActionException;
 import projekt.controller.actions.PlayerAction;
+import projekt.model.DevelopmentCardType;
 import projekt.model.Intersection;
 import projekt.model.Player;
 import projekt.model.PlayerState;
@@ -42,6 +44,10 @@ public class PlayerController {
     private Map<ResourceType, Integer> playerTradingOffer;
 
     private Map<ResourceType, Integer> playerTradingRequest;
+
+    private Map<ResourceType, Integer> selectedResources = new HashMap<>();
+
+    private int cardsToSelect = 0;
 
     /**
      * Creates a new {@link PlayerController} with the given {@link GameController}.
@@ -88,12 +94,41 @@ public class PlayerController {
     private void updatePlayerState() {
         playerStateProperty
                 .setValue(new PlayerState(getBuildableVillageIntersections(), getUpgradeableVillageIntersections(),
-                        getBuildableRoadEdges(), getPlayersToStealFrom(), getPlayerTradingPayload()));
+                        getBuildableRoadEdges(), getPlayersToStealFrom(), getPlayerTradingPayload(),
+                        getCardsToSelect()));
+    }
+
+    private int getCardsToSelect() {
+        if (PlayerObjective.DROP_HALF_CARDS.equals(playerObjectiveProperty.getValue())) {
+            return player.getResources().values().stream().mapToInt(Integer::intValue).sum() / 2;
+        }
+        if (PlayerObjective.SELECT_CARDS.equals(playerObjectiveProperty.getValue())) {
+            return cardsToSelect;
+        }
+        return 0;
+    }
+
+    public List<Player> getOtherPlayers() {
+        return gameController.getState()
+            .getPlayers()
+            .stream()
+            .filter(p -> p != player)
+            .toList();
     }
 
     public void rollDice() {
         gameController.castDice();
     }
+
+    public void processSelectedResources(final Map<ResourceType, Integer> selectedResources)
+            throws IllegalActionException {
+        if (selectedResources.values().stream().mapToInt(Integer::intValue).sum() != getCardsToSelect()) {
+            throw new IllegalActionException("Wrong amount of cards selected");
+        }
+        this.selectedResources = selectedResources;
+    }
+
+    // Process Actions
 
     /**
      * Gets called from viewer thread to trigger an Action. This action will then be waited for using the method
@@ -240,6 +275,57 @@ public class PlayerController {
         final var requiredResources = Config.ROAD_BUILDING_COST;
         return playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_ROAD)
                 || player.removeResources(requiredResources);
+    }
+
+    // Development card methods
+
+    public boolean canBuyDevelopmentCard() {
+        return gameController.remainingDevelopmentCards() > 0 && player.hasResources(Config.DEVELOPMENT_CARD_COST);
+    }
+
+    public boolean buyDevelopmentCard() {
+        if (!canBuyDevelopmentCard()) {
+            return false;
+        }
+
+        final var requiredResources = Config.DEVELOPMENT_CARD_COST;
+        player.addDevelopmentCard(gameController.drawDevelopmentCard());
+        player.removeResources(requiredResources);
+        return true;
+    }
+
+    public void playDevelopmentCard(final DevelopmentCardType developmentCard) {
+        switch (developmentCard) {
+            case KNIGHT -> {
+                waitForNextAction(PlayerObjective.SELECT_ROBBER_TILE);
+                waitForNextAction(PlayerObjective.SELECT_CARD_TO_STEAL);
+            }
+            case ROAD_BUILDING -> {
+                waitForNextAction(PlayerObjective.PLACE_ROAD);
+                waitForNextAction(PlayerObjective.PLACE_ROAD);
+            }
+            case INVENTION -> {
+                cardsToSelect = 2;
+                waitForNextAction(PlayerObjective.SELECT_CARDS);
+                player.addResources(selectedResources);
+            }
+            case MONOPOLY -> {
+                cardsToSelect = 1;
+                waitForNextAction(PlayerObjective.SELECT_CARDS);
+                final ResourceType resourceType = selectedResources.keySet().iterator().next();
+                for (final Player player : getOtherPlayers()) {
+                    final int amount = player.getResources().getOrDefault(resourceType, 0);
+                    player.removeResource(resourceType, amount);
+                    getPlayer().addResource(resourceType, amount);
+                }
+            }
+            default -> {
+                System.out.printf("No action for development card type %s registered%n", developmentCard);
+                return;
+            }
+        }
+        getPlayer().removeDevelopmentCard(developmentCard);
+        waitForNextAction(PlayerObjective.REGULAR_TURN);
     }
 
     // -- Trading methods --

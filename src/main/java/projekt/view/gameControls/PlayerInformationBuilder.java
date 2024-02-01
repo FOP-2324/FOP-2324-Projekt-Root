@@ -45,7 +45,7 @@ public class PlayerInformationBuilder implements Builder<Region> {
         final Label developmentCardsLabel = new Label("Your Development Cards:");
         final FlowPane developmentCardsBox = new FlowPane(5, 5);
         for (final DevelopmentCardType developmentCardType : player.getDevelopmentCards().keySet()) {
-            final CardPane developmentCardTypeCard = new CardPane(Color.LIGHTGRAY,
+            final CardPane developmentCardTypeCard = new CardPane(Color.LIGHTGRAY, Utils.emptyCardImage,
                     Integer.toString(player.getDevelopmentCards().get(developmentCardType)));
             Utils.attachTooltip(developmentCardType.toString(), developmentCardTypeCard);
             developmentCardsBox.getChildren().add(developmentCardTypeCard);

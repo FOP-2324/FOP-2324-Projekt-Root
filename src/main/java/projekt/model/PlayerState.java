@@ -10,5 +10,6 @@ public record PlayerState(
         Set<Intersection> upgradebleVillageIntersections,
         Set<Edge> buildableRoadEdges,
         List<Player> playersToStealFrom,
-        TradePayload offeredTrade) {
+        TradePayload offeredTrade,
+        int cradsToSelect) {
 }
