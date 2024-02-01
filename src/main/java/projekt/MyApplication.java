@@ -1,13 +1,15 @@
 package projekt;
 
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.Objects;
+
 import javafx.application.Application;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import projekt.controller.GameController;
 import projekt.controller.gui.SceneSwitcher;
 import projekt.controller.gui.SceneSwitcher.SceneType;
-
-import java.util.Objects;
 
 public class MyApplication extends Application {
     private final GameController gameController = new GameController();
