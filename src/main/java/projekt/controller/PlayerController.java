@@ -25,9 +25,16 @@ import projekt.model.ResourceType;
 import projekt.model.TilePosition;
 import projekt.model.TradePayload;
 import projekt.model.buildings.Edge;
+import projekt.model.buildings.Port;
 import projekt.model.buildings.Settlement;
 import projekt.model.tiles.Tile;
 
+/**
+ * The PlayerController class represents a controller for a {@link Player} in
+ * the game.
+ * It manages the player's state, objectives, actions and all methods the UI
+ * needs to interact with.
+ */
 public class PlayerController {
     private final Player player;
 
@@ -50,10 +57,13 @@ public class PlayerController {
     private int cardsToSelect = 0;
 
     /**
-     * Creates a new {@link PlayerController} with the given {@link GameController}.
+     * Creates a new {@link PlayerController} with the given {@link GameController}
+     * and {@link Player}.
      *
      * @param gameController the {@link GameController} to use.
+     * @param player         the {@link Player} this controller belongs to.
      */
+    @DoNotTouch
     public PlayerController(final GameController gameController, final Player player) {
         this.gameController = gameController;
         this.player = player;
@@ -63,32 +73,59 @@ public class PlayerController {
     }
 
     /**
-     * Returns a {@link Property} that represents the currently active
-     * {@link Player} instance of this {@link PlayerController}.
+     * Returns the {@link Player}.
      *
-     * @return a {@link Property} that represents the currently active
-     * {@link Player} instance of this {@link PlayerController}.
+     * @return the {@link Player}.
      */
+    @DoNotTouch
     public Player getPlayer() {
         return player;
     }
 
+    /**
+     * Returns a {@link Property} with the current {@link PlayerState}.
+     *
+     * @return a {@link Property} with the current {@link PlayerState}.
+     */
+    @DoNotTouch
     public Property<PlayerState> getPlayerStateProperty() {
         return playerStateProperty;
     }
 
+    /**
+     * Returns the current {@link PlayerState}.
+     *
+     * @return the current {@link PlayerState}.
+     */
     public PlayerState getPlayerState() {
         return playerStateProperty.getValue();
     }
 
+    /**
+     * Returns a {@link Property} with the current {@link PlayerObjective}
+     *
+     * @return
+     */
+    @DoNotTouch
     public Property<PlayerObjective> getPlayerObjectiveProperty() {
         return playerObjectiveProperty;
     }
 
+    /**
+     * Sets the value of the {@link #playerObjectiveProperty} to the given
+     * objective.
+     *
+     * @param nextObjective the objective to set
+     */
+    @DoNotTouch
     public void setPlayerObjective(final PlayerObjective nextObjective) {
         playerObjectiveProperty.setValue(nextObjective);
     }
 
+    /**
+     * Updates the {@link #playerStateProperty} with the current
+     * {@link PlayerState}.
+     */
     @DoNotTouch
     private void updatePlayerState() {
         playerStateProperty
@@ -97,6 +134,11 @@ public class PlayerController {
                         getCardsToSelect()));
     }
 
+    /**
+     * Returns the amount of cards to select for the current objective.
+     *
+     * @return the amount of cards to select for the current objective.
+     */
     private int getCardsToSelect() {
         if (PlayerObjective.DROP_HALF_CARDS.equals(playerObjectiveProperty.getValue())) {
             return player.getResources().values().stream().mapToInt(Integer::intValue).sum() / 2;
@@ -107,18 +149,32 @@ public class PlayerController {
         return 0;
     }
 
+    /**
+     * Returns a list of all other players.
+     *
+     * @return a list of all other players.
+     */
     public List<Player> getOtherPlayers() {
         return gameController.getState()
-            .getPlayers()
-            .stream()
-            .filter(p -> p != player)
-            .toList();
+                .getPlayers()
+                .stream()
+                .filter(p -> p != player)
+                .toList();
     }
 
+    /**
+     * Rolls the dice.
+     */
     public void rollDice() {
         gameController.castDice();
     }
 
+    /**
+     * Processes the selected resources for the current objective.
+     *
+     * @param selectedResources the selected resources
+     * @throws IllegalActionException if the selected resources are invalid
+     */
     public void processSelectedResources(final Map<ResourceType, Integer> selectedResources)
             throws IllegalActionException {
         if (selectedResources.values().stream().mapToInt(Integer::intValue).sum() != getCardsToSelect()) {
@@ -130,19 +186,36 @@ public class PlayerController {
     // Process Actions
 
     /**
-     * Gets called from viewer thread to trigger an Action. This action will then be waited for using the method
-     * {@link #waitForNextAction()}
+     * Gets called from viewer thread to trigger an Action. This action will then be
+     * waited for using the method {@link #waitForNextAction()}.
      *
      * @param action The Action that should be triggered next
      */
+    @DoNotTouch
     public void triggerAction(final PlayerAction action) {
         actions.add(action);
     }
 
+    /**
+     * Takes the next action from the queue. This method blocks until an action is
+     * in the queue.
+     *
+     * @return The next action
+     * @throws InterruptedException if the thread is interrupted while waiting for
+     *                              the next action
+     */
+    @DoNotTouch
     public PlayerAction blockingGetNextAction() throws InterruptedException {
         return actions.take();
     }
 
+    /**
+     * Waits for the next action and executes it.
+     *
+     * @param nextObjective the objective to set before the action is awaited
+     * @return the executed action
+     */
+    @DoNotTouch
     public PlayerAction waitForNextAction(final PlayerObjective nextObjective) {
         setPlayerObjective(nextObjective);
         return waitForNextAction();
@@ -174,6 +247,17 @@ public class PlayerController {
 
     // -- Building methods --
 
+    /**
+     * Returns all intersections where a village can be built.
+     * During a regular turn, a village can only be built next to an existing road.
+     * When the current objective is {@link PlayerObjective#PLACE_VILLAGE}, the
+     * village can be built anywhere.
+     *
+     * <b>A village can never be built on an intersection that is adjacent to
+     * another settlement or already has a settlement.</b>
+     *
+     * @return all intersections where a village can be built.
+     */
     private Set<Intersection> getBuildableVillageIntersections() {
         if (!canBuildVillage()) {
             return Set.of();
@@ -190,12 +274,29 @@ public class PlayerController {
         return intersections.collect(Collectors.toUnmodifiableSet());
     }
 
+    /**
+     * Checks whether the {@link Player} can build a village.
+     * To build a village, the {@link Player} must have enough resources or the
+     * current objective must be {@link PlayerObjective#PLACE_VILLAGE}.
+     *
+     * @return whether the {@link Player} can build a village.
+     */
     public boolean canBuildVillage() {
         final var requiredResources = Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.VILLAGE);
         return (playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_VILLAGE)
                 || player.hasResources(requiredResources)) && player.getRemainingVillages() > 0;
     }
 
+    /**
+     * Tries to build a village at the given intersection.
+     * Validates whether the {@link Player} has enough resources and whether the
+     * village can be built at the given intersection.
+     * Also removes the resources from the {@link Player} if the village was built
+     * and the current objective is not {@link PlayerObjective#PLACE_VILLAGE}.
+     *
+     * @param intersection the intersection to build the village at
+     * @return whether the village was built
+     */
     public boolean buildVillage(final Intersection intersection) {
         final var requiredResources = Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.VILLAGE);
         if (!canBuildVillage()) {
@@ -209,6 +310,11 @@ public class PlayerController {
                 || player.removeResources(requiredResources);
     }
 
+    /**
+     * Returns all intersections where a village can be upgraded to a city.
+     *
+     * @return all intersections where a village can be upgraded to a city.
+     */
     private Set<Intersection> getUpgradeableVillageIntersections() {
         if (!canUpgradeVillage()) {
             return Set.of();
@@ -217,6 +323,13 @@ public class PlayerController {
                 .map(Settlement::intersection).collect(Collectors.toUnmodifiableSet());
     }
 
+    /**
+     * Checks whether the {@link Player} can upgrade a village to a city.
+     * To upgrade a village to a city, the {@link Player} must have enough resources
+     * and at least one village.
+     *
+     * @return whether the {@link Player} can upgrade a village to a city.
+     */
     public boolean canUpgradeVillage() {
         final var requiredResources = Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.CITY);
         return player.hasResources(requiredResources) && player.getSettlements().stream()
@@ -224,6 +337,16 @@ public class PlayerController {
                 && player.getRemainingCities() > 0;
     }
 
+    /**
+     * Tries to upgrade a village at the given intersection to a city.
+     * Validates whether the {@link Player} has enough resources and whether the
+     * village can be upgraded.
+     * Also removes the resources from the {@link Player} if the village was
+     * upgraded.
+     *
+     * @param intersection
+     * @return
+     */
     public boolean upgradeVillage(final Intersection intersection) {
         final var requiredResources = Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.CITY);
         if (!canUpgradeVillage()) {
@@ -235,6 +358,16 @@ public class PlayerController {
         return player.removeResources(requiredResources);
     }
 
+    /**
+     * Returns all edges where a road can be built.
+     * During a regular turn, a road can only be built next to an existing road.
+     * When the current objective is {@link PlayerObjective#PLACE_ROAD}, the road
+     * can only be built next to a village with no adjacent roads.
+     *
+     * <b>A road can never be built on an edge that already has a road.</b>
+     *
+     * @return all edges where a road can be built.
+     */
     private Set<Edge> getBuildableRoadEdges() {
         if (!canBuildRoad()) {
             return Set.of();
@@ -245,7 +378,7 @@ public class PlayerController {
             case PLACE_ROAD ->
                 edges.filter(edge -> edge.getIntersections().stream()
                         .anyMatch(intersection -> intersection.playerHasSettlement(player) && intersection
-                                .getConnectedEdges().stream().noneMatch(otherEdge -> otherEdge.hasRoad())));
+                                .getConnectedEdges().stream().noneMatch(Edge::hasRoad)));
             default ->
                 edges.filter(edge -> edge.getConnectedRoads(player).size() < 4)
                         .filter(edge -> !edge.getConnectedRoads(player).isEmpty());
@@ -253,6 +386,13 @@ public class PlayerController {
         return edges.collect(Collectors.toUnmodifiableSet());
     }
 
+    /**
+     * Checks whether the {@link Player} can build a road.
+     * To build a road, the {@link Player} must have enough resources or the current
+     * objective must be {@link PlayerObjective#PLACE_ROAD}.
+     *
+     * @return whether the {@link Player} can build a road.
+     */
     public boolean canBuildRoad() {
         final var requiredResources = Config.ROAD_BUILDING_COST;
         return (playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_ROAD)
@@ -263,6 +403,16 @@ public class PlayerController {
         return buildRoad(tile.getPosition(), TilePosition.neighbour(tile.getPosition(), edgeDirection));
     }
 
+    /**
+     * Tries to build a road at the given edge.
+     * Validates whether the {@link Player} has enough resources and whether the
+     * road can be built at the given edge.
+     * Also removes the resources from the {@link Player} if the road was built and
+     * the current objective is not {@link PlayerObjective#PLACE_ROAD}.
+     *
+     * @param edge the edge to build the road at
+     * @return whether the road was built
+     */
     public boolean buildRoad(final TilePosition position0, final TilePosition position1) {
         if (!canBuildRoad()) {
             return false;
@@ -278,10 +428,24 @@ public class PlayerController {
 
     // Development card methods
 
+    /**
+     * Checks whether the {@link Player} can buy a development card.
+     * To buy a development card, the {@link Player} must have enough resources.
+     *
+     * @return whether the {@link Player} can buy a development card.
+     */
     public boolean canBuyDevelopmentCard() {
         return gameController.remainingDevelopmentCards() > 0 && player.hasResources(Config.DEVELOPMENT_CARD_COST);
     }
 
+    /**
+     * Tries to buy a development card.
+     * Validates whether the {@link Player} has enough resources.
+     * Also removes the resources from the {@link Player} if the development card
+     * was bought.
+     *
+     * @return whether the development card was bought
+     */
     public boolean buyDevelopmentCard() {
         if (!canBuyDevelopmentCard()) {
             return false;
@@ -293,6 +457,18 @@ public class PlayerController {
         return true;
     }
 
+    /**
+     * Plays the given development card.
+     * The development card is removed from the {@link Player} after it is played.
+     * After a development card is played, the {@link Player} continues his regular
+     * turn.
+     * For instructions on what each development card does, reference the Task
+     * instructions.
+     *
+     * @see DevelopmentCardType
+     *
+     * @param developmentCard the development card to play
+     */
     public void playDevelopmentCard(final DevelopmentCardType developmentCard) {
         switch (developmentCard) {
             case KNIGHT -> {
@@ -331,6 +507,10 @@ public class PlayerController {
 
     /**
      * Trades the given resources with the bank.
+     * The {@link Player} must have enough resources to trade.
+     * The trade ratio is determined by {@link Player#getTradeRatio(ResourceType)}.
+     *
+     * @see Port
      *
      * @param offerType   the type of resource to offer
      * @param offerAmount the amount of resources to offer
@@ -362,8 +542,8 @@ public class PlayerController {
 
     /**
      * Checks whether this player can accept a trade offer from the other player.
-     * A player cannot accept a trade offer from himself or if he has not enough
-     * resources.
+     * A player cannot accept a trade offer from himself or if he does not have
+     * enough resources.
      *
      * @param otherPlayer the player to trade with
      * @param request     the resources to request
@@ -373,6 +553,15 @@ public class PlayerController {
         return !player.equals(otherPlayer) && player.hasResources(request);
     }
 
+    /**
+     * Sets the trade offer from the other player.
+     * This method is called by the {@link GameController} when a trade offer is
+     * made by another player.
+     *
+     * @param player  the player who made the trade offer
+     * @param offer   the offered resources
+     * @param request the requested resources
+     */
     protected void setPlayerTradeOffer(final Player player, final Map<ResourceType, Integer> offer,
             final Map<ResourceType, Integer> request) {
         this.tradingPlayer = player;
@@ -380,12 +569,22 @@ public class PlayerController {
         this.playerTradingRequest = request;
     }
 
+    /**
+     * Resets the trade offer
+     */
     protected void resetPlayerTradeOffer() {
         this.tradingPlayer = null;
         this.playerTradingOffer = null;
         this.playerTradingRequest = null;
     }
 
+    /**
+     * Returns a {@link TradePayload} with the current trade offer from the other
+     * player.
+     *
+     * @return a {@link TradePayload} with the current trade offer from the other
+     *         player.
+     */
     private TradePayload getPlayerTradingPayload() {
         if (tradingPlayer == null || playerTradingOffer == null || playerTradingRequest == null) {
             return null;
@@ -395,6 +594,11 @@ public class PlayerController {
 
     /**
      * Accepts the trade offer from the other player if one exists.
+     * Both {@link Player}s must have the required resources.
+     *
+     * @throws IllegalActionException if no trade offer exists or if one
+     *                                {@link Player} does not have the required
+     *                                resources
      */
     public void acceptTradeOffer() throws IllegalActionException {
         if (tradingPlayer == null || playerTradingOffer == null || playerTradingRequest == null) {
@@ -416,23 +620,25 @@ public class PlayerController {
     // Robber methods
 
     /**
-     * Selects the resources to drop when a 7 is rolled. Also invokes
-     * {@link #endTurn()} to proceed to the next player.
+     * Selects the resources to drop from the {@link Player}s inventory.
+     * The {@link Player} must have the selected resources and the amount of
+     * resources to drop must equal the amount of cards requested to drop.
+     * The resources are removed from the {@link Player}s inventory.
      *
-     * @param resourcesToDrop the resources to drop
+     * @param resourcesToDrop a map containing the type and quantity of resources to
+     *                        drop
      */
     public void selectResourcesToDrop(final Map<ResourceType, Integer> resourcesToDrop) {
         if (!player.hasResources(resourcesToDrop)) {
             return;
         }
-        // check if half of the cards are selected
-        final var playerResourceAmount = player.getResources().values().stream().mapToInt(Integer::intValue).sum();
         final var resourcesToDropAmount = resourcesToDrop.values().stream().mapToInt(Integer::intValue).sum();
-        if (resourcesToDropAmount != playerResourceAmount / 2) {
+        if (resourcesToDropAmount != cardsToSelect) {
             return;
         }
         // remove resources from player
         player.removeResources(resourcesToDrop);
+        cardsToSelect = 0;
     }
 
     /**
@@ -440,6 +646,8 @@ public class PlayerController {
      *
      * @param playerToStealFrom the player to steal from
      * @param resourceToSteal   the resource to steal
+     * @throws IllegalActionException if the player does not have the selected
+     *                                resource
      */
     public void selectPlayerAndResourceToSteal(final Player playerToStealFrom, final ResourceType resourceToSteal)
             throws IllegalActionException {
