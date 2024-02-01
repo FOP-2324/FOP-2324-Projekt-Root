@@ -324,8 +324,8 @@ public class PlayerController {
                 return;
             }
         }
-        waitForNextAction(PlayerObjective.REGULAR_TURN);
         getPlayer().removeDevelopmentCard(developmentCard);
+        waitForNextAction(PlayerObjective.REGULAR_TURN);
     }
 
     // -- Trading methods --
