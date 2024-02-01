@@ -20,6 +20,13 @@ public class MyApplication extends Application {
 
     @Override
     public void start(final Stage stage) throws Exception {
+        System.setErr(new PrintStream(new OutputStream() {
+            @Override
+            public void write(final int b) {
+                System.out.write(b);
+            }
+        }));
+
         stage.setMinWidth(1000);
         stage.setMinHeight(520);
         stage.setWidth(1280);
