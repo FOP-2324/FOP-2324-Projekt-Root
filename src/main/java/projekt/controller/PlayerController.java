@@ -87,7 +87,6 @@ public class PlayerController {
 
     public void setPlayerObjective(final PlayerObjective nextObjective) {
         playerObjectiveProperty.setValue(nextObjective);
-        updatePlayerState();
     }
 
     @DoNotTouch
