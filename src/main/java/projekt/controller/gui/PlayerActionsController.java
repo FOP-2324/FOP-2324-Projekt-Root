@@ -2,6 +2,7 @@ package projekt.controller.gui;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import org.tudalgo.algoutils.student.annotation.DoNotTouch;
@@ -24,6 +25,7 @@ import projekt.controller.actions.BuyDevelopmentCardAction;
 import projekt.controller.actions.DropCardsAction;
 import projekt.controller.actions.EndTurnAction;
 import projekt.controller.actions.PlayDevelopmentCardAction;
+import projekt.controller.actions.PlayerAction;
 import projekt.controller.actions.RollDiceAction;
 import projekt.controller.actions.SelectCardsAction;
 import projekt.controller.actions.SelectRobberTileAction;
@@ -136,45 +138,45 @@ public class PlayerActionsController implements Controller {
             System.out.println("I am confusion");
             return;
         }
-        switch (objective) {
-            case REGULAR_TURN:
-                updateBuildVillageButtonState();
-                updateUpgradeVillageButtonState();
-                updateBuildRoadButtonState();
-                updateBuyDevelopmentCardButtonState();
-                updateUseDevelopmentCardButtonState();
-                builder.enableTradeButton();
-                builder.enableEndTurnButton();
-                break;
-            case DROP_HALF_CARDS:
-                dropCardsAction(getPlayer().getResources().values().stream().mapToInt(Integer::intValue).sum() / 2);
-                break;
-            case SELECT_CARD_TO_STEAL:
-                selectCardToStealAction();
-                break;
-            case SELECT_ROBBER_TILE:
-                getHexGridController().highlightTiles(this::selectRobberTileAction);
-                break;
-            case PLACE_ROAD:
-                updateBuildRoadButtonState();
-                break;
-            case PLACE_VILLAGE:
-                updateBuildVillageButtonState();
-                break;
-            case DICE_ROLL:
-                builder.enableRollDiceButton();
-                break;
-            case IDLE:
-                builder.disableAllButtons();
-                break;
-            case ACCEPT_TRADE:
-                acceptTradeOffer();
-                break;
-            case SELECT_CARDS:
-                selectResources(getPlayerState().cradsToSelect());
-                break;
-            default:
-                break;
+        final Set<Class<? extends PlayerAction>> allowedActions = getPlayerObjective().getAllowedActions();
+        if (allowedActions.contains(EndTurnAction.class)) {
+            builder.enableEndTurnButton();
+        }
+        if (allowedActions.contains(RollDiceAction.class)) {
+            builder.enableRollDiceButton();
+        }
+        if (allowedActions.contains(TradeAction.class)) {
+            builder.enableTradeButton();
+        }
+        if (allowedActions.contains(PlayDevelopmentCardAction.class)) {
+            updateUseDevelopmentCardButtonState();
+        }
+        if (allowedActions.contains(BuyDevelopmentCardAction.class)) {
+            updateBuyDevelopmentCardButtonState();
+        }
+        if (allowedActions.contains(BuildVillageAction.class)) {
+            updateBuildVillageButtonState();
+        }
+        if (allowedActions.contains(UpgradeVillageAction.class)) {
+            updateUpgradeVillageButtonState();
+        }
+        if (allowedActions.contains(BuildRoadAction.class)) {
+            updateBuildRoadButtonState();
+        }
+        if (allowedActions.contains(SelectRobberTileAction.class)) {
+            getHexGridController().highlightTiles(this::selectRobberTileAction);
+        }
+        if (allowedActions.contains(StealCardAction.class)) {
+            selectCardToStealAction();
+        }
+        if (allowedActions.contains(DropCardsAction.class)) {
+            dropCardsAction(getPlayerState().cradsToSelect());
+        }
+        if (allowedActions.contains(SelectCardsAction.class)) {
+            selectResources(getPlayerState().cradsToSelect());
+        }
+        if (allowedActions.contains(AcceptTradeAction.class)) {
+            acceptTradeOffer();
         }
     }
 
