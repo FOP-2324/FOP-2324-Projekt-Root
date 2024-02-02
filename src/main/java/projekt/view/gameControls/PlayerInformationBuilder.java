@@ -9,15 +9,14 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.util.Builder;
 import projekt.model.DevelopmentCardType;
 import projekt.model.Player;
 import projekt.model.ResourceType;
 import projekt.view.CardPane;
+import projekt.view.DevelopmentCardPane;
 import projekt.view.PlayerLabel;
 import projekt.view.ResourceCardPane;
-import projekt.view.Utils;
 
 public class PlayerInformationBuilder implements Builder<Region> {
     private final Player player;
@@ -57,9 +56,8 @@ public class PlayerInformationBuilder implements Builder<Region> {
                 continue;
             }
 
-            final CardPane developmentCardTypeCard = new CardPane(Color.LIGHTGRAY, Utils.emptyCardImage,
-                    Integer.toString(player.getDevelopmentCards().get(developmentCardType)));
-            Utils.attachTooltip(developmentCardType.toString(), developmentCardTypeCard);
+            final CardPane developmentCardTypeCard = new DevelopmentCardPane(developmentCardType,
+                    player.getDevelopmentCards().get(developmentCardType));
             developmentCardsBox.getChildren().add(developmentCardTypeCard);
         }
 

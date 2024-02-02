@@ -15,9 +15,10 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Builder;
+import projekt.model.DevelopmentCardType;
 import projekt.model.Player;
 import projekt.view.CardPane;
-import projekt.view.Utils;
+import projekt.view.DevelopmentCardPane;
 
 public class PlayersOverviewBuilder implements Builder<Region> {
     private final List<Player> players;
@@ -54,7 +55,7 @@ public class PlayersOverviewBuilder implements Builder<Region> {
 
         final Label knightCardsLabel = new Label("Knights:");
         detailsBox.add(knightCardsLabel, 0, 3);
-        detailsBox.add(createValuePane(Integer.toString(player.getKnightsPlayed()), Utils.knightImage), 1, 3);
+        detailsBox.add(new DevelopmentCardPane(DevelopmentCardType.KNIGHT, player.getKnightsPlayed()), 1, 3);
 
         final ColumnConstraints titleColumn = new ColumnConstraints();
         titleColumn.setPercentWidth(50);
