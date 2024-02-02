@@ -40,6 +40,8 @@ public final class Utils {
 
     public static final Image settlementsSpriteSheet = new Image("img/settlements.png");
 
+    public static final Image developmentCardsSpriteSheet = new Image("img/development_cards.png");
+
     public static final Image emptyCardImage = new Image("img/empty_card.png");
 
     public static final Image knightImage = new Image("img/knight.png");
