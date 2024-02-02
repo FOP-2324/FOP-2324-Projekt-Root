@@ -5,7 +5,6 @@ import java.util.function.Supplier;
 import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 
 import javafx.scene.Scene;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import projekt.controller.GameController;
 
@@ -81,7 +80,7 @@ public class SceneSwitcher {
         System.out.println("Loading scene: " + sceneType);
         final SceneController controller = sceneType.controller.get();
         final Scene scene = new Scene(controller.buildView());
-        scene.setFill(Color.PINK);
+        scene.getStylesheets().add("css/hexmap.css");
         stage.setScene(scene);
         stage.setTitle(controller.getTitle());
         stage.show();
