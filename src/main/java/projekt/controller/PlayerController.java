@@ -240,6 +240,14 @@ public class PlayerController {
         return waitForNextAction();
     }
 
+    /**
+     * Waits for the next action and executes it.
+     * Checks whether the action is allowed for the current objective.
+     * Catches {@link IllegalActionException}s and keeps waiting for the next valid
+     * action.
+     *
+     * @return the executed action
+     */
     @DoNotTouch
     public PlayerAction waitForNextAction() {
         try {
