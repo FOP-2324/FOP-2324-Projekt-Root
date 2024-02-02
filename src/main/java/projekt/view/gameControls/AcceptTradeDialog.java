@@ -23,19 +23,23 @@ public class AcceptTradeDialog extends Dialog<Boolean> {
         mainPane.add(new Label("Offer:"), 0, 0);
         mainPane.add(new Label("Request:"), 0, 1);
 
+        int cardCount = 0;
         for (final ResourceType resourceType : trade.offer().keySet()) {
             final CardPane resourceCard = new ResourceCardPane(resourceType, trade.offer().get(resourceType));
             final HBox resourceBox = new HBox(resourceCard);
             resourceBox.setAlignment(Pos.CENTER);
             GridPane.setHgrow(resourceBox, Priority.ALWAYS);
-            mainPane.add(resourceBox, resourceType.ordinal() + 1, 0);
+            cardCount++;
+            mainPane.add(resourceBox, cardCount + 1, 0);
         }
+        cardCount = 0;
         for (final ResourceType resourceType : trade.request().keySet()) {
             final CardPane resourceCard = new ResourceCardPane(resourceType, trade.request().get(resourceType));
             final HBox resourceBox = new HBox(resourceCard);
             resourceBox.setAlignment(Pos.CENTER);
             GridPane.setHgrow(resourceBox, Priority.ALWAYS);
-            mainPane.add(resourceBox, resourceType.ordinal() + 1, 1);
+            cardCount++;
+            mainPane.add(resourceBox, cardCount + 1, 1);
         }
 
         final DialogPane dialogPane = getDialogPane();
