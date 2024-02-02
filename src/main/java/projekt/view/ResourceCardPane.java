@@ -1,7 +1,10 @@
 package projekt.view;
 
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
+
 import projekt.model.ResourceType;
 
+@DoNotTouch
 public class ResourceCardPane extends CardPane {
     public ResourceCardPane(final ResourceType resourceType, final int amount) {
         this(resourceType, Integer.toString(amount));
