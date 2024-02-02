@@ -263,7 +263,6 @@ public class PlayerActionsController implements Controller {
      */
     @DoNotTouch
     private void updatePlayerInformation() {
-        System.out.println(getPlayerState().changedResources());
         gameBoardController.updatePlayerInformation(getPlayer(), getPlayerState().changedResources());
     }
 
