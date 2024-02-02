@@ -132,8 +132,8 @@ public class PlayerActionsController implements Controller {
         removeAllHighlights();
         drawEdges();
         drawIntersections();
-        gameBoardController.updatePlayerInformation(getPlayer());
         builder.disableAllButtons();
+        updatePlayerInformation();
         if (objective == null) {
             System.out.println("I am confusion");
             return;
@@ -183,8 +183,7 @@ public class PlayerActionsController implements Controller {
     /**
      * Returns the player controller that is currently active.
      * Please do not use this method to get the playerState or playerObjective.
-     * Use the {@link PlayerActionsController#getPlayerState()} and
-     * {@link PlayerActionsController#getPlayerObjective()} instead.
+     * Use the {@link #getPlayerState()} and {@link #getPlayerObjective()} instead.
      *
      * @return the player controller that is currently active
      */
@@ -260,6 +259,15 @@ public class PlayerActionsController implements Controller {
     }
 
     /**
+     * Updates the player information in the game board.
+     */
+    @DoNotTouch
+    private void updatePlayerInformation() {
+        System.out.println(getPlayerState().changedResources());
+        gameBoardController.updatePlayerInformation(getPlayer(), getPlayerState().changedResources());
+    }
+
+    /**
      * Wraps a event handler (primarily button Actions) to ensure that all
      * highlights are removed, intersections are redrawn and all buttons except the
      * abort button (if abortable) are disabled.
@@ -305,7 +313,7 @@ public class PlayerActionsController implements Controller {
             removeAllHighlights();
             if (getPlayerController() != null) {
                 updateUIBasedOnObjective(getPlayerObjective());
-                gameBoardController.updatePlayerInformation(getPlayer());
+                updatePlayerInformation();
             }
         };
     }

@@ -1,5 +1,7 @@
 package projekt.controller.gui;
 
+import java.util.Map;
+
 import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 
 import javafx.application.Platform;
@@ -11,6 +13,7 @@ import javafx.util.Builder;
 import projekt.controller.PlayerController;
 import projekt.model.GameState;
 import projekt.model.Player;
+import projekt.model.ResourceType;
 import projekt.view.GameBoardBuilder;
 
 @DoNotTouch
@@ -32,7 +35,7 @@ public class GameBoardController implements SceneController {
             if (newValue == null) {
                 return;
             }
-            Platform.runLater(() -> updatePlayerInformation(newValue.getPlayer()));
+            Platform.runLater(() -> updatePlayerInformation(newValue.getPlayer(), Map.of()));
         });
         diceRollProperty.addListener((observable, oldValue, newValue) -> {
             if (newValue == null) {
@@ -56,8 +59,9 @@ public class GameBoardController implements SceneController {
         return hexGridController;
     }
 
-    public void updatePlayerInformation(final Player player) {
-        Platform.runLater(() -> gameBoardBuilder.updatePlayerInformation(player, gameState.getPlayers()));
+    public void updatePlayerInformation(final Player player, final Map<ResourceType, Integer> changedResources) {
+        Platform.runLater(
+                () -> gameBoardBuilder.updatePlayerInformation(player, gameState.getPlayers(), changedResources));
     }
 
     @Override

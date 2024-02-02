@@ -1,5 +1,7 @@
 package projekt.view.gameControls;
 
+import java.util.Map;
+
 import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 
 import javafx.geometry.Insets;
@@ -19,15 +21,18 @@ import projekt.view.Utils;
 
 public class PlayerInformationBuilder implements Builder<Region> {
     private final Player player;
+    private final Map<ResourceType, Integer> changedResources;
 
-    public PlayerInformationBuilder(final Player player) {
+    public PlayerInformationBuilder(final Player player, final Map<ResourceType, Integer> changedResources) {
         this.player = player;
+        this.changedResources = changedResources;
     }
 
     @Override
     @StudentImplementationRequired
     public Region build() {
         final VBox mainBox = new VBox();
+        mainBox.getStylesheets().add("css/hexmap.css");
         final Label playerName = new PlayerLabel(player);
 
         final Label resourcesLabel = new Label("Your Resources:");
@@ -40,11 +45,18 @@ public class PlayerInformationBuilder implements Builder<Region> {
             final ResourceCardPane resourceCard = new ResourceCardPane(resourceType,
                     player.getResources().get(resourceType));
             resourcesBox.getChildren().add(resourceCard);
+            if (changedResources.containsKey(resourceType)) {
+                resourceCard.getStyleClass().add("highlighted");
+            }
         }
 
         final Label developmentCardsLabel = new Label("Your Development Cards:");
         final FlowPane developmentCardsBox = new FlowPane(5, 5);
         for (final DevelopmentCardType developmentCardType : player.getDevelopmentCards().keySet()) {
+            if (player.getDevelopmentCards().get(developmentCardType) == 0) {
+                continue;
+            }
+
             final CardPane developmentCardTypeCard = new CardPane(Color.LIGHTGRAY, Utils.emptyCardImage,
                     Integer.toString(player.getDevelopmentCards().get(developmentCardType)));
             Utils.attachTooltip(developmentCardType.toString(), developmentCardTypeCard);

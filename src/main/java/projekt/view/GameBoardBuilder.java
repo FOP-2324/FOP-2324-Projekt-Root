@@ -1,6 +1,7 @@
 package projekt.view;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import javafx.beans.binding.Bindings;
@@ -18,6 +19,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.Builder;
 import projekt.model.Player;
+import projekt.model.ResourceType;
 import projekt.view.gameControls.PlayerInformationBuilder;
 import projekt.view.gameControls.PlayersOverviewBuilder;
 
@@ -39,12 +41,12 @@ public class GameBoardBuilder implements Builder<Region> {
 
         // Right box which holds the Players information
 
-        VBox rightBox = new VBox();
+        final VBox rightBox = new VBox();
         rightBox.getChildren().add(playerInformation);
 
         rightBox.setBackground(Background.fill(Color.WHITE));
 
-        ScrollPane playersInformationPane = new ScrollPane(rightBox);
+        final ScrollPane playersInformationPane = new ScrollPane(rightBox);
         rightBox.setMinWidth(150);
         rightBox.maxWidthProperty().bind(Bindings.createDoubleBinding(() -> playersInformationPane.getWidth() - 2,
                 playersInformationPane.widthProperty()));
@@ -53,13 +55,14 @@ public class GameBoardBuilder implements Builder<Region> {
 
         // Bottom box which holds the Player controls
 
-        HBox bottomBox = new HBox();
-        Label diceRoll = new Label();
+        final HBox bottomBox = new HBox();
+        final Label diceRoll = new Label();
         diceRoll.textProperty()
                 .bind(Bindings.createStringBinding(
-                        () -> String.format("Rolled Number: %s", diceRollProperty.get() == 0 ? "" : diceRollProperty.get()),
+                        () -> String.format("Rolled Number: %s",
+                                diceRollProperty.get() == 0 ? "" : diceRollProperty.get()),
                         diceRollProperty));
-        Region actionsRegion = actions.get();
+        final Region actionsRegion = actions.get();
         bottomBox.getChildren().addAll(actionsRegion, diceRoll);
         bottomBox.setAlignment(Pos.CENTER_LEFT);
         bottomBox.setBackground(Background.fill(Color.WHITE));
@@ -73,13 +76,14 @@ public class GameBoardBuilder implements Builder<Region> {
         return mainPane;
     }
 
-    public void updatePlayerInformation(Player player, List<Player> players) {
+    public void updatePlayerInformation(final Player player, final List<Player> players,
+            final Map<ResourceType, Integer> changedResources) {
         playerInformation.getChildren().clear();
-        playerInformation.getChildren().add(new PlayerInformationBuilder(player).build());
+        playerInformation.getChildren().add(new PlayerInformationBuilder(player, changedResources).build());
         playerInformation.getChildren().add(new PlayersOverviewBuilder(players).build());
     }
 
-    public void setDiceRoll(int diceRoll) {
+    public void setDiceRoll(final int diceRoll) {
         diceRollProperty.set(diceRoll);
     }
 }
