@@ -1,6 +1,7 @@
 package projekt.model;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import projekt.model.buildings.Edge;
@@ -11,5 +12,6 @@ public record PlayerState(
         Set<Edge> buildableRoadEdges,
         List<Player> playersToStealFrom,
         TradePayload offeredTrade,
-        int cradsToSelect) {
+        int cradsToSelect,
+        Map<ResourceType, Integer> changedResources) {
 }

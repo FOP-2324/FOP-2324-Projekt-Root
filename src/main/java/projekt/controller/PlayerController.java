@@ -54,6 +54,8 @@ public class PlayerController {
 
     private Map<ResourceType, Integer> selectedResources = new HashMap<>();
 
+    private Map<ResourceType, Integer> oldResources = new HashMap<>();
+
     private int cardsToSelect = 0;
 
     /**
@@ -131,7 +133,24 @@ public class PlayerController {
         playerStateProperty
                 .setValue(new PlayerState(getBuildableVillageIntersections(), getUpgradeableVillageIntersections(),
                         getBuildableRoadEdges(), getPlayersToStealFrom(), getPlayerTradingPayload(),
-                        getCardsToSelect()));
+                        getCardsToSelect(), getChangedResources()));
+    }
+
+    /**
+     * Returns which resources and how many have changed since the last action.
+     *
+     * @return a map of the changed resources
+     */
+    private Map<ResourceType, Integer> getChangedResources() {
+        final Map<ResourceType, Integer> changedResources = new HashMap<>();
+        for (final ResourceType resourceType : ResourceType.values()) {
+            final int oldAmount = oldResources.getOrDefault(resourceType, 0);
+            final int newAmount = player.getResources().getOrDefault(resourceType, 0);
+            if (oldAmount != newAmount) {
+                changedResources.put(resourceType, newAmount - oldAmount);
+            }
+        }
+        return changedResources;
     }
 
     /**
@@ -224,6 +243,7 @@ public class PlayerController {
     @DoNotTouch
     public PlayerAction waitForNextAction() {
         try {
+            oldResources = new HashMap<>(player.getResources());
             // blocking, waiting for viewing thread
             final PlayerAction action = blockingGetNextAction();
 
