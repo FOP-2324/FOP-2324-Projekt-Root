@@ -35,12 +35,9 @@ public class MyApplication extends Application {
         stage.setHeight(720);
 
         Font.loadFont(
-            Objects.requireNonNull(
-                MyApplication.class.getResource("/fonts/MaterialDesignIconsDesktop.ttf")
-            ).toExternalForm(),
-            10
-        );
-
+                Objects.requireNonNull(
+                        MyApplication.class.getResource("/fonts/Roboto-Merged-Icons.ttf")).toExternalForm(),
+                10);
         SceneSwitcher.getInstance(stage, gameController, gameLoopStart).loadScene(SceneType.MAIN_MENU);
     }
 
