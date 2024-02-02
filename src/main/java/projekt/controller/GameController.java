@@ -287,6 +287,7 @@ public class GameController {
                 playerController.waitForNextAction(PlayerObjective.PLACE_VILLAGE);
                 playerController.waitForNextAction(PlayerObjective.PLACE_ROAD);
             });
+            playerController.setFirstRound(false);
         }
     }
 

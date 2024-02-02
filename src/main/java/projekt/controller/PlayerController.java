@@ -58,6 +58,8 @@ public class PlayerController {
 
     private int cardsToSelect = 0;
 
+    private boolean firstRound = true;
+
     /**
      * Creates a new {@link PlayerController} with the given {@link GameController}
      * and {@link Player}.
@@ -122,6 +124,16 @@ public class PlayerController {
     @DoNotTouch
     public void setPlayerObjective(final PlayerObjective nextObjective) {
         playerObjectiveProperty.setValue(nextObjective);
+    }
+
+    /**
+     * Sets the value of firstRound to the given value.
+     *
+     * @param firstRound the value to set
+     */
+    @DoNotTouch
+    public void setFirstRound(final boolean firstRound) {
+        this.firstRound = firstRound;
     }
 
     /**
@@ -278,8 +290,7 @@ public class PlayerController {
     /**
      * Returns all intersections where a village can be built.
      * During a regular turn, a village can only be built next to an existing road.
-     * When the current objective is {@link PlayerObjective#PLACE_VILLAGE}, the
-     * village can be built anywhere.
+     * In the first round the village can be built anywhere.
      *
      * <b>A village can never be built on an intersection that is adjacent to
      * another settlement or already has a settlement.</b>
@@ -293,12 +304,10 @@ public class PlayerController {
         Stream<Intersection> intersections = gameController.getState().getGrid().getIntersections().values().stream()
                 .filter(intersection -> intersection.getSettlement() == null).filter(intersection -> intersection
                         .getAdjacentIntersections().stream().noneMatch(Intersection::hasSettlement));
-        intersections = switch (playerObjectiveProperty.getValue()) {
-            case PLACE_VILLAGE -> intersections;
-            default ->
-                intersections.filter(intersection -> intersection.getConnectedEdges().stream()
-                        .anyMatch(edge -> edge.hasRoad() && edge.roadOwner().getValue().equals(player)));
-        };
+        if (!firstRound) {
+            intersections = intersections.filter(intersection -> intersection.getConnectedEdges().stream()
+                    .anyMatch(edge -> edge.hasRoad() && edge.roadOwner().getValue().equals(player)));
+        }
         return intersections.collect(Collectors.toUnmodifiableSet());
     }
 
@@ -320,7 +329,7 @@ public class PlayerController {
      * Validates whether the {@link Player} has enough resources and whether the
      * village can be built at the given intersection.
      * Also removes the resources from the {@link Player} if the village was built
-     * and the current objective is not {@link PlayerObjective#PLACE_VILLAGE}.
+     * and it is not the first round.
      *
      * @param intersection the intersection to build the village at
      * @return whether the village was built
@@ -330,8 +339,7 @@ public class PlayerController {
         if (!canBuildVillage()) {
             return false;
         }
-        if (!intersection.placeVillage(player,
-                playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_VILLAGE))) {
+        if (!intersection.placeVillage(player, firstRound)) {
             return false;
         }
         return playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_VILLAGE)
@@ -389,8 +397,8 @@ public class PlayerController {
     /**
      * Returns all edges where a road can be built.
      * During a regular turn, a road can only be built next to an existing road.
-     * When the current objective is {@link PlayerObjective#PLACE_ROAD}, the road
-     * can only be built next to a village with no adjacent roads.
+     * In the first round the road can only be built next to a village with no
+     * adjacent roads.
      *
      * <b>A road can never be built on an edge that already has a road.</b>
      *
@@ -402,15 +410,14 @@ public class PlayerController {
         }
         Stream<Edge> edges = gameController.getState().getGrid().getEdges().values().stream()
                 .filter(edge -> !edge.hasRoad());
-        edges = switch (playerObjectiveProperty.getValue()) {
-            case PLACE_ROAD ->
-                edges.filter(edge -> edge.getIntersections().stream()
-                        .anyMatch(intersection -> intersection.playerHasSettlement(player) && intersection
-                                .getConnectedEdges().stream().noneMatch(Edge::hasRoad)));
-            default ->
-                edges.filter(edge -> edge.getConnectedRoads(player).size() < 4)
-                        .filter(edge -> !edge.getConnectedRoads(player).isEmpty());
-        };
+        if (firstRound) {
+            edges = edges.filter(edge -> edge.getIntersections().stream()
+                    .anyMatch(intersection -> intersection.playerHasSettlement(player)
+                            && intersection.getConnectedEdges().stream().noneMatch(Edge::hasRoad)));
+        } else {
+            edges = edges.filter(edge -> edge.getConnectedRoads(player).size() < 4)
+                    .filter(edge -> !edge.getConnectedRoads(player).isEmpty());
+        }
         return edges.collect(Collectors.toUnmodifiableSet());
     }
 
@@ -427,6 +434,15 @@ public class PlayerController {
                 || player.hasResources(requiredResources)) && player.getRemainingRoads() > 0;
     }
 
+    /**
+     * Tries to build a road at the given edge.
+     *
+     * @see #buildRoad(TilePosition, TilePosition)
+     *
+     * @param tile          the tile to build the road at
+     * @param edgeDirection the direction of the edge to build the road at
+     * @return whether the road was built
+     */
     public boolean buildRoad(final Tile tile, final TilePosition.EdgeDirection edgeDirection) {
         return buildRoad(tile.getPosition(), TilePosition.neighbour(tile.getPosition(), edgeDirection));
     }
@@ -436,7 +452,7 @@ public class PlayerController {
      * Validates whether the {@link Player} has enough resources and whether the
      * road can be built at the given edge.
      * Also removes the resources from the {@link Player} if the road was built and
-     * the current objective is not {@link PlayerObjective#PLACE_ROAD}.
+     * it is not the first round.
      *
      * @param edge the edge to build the road at
      * @return whether the road was built
@@ -445,8 +461,7 @@ public class PlayerController {
         if (!canBuildRoad()) {
             return false;
         }
-        if (!gameController.getState().getGrid().addRoad(position0, position1, player,
-                playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_ROAD))) {
+        if (!gameController.getState().getGrid().addRoad(position0, position1, player, firstRound)) {
             return false;
         }
         final var requiredResources = Config.ROAD_BUILDING_COST;
