@@ -2,6 +2,8 @@ package projekt.view;
 
 import java.util.function.UnaryOperator;
 
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
+
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
@@ -10,6 +12,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.util.Duration;
 
+@DoNotTouch
 public final class Utils {
     /**
      * A filter that only allows positive integers.
@@ -44,5 +47,5 @@ public final class Utils {
 
     public static final Image emptyCardImage = new Image("img/empty_card.png");
 
-    public static final Image knightImage = new Image("img/knight.png");
+    public static final Image robberImage = new Image("img/robber.png");
 }
