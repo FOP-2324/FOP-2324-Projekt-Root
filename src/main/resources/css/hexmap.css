@@ -1,6 +1,7 @@
 * {
     -selected-color: crimson;
     -highlight-color: lime;
+    -fx-font-family: "Roboto Merged Icons";
 }
 
 .hex-grid {
@@ -13,20 +14,21 @@
     -fx-border-width: 5px;
 }
 
-.coordinate-label {
-    -fx-font-size: 10px;
+.highlighted,
+.selectable {
+    -fx-border-width: 5px;
 }
 
 .selectable {
     -fx-stroke: -selected-color;
     -fx-border-color: transparent;
-    -fx-border-width: 5px;
 }
 
 .hex-tile.selectable {
     -fx-border-color: -selected-color;
 }
 
+.highlighted,
 .selectable:hover,
 .selectable:focus,
 .selectable:focused,
