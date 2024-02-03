@@ -167,9 +167,6 @@ public class PlayerActionsController implements Controller {
         if (allowedActions.contains(StealCardAction.class)) {
             selectCardToStealAction();
         }
-        if (allowedActions.contains(DropCardsAction.class)) {
-            dropCardsAction(getPlayerState().cradsToSelect());
-        }
         if (allowedActions.contains(SelectCardsAction.class) && getPlayerState().cradsToSelect() > 0) {
             selectResources(getPlayerState().cradsToSelect());
         }
