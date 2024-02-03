@@ -81,7 +81,7 @@ public class IntersectionImpl implements Intersection {
 
     @Override
     public boolean placeVillage(final Player player, final boolean ignoreRoadCheck) {
-        if (settlement != null || (!playerHasConnectedRoad(player) && !ignoreRoadCheck))
+        if (settlement != null || (!ignoreRoadCheck && !playerHasConnectedRoad(player)))
             return false;
         settlement = new Settlement(player, Settlement.Type.VILLAGE, this);
         return true;

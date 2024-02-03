@@ -16,7 +16,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.paint.Color;
 import projekt.Config;
-import projekt.model.buildings.Port;
 import projekt.model.buildings.Settlement;
 
 public class PlayerImpl implements Player {
@@ -84,14 +83,17 @@ public class PlayerImpl implements Player {
     @Override
     @StudentImplementationRequired
     public int getTradeRatio(final ResourceType resourceType) {
-        final var intersections = getHexGrid().getIntersections();
-        return intersections.values().stream()
-                .filter(intersection -> intersection.getPort() != null
-                        && resourceType.equals(intersection.getPort().resourceType()))
-                .filter(intersection -> intersection.getSettlement() != null
-                        && intersection.getSettlement().owner().equals(this))
-                .map(Intersection::getPort)
-                .findAny().map(Port::ratio).orElse(4);
+        return getHexGrid().getIntersections()
+            .values()
+            .stream()
+            .filter(intersection -> intersection.getPort() != null
+                && (intersection.getPort().resourceType() == null || intersection.getPort().resourceType().equals(resourceType)))
+            .filter(intersection -> intersection.getSettlement() != null
+                && intersection.getSettlement().owner().equals(this))
+            .map(intersection -> intersection.getPort().ratio())
+            .sorted()
+            .findAny()
+            .orElse(4);
     }
 
     @Override
