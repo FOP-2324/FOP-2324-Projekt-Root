@@ -8,7 +8,6 @@ import projekt.controller.actions.AcceptTradeAction;
 import projekt.controller.actions.BuildRoadAction;
 import projekt.controller.actions.BuildVillageAction;
 import projekt.controller.actions.BuyDevelopmentCardAction;
-import projekt.controller.actions.DropCardsAction;
 import projekt.controller.actions.EndTurnAction;
 import projekt.controller.actions.PlayDevelopmentCardAction;
 import projekt.controller.actions.PlayerAction;
@@ -26,7 +25,7 @@ import projekt.controller.actions.UpgradeVillageAction;
  */
 @StudentCreationRequired
 public enum PlayerObjective {
-    DROP_HALF_CARDS(Set.of(DropCardsAction.class)),
+    DROP_HALF_CARDS(Set.of(SelectCardsAction.class)),
     SELECT_CARD_TO_STEAL(Set.of(StealCardAction.class, EndTurnAction.class)),
     SELECT_ROBBER_TILE(Set.of(SelectRobberTileAction.class)),
     REGULAR_TURN(Set.of(BuildRoadAction.class, EndTurnAction.class, BuildVillageAction.class,

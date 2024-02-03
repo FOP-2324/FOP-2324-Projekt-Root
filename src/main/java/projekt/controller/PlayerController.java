@@ -202,6 +202,8 @@ public class PlayerController {
 
     /**
      * Processes the selected resources for the current objective.
+     * If the current objective is {@link PlayerObjective#DROP_HALF_CARDS}, the
+     * selected resources are removed. Otherwise, the selected resources are stored.
      *
      * @param selectedResources the selected resources
      * @throws IllegalActionException if the selected resources are invalid
@@ -210,6 +212,9 @@ public class PlayerController {
             throws IllegalActionException {
         if (selectedResources.values().stream().mapToInt(Integer::intValue).sum() != getCardsToSelect()) {
             throw new IllegalActionException("Wrong amount of cards selected");
+        }
+        if (PlayerObjective.DROP_HALF_CARDS.equals(playerObjectiveProperty.getValue())) {
+            dropSelectedResources(selectedResources);
         }
         this.selectedResources = selectedResources;
     }
@@ -663,20 +668,15 @@ public class PlayerController {
     // Robber methods
 
     /**
-     * Selects the resources to drop from the {@link Player}s inventory.
-     * The {@link Player} must have the selected resources and the amount of
-     * resources to drop must equal the amount of cards requested to drop.
+     * Drops the selected resources from the {@link Player}s inventory.
+     * Validates that the {@link Player} must have the selected resources.
      * The resources are removed from the {@link Player}s inventory.
      *
      * @param resourcesToDrop a map containing the type and quantity of resources to
      *                        drop
      */
-    public void selectResourcesToDrop(final Map<ResourceType, Integer> resourcesToDrop) {
+    public void dropSelectedResources(final Map<ResourceType, Integer> resourcesToDrop) {
         if (!player.hasResources(resourcesToDrop)) {
-            return;
-        }
-        final var resourcesToDropAmount = resourcesToDrop.values().stream().mapToInt(Integer::intValue).sum();
-        if (resourcesToDropAmount != cardsToSelect) {
             return;
         }
         // remove resources from player

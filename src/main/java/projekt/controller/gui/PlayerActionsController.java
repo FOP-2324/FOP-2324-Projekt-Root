@@ -22,7 +22,6 @@ import projekt.controller.actions.AcceptTradeAction;
 import projekt.controller.actions.BuildRoadAction;
 import projekt.controller.actions.BuildVillageAction;
 import projekt.controller.actions.BuyDevelopmentCardAction;
-import projekt.controller.actions.DropCardsAction;
 import projekt.controller.actions.EndTurnAction;
 import projekt.controller.actions.PlayDevelopmentCardAction;
 import projekt.controller.actions.PlayerAction;
@@ -39,10 +38,9 @@ import projekt.model.ResourceType;
 import projekt.model.TradePayload;
 import projekt.model.tiles.Tile;
 import projekt.view.gameControls.AcceptTradeDialog;
-import projekt.view.gameControls.DropCardsDialog;
 import projekt.view.gameControls.PlayerActionsBuilder;
 import projekt.view.gameControls.SelectCardToStealDialog;
-import projekt.view.gameControls.SelectResourceDialog;
+import projekt.view.gameControls.SelectResourcesDialog;
 import projekt.view.gameControls.TradeDialog;
 import projekt.view.gameControls.UseDevelopmentCardDialog;
 
@@ -172,7 +170,7 @@ public class PlayerActionsController implements Controller {
         if (allowedActions.contains(DropCardsAction.class)) {
             dropCardsAction(getPlayerState().cradsToSelect());
         }
-        if (allowedActions.contains(SelectCardsAction.class)) {
+        if (allowedActions.contains(SelectCardsAction.class) && getPlayerState().cradsToSelect() > 0) {
             selectResources(getPlayerState().cradsToSelect());
         }
         if (allowedActions.contains(AcceptTradeAction.class)) {
@@ -475,27 +473,21 @@ public class PlayerActionsController implements Controller {
     }
 
     /**
-     * Performs the DropCardsAction and prompts the user to select the cards to
-     * drop.
-     * If the use cancels or selects an invalid amount of cards, the user is
+     * Prompts the user to select resource cards.
+     * If the current player objective is DROP_HALF_CARDS, the user can only select
+     * cards from the players resources.
+     * If the user cancels or an invalid amount of cards is selected, the user is
      * prompted again.
-     * Triggers the DropCardsAction with the selected cards.
      *
-     * @param amountToDrop the amount of cards to drop
+     * Triggers the SelectCardsAction with the selected cards.
+     *
+     * @param amountToDrop the amount of cards to select
      */
     @StudentImplementationRequired
-    private void dropCardsAction(final int amountToDrop) {
-        final DropCardsDialog dropCardsDialog = new DropCardsDialog(getPlayer().getResources(), amountToDrop,
-                getPlayer());
-        Optional<Map<ResourceType, Integer>> result = dropCardsDialog.showAndWait();
-        while (result.isEmpty() || result.get() == null) {
-            result = dropCardsDialog.showAndWait();
-        }
-        getPlayerController().triggerAction(new DropCardsAction(result.get()));
-    }
-
     private void selectResources(final int amountToSelect) {
-        final SelectResourceDialog dialog = new SelectResourceDialog(amountToSelect, getPlayer());
+        final SelectResourcesDialog dialog = new SelectResourcesDialog(amountToSelect, getPlayer(),
+                PlayerObjective.DROP_HALF_CARDS.equals(getPlayerObjective()) ? getPlayer().getResources() : null,
+                PlayerObjective.DROP_HALF_CARDS.equals(getPlayerObjective()));
         Optional<Map<ResourceType, Integer>> result = dialog.showAndWait();
         while (result.isEmpty() || result.get() == null) {
             result = dialog.showAndWait();
