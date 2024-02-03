@@ -15,18 +15,15 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabClosingPolicy;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.util.converter.IntegerStringConverter;
 import projekt.model.ResourceType;
 import projekt.model.TradePayload;
 import projekt.view.CardPane;
+import projekt.view.IntegerField;
 import projekt.view.ResourceCardPane;
-import projekt.view.Utils;
 
 public class TradeDialog extends Dialog<TradePayload> {
     private final ObjectProperty<ResourceType> selectedBankOffer = new SimpleObjectProperty<>();
@@ -52,7 +49,7 @@ public class TradeDialog extends Dialog<TradePayload> {
                     if (playerOffer.isEmpty() || playerRequest.isEmpty()) {
                         return null;
                     }
-                    return new TradePayload(playerOffer, playerRequest, isResizable(), payload.player());
+                    return new TradePayload(playerOffer, playerRequest, false, payload.player());
                 }
                 return new TradePayload(
                         Map.of(selectedBankOffer.getValue(),
@@ -106,29 +103,23 @@ public class TradeDialog extends Dialog<TradePayload> {
             final CardPane resourceCard = new ResourceCardPane(resourceType, "", 50);
             mainPane.add(resourceCard, resourceType.ordinal() + 1, 0);
 
-            final TextField offeredResourcesField = new TextField();
-            offeredResourcesField
-                    .setTextFormatter(
-                            new TextFormatter<>(new IntegerStringConverter(), 0, Utils.positiveIntegerFilter));
-            offeredResourcesField.textProperty().subscribe((oldValue, newValue) -> {
-                if (newValue == null || newValue.isBlank()) {
+            final IntegerField offeredResourcesField = new IntegerField();
+            offeredResourcesField.valueProperty().subscribe((oldValue, newValue) -> {
+                if (newValue == null || newValue.intValue() <= 0) {
                     playerOffer.remove(resourceType);
                     return;
                 }
-                playerOffer.put(resourceType, Integer.parseInt(newValue));
+                playerOffer.put(resourceType, newValue.intValue());
             });
             mainPane.add(offeredResourcesField, resourceType.ordinal() + 1, 1);
 
-            final TextField requestedResourcesField = new TextField();
-            requestedResourcesField
-                    .setTextFormatter(
-                            new TextFormatter<>(new IntegerStringConverter(), 0, Utils.positiveIntegerFilter));
-            requestedResourcesField.textProperty().subscribe((oldValue, newValue) -> {
-                if (newValue == null || newValue.isBlank()) {
+            final IntegerField requestedResourcesField = new IntegerField();
+            requestedResourcesField.valueProperty().subscribe((oldValue, newValue) -> {
+                if (newValue == null || newValue.intValue() <= 0) {
                     playerRequest.remove(resourceType);
                     return;
                 }
-                playerRequest.put(resourceType, Integer.parseInt(newValue));
+                playerRequest.put(resourceType, newValue.intValue());
             });
 
             mainPane.add(requestedResourcesField, resourceType.ordinal() + 1, 2);

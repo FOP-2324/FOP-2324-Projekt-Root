@@ -8,15 +8,12 @@ import java.util.stream.Collectors;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.GridPane;
-import javafx.util.converter.IntegerStringConverter;
 import projekt.model.Player;
 import projekt.model.ResourceType;
 import projekt.view.CardPane;
+import projekt.view.IntegerField;
 import projekt.view.ResourceCardPane;
-import projekt.view.Utils;
 
 public class SelectResourcesDialog extends Dialog<Map<ResourceType, Integer>> {
 
@@ -47,18 +44,15 @@ public class SelectResourcesDialog extends Dialog<Map<ResourceType, Integer>> {
                     50);
             mainPane.add(resourceCard, resourceType.ordinal(), 0);
 
-            final TextField amountField = new TextField();
-            amountField.setTextFormatter(
-                    new TextFormatter<>(new IntegerStringConverter(), 0, Utils.positiveIntegerFilter));
-            amountField.textProperty().subscribe((oldText, newText) -> {
-
-                if (newText.isEmpty()) {
+            final IntegerField amountField = new IntegerField();
+            amountField.valueProperty().subscribe((oldValue, newValue) -> {
+                if (newValue.intValue() <= 0) {
                     this.selectedResources.remove(resourceType);
                 } else {
-                    final int enteredAmount = Integer.parseInt(newText);
+                    final int enteredAmount = newValue.intValue();
                     if (enteredAmount > amountToSelect
                             || dropCards && enteredAmount > resourcesToSelectFromFinal.get(resourceType)) {
-                        amountField.setText(oldText);
+                        amountField.setValue(oldValue);
                         return;
                     }
                     this.selectedResources.put(resourceType, enteredAmount);
