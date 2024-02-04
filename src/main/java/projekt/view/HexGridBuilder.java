@@ -16,12 +16,9 @@ import javafx.geometry.Point2D;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.Border;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.util.Builder;
 import projekt.model.HexGrid;
 import projekt.model.Intersection;
@@ -94,9 +91,6 @@ public class HexGridBuilder implements Builder<Region> {
 
         edgeLines.forEach(this::placeEdge);
         hexGridPane.getChildren().addAll(intersectionBuilders.stream().map(this::placeIntersection).toList());
-        hexGridPane.setBorder(Border.stroke(Color.BLACK));
-        hexGridPane.getChildren().add(new Circle(maxPoint.getX(), maxPoint.getY(), 5, Color.BLACK));
-        hexGridPane.getChildren().add(new Circle(minPoint.getX(), minPoint.getY(), 5, Color.BLACK));
 
         final StackPane mapPane = new StackPane(hexGridPane);
         mapPane.getStylesheets().add("css/hexmap.css");
