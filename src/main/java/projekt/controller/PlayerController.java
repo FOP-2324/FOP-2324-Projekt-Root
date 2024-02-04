@@ -166,18 +166,21 @@ public class PlayerController {
     }
 
     /**
-     * Returns the amount of cards to select for the current objective.
+     * Returns the amount of cards the player has to select
      *
-     * @return the amount of cards to select for the current objective.
+     * @return the amount of cards to select
      */
     private int getCardsToSelect() {
-        if (PlayerObjective.DROP_HALF_CARDS.equals(playerObjectiveProperty.getValue())) {
-            return player.getResources().values().stream().mapToInt(Integer::intValue).sum() / 2;
-        }
-        if (PlayerObjective.SELECT_CARDS.equals(playerObjectiveProperty.getValue())) {
-            return cardsToSelect;
-        }
-        return 0;
+        return cardsToSelect;
+    }
+
+    /**
+     * Sets the amount of cards the player has to select
+     *
+     * @param cardsToSelect the amount of cards to select
+     */
+    public void setCardsToSelect(final int cardsToSelect) {
+        this.cardsToSelect = cardsToSelect;
     }
 
     /**
