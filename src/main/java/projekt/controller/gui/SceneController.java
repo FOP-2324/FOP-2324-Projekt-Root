@@ -46,4 +46,8 @@ public interface SceneController extends Controller {
     public static void loadGameScene() {
         SceneSwitcher.getInstance().loadScene(SceneSwitcher.SceneType.GAME_BOARD);
     }
+
+    public static void loadAboutScene() {
+        SceneSwitcher.getInstance().loadScene(SceneSwitcher.SceneType.ABOUT);
+    }
 }

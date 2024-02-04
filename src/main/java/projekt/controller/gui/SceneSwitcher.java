@@ -58,7 +58,8 @@ public class SceneSwitcher {
                     getInstance().gameController.getActivePlayerControllerProperty(),
                     getInstance().gameController.getCurrentDiceRollProperty(),
                     getInstance().gameController.getState().getWinnerProperty());
-        });
+        }),
+        ABOUT(AboutController::new);
 
         private final Supplier<SceneController> controller;
 
