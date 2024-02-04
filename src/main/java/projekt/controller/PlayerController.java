@@ -658,6 +658,7 @@ public class PlayerController {
         if (!tradingPlayer.hasResources(playerTradingOffer)) {
             throw new IllegalActionException("Other player does not have the offered resources");
         }
+        playerObjectiveProperty.setValue(PlayerObjective.IDLE);
 
         player.removeResources(playerTradingRequest);
         tradingPlayer.addResources(playerTradingRequest);
@@ -679,6 +680,7 @@ public class PlayerController {
         if (!player.hasResources(resourcesToDrop)) {
             return;
         }
+        playerObjectiveProperty.setValue(PlayerObjective.IDLE);
         // remove resources from player
         player.removeResources(resourcesToDrop);
         cardsToSelect = 0;
@@ -697,6 +699,7 @@ public class PlayerController {
         if (!playerToStealFrom.hasResources(Map.of(resourceToSteal, 1))) {
             throw new IllegalActionException("Player does not have the selected resource");
         }
+        playerObjectiveProperty.setValue(PlayerObjective.IDLE);
         // remove resource from player
         playerToStealFrom.removeResources(Map.of(resourceToSteal, 1));
         // add resource to player
