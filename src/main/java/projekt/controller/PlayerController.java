@@ -483,7 +483,7 @@ public class PlayerController {
      * @return whether the {@link Player} can buy a development card.
      */
     public boolean canBuyDevelopmentCard() {
-        return gameController.remainingDevelopmentCards() > 0 && player.hasResources(Config.DEVELOPMENT_CARD_COST);
+        return player.hasResources(Config.DEVELOPMENT_CARD_COST);
     }
 
     /**

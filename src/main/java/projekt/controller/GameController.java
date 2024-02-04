@@ -6,8 +6,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.Stack;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.tudalgo.algoutils.student.annotation.DoNotTouch;
@@ -41,7 +41,7 @@ public class GameController {
     private final Map<Player, PlayerController> playerControllers;
     private final Iterator<Integer> dice;
     private final IntegerProperty currentDiceRoll = new SimpleIntegerProperty(0);
-    private final Stack<DevelopmentCardType> availableDevelopmentCards = Config.generateDevelopmentCards();
+    private final Supplier<DevelopmentCardType> availableDevelopmentCards = Config.developmentCardGenerator();
 
     private final Property<PlayerController> activePlayerControllerProperty = new SimpleObjectProperty<>();
 
@@ -175,21 +175,12 @@ public class GameController {
     }
 
     /**
-     * Returns the number of remaining development cards.
-     *
-     * @return The number of remaining development cards.
-     */
-    public int remainingDevelopmentCards() {
-        return availableDevelopmentCards.size();
-    }
-
-    /**
      * Draws a development card from the stack of available development cards.
      *
      * @return The drawn development card.
      */
     public DevelopmentCardType drawDevelopmentCard() {
-        return availableDevelopmentCards.pop();
+        return availableDevelopmentCards.get();
     }
 
     /**

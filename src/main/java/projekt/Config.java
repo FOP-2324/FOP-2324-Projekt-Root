@@ -9,6 +9,7 @@ import projekt.model.tiles.Tile;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public final class Config {
@@ -123,20 +124,38 @@ public final class Config {
         ResourceType.ORE, 1
     );
 
-    public static Stack<DevelopmentCardType> generateDevelopmentCards() {
-        return new Stack<>() {{
-            for (DevelopmentCardType developmentCardType : DevelopmentCardType.values()) {
-                Stream.generate(() -> developmentCardType)
-                    .limit(switch (developmentCardType) {
-                        case KNIGHT -> 14;
-                        case VICTORY_POINTS -> 5;
-                        case ROAD_BUILDING, INVENTION, MONOPOLY -> 2;
-                    })
-                    .forEach(this::add);
-            }
+    /**
+     * Create a new generator for development cards.
+     * The supplier returned by this method returns a randomly picked
+     * development card from an "endless stack" of {@link DevelopmentCardType}.
+     * The probability of a card to be picked is the same as defined by the rules of the base game.
+     *
+     * @return A supplier returning randomly picked development cards
+     */
+    public static Supplier<DevelopmentCardType> developmentCardGenerator() {
+        SortedMap<DevelopmentCardType, Double> ratios = new TreeMap<>(Map.of(
+            DevelopmentCardType.KNIGHT, 0.56,
+            DevelopmentCardType.VICTORY_POINTS, 0.20,
+            DevelopmentCardType.ROAD_BUILDING, 0.08,
+            DevelopmentCardType.INVENTION, 0.08,
+            DevelopmentCardType.MONOPOLY, 0.08
+        ));
 
-            Collections.shuffle(this);
-        }};
+        return () -> {
+            double d = RANDOM.nextDouble();
+            double start = 0;
+            double bound = 0;
+
+            for (Map.Entry<DevelopmentCardType, Double> entry : ratios.entrySet()) {
+                double ratio = entry.getValue();
+                bound += ratio;
+                if (d >= start && d < bound) {
+                    return entry.getKey();
+                }
+                start += ratio;
+            }
+            return null;
+        };
     }
 
     public static Stack<Tile.Type> generateAvailableTileTypes() {
