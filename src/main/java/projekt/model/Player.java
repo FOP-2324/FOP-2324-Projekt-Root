@@ -25,16 +25,9 @@ public interface Player {
     Map<ResourceType, Integer> getResources();
 
     /**
-     * Returns a property of the amount of victory points the player has.
+     * Returns the amount of victory points from settlements and development cards the player has.
      *
-     * @return a property of the amount of victory points the player has.
-     */
-    IntegerProperty getVictoryPointsProperty();
-
-    /**
-     * Returns the amount of victory points the player has.
-     *
-     * @return the amount of victory points the player has.
+     * @return the amount of victory points from settlements and development cards the player has.
      */
     int getVictoryPoints();
 

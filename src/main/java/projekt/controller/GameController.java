@@ -1,6 +1,7 @@
 package projekt.controller;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -190,9 +191,24 @@ public class GameController {
      */
     @StudentImplementationRequired
     public Set<Player> getWinners() {
-        return getState().getPlayers().stream()
-                .filter(player -> player.getVictoryPoints() >= 10)
-                .collect(Collectors.toUnmodifiableSet());
+        Player playerWithMostKnightsPlayed = getState().getPlayers()
+            .stream()
+            .filter(player -> player.getKnightsPlayed() >= 3)
+            .max(Comparator.comparingInt(Player::getKnightsPlayed))
+            .orElse(null);
+        Player playerWithLongestRoad = null; // TODO: uncomment code if getLongestRoad(Player) is implemented in HexGrid
+//        getState().getPlayers()
+//            .stream()
+//            .max(Comparator.comparingInt(player -> player.getHexGrid().getLongestRoad(player).size()))
+//            .orElse(null);
+
+        return getState().getPlayers()
+            .stream()
+            .filter(player -> (player.getVictoryPoints()
+                + (player == playerWithMostKnightsPlayed ? 2 : 0)
+                + (player == playerWithLongestRoad ? 2 : 0))
+                >= Config.REQUIRED_VICTORY_POINTS)
+            .collect(Collectors.toUnmodifiableSet());
     }
 
     /**

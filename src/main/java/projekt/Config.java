@@ -15,6 +15,12 @@ public final class Config {
 
     public static final int MAX_PLAYERS = 4;
     public static final int MIN_PLAYERS = 2;
+
+    /**
+     * How many victory points a player must have to win.
+     */
+    public static final int REQUIRED_VICTORY_POINTS = 10;
+
     /**
      * The properties file containing the amount of tiles of each type the ratio is
      * calulated by (see {@link #TILE_RATIOS}).

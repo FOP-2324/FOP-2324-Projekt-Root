@@ -24,7 +24,6 @@ public class PlayerImpl implements Player {
     private final int id;
     protected boolean ai;
     private final String name;
-    private final IntegerProperty victoryPoints;
     private final Map<ResourceType, Integer> resources = new HashMap<>();
     private final Map<DevelopmentCardType, Integer> developmentCards = new HashMap<>();
     private final Map<DevelopmentCardType, Integer> playedDevelopmentCards = new HashMap<>();
@@ -32,7 +31,6 @@ public class PlayerImpl implements Player {
     private PlayerImpl(final HexGrid hexGrid, final Color color, final int id, final String name, final boolean ai) {
         this.hexGrid = hexGrid;
         this.color = color;
-        this.victoryPoints = new SimpleIntegerProperty(0);
         this.id = id;
         this.name = name;
         this.ai = ai;
@@ -169,13 +167,19 @@ public class PlayerImpl implements Player {
     }
 
     @Override
-    public IntegerProperty getVictoryPointsProperty() {
-        return this.victoryPoints;
-    }
-
-    @Override
     public int getVictoryPoints() {
-        return this.victoryPoints.get();
+        int buildingVictoryPoints = getSettlements().stream()
+            .mapToInt(settlement -> switch (settlement.type()) {
+                case VILLAGE -> 1;
+                case CITY -> 2;
+            })
+            .sum();
+        int developmentCardsVictoryPoints = (int) getDevelopmentCards().keySet()
+            .stream()
+            .filter(developmentCardType -> developmentCardType == DevelopmentCardType.VICTORY_POINTS)
+            .count();
+
+        return buildingVictoryPoints + developmentCardsVictoryPoints;
     }
 
     @Override
