@@ -8,22 +8,15 @@ import projekt.model.buildings.Settlement;
 import projekt.model.tiles.Tile;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 public final class Config {
 
-    public static final int MAX_PLAYERS = 4;
-    public static final int MIN_PLAYERS = 2;
+    // Properties and global stuff
 
     /**
-     * How many victory points a player must have to win.
-     */
-    public static final int REQUIRED_VICTORY_POINTS = 10;
-
-    /**
-     * The properties file containing the amount of tiles of each type the ratio is
-     * calulated by (see {@link #TILE_RATIOS}).
+     * The properties file containing the ratio of each tile type.
+     * @see #TILE_RATIOS
      */
     private static final Properties TILE_RATIO_PROPERTIES = PropertyUtils.getProperties("tile_ratios.properties");
 
@@ -39,12 +32,27 @@ public final class Config {
     public static final Random RANDOM = new Random();
 
     /**
+     * The minimum required number of players in a game.
+     */
+    public static final int MIN_PLAYERS = 2;
+
+    /**
+     * The maximum allowed number of players in a game.
+     */
+    public static final int MAX_PLAYERS = 4;
+
+    /**
+     * How many victory points a player must have to win.
+     */
+    public static final int REQUIRED_VICTORY_POINTS = 10;
+
+    /**
      * The number of dice rolled each round.
      */
     public static final int NUMBER_OF_DICE = 2;
 
     /**
-     * The number of sides the dice have.
+     * The number of sides on each die.
      */
     public static final int DICE_SIDES = 6;
 
@@ -53,10 +61,20 @@ public final class Config {
      */
     public static final int GRID_RADIUS = 3;
 
+
+    // Roads and settlements
+
     /**
      * Maximum amount of roads a player can place / own.
      */
     public static final int MAX_ROADS = 15;
+
+    /**
+     * The amount of resources needed to build a road.
+     */
+    public static final Map<ResourceType, Integer> ROAD_BUILDING_COST = Map.of(
+        ResourceType.WOOD, 1,
+        ResourceType.CLAY, 1);
 
     /**
      * Maximum amount of villages a player can place / own.
@@ -69,19 +87,42 @@ public final class Config {
     public static final int MAX_CITIES = 4;
 
     /**
-     * The formula to calculate how many tiles fit in a grid with the given radius.
+     * The amount of resources needed to build each settlement type.
      */
-    public static final Function<Integer, Integer> TILE_FORMULA = i -> 6 * (i * (i - 1) / 2) + 1;
+    public static final Map<Settlement.Type, Map<ResourceType, Integer>> SETTLEMENT_BUILDING_COST = Map.of(
+        Settlement.Type.VILLAGE, Map.of(
+            ResourceType.WOOD, 1,
+            ResourceType.CLAY, 1,
+            ResourceType.GRAIN, 1,
+            ResourceType.WOOL, 1),
+        Settlement.Type.CITY, Map.of(
+            ResourceType.GRAIN, 2,
+            ResourceType.ORE, 3));
+
+
+    // Tiles
 
     /**
-     * The ratio of each {@link projekt.model.tiles.TileImpl.Type} to the total amount of tiles in the
-     * grid.
+     * The ratio of each {@link projekt.model.tiles.Tile.Type} to the total amount of tiles in the grid.
      */
     public static final SortedMap<Tile.Type, Integer> TILE_RATIOS = Collections.unmodifiableSortedMap(new TreeMap<>() {{
         for (final Tile.Type tileType : Tile.Type.values()) {
             put(tileType, Integer.parseInt(TILE_RATIO_PROPERTIES.getProperty(tileType.name(), "0")));
         }
     }});
+
+    /**
+     * Create a new generator for tile types.
+     * The supplier returned by this method returns a randomly picked
+     * tile type from an "endless stack" of {@link Tile.Type}.
+     * The probability of a tile type to be picked is the same as defined by the rules of the base game.
+     *
+     * @return A supplier returning randomly picked tile types
+     * @see #makeSupplier(SortedMap, boolean)
+     */
+    public static Supplier<Tile.Type> generateAvailableTileTypes() {
+        return makeSupplier(TILE_RATIOS, true);
+    }
 
     /**
      * Creates a new supplier returning randomly picked yields.
@@ -109,37 +150,26 @@ public final class Config {
         return makeSupplier(ratios, true);
     }
 
-    /**
-     * The amount of resources needed to build a road.
-     */
-    public static final Map<ResourceType, Integer> ROAD_BUILDING_COST = Map.of(
-            ResourceType.WOOD, 1,
-            ResourceType.CLAY, 1);
+
+     // Development cards
 
     /**
-     * The amount of resources needed to build each settlement type.
+     * The cost to buy a single development card of any type
      */
-    public static final Map<Settlement.Type, Map<ResourceType, Integer>> SETTLEMENT_BUILDING_COST = Map.of(
-            Settlement.Type.VILLAGE, Map.of(
-                    ResourceType.WOOD, 1,
-                    ResourceType.CLAY, 1,
-                    ResourceType.GRAIN, 1,
-                    ResourceType.WOOL, 1),
-            Settlement.Type.CITY, Map.of(
-                    ResourceType.GRAIN, 2,
-                    ResourceType.ORE, 3));
-
-    public static final SortedMap<DevelopmentCardType, Integer> DEVELOPMENT_CARD_RATIOS = Collections.unmodifiableSortedMap(new TreeMap<>() {{
-        for (DevelopmentCardType developmentCardType : DevelopmentCardType.values()) {
-            put(developmentCardType, Integer.parseInt(DEVELOPMENT_CARD_RATIO_PROPERTIES.getProperty(developmentCardType.name(), "0")));
-        }
-    }});
-
     public static final Map<ResourceType, Integer> DEVELOPMENT_CARD_COST = Map.of(
         ResourceType.GRAIN, 1,
         ResourceType.WOOL, 1,
         ResourceType.ORE, 1
     );
+
+    /**
+     * The ratio / frequency of occurrence of each {@link projekt.model.DevelopmentCardType}.
+     */
+    public static final SortedMap<DevelopmentCardType, Integer> DEVELOPMENT_CARD_RATIOS = Collections.unmodifiableSortedMap(new TreeMap<>() {{
+        for (DevelopmentCardType developmentCardType : DevelopmentCardType.values()) {
+            put(developmentCardType, Integer.parseInt(DEVELOPMENT_CARD_RATIO_PROPERTIES.getProperty(developmentCardType.name(), "0")));
+        }
+    }});
 
     /**
      * Create a new generator for development cards.
@@ -154,18 +184,8 @@ public final class Config {
         return makeSupplier(DEVELOPMENT_CARD_RATIOS, false);
     }
 
-    /**
-     * Create a new generator for tile types.
-     * The supplier returned by this method returns a randomly picked
-     * tile type from an "endless stack" of {@link Tile.Type}.
-     * The probability of a tile type to be picked is the same as defined by the rules of the base game.
-     *
-     * @return A supplier returning randomly picked tile types
-     * @see #makeSupplier(SortedMap, boolean)
-     */
-    public static Supplier<Tile.Type> generateAvailableTileTypes() {
-        return makeSupplier(TILE_RATIOS, true);
-    }
+
+    // Misc
 
     /**
      * Creates a supplier for the keys of the given map depending on the key's mapping (ratio).
