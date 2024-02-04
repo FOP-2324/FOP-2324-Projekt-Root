@@ -3,6 +3,7 @@ package projekt.view;
 import java.util.function.Consumer;
 
 import javafx.collections.ListChangeListener;
+import javafx.geometry.Point2D;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
@@ -48,23 +49,20 @@ public class EdgeLine extends Line {
         return edge;
     }
 
+    /**
+     * Returns the outline of the EdgeLine.
+     *
+     * @return the outline
+     */
     public Line getOutline() {
         return outline;
     }
 
     /**
-     * Calculates the distance between two points.
-     *
-     * @param x1 the x coordinate of the first point
-     * @param y1 the y coordinate of the first point
-     * @param x2 the x coordinate of the second point
-     * @param y2 the y coordinate of the second point
-     * @return the distance between the two points
+     * Initializes the EdgeLine with a dashScale of 1.
+     * 
+     * @see #init(double)
      */
-    private double calculateDistance(final double x1, final double y1, final double x2, final double y2) {
-        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-    }
-
     public void init() {
         init(1);
     }
@@ -75,7 +73,7 @@ public class EdgeLine extends Line {
      * @param dashScale factor to scale the dash length by
      */
     public void init(final double dashScale) {
-        this.distance = calculateDistance(getStartX(), getStartY(), getEndX(), getEndY());
+        this.distance = new Point2D(getStartX(), getStartY()).distance(getEndX(), getEndY());
         setStrokeWidth(strokeWidth);
         setStroke(edge.hasRoad() ? edge.roadOwner().getValue().getColor() : Color.TRANSPARENT);
         setStrokeDashOffset(-positionOffset / 2);
