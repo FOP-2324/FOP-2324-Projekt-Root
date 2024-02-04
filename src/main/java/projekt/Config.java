@@ -28,6 +28,12 @@ public final class Config {
     private static final Properties TILE_RATIO_PROPERTIES = PropertyUtils.getProperties("tile_ratios.properties");
 
     /**
+     * The properties file containing the ratio of each development card type.
+     * @see #DEVELOPMENT_CARD_RATIOS
+     */
+    private static final Properties DEVELOPMENT_CARD_RATIO_PROPERTIES = PropertyUtils.getProperties("development_card_ratios.properties");
+
+    /**
      * The global source of randomness.
      */
     public static final Random RANDOM = new Random();
@@ -123,6 +129,12 @@ public final class Config {
                     ResourceType.GRAIN, 2,
                     ResourceType.ORE, 3));
 
+    public static final SortedMap<DevelopmentCardType, Integer> DEVELOPMENT_CARD_RATIOS = Collections.unmodifiableSortedMap(new TreeMap<>() {{
+        for (DevelopmentCardType developmentCardType : DevelopmentCardType.values()) {
+            put(developmentCardType, Integer.parseInt(DEVELOPMENT_CARD_RATIO_PROPERTIES.getProperty(developmentCardType.name(), "0")));
+        }
+    }});
+
     public static final Map<ResourceType, Integer> DEVELOPMENT_CARD_COST = Map.of(
         ResourceType.GRAIN, 1,
         ResourceType.WOOL, 1,
@@ -139,15 +151,7 @@ public final class Config {
      * @see #makeSupplier(SortedMap, boolean)
      */
     public static Supplier<DevelopmentCardType> developmentCardGenerator() {
-        SortedMap<DevelopmentCardType, Integer> ratios = new TreeMap<>(Map.of(
-            DevelopmentCardType.KNIGHT, 14,
-            DevelopmentCardType.VICTORY_POINTS, 5,
-            DevelopmentCardType.ROAD_BUILDING, 2,
-            DevelopmentCardType.INVENTION, 2,
-            DevelopmentCardType.MONOPOLY, 2
-        ));
-
-        return makeSupplier(ratios, false);
+        return makeSupplier(DEVELOPMENT_CARD_RATIOS, false);
     }
 
     /**
