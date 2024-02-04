@@ -7,8 +7,8 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.IntBinaryOperator;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
+import java.util.stream.Collectors;
 
 import javafx.beans.binding.Bindings;
 import javafx.event.Event;
@@ -16,9 +16,12 @@ import javafx.geometry.Point2D;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.util.Builder;
 import projekt.model.HexGrid;
 import projekt.model.Intersection;
@@ -32,10 +35,8 @@ public class HexGridBuilder implements Builder<Region> {
     private final BiConsumer<ScrollEvent, Region> scrollHandler;
     private final Consumer<MouseEvent> pressedHandler;
     private final BiConsumer<MouseEvent, Region> draggedHandler;
-    private final Supplier<Double> maxX;
-    private final Supplier<Double> maxY;
-    private final Supplier<Double> minX;
-    private final Supplier<Double> minY;
+    private final Point2D maxPoint;
+    private final Point2D minPoint;
     private final BiConsumer<Event, Region> centerButtonHandler;
     private final Set<IntersectionBuilder> intersectionBuilders;
     private final Set<EdgeLine> edgeLines;
@@ -62,18 +63,16 @@ public class HexGridBuilder implements Builder<Region> {
                 reduceFunction) -> grid.getTiles().values().stream().map(Tile::getPosition).mapToInt(positionFunction)
                         .reduce(reduceFunction).getAsInt();
 
-        this.maxX = () -> calculatePositionXTranslation(
-                new TilePosition(reduceTiles.apply(TilePosition::q, Integer::max), 0))
-                + 10;
-        this.minX = () -> calculatePositionXTranslation(
-                new TilePosition(reduceTiles.apply(TilePosition::q, Integer::min), 0))
-                - 10;
-        this.maxY = () -> calculatePositionYTranslation(
-                new TilePosition(0, reduceTiles.apply(TilePosition::r, Integer::max)))
-                + 10;
-        this.minY = () -> calculatePositionYTranslation(
-                new TilePosition(0, reduceTiles.apply(TilePosition::r, Integer::min)))
-                - 10;
+        this.maxPoint = new Point2D(
+                calculatePositionTranslation(new TilePosition(reduceTiles.apply(TilePosition::q, Integer::max), 0))
+                        .getX(),
+                calculatePositionTranslation(new TilePosition(0, reduceTiles.apply(TilePosition::r, Integer::max)))
+                        .getY());
+        this.minPoint = new Point2D(
+                calculatePositionTranslation(new TilePosition(reduceTiles.apply(TilePosition::q, Integer::min), 0))
+                        .getX(),
+                calculatePositionTranslation(new TilePosition(0, reduceTiles.apply(TilePosition::r, Integer::min)))
+                        .getY());
     }
 
     @Override
@@ -85,16 +84,19 @@ public class HexGridBuilder implements Builder<Region> {
         hexGridPane.getChildren().addAll(tileBuilders.stream().map(this::placeTile).toList());
 
         hexGridPane.maxWidthProperty().bind(Bindings
-                .createDoubleBinding(() -> Math.abs(minX.get()) + maxX.get() + grid.getTileWidth(),
+                .createDoubleBinding(() -> Math.abs(minPoint.getX()) + maxPoint.getX() + grid.getTileWidth(),
                         grid.tileSizeProperty()));
         hexGridPane.maxHeightProperty().bind(Bindings
-                .createDoubleBinding(() -> Math.abs(minY.get()) + maxY.get() + grid.getTileHeight(),
+                .createDoubleBinding(() -> Math.abs(minPoint.getY()) + maxPoint.getX() + grid.getTileHeight(),
                         grid.tileSizeProperty()));
         hexGridPane.minWidthProperty().bind(hexGridPane.maxWidthProperty());
         hexGridPane.minHeightProperty().bind(hexGridPane.maxHeightProperty());
 
         edgeLines.forEach(this::placeEdge);
         hexGridPane.getChildren().addAll(intersectionBuilders.stream().map(this::placeIntersection).toList());
+        hexGridPane.setBorder(Border.stroke(Color.BLACK));
+        hexGridPane.getChildren().add(new Circle(maxPoint.getX(), maxPoint.getY(), 5, Color.BLACK));
+        hexGridPane.getChildren().add(new Circle(minPoint.getX(), minPoint.getY(), 5, Color.BLACK));
 
         final StackPane mapPane = new StackPane(hexGridPane);
         mapPane.getStylesheets().add("css/hexmap.css");
@@ -125,12 +127,11 @@ public class HexGridBuilder implements Builder<Region> {
         final Region tileView = builder.build();
         final Tile tile = builder.getTile();
         final TilePosition position = tile.getPosition();
+        final Point2D translatedPoint = calculatePositionTranslationOffset(position);
         tileView.translateXProperty().bind(
-                Bindings.createDoubleBinding(() -> (calculatePositionXTranslationOffset(position).get()),
-                        tile.widthProperty()));
+                Bindings.createDoubleBinding(() -> (translatedPoint.getX()), tile.widthProperty()));
         tileView.translateYProperty().bind(
-                Bindings.createDoubleBinding(() -> (calculatePositionYTranslationOffset(position).get()),
-                        tile.heightProperty()));
+                Bindings.createDoubleBinding(() -> translatedPoint.getY(), tile.heightProperty()));
         return tileView;
     }
 
@@ -140,16 +141,11 @@ public class HexGridBuilder implements Builder<Region> {
 
     private Region placeIntersection(final IntersectionBuilder builder) {
         final Region intersectionView = builder.build();
-        intersectionView.translateXProperty()
-                .bind(Bindings.createDoubleBinding(
-                        () -> (calculateIntersectionXTranslation(builder.getIntersection())
-                                - intersectionView.getWidth() / 2),
-                        intersectionView.widthProperty()));
-        intersectionView.translateYProperty()
-                .bind(Bindings.createDoubleBinding(
-                        () -> (calculateIntersectionYTranslation(builder.getIntersection())
-                                - intersectionView.getHeight() / 2),
-                        intersectionView.heightProperty()));
+        final Point2D translatedPoint = calculateIntersectionTranslation(builder.getIntersection());
+        intersectionView.translateXProperty().bind(Bindings.createDoubleBinding(
+                () -> (translatedPoint.getX() - intersectionView.getWidth() / 2), intersectionView.widthProperty()));
+        intersectionView.translateYProperty().bind(Bindings.createDoubleBinding(
+                () -> (translatedPoint.getY() - intersectionView.getHeight() / 2), intersectionView.heightProperty()));
         return intersectionView;
     }
 
@@ -159,11 +155,12 @@ public class HexGridBuilder implements Builder<Region> {
 
     private void placeEdge(final EdgeLine edgeLine) {
         final List<Intersection> intersections = edgeLine.getEdge().getIntersections().stream().toList();
-
-        edgeLine.setStartX(calculateIntersectionXTranslation(intersections.get(0)));
-        edgeLine.setStartY(calculateIntersectionYTranslation(intersections.get(0)));
-        edgeLine.setEndX(calculateIntersectionXTranslation(intersections.get(1)));
-        edgeLine.setEndY(calculateIntersectionYTranslation(intersections.get(1)));
+        final Point2D translatedStart = calculateIntersectionTranslation(intersections.get(0));
+        final Point2D translatedEnd = calculateIntersectionTranslation(intersections.get(1));
+        edgeLine.setStartX(translatedStart.getX());
+        edgeLine.setStartY(translatedStart.getY());
+        edgeLine.setEndX(translatedEnd.getX());
+        edgeLine.setEndY(translatedEnd.getY());
         edgeLine.init();
         hexGridPane.getChildren().add(edgeLine.getOutline());
         hexGridPane.getChildren().add(edgeLine);
@@ -175,68 +172,37 @@ public class HexGridBuilder implements Builder<Region> {
                 .findAny()
                 .orElseThrow();
         final List<Intersection> intersections = edge.getIntersections().stream().toList();
-        final Point2D node0 = new Point2D((float) calculateIntersectionXTranslation(intersections.get(0)),
-                (float) calculateIntersectionYTranslation(intersections.get(0)));
-        final Point2D node1 = new Point2D((float) calculateIntersectionXTranslation(intersections.get(1)),
-                (float) calculateIntersectionYTranslation(intersections.get(1)));
+        final Point2D node0 = calculateIntersectionTranslation(intersections.get(0));
+        final Point2D node1 = calculateIntersectionTranslation(intersections.get(1));
         final PortBuilder portBuilder = new PortBuilder(edge, grid.tileWidthProperty(), grid.tileHeightProperty(),
                 node0, node1);
-        final Region portView = portBuilder
-                .build();
-
-        portView.translateXProperty().bind(
-                Bindings.createDoubleBinding(
-                        () -> (calculatePositionXTranslationOffset(position).get() - portView.getWidth() / 2),
-                        grid.tileWidthProperty()));
-        portView.translateYProperty().bind(
-                Bindings.createDoubleBinding(
-                        () -> (calculatePositionYTranslationOffset(position).get() - portView.getHeight() / 2),
-                        grid.tileHeightProperty()));
-        hexGridPane.getChildren().addAll(portBuilder.initConnections(new Point2D(
-                (float) calculatePositionXCenterOffset(position),
-                (float) calculatePositionYCenterOffset(position))));
+        final Region portView = portBuilder.build();
+        final Point2D translatedPoint = calculatePositionTranslationOffset(position);
+        portView.translateXProperty().bind(Bindings.createDoubleBinding(
+                () -> (translatedPoint.getX() - portView.getWidth() / 2), grid.tileWidthProperty()));
+        portView.translateYProperty().bind(Bindings.createDoubleBinding(
+                () -> (translatedPoint.getY() - portView.getHeight() / 2), grid.tileHeightProperty()));
+        hexGridPane.getChildren().addAll(portBuilder.initConnections(calculatePositionCenterOffset(position)));
         hexGridPane.getChildren().addAll(portView);
     }
 
-    private double calculatePositionXTranslation(final TilePosition Position) {
-        return grid.getTileSize() * (Math.sqrt(3) * Position.q() + Math.sqrt(3) / 2 * Position.r());
+    private Point2D calculatePositionTranslation(final TilePosition position) {
+        return new Point2D(grid.getTileSize() * (Math.sqrt(3) * position.q() + Math.sqrt(3) / 2 * position.r()),
+                grid.getTileSize() * (3.0 / 2 * position.r()));
     }
 
-    private Supplier<Double> calculatePositionXTranslationOffset(final TilePosition position) {
-        return () -> calculatePositionXTranslation(position) + Math.abs(minX.get());
+    private Point2D calculatePositionTranslationOffset(final TilePosition position) {
+        return calculatePositionTranslation(position).add(Math.abs(minPoint.getX()), Math.abs(minPoint.getY()));
     }
 
-    private double calculatePositionYTranslation(final TilePosition Position) {
-        return grid.getTileSize() * (3.0 / 2 * Position.r());
+    private Point2D calculatePositionCenterOffset(final TilePosition position) {
+        return calculatePositionTranslationOffset(position).add(grid.getTileWidth() / 2, grid.getTileHeight() / 2);
     }
 
-    private Supplier<Double> calculatePositionYTranslationOffset(final TilePosition position) {
-        return () -> calculatePositionYTranslation(position) + Math.abs(minY.get());
-    }
-
-    private double calculatePositionXCenter(final TilePosition Position) {
-        return calculatePositionXTranslation(Position) + grid.getTileWidth() / 2;
-    }
-
-    private double calculatePositionYCenter(final TilePosition Position) {
-        return calculatePositionYTranslation(Position) + grid.getTileHeight() / 2;
-    }
-
-    private double calculatePositionXCenterOffset(final TilePosition position) {
-        return calculatePositionXCenter(position) + Math.abs(minX.get());
-    }
-
-    private double calculatePositionYCenterOffset(final TilePosition position) {
-        return calculatePositionYCenter(position) + Math.abs(minY.get());
-    }
-
-    private double calculateIntersectionXTranslation(final Intersection intersection) {
-        return (intersection.getAdjacentTilePositions().stream().mapToDouble(this::calculatePositionXCenterOffset)
-                .sum()) / 3;
-    }
-
-    private double calculateIntersectionYTranslation(final Intersection intersection) {
-        return (intersection.getAdjacentTilePositions().stream().mapToDouble(this::calculatePositionYCenterOffset)
-                .sum()) / 3;
+    private Point2D calculateIntersectionTranslation(final Intersection intersection) {
+        final Set<Point2D> adjacentPoints = intersection.getAdjacentTilePositions().stream()
+                .map(this::calculatePositionCenterOffset)
+                .collect(Collectors.toSet());
+        return adjacentPoints.stream().reduce(Point2D::add).get().multiply(1.0 / 3);
     }
 }
