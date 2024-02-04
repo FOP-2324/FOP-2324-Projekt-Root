@@ -6,8 +6,6 @@ public record AcceptTradeAction(boolean accepted) implements PlayerAction {
 
     @Override
     public void execute(final PlayerController pc) throws IllegalActionException {
-        if (accepted) {
-            pc.acceptTradeOffer();
-        }
+        pc.acceptTradeOffer(accepted);
     }
 }

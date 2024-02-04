@@ -651,10 +651,16 @@ public class PlayerController {
      *                                {@link Player} does not have the required
      *                                resources
      */
-    public void acceptTradeOffer() throws IllegalActionException {
+    public void acceptTradeOffer(final boolean accepted) throws IllegalActionException {
         if (tradingPlayer == null || playerTradingOffer == null || playerTradingRequest == null) {
             throw new IllegalActionException("No trade offer to accept");
         }
+
+        if (!accepted) {
+            playerObjectiveProperty.setValue(PlayerObjective.IDLE);
+            return;
+        }
+
         if (!player.hasResources(playerTradingRequest)) {
             throw new IllegalActionException("Player does not have the requested resources");
         }
