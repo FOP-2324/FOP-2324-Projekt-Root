@@ -33,7 +33,7 @@ public class HexGridImpl implements HexGrid {
     private final ObservableDoubleValue tileHeight;
     private final DoubleProperty tileSize = new SimpleDoubleProperty(50);
 
-    public HexGridImpl(final int radius, final Supplier<Integer> yieldGenerator, final Stack<Tile.Type> availableTileTypes) {
+    public HexGridImpl(final int radius, final Supplier<Integer> yieldGenerator, final Supplier<Tile.Type> availableTileTypes) {
         this.tileHeight = Bindings.createDoubleBinding(() -> tileSize.get() * 2, tileSize);
         this.tileWidth = Bindings.createDoubleBinding(() -> Math.sqrt(3) * tileSize.get(), tileSize);
         initTiles(radius, yieldGenerator, availableTileTypes);
@@ -51,13 +51,13 @@ public class HexGridImpl implements HexGrid {
             .ifPresent(tile -> robberPosition = tile.getPosition());
     }
 
-    private void initTiles(final int grid_radius, final Supplier<Integer> yieldGenerator, final Stack<Tile.Type> availableTileTypes) {
+    private void initTiles(final int grid_radius, final Supplier<Integer> yieldGenerator, final Supplier<Tile.Type> availableTileTypes) {
         final TilePosition center = new TilePosition(0, 0);
 
         TilePosition.forEachSpiral(
             center,
             grid_radius,
-            (position, params) -> addTile(position, availableTileTypes.pop(), yieldGenerator)
+            (position, params) -> addTile(position, availableTileTypes.get(), yieldGenerator)
         );
     }
 

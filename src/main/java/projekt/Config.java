@@ -176,22 +176,21 @@ public final class Config {
         };
     }
 
-    public static Stack<Tile.Type> generateAvailableTileTypes() {
-        final Stack<Tile.Type> availableTileTypes = new Stack<>() {
-            {
-                for (final Tile.Type tileType : Tile.Type.values()) {
-                    final double tileAmount = TILE_RATIOS.get(tileType) * TILE_FORMULA.apply(GRID_RADIUS);
-                    for (int i = 0; i < tileAmount; i++) {
-                        push(tileType);
-                    }
+    public static Supplier<Tile.Type> generateAvailableTileTypes() {
+        return () -> {
+            double d = RANDOM.nextDouble();
+            double start = 0;
+            double bound = 0;
+
+            for (Map.Entry<Tile.Type, Double> entry : TILE_RATIOS.entrySet()) {
+                double ratio = entry.getValue();
+                bound += ratio;
+                if (d >= start && d < bound) {
+                    return entry.getKey();
                 }
+                start += ratio;
             }
+            return null;
         };
-        if (availableTileTypes.size() < TILE_FORMULA.apply(GRID_RADIUS)) {
-            throw new IllegalStateException(
-                "The amount of tiles does not match the formula. If this error occured please rerun or report to Per");
-        }
-        Collections.shuffle(availableTileTypes, RANDOM);
-        return availableTileTypes;
     }
 }
