@@ -79,7 +79,7 @@ public final class Config {
      */
     public static final SortedMap<Tile.Type, Integer> TILE_RATIOS = Collections.unmodifiableSortedMap(new TreeMap<>() {{
         for (final Tile.Type tileType : Tile.Type.values()) {
-            put(tileType, Integer.parseInt(TILE_RATIO_PROPERTIES.getProperty(tileType.name())));
+            put(tileType, Integer.parseInt(TILE_RATIO_PROPERTIES.getProperty(tileType.name(), "0")));
         }
     }});
 
