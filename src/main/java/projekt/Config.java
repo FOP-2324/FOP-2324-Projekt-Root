@@ -65,16 +65,11 @@ public final class Config {
      * The ratio of each {@link projekt.model.tiles.TileImpl.Type} to the total amount of tiles in the
      * grid.
      */
-    public static final Map<Tile.Type, Double> TILE_RATIOS = Collections.unmodifiableMap(new HashMap<>() {
-        {
-            final double sum = TILE_RATIO_PROPERTIES.entrySet().stream()
-                    .filter(entry -> Tile.Type.valueOf(entry.getKey().toString()) instanceof Tile.Type)
-                    .mapToDouble(entry -> Double.parseDouble(entry.getValue().toString())).sum();
-            for (final Tile.Type tileType : Tile.Type.values()) {
-                put(tileType, Double.parseDouble(TILE_RATIO_PROPERTIES.getProperty(tileType.name())) / sum);
-            }
+    public static final SortedMap<Tile.Type, Integer> TILE_RATIOS = Collections.unmodifiableSortedMap(new TreeMap<>() {{
+        for (final Tile.Type tileType : Tile.Type.values()) {
+            put(tileType, Integer.parseInt(TILE_RATIO_PROPERTIES.getProperty(tileType.name())));
         }
-    });
+    }});
 
     /**
      * Creates a new supplier returning randomly picked yields.
@@ -83,37 +78,23 @@ public final class Config {
      * as defined by the rules of the base game.
      *
      * @return A supplier returning randomly picked yields
+     * @see #makeSupplier(SortedMap, boolean)
      */
     public static Supplier<Integer> generateYieldPool() {
         SortedMap<Integer, Integer> ratios = new TreeMap<>(Map.of(
             2, 1,
             3, 2,
-            4, 3,
-            5, 4,
-            6, 5,
-            8, 5,
-            9, 4,
-            10, 3,
+            4, 2,
+            5, 2,
+            6, 2,
+            8, 2,
+            9, 2,
+            10, 2,
             11, 2,
             12, 1
         ));
-        int sum = ratios.values().stream().mapToInt(i -> i).sum();
 
-        return () -> {
-            int d = RANDOM.nextInt(sum);
-            int start = 0;
-            int bound = 0;
-
-            for (Map.Entry<Integer, Integer> entry : ratios.entrySet()) {
-                int ratio = entry.getValue();
-                bound += ratio;
-                if (d >= start && d < bound) {
-                    return entry.getKey();
-                }
-                start += ratio;
-            }
-            return null;
-        };
+        return makeSupplier(ratios, true);
     }
 
     /**
@@ -149,48 +130,69 @@ public final class Config {
      * The probability of a card to be picked is the same as defined by the rules of the base game.
      *
      * @return A supplier returning randomly picked development cards
+     * @see #makeSupplier(SortedMap, boolean)
      */
     public static Supplier<DevelopmentCardType> developmentCardGenerator() {
-        SortedMap<DevelopmentCardType, Double> ratios = new TreeMap<>(Map.of(
-            DevelopmentCardType.KNIGHT, 0.56,
-            DevelopmentCardType.VICTORY_POINTS, 0.20,
-            DevelopmentCardType.ROAD_BUILDING, 0.08,
-            DevelopmentCardType.INVENTION, 0.08,
-            DevelopmentCardType.MONOPOLY, 0.08
+        SortedMap<DevelopmentCardType, Integer> ratios = new TreeMap<>(Map.of(
+            DevelopmentCardType.KNIGHT, 14,
+            DevelopmentCardType.VICTORY_POINTS, 5,
+            DevelopmentCardType.ROAD_BUILDING, 2,
+            DevelopmentCardType.INVENTION, 2,
+            DevelopmentCardType.MONOPOLY, 2
         ));
 
-        return () -> {
-            double d = RANDOM.nextDouble();
-            double start = 0;
-            double bound = 0;
-
-            for (Map.Entry<DevelopmentCardType, Double> entry : ratios.entrySet()) {
-                double ratio = entry.getValue();
-                bound += ratio;
-                if (d >= start && d < bound) {
-                    return entry.getKey();
-                }
-                start += ratio;
-            }
-            return null;
-        };
+        return makeSupplier(ratios, false);
     }
 
+    /**
+     * Create a new generator for tile types.
+     * The supplier returned by this method returns a randomly picked
+     * tile type from an "endless stack" of {@link Tile.Type}.
+     * The probability of a tile type to be picked is the same as defined by the rules of the base game.
+     *
+     * @return A supplier returning randomly picked tile types
+     * @see #makeSupplier(SortedMap, boolean)
+     */
     public static Supplier<Tile.Type> generateAvailableTileTypes() {
-        return () -> {
-            double d = RANDOM.nextDouble();
-            double start = 0;
-            double bound = 0;
+        return makeSupplier(TILE_RATIOS, true);
+    }
 
-            for (Map.Entry<Tile.Type, Double> entry : TILE_RATIOS.entrySet()) {
-                double ratio = entry.getValue();
-                bound += ratio;
-                if (d >= start && d < bound) {
-                    return entry.getKey();
+    /**
+     * Creates a supplier for the keys of the given map depending on the key's mapping (ratio).
+     * Optionally, the supplier can log the keys it returned to ensure that their frequency of occurrence
+     * is not warped too much, even if the law of large numbers does not apply.
+     *
+     * @param ratios        mappings of keys to their respective ratio
+     * @param enableCounter whether to enable the counter / log
+     * @return a supplier returning chosen keys
+     */
+    private static <T> Supplier<T> makeSupplier(SortedMap<T, Integer> ratios, boolean enableCounter) {
+        Map<T, Integer> counter = new HashMap<>();
+        int sum = ratios.values().stream().mapToInt(i -> i).sum();
+        return () -> {
+            T result = null;
+            while (result == null || (enableCounter && counter.getOrDefault(result, 0) >= ratios.get(result))) {
+                if (enableCounter && counter.equals(ratios)) {
+                    counter.clear();
                 }
-                start += ratio;
+                int d = RANDOM.nextInt(sum);
+                int start = 0;
+                int bound = 0;
+
+                for (Map.Entry<T, Integer> entry : ratios.entrySet()) {
+                    int ratio = entry.getValue();
+                    bound += ratio;
+                    if (d >= start && d < bound) {
+                        result = entry.getKey();
+                        break;
+                    }
+                    start += ratio;
+                }
             }
-            return null;
+            if (enableCounter) {
+                counter.merge(result, 1, (oldValue, value) -> oldValue + 1);
+            }
+            return result;
         };
     }
 }
