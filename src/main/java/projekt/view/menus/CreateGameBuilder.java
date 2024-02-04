@@ -20,11 +20,10 @@ public class CreateGameBuilder extends MenuBuilder {
 
     @DoNotTouch
     public CreateGameBuilder(
-        final ObservableList<PlayerImpl.Builder> players,
-        final Runnable quitHandler,
-        final Supplier<Boolean> startGameHandler
-    ) {
-        super("Start new Game", quitHandler);
+            final ObservableList<PlayerImpl.Builder> players,
+            final Runnable returnHandler,
+            final Supplier<Boolean> startGameHandler) {
+        super("Start new Game", returnHandler);
         this.startGameHandler = startGameHandler;
         this.observablePlayers = players;
     }
