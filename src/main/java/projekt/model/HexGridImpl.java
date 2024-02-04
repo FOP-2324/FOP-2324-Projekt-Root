@@ -1,7 +1,5 @@
 package projekt.model;
 
-import static projekt.Config.YIELD_POOL;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -9,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javafx.beans.binding.Bindings;
@@ -34,17 +33,17 @@ public class HexGridImpl implements HexGrid {
     private final ObservableDoubleValue tileHeight;
     private final DoubleProperty tileSize = new SimpleDoubleProperty(50);
 
-    public HexGridImpl(final int radius, final Stack<Integer> yieldPool, final Stack<Tile.Type> availableTileTypes) {
+    public HexGridImpl(final int radius, final Supplier<Integer> yieldGenerator, final Stack<Tile.Type> availableTileTypes) {
         this.tileHeight = Bindings.createDoubleBinding(() -> tileSize.get() * 2, tileSize);
         this.tileWidth = Bindings.createDoubleBinding(() -> Math.sqrt(3) * tileSize.get(), tileSize);
-        initTiles(radius, yieldPool, availableTileTypes);
+        initTiles(radius, yieldGenerator, availableTileTypes);
         initIntersections();
         initEdges();
         initRobber();
     }
 
     public HexGridImpl(final int radius) {
-        this(radius, YIELD_POOL, Config.generateAvailableTileTypes());
+        this(radius, Config.generateYieldPool(), Config.generateAvailableTileTypes());
     }
 
     private void initRobber() {
@@ -52,13 +51,13 @@ public class HexGridImpl implements HexGrid {
             .ifPresent(tile -> robberPosition = tile.getPosition());
     }
 
-    private void initTiles(final int grid_radius, final Stack<Integer> yieldPool, final Stack<Tile.Type> availableTileTypes) {
+    private void initTiles(final int grid_radius, final Supplier<Integer> yieldGenerator, final Stack<Tile.Type> availableTileTypes) {
         final TilePosition center = new TilePosition(0, 0);
 
         TilePosition.forEachSpiral(
             center,
             grid_radius,
-            (position, params) -> addTile(position, availableTileTypes.pop(), yieldPool)
+            (position, params) -> addTile(position, availableTileTypes.pop(), yieldGenerator)
         );
     }
 
@@ -92,8 +91,8 @@ public class HexGridImpl implements HexGrid {
         }
     }
 
-    private void addTile(final TilePosition position, final Tile.Type type, final Stack<Integer> yieldPool) {
-        final int rollNumber = type.resourceType != null ? !yieldPool.empty() ? yieldPool.pop() : 0 : 0;
+    private void addTile(final TilePosition position, final Tile.Type type, final Supplier<Integer> yieldGenerator) {
+        final int rollNumber = type.resourceType != null ? yieldGenerator.get() : 0;
         tiles.put(position, new TileImpl(position, type, rollNumber, tileHeight, tileWidth, this));
     }
 

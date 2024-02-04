@@ -10,7 +10,6 @@ import projekt.model.tiles.Tile;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 public final class Config {
 
@@ -78,25 +77,44 @@ public final class Config {
     });
 
     /**
-     * The pool of available "number chips" or yields.
-     * yields range from {@link #NUMBER_OF_DICE} to {@link #NUMBER_OF_DICE} *
-     * {@link #DICE_SIDES} excluding 7.
-     * The total number of available yields must equal
-     * {@code TILE_FORMULA.apply(GRID_RADIUS)} minus the amount of tiles
-     * of type {@link projekt.model.tiles.TileImpl.Type#DESERT} in the grid.
+     * Creates a new supplier returning randomly picked yields.
+     * Yields range from 2 to 12 (both inclusive), excluding 7.
+     * The probability of a yield to be picked is about the same
+     * as defined by the rules of the base game.
+     *
+     * @return A supplier returning randomly picked yields
      */
-    public static final Stack<Integer> YIELD_POOL = new Stack<>() {
-        {
-            final int total_number_of_tiles = TILE_FORMULA.apply(GRID_RADIUS);
-            final int number_of_deserts = (int) (total_number_of_tiles * TILE_RATIOS.get(Tile.Type.DESERT));
-            for (int i = 0; i < total_number_of_tiles - number_of_deserts; i++) {
-                final int number = NUMBER_OF_DICE + i % (DICE_SIDES * NUMBER_OF_DICE - (NUMBER_OF_DICE - 1));
-                push(number != 7 ? number : 6);
-            }
+    public static Supplier<Integer> generateYieldPool() {
+        SortedMap<Integer, Integer> ratios = new TreeMap<>(Map.of(
+            2, 1,
+            3, 2,
+            4, 3,
+            5, 4,
+            6, 5,
+            8, 5,
+            9, 4,
+            10, 3,
+            11, 2,
+            12, 1
+        ));
+        int sum = ratios.values().stream().mapToInt(i -> i).sum();
 
-            Collections.shuffle(this, RANDOM);
-        }
-    };
+        return () -> {
+            int d = RANDOM.nextInt(sum);
+            int start = 0;
+            int bound = 0;
+
+            for (Map.Entry<Integer, Integer> entry : ratios.entrySet()) {
+                int ratio = entry.getValue();
+                bound += ratio;
+                if (d >= start && d < bound) {
+                    return entry.getKey();
+                }
+                start += ratio;
+            }
+            return null;
+        };
+    }
 
     /**
      * The amount of resources needed to build a road.
