@@ -16,6 +16,8 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableDoubleValue;
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
+import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 import projekt.Config;
 import projekt.model.buildings.Edge;
 import projekt.model.tiles.Tile;
@@ -174,13 +176,16 @@ public class HexGridImpl implements HexGrid {
     }
 
     @Override
+    @StudentImplementationRequired
     public Map<Set<TilePosition>, Edge> getRoads(final Player player) {
         return Collections.unmodifiableMap(edges.entrySet().stream()
-                                               .filter(entry -> entry.getValue().roadOwner().getValue().equals(player))
-                                               .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+                .filter(entry -> entry.getValue().hasRoad())
+                .filter(entry -> entry.getValue().roadOwner().getValue().equals(player))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
     }
 
     @Override
+    @DoNotTouch
     public List<Edge> getLongestRoad(final Player player) {
         throw new UnsupportedOperationException("Unimplemented method 'getLongestRoad'");
     }
@@ -196,6 +201,7 @@ public class HexGridImpl implements HexGrid {
     }
 
     @Override
+    @StudentImplementationRequired
     public boolean addRoad(
         final TilePosition position0, final TilePosition position1, final Player player,
         final boolean checkVillages
@@ -205,13 +211,13 @@ public class HexGridImpl implements HexGrid {
             throw new IllegalArgumentException("Edge does not exist");
         }
         if (edge.hasRoad()
-            || (!checkVillages && edge.getConnectedEdges().stream().noneMatch(e -> e.hasRoad() && e.roadOwner().getValue().equals(player)))
-            || (
-            checkVillages && edge.getIntersections().stream()
-                .noneMatch(intersection -> intersection.getSettlement() != null
-                    && intersection.getSettlement().owner().equals(player)
-                    && intersection.getConnectedEdges().isEmpty())
-        )) {
+                || (!checkVillages && edge.getConnectedEdges().stream()
+                        .noneMatch(e -> e.hasRoad() && e.roadOwner().getValue().equals(player)))
+                || (checkVillages && edge.getIntersections().stream()
+                        .noneMatch(intersection -> intersection.getSettlement() != null
+                                && intersection.getSettlement().owner().equals(player)
+                                && intersection.getConnectedEdges().stream().filter(e -> e.hasRoad())
+                                        .noneMatch(e -> e.roadOwner().getValue().equals(player))))) {
             return false;
         }
         edge.roadOwner().setValue(player);

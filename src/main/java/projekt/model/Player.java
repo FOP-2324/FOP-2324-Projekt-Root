@@ -54,6 +54,13 @@ public interface Player {
     void addResource(ResourceType resourceType, int amount);
 
     /**
+     * Adds the given resources to the player.
+     *
+     * @param resources
+     */
+    void addResources(Map<ResourceType, Integer> resources);
+
+    /**
      * Removes the given amount of the given resource from the player.
      *
      * @param resourceType the ResourceType to remove from
@@ -107,11 +114,18 @@ public interface Player {
     }
 
     /**
-     * Returns the amount of settlements the player can still build.
+     * Returns the amount of villages the player can still build.
      *
-     * @return the amount of settlements the player can still build
+     * @return the amount of villages the player can still build
      */
-    int getRemainingSettlements();
+    int getRemainingVillages();
+
+    /**
+     * Returns the amount of cities the player can still build.
+     *
+     * @return the amount of cities the player can still build
+     */
+    int getRemainingCities();
 
     /**
      * Returns a map of all development cards the player currently has and how many.
@@ -161,6 +175,13 @@ public interface Player {
      * @return the name of the player
      */
     String getName();
+
+    /**
+     * Returns the Player ID, aka the Index of the Player, starting with 1
+     *
+     * @return the Player ID
+     */
+    int getID();
 
     /**
      * Returns true if the player is an AI, false otherwise.

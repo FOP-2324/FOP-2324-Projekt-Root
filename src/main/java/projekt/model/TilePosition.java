@@ -1,9 +1,9 @@
 package projekt.model;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -84,7 +84,7 @@ public record TilePosition(int q, int r) implements Comparable<TilePosition> {
      * @param center   the center of the ring
      * @param radius   the radius of the ring
      * @param function the function to execute, gets the current position and an
-     *                 array with the radius, side and tile
+     *                 array with the radius, side index and tile index
      */
     public static void forEachRing(final TilePosition center, final int radius,
             final BiConsumer<TilePosition, Integer[]> function) {

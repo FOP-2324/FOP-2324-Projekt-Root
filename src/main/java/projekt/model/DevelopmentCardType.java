@@ -1,11 +1,17 @@
 package projekt.model;
 
 public enum DevelopmentCardType {
-    KNIGHT,
-    VICTORY_POINTS,
+    KNIGHT(3),
+    VICTORY_POINTS(1),
 
     // Progress cards
-    ROAD_BUILDING,
-    INVENTION,
-    MONOPOLY
+    ROAD_BUILDING(0),
+    INVENTION(2),
+    MONOPOLY(4);
+
+    public final int iconIndex;
+
+    DevelopmentCardType(final int iconIndex) {
+        this.iconIndex = iconIndex;
+    }
 }

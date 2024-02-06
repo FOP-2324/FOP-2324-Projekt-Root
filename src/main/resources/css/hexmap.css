@@ -1,46 +1,51 @@
-.root {
-  -border-colour: teal;
+* {
+    -selected-color: crimson;
+    -highlight-color: lime;
+    -fx-font-family: "Roboto Merged Icons";
 }
 
-.red-box-label {
-  -fx-font-size: 25px;
-  -fx-border-color: -border-colour;
-  -fx-border-width: 1px;
+.hex-grid {
+    -fx-background-color: #005aa9;
 }
 
 .hex-tile {
-  -fx-shape: "m 280, 75 0, 150 -130, 75 L 20, 225 20, 75 150, -0 Z";
-  -fx-border-color: -border-colour;
-  -fx-border-width: 1px;
+    -fx-shape: "m 280, 75 0, 150 -130, 75 L 20, 225 20, 75 150, -0 Z";
+    -fx-border-color: #000000;
+    -fx-border-width: 5px;
 }
 
-.coordinate-label {
-  -fx-font-size: 10px;
+.highlighted,
+.selectable {
+    -fx-border-width: 5px;
 }
 
-.hex-tile:hover {
-  -border-colour: orange;
+.selectable {
+    -fx-stroke: -selected-color;
+    -fx-border-color: transparent;
 }
 
-.hex-tile:focused {
-  -border-colour: red;
+.hex-tile.selectable {
+    -fx-border-color: -selected-color;
 }
 
-.hex-tile:selected {
-  -border-colour: red;
+.highlighted,
+.selectable:hover,
+.selectable:focus,
+.selectable:focused,
+.hex-tile.selectable:hover,
+.hex-tile.selectable:focus {
+    -fx-stroke: -highlight-color;
+    -fx-border-color: -highlight-color;
 }
 
-.title-text {
-  -fx-font-size: 25px;
+.selectable.selected,
+.selectable:selected {
+    -fx-border-color: -selected-color;
 }
 
-.label-text {
-  -fx-font-size: 12px;
-  -fx-font-color: teal;
-  -fx-font-weight: bold;
-}
-
-.label-text {
-  -fx-font-size: 14px;
-  -fx-font-color: darkgrey;
+.highlighted-label {
+    -fx-background-color: #ffffffe0;
+    -fx-background-radius: 2;
+    -fx-background-insets: 0 -2 0 -2;
+    /* -fx-font-size: 15px; */
 }

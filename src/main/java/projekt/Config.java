@@ -2,12 +2,14 @@ package projekt;
 
 import org.tudalgo.algoutils.student.io.PropertyUtils;
 
+import projekt.model.DevelopmentCardType;
 import projekt.model.ResourceType;
 import projekt.model.buildings.Settlement;
 import projekt.model.tiles.Tile;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 public final class Config {
 
@@ -32,12 +34,12 @@ public final class Config {
     /**
      * The number of sides the dice have.
      */
-    public static final int DICE_SIDES = 3;
+    public static final int DICE_SIDES = 6;
 
     /**
      * The radius of the grid, center is included.
      */
-    public static final int GRID_RADIUS = 6;
+    public static final int GRID_RADIUS = 3;
 
     /**
      * Maximum amount of roads a player can place / own.
@@ -114,6 +116,28 @@ public final class Config {
             Settlement.Type.CITY, Map.of(
                     ResourceType.GRAIN, 2,
                     ResourceType.ORE, 3));
+
+    public static final Map<ResourceType, Integer> DEVELOPMENT_CARD_COST = Map.of(
+        ResourceType.GRAIN, 1,
+        ResourceType.WOOL, 1,
+        ResourceType.ORE, 1
+    );
+
+    public static Stack<DevelopmentCardType> generateDevelopmentCards() {
+        return new Stack<>() {{
+            for (DevelopmentCardType developmentCardType : DevelopmentCardType.values()) {
+                Stream.generate(() -> developmentCardType)
+                    .limit(switch (developmentCardType) {
+                        case KNIGHT -> 14;
+                        case VICTORY_POINTS -> 5;
+                        case ROAD_BUILDING, INVENTION, MONOPOLY -> 2;
+                    })
+                    .forEach(this::add);
+            }
+
+            Collections.shuffle(this);
+        }};
+    }
 
     public static Stack<Tile.Type> generateAvailableTileTypes() {
         final Stack<Tile.Type> availableTileTypes = new Stack<>() {
