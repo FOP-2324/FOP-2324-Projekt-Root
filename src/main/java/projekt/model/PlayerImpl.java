@@ -50,11 +50,13 @@ public class PlayerImpl implements Player {
     }
 
     @Override
+    @StudentImplementationRequired
     public void addResource(final ResourceType resourceType, final int amount) {
         this.resources.put(resourceType, this.resources.getOrDefault(resourceType, 0) + amount);
     }
 
     @Override
+    @StudentImplementationRequired
     public void addResources(final Map<ResourceType, Integer> resources) {
         for (final var entry : resources.entrySet()) {
             addResource(entry.getKey(), entry.getValue());
@@ -62,6 +64,7 @@ public class PlayerImpl implements Player {
     }
 
     @Override
+    @StudentImplementationRequired
     public boolean removeResource(final ResourceType resourceType, final int amount) {
         if (!hasResources(Map.of(resourceType, amount))) {
             return false;
@@ -71,6 +74,7 @@ public class PlayerImpl implements Player {
     }
 
     @Override
+    @StudentImplementationRequired
     public boolean removeResources(final Map<ResourceType, Integer> resources) {
         if (!hasResources(resources)) {
             return false;
@@ -126,11 +130,13 @@ public class PlayerImpl implements Player {
     }
 
     @Override
+    @StudentImplementationRequired
     public void addDevelopmentCard(final DevelopmentCardType developmentCardType) {
         this.developmentCards.put(developmentCardType, this.developmentCards.getOrDefault(developmentCardType, 0) + 1);
     }
 
     @Override
+    @StudentImplementationRequired
     public boolean removeDevelopmentCard(final DevelopmentCardType developmentCardType) {
         if (this.developmentCards.getOrDefault(developmentCardType, 0) <= 0) {
             return false;

@@ -16,6 +16,8 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableDoubleValue;
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
+import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 import projekt.Config;
 import projekt.model.buildings.Edge;
 import projekt.model.tiles.Tile;
@@ -174,6 +176,7 @@ public class HexGridImpl implements HexGrid {
     }
 
     @Override
+    @StudentImplementationRequired
     public Map<Set<TilePosition>, Edge> getRoads(final Player player) {
         return Collections.unmodifiableMap(edges.entrySet().stream()
                 .filter(entry -> entry.getValue().hasRoad())
@@ -182,6 +185,7 @@ public class HexGridImpl implements HexGrid {
     }
 
     @Override
+    @DoNotTouch
     public List<Edge> getLongestRoad(final Player player) {
         throw new UnsupportedOperationException("Unimplemented method 'getLongestRoad'");
     }
@@ -197,6 +201,7 @@ public class HexGridImpl implements HexGrid {
     }
 
     @Override
+    @StudentImplementationRequired
     public boolean addRoad(
         final TilePosition position0, final TilePosition position1, final Player player,
         final boolean checkVillages

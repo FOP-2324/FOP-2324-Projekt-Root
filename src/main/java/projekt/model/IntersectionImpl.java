@@ -1,5 +1,6 @@
 package projekt.model;
 
+import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 import projekt.model.buildings.Port;
 import projekt.model.buildings.Edge;
 import projekt.model.buildings.Settlement;
@@ -80,6 +81,7 @@ public class IntersectionImpl implements Intersection {
     }
 
     @Override
+    @StudentImplementationRequired
     public boolean placeVillage(final Player player, final boolean ignoreRoadCheck) {
         if (settlement != null || (!playerHasConnectedRoad(player) && !ignoreRoadCheck))
             return false;
@@ -88,6 +90,7 @@ public class IntersectionImpl implements Intersection {
     }
 
     @Override
+    @StudentImplementationRequired
     public boolean upgradeSettlement(final Player player) {
         if (settlement == null || settlement.type() != Settlement.Type.VILLAGE || !settlement.owner().equals(player))
             return false;
