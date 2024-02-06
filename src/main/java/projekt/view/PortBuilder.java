@@ -15,7 +15,14 @@ import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.util.Builder;
 import projekt.model.buildings.Edge;
+import projekt.model.buildings.Port;
 
+/**
+ * A Builder to create views for {@link Port}s.
+ * Renders the {@link Port} as a circle with a resource icon and a label for the
+ * ratio.
+ * Has methods to initialize the connections to the nodes.
+ */
 public class PortBuilder implements Builder<Region> {
 
     private final ObservableDoubleValue width;
@@ -24,6 +31,15 @@ public class PortBuilder implements Builder<Region> {
     private final Point2D node0;
     private final Point2D node1;
 
+    /**
+     * Creates a new PortBuilder on the given {@link Edge}.
+     *
+     * @param egde   The edge the port is on.
+     * @param width  The width of the port.
+     * @param height The height of the port.
+     * @param node0  The position of the first node.
+     * @param node1  The position of the second node.
+     */
     public PortBuilder(final Edge egde, final ObservableDoubleValue width, final ObservableDoubleValue height,
             final Point2D node0, final Point2D node1) {
         this.width = width;
@@ -66,6 +82,12 @@ public class PortBuilder implements Builder<Region> {
         return mainPane;
     }
 
+    /**
+     * Initializes the connections to the nodes.
+     *
+     * @param center The center of the port.
+     * @return The connections to the nodes.
+     */
     public List<Node> initConnections(final Point2D center) {
         final Line connection0 = new Line(center.getX(), center.getY(), node0.getX(), node0.getY());
         final Line connection1 = new Line(center.getX(), center.getY(), node1.getX(), node1.getY());
