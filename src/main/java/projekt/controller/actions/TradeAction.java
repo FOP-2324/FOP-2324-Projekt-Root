@@ -18,7 +18,7 @@ public record TradeAction(TradePayload payload) implements PlayerAction {
      * Executes the trade.
      *
      * When trading with the bank, the ratio is determined by
-     * {@link Player#getTradeRatio()}.
+     * {@link Player#getTradeRatio(ResourceType)}.
      * When trading with other players, each player is offered the trade and can
      * accept or decline it.
      *
