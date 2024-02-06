@@ -3,6 +3,7 @@ package projekt.controller;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -42,6 +43,7 @@ public class GameController {
     private final Iterator<Integer> dice;
     private final IntegerProperty currentDiceRoll = new SimpleIntegerProperty(0);
     private final Stack<DevelopmentCardType> availableDevelopmentCards = Config.generateDevelopmentCards();
+    private final List<AiController> aiControllers = new ArrayList<>();
 
     private final Property<PlayerController> activePlayerControllerProperty = new SimpleObjectProperty<>();
 
@@ -108,6 +110,10 @@ public class GameController {
     public void initPlayerControllers() {
         for (final Player player : state.getPlayers()) {
             playerControllers.put(player, new PlayerController(this, player));
+            if (player.isAi()) {
+                aiControllers.add(new AiController(playerControllers.get(player), state.getGrid(), state,
+                        activePlayerControllerProperty));
+            }
         }
     }
 
