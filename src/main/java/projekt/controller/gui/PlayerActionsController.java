@@ -130,8 +130,12 @@ public class PlayerActionsController implements Controller {
         removeAllHighlights();
         drawEdges();
         drawIntersections();
+        getHexGridController().drawTiles();
         builder.disableAllButtons();
         updatePlayerInformation();
+        if (getPlayer().isAi()) {
+            return;
+        }
         if (objective == null) {
             System.out.println("I am confusion");
             return;
