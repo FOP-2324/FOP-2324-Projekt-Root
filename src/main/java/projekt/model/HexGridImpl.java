@@ -1,12 +1,7 @@
 package projekt.model;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -17,6 +12,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableDoubleValue;
 import projekt.Config;
 import projekt.model.buildings.Edge;
+import projekt.model.buildings.Port;
 import projekt.model.tiles.Tile;
 import projekt.model.tiles.TileImpl;
 
@@ -71,6 +67,8 @@ public class HexGridImpl implements HexGrid {
     }
 
     private void initEdges() {
+        BiFunction<TilePosition, TilePosition.EdgeDirection, Port> portMapper = Config.generatePortMapper();
+
         for (final var tile : this.tiles.values()) {
             Arrays.stream(TilePosition.EdgeDirection.values())
                 .forEach(
@@ -84,7 +82,7 @@ public class HexGridImpl implements HexGrid {
                             tile.getPosition(),
                             TilePosition.neighbour(tile.getPosition(), ed),
                             new SimpleObjectProperty<>(null),
-                            null // TODO
+                            portMapper.apply(tile.getPosition(), ed)
                         )
                     )
                 );

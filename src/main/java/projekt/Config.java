@@ -4,11 +4,17 @@ import org.tudalgo.algoutils.student.io.PropertyUtils;
 
 import projekt.model.DevelopmentCardType;
 import projekt.model.ResourceType;
+import projekt.model.TilePosition;
+import projekt.model.buildings.Port;
 import projekt.model.buildings.Settlement;
 import projekt.model.tiles.Tile;
 
 import java.util.*;
+import java.util.function.BiFunction;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
+
+import static java.lang.Math.abs;
 
 public final class Config {
 
@@ -148,6 +154,55 @@ public final class Config {
         ));
 
         return makeSupplier(ratios, true);
+    }
+
+    /**
+     * Creates a BiFunction that takes a tile position and an edge direction and returns
+     * a port if all conditions and the probability (65%) requirement are met.
+     * The conditions are as follows:
+     * <ul>
+     *     <li>The tile position is on the edge of the grid</li>
+     *     <li>The edge direction is pointing outwards, away from the center</li>
+     *     <li>There are no other surrounding ports for at least one intersection</li>
+     * </ul>
+     *
+     * @return the BiFunction
+     * @see TilePosition
+     */
+    public static BiFunction<TilePosition, TilePosition.EdgeDirection, Port> generatePortMapper() {
+        Iterator<ResourceType> resourceTypes = Spliterators.iterator(Arrays.spliterator(ResourceType.values()));
+        Set<Set<TilePosition>> visitedIntersections = new HashSet<>();
+        Predicate<TilePosition> isOutsideGrid = tilePosition -> abs(tilePosition.q()) >= GRID_RADIUS
+            || abs(tilePosition.r()) >= GRID_RADIUS
+            || abs(tilePosition.s()) >= GRID_RADIUS;
+        Predicate<TilePosition> isOnEdge = tilePosition -> !(abs(tilePosition.q()) < GRID_RADIUS - 1
+            && abs(tilePosition.r()) < GRID_RADIUS - 1
+            && abs(tilePosition.s()) < GRID_RADIUS - 1)
+            && !isOutsideGrid.test(tilePosition);
+        BiFunction<TilePosition, TilePosition.EdgeDirection, Set<Set<TilePosition>>> mapToIntersectionsPositions =
+            (tilePosition, edgeDirection) -> Set.of(
+                Set.of(tilePosition, TilePosition.add(tilePosition, edgeDirection.position), TilePosition.add(tilePosition, edgeDirection.left().position)),
+                Set.of(tilePosition, TilePosition.add(tilePosition, edgeDirection.position), TilePosition.add(tilePosition, edgeDirection.right().position)));
+
+        return (tilePosition, edgeDirection) -> {
+            Set<Set<TilePosition>> intersectionPositions = mapToIntersectionsPositions.apply(tilePosition, edgeDirection);
+            if (!isOnEdge.test(tilePosition)
+                || !isOutsideGrid.test(TilePosition.add(tilePosition, edgeDirection.position))
+                || intersectionPositions.stream().anyMatch(visitedIntersections::contains)) {
+                return null;
+            }
+
+            if (RANDOM.nextDouble() < 0.65) {  // place port?
+                visitedIntersections.addAll(intersectionPositions);
+                if (resourceTypes.hasNext() && RANDOM.nextBoolean()) { // place specialized port?
+                    return new Port(2, resourceTypes.next());
+                } else {
+                    return new Port(3);
+                }
+            } else {
+                return null;
+            }
+        };
     }
 
 
