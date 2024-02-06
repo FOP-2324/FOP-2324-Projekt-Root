@@ -32,8 +32,9 @@ import projekt.model.tiles.Tile;
 
 /**
  * The GameController class represents the controller for the game logic.
- * It manages the game state, player controllers, dice rolling and the
+ * It manages the game state, player controllers, dice rolling and the overall
  * progression of the game.
+ * It tells the players controllers what to do and when to do it.
  */
 public class GameController {
 
@@ -294,6 +295,10 @@ public class GameController {
     /**
      * Offer the trade to all players that can accept the trade. As soon as one
      * player accepts the trade, the offering player can continue with his round.
+     *
+     * @param offeringPlayer The player offering the trade.
+     * @param offer          The resources the offering player offers.
+     * @param request        The resources the offering player requests.
      */
     public void offerTrade(final Player offeringPlayer, final Map<ResourceType, Integer> offer,
             final Map<ResourceType, Integer> request) {
