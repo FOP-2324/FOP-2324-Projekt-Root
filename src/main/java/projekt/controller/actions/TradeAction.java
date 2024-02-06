@@ -3,11 +3,27 @@ package projekt.controller.actions;
 import java.util.Map.Entry;
 
 import projekt.controller.PlayerController;
+import projekt.model.Player;
 import projekt.model.ResourceType;
 import projekt.model.TradePayload;
 
+/**
+ * An action to trade with the bank or other players.
+ *
+ * @param payload the trade payload
+ */
 public record TradeAction(TradePayload payload) implements PlayerAction {
 
+    /**
+     * Executes the trade.
+     *
+     * When trading with the bank, the ratio is determined by
+     * {@link Player#getTradeRatio()}.
+     * When trading with other players, each player is offered the trade and can
+     * accept or decline it.
+     *
+     * @throws IllegalActionException if the trade cannot be executed
+     */
     @Override
     public void execute(final PlayerController pc) throws IllegalActionException {
         if (payload.withBank()) {
