@@ -2,13 +2,14 @@ package projekt.controller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
@@ -39,7 +40,7 @@ public class GameController {
 
     private final GameState state;
     private final Map<Player, PlayerController> playerControllers;
-    private final Iterator<Integer> dice;
+    private final Supplier<Integer> dice;
     private final IntegerProperty currentDiceRoll = new SimpleIntegerProperty(0);
     private final Stack<DevelopmentCardType> availableDevelopmentCards = Config.generateDevelopmentCards();
 
@@ -56,7 +57,7 @@ public class GameController {
     public GameController(
             final GameState state,
             final Map<Player, PlayerController> playerControllers,
-            final Iterator<Integer> dice) {
+            final Supplier<Integer> dice) {
         this.state = state;
         this.playerControllers = playerControllers;
         this.dice = dice;
@@ -70,7 +71,7 @@ public class GameController {
      * @param state The {@link GameState}.
      * @param dice  The dice.
      */
-    public GameController(final GameState state, final Iterator<Integer> dice) {
+    public GameController(final GameState state, final Supplier<Integer> dice) {
         this.state = state;
         this.dice = dice;
         this.playerControllers = new HashMap<>();
@@ -81,14 +82,14 @@ public class GameController {
      * The dice is initialized with the Random from {@link Config#RANDOM} and
      * respects the configured dice sides and number of dice.
      *
-     * @see #GameController(GameState, Iterator)
+     * @see #GameController(GameState, Supplier)
      *
      * @param state The {@link GameState}.
      */
     public GameController(final GameState state) {
-        this(state, Config.RANDOM.ints(
-                1,
-                Config.DICE_SIDES * Config.NUMBER_OF_DICE + 1).iterator());
+        this(state, () -> IntStream.rangeClosed(1, Config.NUMBER_OF_DICE)
+            .map(i -> Config.RANDOM.nextInt(1, Config.DICE_SIDES + 1))
+            .sum());
     }
 
     /**
@@ -170,7 +171,7 @@ public class GameController {
      * @return The result of the dice roll.
      */
     public int castDice() {
-        currentDiceRoll.set(dice.next());
+        currentDiceRoll.set(dice.get());
         return currentDiceRoll.get();
     }
 
