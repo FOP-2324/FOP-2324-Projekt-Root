@@ -13,6 +13,8 @@ import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static java.lang.Math.abs;
 
@@ -126,34 +128,25 @@ public final class Config {
      * @return A supplier returning randomly picked tile types
      * @see #makeSupplier(SortedMap, boolean)
      */
-    public static Supplier<Tile.Type> generateAvailableTileTypes() {
+    public static Supplier<Tile.Type> generateTileTypes() {
         return makeSupplier(TILE_RATIOS, true);
     }
 
     /**
-     * Creates a new supplier returning randomly picked yields.
-     * Yields range from 2 to 12 (both inclusive), excluding 7.
-     * The probability of a yield to be picked is about the same
+     * Creates a new supplier returning randomly picked roll numbers.
+     * Roll numbers range from 2 to 12 (both inclusive), excluding 7.
+     * The probability of a number to be picked is about the same
      * as defined by the rules of the base game.
      *
-     * @return A supplier returning randomly picked yields
+     * @return A supplier returning randomly picked roll numbers
      * @see #makeSupplier(SortedMap, boolean)
      */
-    public static Supplier<Integer> generateYieldPool() {
-        SortedMap<Integer, Integer> ratios = new TreeMap<>(Map.of(
-            2, 1,
-            3, 2,
-            4, 2,
-            5, 2,
-            6, 2,
-            8, 2,
-            9, 2,
-            10, 2,
-            11, 2,
-            12, 1
-        ));
+    public static Supplier<Integer> generateRollNumbers() {
+        Map<Integer, Integer> ratios = IntStream.iterate(NUMBER_OF_DICE, i -> i >= NUMBER_OF_DICE && i <= NUMBER_OF_DICE * DICE_SIDES, i -> i + 1)
+            .mapToObj(i -> Map.entry(i, i == NUMBER_OF_DICE || i == NUMBER_OF_DICE * DICE_SIDES ? 1 : 2))
+            .collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        return makeSupplier(ratios, true);
+        return makeSupplier(new TreeMap<>(ratios), true);
     }
 
     /**

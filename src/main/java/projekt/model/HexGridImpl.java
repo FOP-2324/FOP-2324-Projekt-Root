@@ -17,10 +17,10 @@ import projekt.model.tiles.Tile;
 import projekt.model.tiles.TileImpl;
 
 /**
- * Holds all the information displayed on the hexagonal grid and information for
- * rendering.
+ * Default implementation of {@link HexGrid}.
  */
 public class HexGridImpl implements HexGrid {
+
     private final Map<TilePosition, Tile> tiles = new HashMap<>();
     private final Map<Set<TilePosition>, Intersection> intersections = new HashMap<>();
     private final Map<Set<TilePosition>, Edge> edges = new HashMap<>();
@@ -29,34 +29,52 @@ public class HexGridImpl implements HexGrid {
     private final ObservableDoubleValue tileHeight;
     private final DoubleProperty tileSize = new SimpleDoubleProperty(50);
 
-    public HexGridImpl(final int radius, final Supplier<Integer> yieldGenerator, final Supplier<Tile.Type> availableTileTypes) {
+    /**
+     * Constructs a new hex grid with the specified radius and generators.
+     *
+     * @param radius              radius of the grid, center is included
+     * @param rollNumberGenerator a supplier returning a tile's roll number
+     * @param tileTypeGenerator   a supplier returning a tile's type
+     */
+    public HexGridImpl(final int radius, final Supplier<Integer> rollNumberGenerator, final Supplier<Tile.Type> tileTypeGenerator) {
         this.tileHeight = Bindings.createDoubleBinding(() -> tileSize.get() * 2, tileSize);
         this.tileWidth = Bindings.createDoubleBinding(() -> Math.sqrt(3) * tileSize.get(), tileSize);
-        initTiles(radius, yieldGenerator, availableTileTypes);
+        initTiles(radius, rollNumberGenerator, tileTypeGenerator);
         initIntersections();
         initEdges();
         initRobber();
     }
 
+    /**
+     * Constructs a new hex grid with the specified radius.
+     * The generators for roll number and tile type are taken from {@link Config}.
+     *
+     * @param radius radius of the grid, center is included
+     */
     public HexGridImpl(final int radius) {
-        this(radius, Config.generateYieldPool(), Config.generateAvailableTileTypes());
+        this(radius, Config.generateRollNumbers(), Config.generateTileTypes());
     }
 
-    private void initRobber() {
-        this.tiles.values().stream().filter(tile -> tile.getType() == Tile.Type.DESERT).findAny()
-            .ifPresent(tile -> robberPosition = tile.getPosition());
-    }
-
-    private void initTiles(final int grid_radius, final Supplier<Integer> yieldGenerator, final Supplier<Tile.Type> availableTileTypes) {
+    /**
+     * Initializes the tiles in this grid.
+     *
+     * @param grid_radius         radius of the grid, center is included
+     * @param rollNumberGenerator a supplier returning a tile's roll number
+     * @param tileTypeGenerator   a supplier returning a tile's type
+     */
+    private void initTiles(final int grid_radius, final Supplier<Integer> rollNumberGenerator, final Supplier<Tile.Type> tileTypeGenerator) {
         final TilePosition center = new TilePosition(0, 0);
 
         TilePosition.forEachSpiral(
             center,
             grid_radius,
-            (position, params) -> addTile(position, availableTileTypes.get(), yieldGenerator)
+            (position, params) -> addTile(position, tileTypeGenerator.get(), rollNumberGenerator)
         );
     }
 
+    /**
+     * Initializes the intersections in this grid.
+     */
     private void initIntersections() {
         for (final var tile : this.tiles.values()) {
             Arrays.stream(TilePosition.IntersectionDirection.values())
@@ -66,6 +84,9 @@ public class HexGridImpl implements HexGrid {
         }
     }
 
+    /**
+     * Initializes the edges in this grid.
+     */
     private void initEdges() {
         BiFunction<TilePosition, TilePosition.EdgeDirection, Port> portMapper = Config.generatePortMapper();
 
@@ -89,8 +110,23 @@ public class HexGridImpl implements HexGrid {
         }
     }
 
-    private void addTile(final TilePosition position, final Tile.Type type, final Supplier<Integer> yieldGenerator) {
-        final int rollNumber = type.resourceType != null ? yieldGenerator.get() : 0;
+    /**
+     * Initializes the robber.
+     */
+    private void initRobber() {
+        this.tiles.values().stream().filter(tile -> tile.getType() == Tile.Type.DESERT).findAny()
+            .ifPresent(tile -> robberPosition = tile.getPosition());
+    }
+
+    /**
+     * Adds a new tile to the grid.
+     *
+     * @param position            position of the new tile
+     * @param type                type of the new tile
+     * @param rollNumberGenerator a supplier returning the new tile's roll number
+     */
+    private void addTile(final TilePosition position, final Tile.Type type, final Supplier<Integer> rollNumberGenerator) {
+        final int rollNumber = type.resourceType != null ? rollNumberGenerator.get() : 0;
         tiles.put(position, new TileImpl(position, type, rollNumber, tileHeight, tileWidth, this));
     }
 

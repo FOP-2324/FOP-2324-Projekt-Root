@@ -168,10 +168,10 @@ public class PlayerActionsController implements Controller {
             selectCardToStealAction();
         }
         if (allowedActions.contains(DropCardsAction.class)) {
-            dropCardsAction(getPlayerState().cradsToSelect());
+            dropCardsAction(getPlayerState().cardsToSelect());
         }
-        if (allowedActions.contains(SelectCardsAction.class) && getPlayerState().cradsToSelect() > 0) {
-            selectResources(getPlayerState().cradsToSelect());
+        if (allowedActions.contains(SelectCardsAction.class) && getPlayerState().cardsToSelect() > 0) {
+            selectResources(getPlayerState().cardsToSelect());
         }
         if (allowedActions.contains(AcceptTradeAction.class)) {
             acceptTradeOffer();
@@ -357,7 +357,7 @@ public class PlayerActionsController implements Controller {
     @StudentImplementationRequired
     private void updateUpgradeVillageButtonState() {
         if (getPlayerObjective().getAllowedActions().contains(UpgradeVillageAction.class)
-                && getPlayerState().upgradebleVillageIntersections().size() > 0) {
+                && getPlayerState().upgradableVillageIntersections().size() > 0) {
             builder.enableUpgradeVillageButton();
             return;
         }
@@ -377,7 +377,7 @@ public class PlayerActionsController implements Controller {
      */
     @StudentImplementationRequired
     private void upgradeVillageButtonAction(final ActionEvent event) {
-        getPlayerState().upgradebleVillageIntersections().stream()
+        getPlayerState().upgradableVillageIntersections().stream()
                 .map(intersection -> getHexGridController().getIntersectionControllersMap().get(intersection))
                 .forEach(ic -> ic.highlight(buildActionWrapper(e -> {
                     getPlayerController().triggerAction(new UpgradeVillageAction(ic.getIntersection()));

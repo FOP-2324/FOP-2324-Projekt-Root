@@ -8,7 +8,29 @@ import projekt.model.buildings.Port;
 import projekt.model.buildings.Settlement;
 import projekt.model.tiles.Tile;
 
+/**
+ * Represents an intersection between three tile positions or at least two edges in the game.
+ * As an example, the following intersection has the positions ordered clockwise:
+ * <pre>
+ *      |
+ *      |
+ *   0  *  1
+ *     / \
+ *    / 2 \
+ * </pre>
+ *
+ * Intersections connect at least two and at most three (virtual, if necessary) tiles / edges.
+ * They hold information on...
+ * <ul>
+ *     <li>the grid they are placed in</li>
+ *     <li>settlements - placed ones, placement and upgrade of villages</li>
+ *     <li>ports, if any</li>
+ *     <li>their connected edges</li>
+ *     <li>their adjacent tiles</li>
+ * </ul>
+ */
 public interface Intersection {
+
     /**
      * Returns the hexGrid instance
      *
@@ -65,19 +87,19 @@ public interface Intersection {
     Port getPort();
 
     /**
+     * Returns all edges connected to this intersection.
+     *
+     * @return all edges connected to this intersection
+     */
+    Set<Edge> getConnectedEdges();
+
+    /**
      * Returns true if the player has a connected road to this intersection
      *
      * @param player the player to check
      * @return true if the player has a connected road to this intersection
      */
     boolean playerHasConnectedRoad(Player player);
-
-    /**
-     * Returns all edges connected to this intersection.
-     *
-     * @return all edges connected to this intersection
-     */
-    Set<Edge> getConnectedEdges();
 
     /**
      * Returns all Intersection that are adjacent to this intersection.
@@ -113,7 +135,7 @@ public interface Intersection {
     boolean isConnectedTo(TilePosition position);
 
     /**
-     * Checks whether is connected to all given positions
+     * Checks whether this intersection is connected to all given positions
      *
      * @param position the positions to check
      * @return whether all positions are connected

@@ -11,13 +11,14 @@ import java.util.Map;
 import org.jetbrains.annotations.Nullable;
 import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.paint.Color;
 import projekt.Config;
 import projekt.model.buildings.Settlement;
 
+/**
+ * Default implementation of {@link Player}.
+ */
 public class PlayerImpl implements Player {
     private final HexGrid hexGrid;
     private final Color color;

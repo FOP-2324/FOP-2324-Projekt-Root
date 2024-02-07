@@ -12,15 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * An intersection represented by the three adjacent positions (tiles).
- * As an example, the following intersection has the positions ordered clockwise:
- * @formatter:off
- *      |
- *      |
- *  0   *  1
- *     / \
- *    / 2 \
- * @formatter:on
+ * Default implementation of {@link Intersection}.
  */
 public class IntersectionImpl implements Intersection {
     private final TilePosition position0;

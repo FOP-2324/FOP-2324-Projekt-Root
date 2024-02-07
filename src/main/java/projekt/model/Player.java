@@ -4,12 +4,24 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javafx.beans.property.IntegerProperty;
 import javafx.scene.paint.Color;
 import projekt.model.buildings.Edge;
 import projekt.model.buildings.Settlement;
 
+/**
+ * Represents a player in the game.
+ * Players hold information on...
+ * <ul>
+ *     <li>the grid they are playing on</li>
+ *     <li>victory points</li>
+ *     <li>resources and their amounts</li>
+ *     <li>roads and settlements</li>
+ *     <li>development cards and their amounts</li>
+ *     <li>miscellaneous, such as color, name, ID, etc.</li>
+ * </ul>
+ */
 public interface Player {
+
     /**
      * Returns the hexGrid instance
      *
@@ -18,18 +30,18 @@ public interface Player {
     HexGrid getHexGrid();
 
     /**
-     * Returns a map of all resources the player currently has and how many of each.
-     *
-     * @return a map of all resources the player currently has and how many of each.
-     */
-    Map<ResourceType, Integer> getResources();
-
-    /**
      * Returns the amount of victory points from settlements and development cards the player has.
      *
      * @return the amount of victory points from settlements and development cards the player has.
      */
     int getVictoryPoints();
+
+    /**
+     * Returns a map of all resources the player currently has and how many of each.
+     *
+     * @return a map of all resources the player currently has and how many of each.
+     */
+    Map<ResourceType, Integer> getResources();
 
     /**
      * Returns true if the player has the given resources, false otherwise.
@@ -41,7 +53,7 @@ public interface Player {
     /**
      * Adds the given amount of the given resource to the player.
      *
-     * @param resourceType the ResourceType to add to
+     * @param resourceType the ResourceType to add
      * @param amount       the amount to add
      */
     void addResource(ResourceType resourceType, int amount);
@@ -49,7 +61,7 @@ public interface Player {
     /**
      * Adds the given resources to the player.
      *
-     * @param resources
+     * @param resources a mapping of resources to their amounts
      */
     void addResources(Map<ResourceType, Integer> resources);
 
@@ -99,11 +111,12 @@ public interface Player {
      * @return all settlements the player currently has
      */
     default Set<Settlement> getSettlements() {
-        return getHexGrid().getIntersections().values().stream()
-                .filter(intersection -> intersection.getSettlement() != null)
-                .filter(intersection -> intersection.getSettlement().owner().equals(this))
-                .map(Intersection::getSettlement)
-                .collect(Collectors.toSet());
+        return getHexGrid().getIntersections()
+            .values()
+            .stream()
+            .map(Intersection::getSettlement)
+            .filter(settlement -> settlement != null && settlement.owner().equals(this))
+            .collect(Collectors.toSet());
     }
 
     /**

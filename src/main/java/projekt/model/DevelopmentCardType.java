@@ -1,5 +1,8 @@
 package projekt.model;
 
+/**
+ * The different types of development cards.
+ */
 public enum DevelopmentCardType {
     KNIGHT(3),
     VICTORY_POINTS(1),
