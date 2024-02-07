@@ -1,6 +1,7 @@
 package projekt.model.buildings;
 
 import javafx.beans.property.Property;
+import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 import projekt.model.HexGrid;
 import projekt.model.Intersection;
 import projekt.model.Player;
@@ -42,6 +43,7 @@ public record Edge(
      * @param other the other edge
      * @return whether the two edges are connected
      */
+    @StudentImplementationRequired
     public boolean connectsTo(final Edge other) {
         return this.getIntersections().stream().anyMatch(i -> i.getConnectedEdges().contains(other));
     }
@@ -60,6 +62,7 @@ public record Edge(
      *
      * @return the intersections
      */
+    @StudentImplementationRequired
     public Set<Intersection> getIntersections() {
         final var edgeDir = TilePosition.EdgeDirection
             .fromRelativePosition(TilePosition.subtract(this.position2, this.position1));
@@ -101,10 +104,11 @@ public record Edge(
      * @param player the player to check for.
      * @return the connected roads.
      */
+    @StudentImplementationRequired
     public Set<Edge> getConnectedRoads(Player player) {
         return getConnectedEdges().stream()
-                .filter(Edge::hasRoad)
-                .filter(edge -> edge.roadOwner.getValue().equals(player))
-                .collect(Collectors.toUnmodifiableSet());
+            .filter(Edge::hasRoad)
+            .filter(edge -> edge.roadOwner.getValue().equals(player))
+            .collect(Collectors.toUnmodifiableSet());
     }
 }

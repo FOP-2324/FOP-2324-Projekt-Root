@@ -179,12 +179,12 @@ public interface Tile {
      * Custom tile types need to be added to this list manually.
      */
     enum Type {
-        WOODLAND(Color.DARKGREEN, ResourceType.WOOD),
-        MEADOW(Color.TAN, ResourceType.CLAY),
-        FARMLAND(Color.YELLOW, ResourceType.GRAIN),
-        HILL(Color.LIGHTGREEN, ResourceType.WOOL),
-        MOUNTAIN(Color.GRAY, ResourceType.ORE),
-        DESERT(Color.BEIGE, null);
+        WOODLAND(Color.web("#99C000"), ResourceType.WOOD),
+        MEADOW(Color.web("#50B695"), ResourceType.WOOL),
+        FARMLAND(Color.web("#FDCA00"), ResourceType.GRAIN),
+        HILL(Color.web("#A94913"), ResourceType.CLAY),
+        MOUNTAIN(Color.web("#B5B5B5"), ResourceType.ORE),
+        DESERT(Color.web("#FFE05C"), null);
 
         public final Color color;
         public final ResourceType resourceType;

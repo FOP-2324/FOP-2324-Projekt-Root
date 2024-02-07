@@ -336,8 +336,10 @@ public class GameController {
         final var origPC = getActivePlayerController();
         for (final PlayerController playerController : playerControllers.values()) {
             withActivePlayer(playerController, () -> {
-                if (playerController.getPlayer().getResources().values().stream().mapToInt(Integer::intValue)
-                        .sum() > 7) {
+                final int totalResources = playerController.getPlayer().getResources().values().stream()
+                        .mapToInt(Integer::intValue).sum();
+                if (totalResources > 7) {
+                    playerController.setCardsToSelect(totalResources / 2);
                     playerController.waitForNextAction(PlayerObjective.DROP_HALF_CARDS);
                 }
             });

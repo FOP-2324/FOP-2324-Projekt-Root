@@ -9,7 +9,8 @@ public class MainMenuSceneController implements SceneController {
 
     public MainMenuSceneController() {
         builder = new MainMenuBuilder(SceneController::quit, SceneController::loadCreateGameScene,
-                SceneController::loadSettingsScene, SceneController::loadHighscoreScene);
+                SceneController::loadSettingsScene, SceneController::loadHighscoreScene,
+                SceneController::loadAboutScene);
     }
 
     @Override

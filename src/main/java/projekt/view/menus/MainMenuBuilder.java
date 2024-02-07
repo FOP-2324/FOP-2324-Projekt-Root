@@ -9,14 +9,16 @@ public class MainMenuBuilder extends MenuBuilder {
     private final Runnable loadGameScene;
     private final Runnable loadSettingsScene;
     private final Runnable loadHighscoreScene;
+    private final Runnable loadAboutScene;
 
     public MainMenuBuilder(
             final Runnable quitHandler, final Runnable createGameScene, final Runnable loadSettingsScene,
-            final Runnable loadHighscoreScene) {
-        super("Main Menu", quitHandler);
+            final Runnable loadHighscoreScene, final Runnable loadAboutScene) {
+        super("Main Menu", "Quit", quitHandler);
         this.loadGameScene = createGameScene;
         this.loadSettingsScene = loadSettingsScene;
         this.loadHighscoreScene = loadHighscoreScene;
+        this.loadAboutScene = loadAboutScene;
     }
 
     @Override
@@ -26,15 +28,18 @@ public class MainMenuBuilder extends MenuBuilder {
         mainBox.setSpacing(10);
 
         final Button startButton = new Button("Create Game");
-        startButton.setOnAction((e) -> loadGameScene.run());
+        startButton.setOnAction(e -> loadGameScene.run());
 
         final Button settingsButton = new Button("Settings");
-        settingsButton.setOnAction((e) -> loadSettingsScene.run());
+        settingsButton.setOnAction(e -> loadSettingsScene.run());
 
         final Button scoresButton = new Button("Highscores");
-        scoresButton.setOnAction((e) -> loadHighscoreScene.run());
+        scoresButton.setOnAction(e -> loadHighscoreScene.run());
 
-        mainBox.getChildren().addAll(startButton, settingsButton, scoresButton);
+        final Button aboutButton = new Button("About");
+        aboutButton.setOnAction(e -> loadAboutScene.run());
+
+        mainBox.getChildren().addAll(startButton, settingsButton, scoresButton, aboutButton);
 
         return mainBox;
     }

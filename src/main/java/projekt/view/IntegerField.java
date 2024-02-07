@@ -18,6 +18,9 @@ public class IntegerField extends TextField {
         super(Integer.toString(initialValue));
         this.setTextFormatter(new TextFormatter<>(new IntegerStringConverter(), 0, Utils.positiveIntegerFilter));
         textProperty().subscribe((oldText, newText) -> {
+            if (newText.isEmpty()) {
+                return;
+            }
             try {
                 valueProperty.set(Integer.parseInt(newText));
             } catch (final NumberFormatException e) {

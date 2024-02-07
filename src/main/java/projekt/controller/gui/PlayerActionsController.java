@@ -83,14 +83,14 @@ public class PlayerActionsController implements Controller {
             final Property<PlayerController> playerControllerProperty) {
         this.playerControllerProperty.subscribe((oldValue, newValue) -> {
             Platform.runLater(() -> {
+                playerObjectiveSubscription.unsubscribe();
+                playerObjectiveSubscription = newValue.getPlayerObjectiveProperty().subscribe((oldObjective,
+                        newObjective) -> Platform.runLater(() -> this.playerObjectiveProperty.setValue(newObjective)));
+
                 playerStateSubscription.unsubscribe();
                 playerStateSubscription = newValue.getPlayerStateProperty().subscribe(
                         (oldState, newState) -> Platform.runLater(() -> this.playerStateProperty.setValue(newState)));
                 this.playerStateProperty.setValue(newValue.getPlayerStateProperty().getValue());
-
-                playerObjectiveSubscription.unsubscribe();
-                playerObjectiveSubscription = newValue.getPlayerObjectiveProperty().subscribe((oldObjective,
-                        newObjective) -> Platform.runLater(() -> this.playerObjectiveProperty.setValue(newObjective)));
                 this.playerObjectiveProperty.setValue(newValue.getPlayerObjectiveProperty().getValue());
             });
         });
@@ -166,9 +166,6 @@ public class PlayerActionsController implements Controller {
         }
         if (allowedActions.contains(StealCardAction.class)) {
             selectCardToStealAction();
-        }
-        if (allowedActions.contains(DropCardsAction.class)) {
-            dropCardsAction(getPlayerState().cardsToSelect());
         }
         if (allowedActions.contains(SelectCardsAction.class) && getPlayerState().cardsToSelect() > 0) {
             selectResources(getPlayerState().cardsToSelect());

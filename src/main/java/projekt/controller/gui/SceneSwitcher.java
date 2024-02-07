@@ -1,5 +1,6 @@
 package projekt.controller.gui;
 
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.tudalgo.algoutils.student.annotation.DoNotTouch;
@@ -12,24 +13,23 @@ import projekt.controller.GameController;
  * A SceneSwitcher is responsible for switching between the different
  * {@link Scene}s.
  */
+@DoNotTouch
 public class SceneSwitcher {
     private final Stage stage;
-    private final GameController gameController;
+    private GameController gameController;
     private static SceneSwitcher INSTANCE;
-    private final Runnable gameLoopStarter;
+    private final Consumer<GameController> gameLoopStarter;
 
     @DoNotTouch
-    private SceneSwitcher(final Stage stage, final GameController gameController, final Runnable gameLoopStarter) {
+    private SceneSwitcher(final Stage stage, final Consumer<GameController> gameLoopStarter) {
         this.stage = stage;
-        this.gameController = gameController;
         this.gameLoopStarter = gameLoopStarter;
     }
 
     @DoNotTouch
-    public static SceneSwitcher getInstance(final Stage stage, final GameController gameController,
-            final Runnable gameLoopStarter) {
+    public static SceneSwitcher getInstance(final Stage stage, final Consumer<GameController> gameLoopStarter) {
         if (INSTANCE == null) {
-            INSTANCE = new SceneSwitcher(stage, gameController, gameLoopStarter);
+            INSTANCE = new SceneSwitcher(stage, gameLoopStarter);
         }
         return INSTANCE;
     }
@@ -47,17 +47,19 @@ public class SceneSwitcher {
      */
     public static enum SceneType {
         MAIN_MENU(MainMenuSceneController::new),
-        CREATE_GAME(() -> new CreateGameController(SceneSwitcher.getInstance().gameController.getState())),
+        CREATE_GAME(() -> {
+            SceneSwitcher.getInstance().gameController = new GameController();
+            return new CreateGameController(SceneSwitcher.getInstance().gameController.getState());
+        }),
         GAME_BOARD(() -> {
-            getInstance().gameLoopStarter.run();
-            final GameBoardController gameBoardController = new GameBoardController(
+            SceneSwitcher.getInstance().gameLoopStarter.accept(SceneSwitcher.getInstance().gameController);
+            return new GameBoardController(
                     getInstance().gameController.getState(),
                     getInstance().gameController.getActivePlayerControllerProperty(),
                     getInstance().gameController.getCurrentDiceRollProperty(),
                     getInstance().gameController.getState().getWinnerProperty());
-
-            return gameBoardController;
-        });
+        }),
+        ABOUT(AboutController::new);
 
         private final Supplier<SceneController> controller;
 

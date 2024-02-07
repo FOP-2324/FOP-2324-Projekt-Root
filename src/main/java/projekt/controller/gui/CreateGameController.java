@@ -23,10 +23,9 @@ public class CreateGameController implements SceneController {
     public CreateGameController(final GameState gameState) {
         this.gameState = gameState;
         this.builder = new CreateGameBuilder(
-            this.playerBuilderList,
-            SceneController::quit,
-            this::startGameHandler
-        );
+                this.playerBuilderList,
+                SceneController::loadMainMenuScene,
+                this::startGameHandler);
     }
 
     @Override

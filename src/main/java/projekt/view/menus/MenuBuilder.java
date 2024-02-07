@@ -12,14 +12,19 @@ import javafx.scene.layout.Region;
 import javafx.util.Builder;
 
 public abstract class MenuBuilder implements Builder<Region> {
-
     protected final BorderPane root = new BorderPane();
-    private final Runnable quitHandler;
+    private final String returnText;
+    private final Runnable returnHandler;
     private final String title;
 
-    public MenuBuilder(final String title, final Runnable quitHandler) {
-        this.quitHandler = quitHandler;
+    public MenuBuilder(final String title, final String returnText, final Runnable quitHandler) {
+        this.returnHandler = quitHandler;
         this.title = title;
+        this.returnText = returnText;
+    }
+
+    public MenuBuilder(final String title, final Runnable returnHandler) {
+        this(title, "Return", returnHandler);
     }
 
     @Override
@@ -42,12 +47,12 @@ public abstract class MenuBuilder implements Builder<Region> {
         buttonBox.setPadding(new Insets(20, 20, 20, 20));
         buttonBox.setSpacing(10);
 
-        final Button quitButton = new Button("Quit");
-        quitButton.setMaxWidth(600);
-        quitButton.setOnAction((e) -> quitHandler.run());
-        buttonBox.getChildren().add(quitButton);
+        final Button returnButton = new Button(returnText);
+        returnButton.setMaxWidth(600);
+        returnButton.setOnAction(e -> returnHandler.run());
+        buttonBox.getChildren().add(returnButton);
 
-        HBox.setHgrow(quitButton, Priority.ALWAYS);
+        HBox.setHgrow(returnButton, Priority.ALWAYS);
 
         root.setBottom(buttonBox);
 

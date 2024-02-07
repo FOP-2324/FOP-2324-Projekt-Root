@@ -166,18 +166,21 @@ public class PlayerController {
     }
 
     /**
-     * Returns the amount of cards to select for the current objective.
+     * Returns the amount of cards the player has to select
      *
-     * @return the amount of cards to select for the current objective.
+     * @return the amount of cards to select
      */
     private int getCardsToSelect() {
-        if (PlayerObjective.DROP_HALF_CARDS.equals(playerObjectiveProperty.getValue())) {
-            return player.getResources().values().stream().mapToInt(Integer::intValue).sum() / 2;
-        }
-        if (PlayerObjective.SELECT_CARDS.equals(playerObjectiveProperty.getValue())) {
-            return cardsToSelect;
-        }
-        return 0;
+        return cardsToSelect;
+    }
+
+    /**
+     * Sets the amount of cards the player has to select
+     *
+     * @param cardsToSelect the amount of cards to select
+     */
+    public void setCardsToSelect(final int cardsToSelect) {
+        this.cardsToSelect = cardsToSelect;
     }
 
     /**
@@ -648,16 +651,23 @@ public class PlayerController {
      *                                {@link Player} does not have the required
      *                                resources
      */
-    public void acceptTradeOffer() throws IllegalActionException {
+    public void acceptTradeOffer(final boolean accepted) throws IllegalActionException {
         if (tradingPlayer == null || playerTradingOffer == null || playerTradingRequest == null) {
             throw new IllegalActionException("No trade offer to accept");
         }
+
+        if (!accepted) {
+            playerObjectiveProperty.setValue(PlayerObjective.IDLE);
+            return;
+        }
+
         if (!player.hasResources(playerTradingRequest)) {
             throw new IllegalActionException("Player does not have the requested resources");
         }
         if (!tradingPlayer.hasResources(playerTradingOffer)) {
             throw new IllegalActionException("Other player does not have the offered resources");
         }
+        playerObjectiveProperty.setValue(PlayerObjective.IDLE);
 
         player.removeResources(playerTradingRequest);
         tradingPlayer.addResources(playerTradingRequest);
@@ -679,6 +689,7 @@ public class PlayerController {
         if (!player.hasResources(resourcesToDrop)) {
             return;
         }
+        playerObjectiveProperty.setValue(PlayerObjective.IDLE);
         // remove resources from player
         player.removeResources(resourcesToDrop);
         cardsToSelect = 0;
@@ -697,6 +708,7 @@ public class PlayerController {
         if (!playerToStealFrom.hasResources(Map.of(resourceToSteal, 1))) {
             throw new IllegalActionException("Player does not have the selected resource");
         }
+        playerObjectiveProperty.setValue(PlayerObjective.IDLE);
         // remove resource from player
         playerToStealFrom.removeResources(Map.of(resourceToSteal, 1));
         // add resource to player
