@@ -143,6 +143,7 @@ public final class Config {
      */
     public static Supplier<Integer> generateRollNumbers() {
         Map<Integer, Integer> ratios = IntStream.iterate(NUMBER_OF_DICE, i -> i >= NUMBER_OF_DICE && i <= NUMBER_OF_DICE * DICE_SIDES, i -> i + 1)
+            .filter(i -> i != 7)
             .mapToObj(i -> Map.entry(i, i == NUMBER_OF_DICE || i == NUMBER_OF_DICE * DICE_SIDES ? 1 : 2))
             .collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, Map.Entry::getValue));
 
