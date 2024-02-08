@@ -176,7 +176,7 @@ public class HexGridImpl implements HexGrid {
     }
 
     @Override
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H1.3")
     public Map<Set<TilePosition>, Edge> getRoads(final Player player) {
         return Collections.unmodifiableMap(edges.entrySet().stream()
                 .filter(entry -> entry.getValue().hasRoad())
@@ -201,7 +201,7 @@ public class HexGridImpl implements HexGrid {
     }
 
     @Override
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H1.3")
     public boolean addRoad(
         final TilePosition position0, final TilePosition position1, final Player player,
         final boolean checkVillages

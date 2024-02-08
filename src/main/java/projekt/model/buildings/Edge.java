@@ -21,7 +21,12 @@ public record Edge(
         return Set.of(this.position1, this.position2);
     }
 
-    @StudentImplementationRequired
+    /**
+     * Returns the intersections connected to this edge, as retrieved from the {@link #grid}.
+     *
+     * @return the intersections connected to this edge.
+     */
+    @StudentImplementationRequired("H1.3")
     public Set<Intersection> getIntersections() {
         final var edgeDir = TilePosition.EdgeDirection
             .fromRelativePosition(TilePosition.subtract(this.position2, this.position1));
@@ -37,23 +42,41 @@ public record Edge(
         );
     }
 
-    @StudentImplementationRequired
+    /**
+     * Returns whether this edge connects to the given edge.
+     */
+    @StudentImplementationRequired("H1.3")
     public boolean connectsTo(final Edge other) {
         return this.getIntersections().stream().anyMatch(i -> i.getConnectedEdges().contains(other));
     }
 
+    /**
+     * Returns whether this edge has a road.
+     *
+     * @return whether this edge has a road.
+     */
     public boolean hasRoad() {
         return roadOwner.getValue() != null;
     }
 
+    /**
+     * Returns whether this edge has a port.
+     *
+     * @return whether this edge has a port.
+     */
     public boolean hasPort() {
         return port != null;
     }
 
+    /**
+     * Returns the connected edges of this edge.
+     *
+     * @return the connected edges.
+     */
     public Set<Edge> getConnectedEdges() {
         return this.getIntersections().stream()
             .flatMap(i -> i.getConnectedEdges().stream())
-            .collect(java.util.stream.Collectors.toSet());
+            .collect(Collectors.toUnmodifiableSet());
     }
 
     /**
@@ -62,11 +85,11 @@ public record Edge(
      * @param player the player to check for.
      * @return the connected roads.
      */
-    @StudentImplementationRequired
-    public Set<Edge> getConnectedRoads(Player player) {
+    @StudentImplementationRequired("H1.3")
+    public Set<Edge> getConnectedRoads(final Player player) {
         return getConnectedEdges().stream()
-                .filter(edge -> edge.hasRoad())
-                .filter(edge -> edge.roadOwner.getValue().equals(player))
-                .collect(Collectors.toUnmodifiableSet());
+            .filter(Edge::hasRoad)
+            .filter(edge -> edge.roadOwner.getValue().equals(player))
+            .collect(Collectors.toUnmodifiableSet());
     }
 }

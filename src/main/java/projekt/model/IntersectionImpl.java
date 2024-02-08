@@ -81,19 +81,21 @@ public class IntersectionImpl implements Intersection {
     }
 
     @Override
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H1.4")
     public boolean placeVillage(final Player player, final boolean ignoreRoadCheck) {
-        if (settlement != null || (!playerHasConnectedRoad(player) && !ignoreRoadCheck))
+        if (settlement != null || (!playerHasConnectedRoad(player) && !ignoreRoadCheck)) {
             return false;
+        }
         settlement = new Settlement(player, Settlement.Type.VILLAGE, this);
         return true;
     }
 
     @Override
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H1.4")
     public boolean upgradeSettlement(final Player player) {
-        if (settlement == null || settlement.type() != Settlement.Type.VILLAGE || !settlement.owner().equals(player))
+        if (settlement == null || settlement.type() != Settlement.Type.VILLAGE || !settlement.owner().equals(player)) {
             return false;
+        }
         settlement = new Settlement(player, Settlement.Type.CITY, this);
         return true;
     }
@@ -122,7 +124,7 @@ public class IntersectionImpl implements Intersection {
             )
             .filter(this.hexGrid.getEdges()::containsKey)
             .map(this.hexGrid.getEdges()::get)
-            .collect(Collectors.toSet());
+            .collect(Collectors.toUnmodifiableSet());
     }
 
     @Override
@@ -133,7 +135,7 @@ public class IntersectionImpl implements Intersection {
                         entry.getKey().containsAll(Set.of(position2, position0)))
                 .map(Map.Entry::getValue)
                 .filter(Predicate.not(this::equals))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     @Override
