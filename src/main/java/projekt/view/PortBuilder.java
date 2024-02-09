@@ -3,12 +3,15 @@ package projekt.view;
 import java.util.List;
 
 import javafx.beans.value.ObservableDoubleValue;
+import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
@@ -50,19 +53,23 @@ public class PortBuilder implements Builder<Region> {
         if (edge.port().resourceType() != null) {
             final ImageView resourceImage = new Sprite(Utils.resourcesSpriteSheet, edge.port().resourceType().iconIndex,
                     edge.port().resourceType().color);
-            resourceImage.setFitWidth(width.get() * 0.4);
+            resourceImage.setFitWidth(background.getRadius() * 2 * 0.5);
             resourceImage.setPreserveRatio(true);
             icon = resourceImage;
         } else {
             final Label missingLabel = new Label("?");
-            missingLabel.setFont(new Font(40));
-            missingLabel.setStyle("-fx-font-weight: bold;");
+            missingLabel.setFont(new Font(30));
+            missingLabel.getStyleClass().add("bold");
+            missingLabel.setPadding(new Insets(-5));
             icon = missingLabel;
         }
 
         final Label ratioLabel = new Label(String.format("%d:1", edge.port().ratio()));
+        ratioLabel.setFont(Font.font(10));
         ratioLabel.getStyleClass().add("highlighted-label");
-        mainPane.getChildren().addAll(background, icon, ratioLabel);
+        final VBox iconBox = new VBox(icon, ratioLabel);
+        iconBox.setAlignment(Pos.CENTER);
+        mainPane.getChildren().addAll(background, iconBox);
         return mainPane;
     }
 
