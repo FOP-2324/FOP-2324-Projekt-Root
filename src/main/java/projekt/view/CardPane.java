@@ -2,15 +2,12 @@ package projekt.view;
 
 import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
 /**
@@ -73,19 +70,19 @@ public class CardPane extends StackPane {
         cardImage.setFitWidth(cardWidth);
         cardImage.setPreserveRatio(true);
         this.getChildren().add(cardImage);
-
+        final VBox iconBox = new VBox();
         if (icon != null) {
             icon.setFitWidth(cardWidth * 0.7);
             icon.setPreserveRatio(true);
-            this.getChildren().add(icon);
+            iconBox.getChildren().add(icon);
         }
 
         if (labelText != null && !labelText.isBlank()) {
             final Label valueLabel = new Label(labelText);
-            valueLabel.setBackground(
-                    new Background(
-                            new BackgroundFill(new Color(1, 1, 1, 0.9), new CornerRadii(2), new Insets(0, -2, 0, -2))));
-            this.getChildren().add(valueLabel);
+            valueLabel.getStyleClass().add("highlighted-label");
+            iconBox.getChildren().add(valueLabel);
         }
+        iconBox.setAlignment(Pos.CENTER);
+        this.getChildren().add(iconBox);
     }
 }
