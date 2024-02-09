@@ -401,6 +401,7 @@ public class PlayerController {
      * @param intersection the intersection to upgrade the village at
      * @return whether the village was upgraded
      */
+    @StudentImplementationRequired("H2.6")
     public boolean upgradeVillage(final Intersection intersection) {
         final var requiredResources = Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.CITY);
         if (!canUpgradeVillage()) {

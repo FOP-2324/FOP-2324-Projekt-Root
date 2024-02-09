@@ -337,7 +337,7 @@ public class PlayerActionsController implements Controller {
      *
      * @param event the event that triggered the action
      */
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H2.6")
     private void buildVillageButtonAction(final ActionEvent event) {
         getPlayerState().buildableVillageIntersections().stream()
                 .map(intersection -> getHexGridController().getIntersectionControllersMap().get(intersection))
@@ -372,7 +372,7 @@ public class PlayerActionsController implements Controller {
      *
      * @param event the event that triggered the action
      */
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H2.6")
     private void upgradeVillageButtonAction(final ActionEvent event) {
         getPlayerState().upgradableVillageIntersections().stream()
                 .map(intersection -> getHexGridController().getIntersectionControllersMap().get(intersection))
