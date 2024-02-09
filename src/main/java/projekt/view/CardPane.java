@@ -2,15 +2,12 @@ package projekt.view;
 
 import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
 /**
@@ -50,16 +47,25 @@ public class CardPane extends StackPane {
         this(cardColor, new Image(iconPath), labelText);
     }
 
+    /**
+     * Creates a new CardPane with the given color, icon and label.
+     *
+     * @param cardColor The color of the card.
+     * @param icon      The icon to display
+     * @param labelText The text of the label.
+     */
     public CardPane(final Color cardColor, final Image icon, final String labelText) {
         this(cardColor, new ImageView(icon), labelText, 0);
     }
 
     /**
-     * Creates a card with the given color, icon and label. With the given width.
+     * Creates a card with the given color, icon, label and width. If
+     * the width is 0, the default width is used.
      *
      * @param cardColor The color of the card.
-     * @param iconPath  The path to the icon.
+     * @param icon      The icon to display
      * @param labelText The text of the label.
+     * @param cardWidth The width of the card.
      */
     public CardPane(final Color cardColor, final ImageView icon, final String labelText, double cardWidth) {
         super();
@@ -73,19 +79,19 @@ public class CardPane extends StackPane {
         cardImage.setFitWidth(cardWidth);
         cardImage.setPreserveRatio(true);
         this.getChildren().add(cardImage);
-
+        final VBox iconBox = new VBox();
         if (icon != null) {
             icon.setFitWidth(cardWidth * 0.7);
             icon.setPreserveRatio(true);
-            this.getChildren().add(icon);
+            iconBox.getChildren().add(icon);
         }
 
         if (labelText != null && !labelText.isBlank()) {
             final Label valueLabel = new Label(labelText);
-            valueLabel.setBackground(
-                    new Background(
-                            new BackgroundFill(new Color(1, 1, 1, 0.9), new CornerRadii(2), new Insets(0, -2, 0, -2))));
-            this.getChildren().add(valueLabel);
+            valueLabel.getStyleClass().add("highlighted-label");
+            iconBox.getChildren().add(valueLabel);
         }
+        iconBox.setAlignment(Pos.CENTER);
+        this.getChildren().add(iconBox);
     }
 }

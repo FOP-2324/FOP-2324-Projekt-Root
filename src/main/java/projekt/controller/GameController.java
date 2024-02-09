@@ -1,14 +1,15 @@
 package projekt.controller;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.Stack;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
@@ -32,16 +33,17 @@ import projekt.model.tiles.Tile;
 
 /**
  * The GameController class represents the controller for the game logic.
- * It manages the game state, player controllers, dice rolling and the
+ * It manages the game state, player controllers, dice rolling and the overall
  * progression of the game.
+ * It tells the players controllers what to do and when to do it.
  */
 public class GameController {
 
     private final GameState state;
     private final Map<Player, PlayerController> playerControllers;
-    private final Iterator<Integer> dice;
+    private final Supplier<Integer> dice;
     private final IntegerProperty currentDiceRoll = new SimpleIntegerProperty(0);
-    private final Stack<DevelopmentCardType> availableDevelopmentCards = Config.generateDevelopmentCards();
+    private final Supplier<DevelopmentCardType> availableDevelopmentCards = Config.developmentCardGenerator();
 
     private final Property<PlayerController> activePlayerControllerProperty = new SimpleObjectProperty<>();
 
@@ -56,7 +58,7 @@ public class GameController {
     public GameController(
             final GameState state,
             final Map<Player, PlayerController> playerControllers,
-            final Iterator<Integer> dice) {
+            final Supplier<Integer> dice) {
         this.state = state;
         this.playerControllers = playerControllers;
         this.dice = dice;
@@ -70,7 +72,7 @@ public class GameController {
      * @param state The {@link GameState}.
      * @param dice  The dice.
      */
-    public GameController(final GameState state, final Iterator<Integer> dice) {
+    public GameController(final GameState state, final Supplier<Integer> dice) {
         this.state = state;
         this.dice = dice;
         this.playerControllers = new HashMap<>();
@@ -81,14 +83,14 @@ public class GameController {
      * The dice is initialized with the Random from {@link Config#RANDOM} and
      * respects the configured dice sides and number of dice.
      *
-     * @see #GameController(GameState, Iterator)
+     * @see #GameController(GameState, Supplier)
      *
      * @param state The {@link GameState}.
      */
     public GameController(final GameState state) {
-        this(state, Config.RANDOM.ints(
-                1,
-                Config.DICE_SIDES * Config.NUMBER_OF_DICE + 1).iterator());
+        this(state, () -> IntStream.rangeClosed(1, Config.NUMBER_OF_DICE)
+            .map(i -> Config.RANDOM.nextInt(1, Config.DICE_SIDES + 1))
+            .sum());
     }
 
     /**
@@ -170,17 +172,8 @@ public class GameController {
      * @return The result of the dice roll.
      */
     public int castDice() {
-        currentDiceRoll.set(dice.next());
+        currentDiceRoll.set(dice.get());
         return currentDiceRoll.get();
-    }
-
-    /**
-     * Returns the number of remaining development cards.
-     *
-     * @return The number of remaining development cards.
-     */
-    public int remainingDevelopmentCards() {
-        return availableDevelopmentCards.size();
     }
 
     /**
@@ -189,7 +182,7 @@ public class GameController {
      * @return The drawn development card.
      */
     public DevelopmentCardType drawDevelopmentCard() {
-        return availableDevelopmentCards.pop();
+        return availableDevelopmentCards.get();
     }
 
     /**
@@ -199,9 +192,24 @@ public class GameController {
      */
     @StudentImplementationRequired
     public Set<Player> getWinners() {
-        return getState().getPlayers().stream()
-                .filter(player -> player.getVictoryPoints() >= 10)
-                .collect(Collectors.toUnmodifiableSet());
+        Player playerWithMostKnightsPlayed = getState().getPlayers()
+            .stream()
+            .filter(player -> player.getKnightsPlayed() >= 3)
+            .max(Comparator.comparingInt(Player::getKnightsPlayed))
+            .orElse(null);
+        Player playerWithLongestRoad = null; // TODO: uncomment code if getLongestRoad(Player) is implemented in HexGrid
+//        getState().getPlayers()
+//            .stream()
+//            .max(Comparator.comparingInt(player -> player.getHexGrid().getLongestRoad(player).size()))
+//            .orElse(null);
+
+        return getState().getPlayers()
+            .stream()
+            .filter(player -> (player.getVictoryPoints()
+                + (player == playerWithMostKnightsPlayed ? 2 : 0)
+                + (player == playerWithLongestRoad ? 2 : 0))
+                >= Config.REQUIRED_VICTORY_POINTS)
+            .collect(Collectors.toUnmodifiableSet());
     }
 
     /**
@@ -294,6 +302,10 @@ public class GameController {
     /**
      * Offer the trade to all players that can accept the trade. As soon as one
      * player accepts the trade, the offering player can continue with his round.
+     *
+     * @param offeringPlayer The player offering the trade.
+     * @param offer          The resources the offering player offers.
+     * @param request        The resources the offering player requests.
      */
     public void offerTrade(final Player offeringPlayer, final Map<ResourceType, Integer> offer,
             final Map<ResourceType, Integer> request) {
@@ -333,7 +345,7 @@ public class GameController {
                         .mapToInt(Integer::intValue).sum();
                 if (totalResources > 7) {
                     playerController.setCardsToSelect(totalResources / 2);
-                    playerController.waitForNextAction(PlayerObjective.DROP_HALF_CARDS);
+                    playerController.waitForNextAction(PlayerObjective.DROP_CARDS);
                 }
             });
         }

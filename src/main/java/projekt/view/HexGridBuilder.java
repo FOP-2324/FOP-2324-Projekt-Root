@@ -27,6 +27,12 @@ import projekt.model.buildings.Edge;
 import projekt.model.tiles.Tile;
 import projekt.view.tiles.TileBuilder;
 
+/**
+ * The builder for the {@link HexGrid}.
+ * It creates a pane with the hex grid and handles the placement of the tiles,
+ * intersections, edges and ports.
+ * The hex grid pane can be zoomed, panned and centered.
+ */
 public class HexGridBuilder implements Builder<Region> {
     private final HexGrid grid;
     private final BiConsumer<ScrollEvent, Region> scrollHandler;
@@ -41,6 +47,21 @@ public class HexGridBuilder implements Builder<Region> {
 
     private final Pane hexGridPane = new Pane();
 
+    /**
+     * Creates a new hex grid builder with the given hex grid, intersection
+     * builders, edge lines, tile builders and event handlers.
+     *
+     * @param grid                 The hex grid.
+     * @param intersectionBuilders The intersection builders.
+     * @param edgeLines            The edge lines.
+     * @param tileBuilders         The tile builders.
+     * @param scrollHandler        The handler for the scroll event. Used for
+     *                             zooming.
+     * @param pressedHandler       The handler for the mouse pressed event.
+     * @param draggedHandler       The handler for the mouse dragged event. Used for
+     *                             panning
+     * @param centerButtonHandler  The handler for the center button event.
+     */
     public HexGridBuilder(final HexGrid grid, final Set<IntersectionBuilder> intersectionBuilders,
             final Set<EdgeLine> edgeLines,
             final Set<TileBuilder> tileBuilders, final BiConsumer<ScrollEvent, Region> scrollHandler,
@@ -113,10 +134,19 @@ public class HexGridBuilder implements Builder<Region> {
         return mapPane;
     }
 
+    /**
+     * Draws the tiles on the hex grid.
+     */
     public void drawTiles() {
         tileBuilders.forEach(TileBuilder::build);
     }
 
+    /**
+     * Places a tile on the hex grid.
+     *
+     * @param builder The tile builder.
+     * @return The region of the tile.
+     */
     private Region placeTile(final TileBuilder builder) {
         final Region tileView = builder.build();
         final Tile tile = builder.getTile();
@@ -129,10 +159,19 @@ public class HexGridBuilder implements Builder<Region> {
         return tileView;
     }
 
+    /**
+     * Draws the intersections on the hex grid.
+     */
     public void drawIntersections() {
         intersectionBuilders.forEach(IntersectionBuilder::build);
     }
 
+    /**
+     * Places an intersection on the hex grid.
+     *
+     * @param builder The intersection builder.
+     * @return The region of the intersection.
+     */
     private Region placeIntersection(final IntersectionBuilder builder) {
         final Region intersectionView = builder.build();
         final Point2D translatedPoint = calculateIntersectionTranslation(builder.getIntersection());
@@ -143,10 +182,18 @@ public class HexGridBuilder implements Builder<Region> {
         return intersectionView;
     }
 
+    /**
+     * Draws the edges on the hex grid.
+     */
     public void drawEdges() {
         edgeLines.forEach(EdgeLine::init);
     }
 
+    /**
+     * Places an edge on the hex grid.
+     *
+     * @param edgeLine The edge line.
+     */
     private void placeEdge(final EdgeLine edgeLine) {
         final List<Intersection> intersections = edgeLine.getEdge().getIntersections().stream().toList();
         final Point2D translatedStart = calculateIntersectionTranslation(intersections.get(0));
@@ -160,6 +207,11 @@ public class HexGridBuilder implements Builder<Region> {
         hexGridPane.getChildren().add(edgeLine);
     }
 
+    /**
+     * Places a port on the hex grid.
+     *
+     * @param edge The edge the port is on.
+     */
     private void placePort(final Edge edge) {
         final TilePosition position = edge.getAdjacentTilePositions().stream()
                 .filter(Predicate.not(grid.getTiles()::containsKey))
@@ -180,19 +232,46 @@ public class HexGridBuilder implements Builder<Region> {
         hexGridPane.getChildren().addAll(portView);
     }
 
+    /**
+     * Calculates the upper left corner of the tile region.
+     *
+     * @param position The position of the tile.
+     * @return The point of the upper left corner.
+     */
     private Point2D calculatePositionTranslation(final TilePosition position) {
         return new Point2D(grid.getTileSize() * (Math.sqrt(3) * position.q() + Math.sqrt(3) / 2 * position.r()),
                 grid.getTileSize() * (3.0 / 2 * position.r()));
     }
 
+    /**
+     * Calculates the upper left corner of the tile region with an offset to move
+     * the coordinate system center to the center of the hex grid.
+     *
+     * @param position The position of the tile.
+     * @return The point of the upper left corner.
+     */
     private Point2D calculatePositionTranslationOffset(final TilePosition position) {
         return calculatePositionTranslation(position).add(Math.abs(minPoint.getX()), Math.abs(minPoint.getY()));
     }
 
+    /**
+     * Calculates the center of the tile region with an offset to move the
+     * coordinate system center to the center of the hex grid.
+     *
+     * @param position The position of the tile.
+     * @return The point of the center.
+     */
     private Point2D calculatePositionCenterOffset(final TilePosition position) {
         return calculatePositionTranslationOffset(position).add(grid.getTileWidth() / 2, grid.getTileHeight() / 2);
     }
 
+    /**
+     * Calculates the center of the intersection region with an offset to move the
+     * coordinate system center to the center of the hex grid.
+     *
+     * @param intersection The intersection.
+     * @return The point of the center.
+     */
     private Point2D calculateIntersectionTranslation(final Intersection intersection) {
         final Set<Point2D> adjacentPoints = intersection.getAdjacentTilePositions().stream()
                 .map(this::calculatePositionCenterOffset)

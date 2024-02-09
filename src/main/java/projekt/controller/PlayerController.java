@@ -34,6 +34,9 @@ import projekt.model.tiles.Tile;
  * the game.
  * It manages the player's state, objectives, actions and all methods the UI
  * needs to interact with.
+ * It receives objectives the player wants to achieve and waits for the UI or AI
+ * to trigger any allowed actions. It then executes the actions and updates the
+ * player's state.
  */
 public class PlayerController {
     private final Player player;
@@ -64,8 +67,11 @@ public class PlayerController {
      * Creates a new {@link PlayerController} with the given {@link GameController}
      * and {@link Player}.
      *
-     * @param gameController the {@link GameController} to use.
-     * @param player         the {@link Player} this controller belongs to.
+     *
+     * @param gameController the {@link GameController} that manages the game logic
+     *                       and this controller is part of.
+     * @param player         the {@link Player} this controller belongs to. It is
+     *                       assumed that the player is valid.
      */
     @DoNotTouch
     public PlayerController(final GameController gameController, final Player player) {
@@ -108,7 +114,7 @@ public class PlayerController {
     /**
      * Returns a {@link Property} with the current {@link PlayerObjective}
      *
-     * @return
+     * @return a {@link Property} with the current {@link PlayerObjective}
      */
     @DoNotTouch
     public Property<PlayerObjective> getPlayerObjectiveProperty() {
@@ -205,7 +211,7 @@ public class PlayerController {
 
     /**
      * Processes the selected resources for the current objective.
-     * If the current objective is {@link PlayerObjective#DROP_HALF_CARDS}, the
+     * If the current objective is {@link PlayerObjective#DROP_CARDS}, the
      * selected resources are removed. Otherwise, the selected resources are stored.
      *
      * @param selectedResources the selected resources
@@ -216,7 +222,7 @@ public class PlayerController {
         if (selectedResources.values().stream().mapToInt(Integer::intValue).sum() != getCardsToSelect()) {
             throw new IllegalActionException("Wrong amount of cards selected");
         }
-        if (PlayerObjective.DROP_HALF_CARDS.equals(playerObjectiveProperty.getValue())) {
+        if (PlayerObjective.DROP_CARDS.equals(playerObjectiveProperty.getValue())) {
             dropSelectedResources(selectedResources);
         }
         this.selectedResources = selectedResources;
@@ -261,10 +267,11 @@ public class PlayerController {
     }
 
     /**
-     * Waits for the next action and executes it.
-     * Checks whether the action is allowed for the current objective.
-     * Catches {@link IllegalActionException}s and keeps waiting for the next valid
-     * action.
+     * Waits for a action to be triggered, checks if the action is allowed and then
+     * executes it.
+     * If a {@link IllegalActionException} is thrown, the action is ignored and the
+     * next action is awaited. This is done to ensure only allowed actions are
+     * executed.
      *
      * @return the executed action
      */
@@ -388,8 +395,8 @@ public class PlayerController {
      * Also removes the resources from the {@link Player} if the village was
      * upgraded.
      *
-     * @param intersection
-     * @return
+     * @param intersection the intersection to upgrade the village at
+     * @return whether the village was upgraded
      */
     public boolean upgradeVillage(final Intersection intersection) {
         final var requiredResources = Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.CITY);
@@ -456,13 +463,14 @@ public class PlayerController {
     }
 
     /**
-     * Tries to build a road at the given edge.
+     * Tries to build a road between the given positions.
      * Validates whether the {@link Player} has enough resources and whether the
-     * road can be built at the given edge.
+     * road can be built bewteen the given positions.
      * Also removes the resources from the {@link Player} if the road was built and
      * it is not the first round.
      *
-     * @param edge the edge to build the road at
+     * @param position0 the first position to build the road between
+     * @param position1 the second position to build the road between
      * @return whether the road was built
      */
     public boolean buildRoad(final TilePosition position0, final TilePosition position1) {
@@ -486,7 +494,7 @@ public class PlayerController {
      * @return whether the {@link Player} can buy a development card.
      */
     public boolean canBuyDevelopmentCard() {
-        return gameController.remainingDevelopmentCards() > 0 && player.hasResources(Config.DEVELOPMENT_CARD_COST);
+        return player.hasResources(Config.DEVELOPMENT_CARD_COST);
     }
 
     /**
@@ -650,6 +658,8 @@ public class PlayerController {
      * @throws IllegalActionException if no trade offer exists or if one
      *                                {@link Player} does not have the required
      *                                resources
+     *
+     * @param accepted whether the trade offer is accepted
      */
     public void acceptTradeOffer(final boolean accepted) throws IllegalActionException {
         if (tradingPlayer == null || playerTradingOffer == null || playerTradingRequest == null) {

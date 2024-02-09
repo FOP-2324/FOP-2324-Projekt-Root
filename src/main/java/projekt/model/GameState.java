@@ -12,11 +12,16 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.paint.Color;
 import projekt.Config;
 
+/**
+ * Holds information on the game's state.
+ */
 public final class GameState {
+
     /**
      * The {@link HexGrid} instance of this {@link GameState}.
      */
     private final HexGrid grid;
+
     /**
      * The {@link Player}s of this {@link GameState}.
      */
@@ -141,5 +146,4 @@ public final class GameState {
                 "grid=" + grid + ", " +
                 "players=" + players + ']';
     }
-
 }

@@ -11,21 +11,20 @@ import java.util.Map;
 import org.jetbrains.annotations.Nullable;
 import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.paint.Color;
 import projekt.Config;
-import projekt.model.buildings.Port;
 import projekt.model.buildings.Settlement;
 
+/**
+ * Default implementation of {@link Player}.
+ */
 public class PlayerImpl implements Player {
     private final HexGrid hexGrid;
-    private final Color color;
-    private final int id;
-    protected boolean ai;
     private final String name;
-    private final IntegerProperty victoryPoints;
+    private final int id;
+    private final Color color;
+    protected boolean ai;
     private final Map<ResourceType, Integer> resources = new HashMap<>();
     private final Map<DevelopmentCardType, Integer> developmentCards = new HashMap<>();
     private final Map<DevelopmentCardType, Integer> playedDevelopmentCards = new HashMap<>();
@@ -33,7 +32,6 @@ public class PlayerImpl implements Player {
     private PlayerImpl(final HexGrid hexGrid, final Color color, final int id, final String name, final boolean ai) {
         this.hexGrid = hexGrid;
         this.color = color;
-        this.victoryPoints = new SimpleIntegerProperty(0);
         this.id = id;
         this.name = name;
         this.ai = ai;
@@ -45,6 +43,42 @@ public class PlayerImpl implements Player {
     }
 
     @Override
+    public String getName() {
+        return this.name;
+    }
+
+    @Override
+    public int getID() {
+        return id;
+    }
+
+    @Override
+    public Color getColor() {
+        return this.color;
+    }
+
+    @Override
+    public boolean isAi() {
+        return this.ai;
+    }
+
+    @Override
+    public int getVictoryPoints() {
+        int buildingVictoryPoints = getSettlements().stream()
+            .mapToInt(settlement -> switch (settlement.type()) {
+                case VILLAGE -> 1;
+                case CITY -> 2;
+            })
+            .sum();
+        int developmentCardsVictoryPoints = (int) getDevelopmentCards().keySet()
+            .stream()
+            .filter(developmentCardType -> developmentCardType == DevelopmentCardType.VICTORY_POINTS)
+            .count();
+
+        return buildingVictoryPoints + developmentCardsVictoryPoints;
+    }
+
+    @Override
     public Map<ResourceType, Integer> getResources() {
         return Collections.unmodifiableMap(this.resources);
     }
@@ -52,15 +86,22 @@ public class PlayerImpl implements Player {
     @Override
     @StudentImplementationRequired("H1.1")
     public void addResource(final ResourceType resourceType, final int amount) {
-        this.resources.put(resourceType, this.resources.getOrDefault(resourceType, 0) + amount);
+        this.resources.merge(resourceType, amount, Integer::sum);
     }
 
     @Override
     @StudentImplementationRequired("H1.1")
     public void addResources(final Map<ResourceType, Integer> resources) {
-        for (final var entry : resources.entrySet()) {
-            addResource(entry.getKey(), entry.getValue());
-        }
+        resources.forEach(this::addResource);
+    }
+
+    @Override
+    @StudentImplementationRequired("H1.1")
+    public boolean hasResources(final Map<ResourceType, Integer> resources) {
+        return resources
+            .entrySet()
+            .stream()
+            .noneMatch(e -> this.resources.getOrDefault(e.getKey(), 0) < e.getValue());
     }
 
     @Override
@@ -69,7 +110,7 @@ public class PlayerImpl implements Player {
         if (!hasResources(Map.of(resourceType, amount))) {
             return false;
         }
-        this.resources.put(resourceType, this.resources.getOrDefault(resourceType, 0) - amount);
+        this.resources.merge(resourceType, -amount, Integer::sum);
         return true;
     }
 
@@ -88,23 +129,17 @@ public class PlayerImpl implements Player {
     @Override
     @StudentImplementationRequired("H1.1")
     public int getTradeRatio(final ResourceType resourceType) {
-        final var intersections = getHexGrid().getIntersections();
-        return intersections.values().stream()
-                .filter(intersection -> intersection.getPort() != null
-                        && resourceType.equals(intersection.getPort().resourceType()))
-                .filter(intersection -> intersection.getSettlement() != null
-                        && intersection.getSettlement().owner().equals(this))
-                .map(Intersection::getPort)
-                .findAny().map(Port::ratio).orElse(4);
-    }
-
-    @Override
-    @StudentImplementationRequired("H1.1")
-    public boolean hasResources(final Map<ResourceType, Integer> resources) {
-        return resources
-                .entrySet()
-                .stream()
-                .noneMatch(e -> this.resources.getOrDefault(e.getKey(), 0) < e.getValue());
+        return getHexGrid().getIntersections()
+            .values()
+            .stream()
+            .filter(intersection -> intersection.getPort() != null
+                && (intersection.getPort().resourceType() == null || intersection.getPort().resourceType().equals(resourceType)))
+            .filter(intersection -> intersection.getSettlement() != null
+                && intersection.getSettlement().owner().equals(this))
+            .map(intersection -> intersection.getPort().ratio())
+            .sorted()
+            .findAny()
+            .orElse(4);
     }
 
     @Override
@@ -113,15 +148,15 @@ public class PlayerImpl implements Player {
     }
 
     @Override
-    public int getRemainingCities() {
-        return (int) (MAX_CITIES - getSettlements().stream()
-                .filter(settlement -> settlement.type().equals(Settlement.Type.CITY)).count());
+    public int getRemainingVillages() {
+        return (int) (MAX_VILLAGES - getSettlements().stream()
+            .filter(settlement -> settlement.type().equals(Settlement.Type.VILLAGE)).count());
     }
 
     @Override
-    public int getRemainingVillages() {
-        return (int) (MAX_VILLAGES - getSettlements().stream()
-                .filter(settlement -> settlement.type().equals(Settlement.Type.VILLAGE)).count());
+    public int getRemainingCities() {
+        return (int) (MAX_CITIES - getSettlements().stream()
+                .filter(settlement -> settlement.type().equals(Settlement.Type.CITY)).count());
     }
 
     @Override
@@ -133,7 +168,7 @@ public class PlayerImpl implements Player {
     @Override
     @StudentImplementationRequired("H1.2")
     public void addDevelopmentCard(final DevelopmentCardType developmentCardType) {
-        this.developmentCards.put(developmentCardType, this.developmentCards.getOrDefault(developmentCardType, 0) + 1);
+        this.developmentCards.merge(developmentCardType, 1, Integer::sum);
     }
 
     @Override
@@ -142,9 +177,8 @@ public class PlayerImpl implements Player {
         if (this.developmentCards.getOrDefault(developmentCardType, 0) <= 0) {
             return false;
         }
-        this.developmentCards.put(developmentCardType, this.developmentCards.getOrDefault(developmentCardType, 0) - 1);
-        this.playedDevelopmentCards.put(developmentCardType,
-                this.playedDevelopmentCards.getOrDefault(developmentCardType, 0) + 1);
+        this.developmentCards.merge(developmentCardType, -1, Integer::sum);
+        this.playedDevelopmentCards.merge(developmentCardType, 1, Integer::sum);
         return true;
     }
 
@@ -158,36 +192,6 @@ public class PlayerImpl implements Player {
     @StudentImplementationRequired("H1.2")
     public int getKnightsPlayed() {
         return this.playedDevelopmentCards.getOrDefault(DevelopmentCardType.KNIGHT, 0);
-    }
-
-    @Override
-    public Color getColor() {
-        return this.color;
-    }
-
-    @Override
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
-    public int getID() {
-        return id;
-    }
-
-    @Override
-    public IntegerProperty getVictoryPointsProperty() {
-        return this.victoryPoints;
-    }
-
-    @Override
-    public int getVictoryPoints() {
-        return this.victoryPoints.get();
-    }
-
-    @Override
-    public boolean isAi() {
-        return this.ai;
     }
 
     public static class Builder {

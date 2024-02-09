@@ -3,19 +3,29 @@ package projekt.view;
 import java.util.List;
 
 import javafx.beans.value.ObservableDoubleValue;
+import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.util.Builder;
 import projekt.model.buildings.Edge;
+import projekt.model.buildings.Port;
 
+/**
+ * A Builder to create views for {@link Port}s.
+ * Renders the {@link Port} as a circle with a resource icon and a label for the
+ * ratio.
+ * Has methods to initialize the connections to the nodes.
+ */
 public class PortBuilder implements Builder<Region> {
 
     private final ObservableDoubleValue width;
@@ -24,6 +34,15 @@ public class PortBuilder implements Builder<Region> {
     private final Point2D node0;
     private final Point2D node1;
 
+    /**
+     * Creates a new PortBuilder on the given {@link Edge}.
+     *
+     * @param egde   The edge the port is on.
+     * @param width  The width of the port.
+     * @param height The height of the port.
+     * @param node0  The position of the first node.
+     * @param node1  The position of the second node.
+     */
     public PortBuilder(final Edge egde, final ObservableDoubleValue width, final ObservableDoubleValue height,
             final Point2D node0, final Point2D node1) {
         this.width = width;
@@ -50,22 +69,32 @@ public class PortBuilder implements Builder<Region> {
         if (edge.port().resourceType() != null) {
             final ImageView resourceImage = new Sprite(Utils.resourcesSpriteSheet, edge.port().resourceType().iconIndex,
                     edge.port().resourceType().color);
-            resourceImage.setFitWidth(width.get() * 0.4);
+            resourceImage.setFitWidth(background.getRadius() * 2 * 0.5);
             resourceImage.setPreserveRatio(true);
             icon = resourceImage;
         } else {
             final Label missingLabel = new Label("?");
-            missingLabel.setFont(new Font(40));
-            missingLabel.setStyle("-fx-font-weight: bold;");
+            missingLabel.setFont(new Font(30));
+            missingLabel.getStyleClass().add("bold");
+            missingLabel.setPadding(new Insets(-5));
             icon = missingLabel;
         }
 
         final Label ratioLabel = new Label(String.format("%d:1", edge.port().ratio()));
+        ratioLabel.setFont(Font.font(10));
         ratioLabel.getStyleClass().add("highlighted-label");
-        mainPane.getChildren().addAll(background, icon, ratioLabel);
+        final VBox iconBox = new VBox(icon, ratioLabel);
+        iconBox.setAlignment(Pos.CENTER);
+        mainPane.getChildren().addAll(background, iconBox);
         return mainPane;
     }
 
+    /**
+     * Initializes the connections to the nodes.
+     *
+     * @param center The center of the port.
+     * @return The connections to the nodes.
+     */
     public List<Node> initConnections(final Point2D center) {
         final Line connection0 = new Line(center.getX(), center.getY(), node0.getX(), node0.getY());
         final Line connection1 = new Line(center.getX(), center.getY(), node1.getX(), node1.getY());

@@ -14,7 +14,20 @@ import projekt.model.TradePayload;
 import projekt.view.CardPane;
 import projekt.view.ResourceCardPane;
 
+/**
+ * A dialog to prompt the user to accept or decline a trade offer.
+ * The dialog shows the offer and request of the trade and has buttons to accept
+ * or decline the trade.
+ * The result of the dialog is true if the trade is accepted and false if it is
+ * declined.
+ */
 public class AcceptTradeDialog extends Dialog<Boolean> {
+    /**
+     * Creates a new AcceptTradeDialog for the given trade and player.
+     *
+     * @param trade  The trade to accept or decline.
+     * @param player The player that is prompted to accept or decline the trade.
+     */
     public AcceptTradeDialog(final TradePayload trade, final Player player) {
         setTitle("Accept trade offer");
         setHeaderText(
