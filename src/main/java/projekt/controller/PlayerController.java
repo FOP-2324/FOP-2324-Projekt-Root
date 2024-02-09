@@ -334,6 +334,7 @@ public class PlayerController {
      *
      * @return whether the {@link Player} can build a village.
      */
+    @StudentImplementationRequired("H2.5")
     public boolean canBuildVillage() {
         final var requiredResources = Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.VILLAGE);
         return (playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_VILLAGE)
@@ -350,6 +351,7 @@ public class PlayerController {
      * @param intersection the intersection to build the village at
      * @return whether the village was built
      */
+    @StudentImplementationRequired("H2.5")
     public boolean buildVillage(final Intersection intersection) {
         final var requiredResources = Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.VILLAGE);
         if (!canBuildVillage()) {
@@ -444,6 +446,7 @@ public class PlayerController {
      *
      * @return whether the {@link Player} can build a road.
      */
+    @StudentImplementationRequired("H2.5")
     public boolean canBuildRoad() {
         final var requiredResources = Config.ROAD_BUILDING_COST;
         return (playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_ROAD)
@@ -474,6 +477,7 @@ public class PlayerController {
      * @param position1 the second position to build the road between
      * @return whether the road was built
      */
+    @StudentImplementationRequired("H2.5")
     public boolean buildRoad(final TilePosition position0, final TilePosition position1) {
         if (!canBuildRoad()) {
             return false;
