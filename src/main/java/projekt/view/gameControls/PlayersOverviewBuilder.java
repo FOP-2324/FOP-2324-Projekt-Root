@@ -20,9 +20,21 @@ import projekt.model.Player;
 import projekt.view.CardPane;
 import projekt.view.DevelopmentCardPane;
 
+/**
+ * A Builder to create the player overview view.
+ * The player overview view contains information about all players in the game.
+ * It shows the how many resources but not what type of resources the players
+ * have, how many development cards they have (also not their type), how many
+ * victory points they have and how many knights they have played.
+ */
 public class PlayersOverviewBuilder implements Builder<Region> {
     private final List<Player> players;
 
+    /**
+     * Creates a new PlayersOverviewBuilder with the given players.
+     *
+     * @param players the players to display information for
+     */
     public PlayersOverviewBuilder(final List<Player> players) {
         this.players = players;
     }
@@ -37,6 +49,15 @@ public class PlayersOverviewBuilder implements Builder<Region> {
         return mainBox;
     }
 
+    /**
+     * Creates a titled pane for the given player.
+     * The titled pane contains information about the player's resources,
+     * development cards, victory points and knights.
+     *
+     * @param player
+     * @param playerNumber
+     * @return
+     */
     public TitledPane createPlayerTiltedPane(final Player player, final int playerNumber) {
         final GridPane detailsBox = new GridPane();
 
@@ -72,10 +93,23 @@ public class PlayersOverviewBuilder implements Builder<Region> {
         return playerPane;
     }
 
+    /**
+     * Creates a card pane with the given value.
+     *
+     * @param value The value to display.
+     * @return The created card pane.
+     */
     private StackPane createValuePane(final String value) {
         return createValuePane(value, null);
     }
 
+    /**
+     * Creates a card pane with the given value and icon.
+     *
+     * @param value The value to display.
+     * @param icon  The icon to display.
+     * @return The created card pane.
+     */
     private StackPane createValuePane(final String value, final Image icon) {
         return new CardPane(Color.LIGHTGRAY, icon, value);
     }

@@ -494,6 +494,10 @@ public class PlayerActionsController implements Controller {
 
     // Development card actions
 
+    /**
+     * Enables or disable the buy development card button based on the currently
+     * allowed actions and whether the player can buy a development card.
+     */
     private void updateBuyDevelopmentCardButtonState() {
         if (getPlayerObjective().getAllowedActions().contains(BuyDevelopmentCardAction.class)
                 && getPlayerController().canBuyDevelopmentCard()) {
@@ -516,6 +520,10 @@ public class PlayerActionsController implements Controller {
         updateUIBasedOnObjective(getPlayerObjective());
     }
 
+    /**
+     * Enables or disable the use development card button based on the currently
+     * allowed actions and whether the player has any development cards to play.
+     */
     private void updateUseDevelopmentCardButtonState() {
         if (getPlayerObjective().getAllowedActions().contains(PlayDevelopmentCardAction.class)
                 && getPlayer().getDevelopmentCards().entrySet().stream().anyMatch(
@@ -526,6 +534,16 @@ public class PlayerActionsController implements Controller {
         builder.disablePlayDevelopmentCardButton();
     }
 
+    /**
+     * Performs the action of playing a development card.
+     * Prompts the user to select a development card to play.
+     * If the user cancels, the action is cancelled.
+     * Triggers the PlayDevelopmentCardAction with the selected card.
+     *
+     * This method is prepared to be used with a button.
+     *
+     * @param event the event that triggered the action
+     */
     public void useDevelopmentCardButtonAction(final ActionEvent event) {
         final UseDevelopmentCardDialog dialog = new UseDevelopmentCardDialog(getPlayer());
         dialog.showAndWait()

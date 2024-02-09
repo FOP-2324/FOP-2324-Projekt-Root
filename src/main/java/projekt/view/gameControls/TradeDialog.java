@@ -25,12 +25,26 @@ import projekt.view.CardPane;
 import projekt.view.IntegerField;
 import projekt.view.ResourceCardPane;
 
+/**
+ * A dialog to prompt the user to make a trade with the bank or another player.
+ * The dialog shows the resources the player can offer and request and lets the
+ * user select a number of each resource.
+ * If the player is trading with the bank, the dialog also shows the trade ratio
+ * for each resource.
+ *
+ * The result of the dialog is a {@link TradePayload}.
+ */
 public class TradeDialog extends Dialog<TradePayload> {
     private final ObjectProperty<ResourceType> selectedBankOffer = new SimpleObjectProperty<>();
     private final ObjectProperty<ResourceType> selectedBankRequest = new SimpleObjectProperty<>();
     private final Map<ResourceType, Integer> playerOffer = new HashMap<>();
     private final Map<ResourceType, Integer> playerRequest = new HashMap<>();
 
+    /**
+     * Creates a new TradeDialog for the given trade payload.
+     *
+     * @param payload The trade payload to create the dialog for.
+     */
     public TradeDialog(final TradePayload payload) {
         final TabPane tabPane = new TabPane();
         tabPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
@@ -60,6 +74,16 @@ public class TradeDialog extends Dialog<TradePayload> {
         });
     }
 
+    /**
+     * Creates the tab for trading with the bank.
+     * The user can select a resource to offer and a resource to request.
+     * The offered resource is displayed with the trade ratio for that resource.
+     * The requested resource is displayed with a ratio of 1.
+     * Only one resource can be selected for each offer and request.
+     *
+     * @param payload The trade payload to create the tab for.
+     * @return The created tab.
+     */
     private Tab createBankTradeTab(final TradePayload payload) {
         final Tab bankTradeTab = new Tab("Bank");
         final GridPane mainPane = new GridPane(10, 10);
@@ -93,6 +117,12 @@ public class TradeDialog extends Dialog<TradePayload> {
         return bankTradeTab;
     }
 
+    /**
+     * Creates the tab for trading with another player.
+     * The user can select any amount of each resource to offer and request.
+     *
+     * @return The created tab.
+     */
     private Tab createPlayerTradeTab() {
         final Tab playerTradeTab = new Tab("Player");
         final GridPane mainPane = new GridPane(10, 10);
@@ -129,6 +159,14 @@ public class TradeDialog extends Dialog<TradePayload> {
         return playerTradeTab;
     }
 
+    /**
+     * Returns a card pane for the given resource type that can be selected.
+     *
+     * @param resourceType         The resource type to create the card for.
+     * @param selectedResourceType The property to store the selected resource type
+     *                             in.
+     * @return The created card pane.
+     */
     private CardPane getSelectableResourceCard(final ResourceType resourceType,
             final Property<ResourceType> selectedResourceType) {
         final CardPane requestedResourceCard = new ResourceCardPane(resourceType, "", 50);

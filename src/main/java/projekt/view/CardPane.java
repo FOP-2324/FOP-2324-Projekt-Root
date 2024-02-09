@@ -47,16 +47,25 @@ public class CardPane extends StackPane {
         this(cardColor, new Image(iconPath), labelText);
     }
 
+    /**
+     * Creates a new CardPane with the given color, icon and label.
+     *
+     * @param cardColor The color of the card.
+     * @param icon      The icon to display
+     * @param labelText The text of the label.
+     */
     public CardPane(final Color cardColor, final Image icon, final String labelText) {
         this(cardColor, new ImageView(icon), labelText, 0);
     }
 
     /**
-     * Creates a card with the given color, icon and label. With the given width.
+     * Creates a card with the given color, icon, label and width. If
+     * the width is 0, the default width is used.
      *
      * @param cardColor The color of the card.
-     * @param iconPath  The path to the icon.
+     * @param icon      The icon to display
      * @param labelText The text of the label.
+     * @param cardWidth The width of the card.
      */
     public CardPane(final Color cardColor, final ImageView icon, final String labelText, double cardWidth) {
         super();

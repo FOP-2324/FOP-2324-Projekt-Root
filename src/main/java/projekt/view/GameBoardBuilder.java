@@ -23,12 +23,24 @@ import projekt.model.ResourceType;
 import projekt.view.gameControls.PlayerInformationBuilder;
 import projekt.view.gameControls.PlayersOverviewBuilder;
 
+/**
+ * The builder for the game board.
+ * It creates a BorderPane with the hex grid in the center, the player
+ * information and overview on the right and the player controls on the bottom.
+ */
 public class GameBoardBuilder implements Builder<Region> {
     private final Region hexGrid;
     private final Supplier<Region> actions;
     private final Pane playerInformation = new VBox();
     private final IntegerProperty diceRollProperty = new SimpleIntegerProperty(0);
 
+    /**
+     * Creates a new game board builder with the given hex grid and supplier for the
+     * player controls.
+     *
+     * @param hexGrid The hex grid.
+     * @param actions The supplier for the player controls.
+     */
     public GameBoardBuilder(final Region hexGrid, final Supplier<Region> actions) {
         this.hexGrid = hexGrid;
         this.actions = actions;
@@ -76,6 +88,13 @@ public class GameBoardBuilder implements Builder<Region> {
         return mainPane;
     }
 
+    /**
+     * Updates the player information and overview.
+     *
+     * @param player           The player to update the information for.
+     * @param players          The list of all players.
+     * @param changedResources The resources that have changed for the player.
+     */
     public void updatePlayerInformation(final Player player, final List<Player> players,
             final Map<ResourceType, Integer> changedResources) {
         playerInformation.getChildren().clear();
@@ -83,6 +102,11 @@ public class GameBoardBuilder implements Builder<Region> {
         playerInformation.getChildren().add(new PlayersOverviewBuilder(players).build());
     }
 
+    /**
+     * Sets the dice roll.
+     *
+     * @param diceRoll The dice roll.
+     */
     public void setDiceRoll(final int diceRoll) {
         diceRollProperty.set(diceRoll);
     }

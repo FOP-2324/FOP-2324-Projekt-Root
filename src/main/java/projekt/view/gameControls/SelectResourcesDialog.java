@@ -15,10 +15,28 @@ import projekt.view.CardPane;
 import projekt.view.IntegerField;
 import projekt.view.ResourceCardPane;
 
+/**
+ * A dialog to prompt the user to select a number of resources.
+ * The dialog shows the resources the player can choose from and lets the user
+ * select a number of each resource.
+ * If dropCards is true, the user is prompted to drop cards instead of selecting
+ * them.
+ * The result of the dialog is a map of the selected resources and their
+ * amounts.
+ */
 public class SelectResourcesDialog extends Dialog<Map<ResourceType, Integer>> {
 
     private final Map<ResourceType, Integer> selectedResources = new HashMap<>();
 
+    /**
+     * Creates a new SelectResourcesDialog for the given player and resources.
+     *
+     * @param amountToSelect        The amount of resources to select.
+     * @param player                The player that is prompted to select resources.
+     * @param resourcesToSelectFrom The resources the player can select from.
+     * @param dropCards             Whether the player should drop cards instead of
+     *                              selecting them.
+     */
     public SelectResourcesDialog(final int amountToSelect, final Player player,
             Map<ResourceType, Integer> resourcesToSelectFrom, final boolean dropCards) {
         System.out.println("SelectResourceDialog");
@@ -84,6 +102,14 @@ public class SelectResourcesDialog extends Dialog<Map<ResourceType, Integer>> {
         });
     }
 
+    /**
+     * Constructs the string to display when the player still needs to select cards.
+     *
+     * @param amount The amount of cards the player still needs to select.
+     * @param player The player that still needs to select cards.
+     * @param action The action the player is performing.
+     * @return The constructed string.
+     */
     private String constructTooFewCardsString(final int amount, final Player player, final String action) {
         return String.format("You (%s) still need to %s %d cards", player.getName(), action, amount);
     }
