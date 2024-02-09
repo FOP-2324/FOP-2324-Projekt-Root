@@ -2,8 +2,6 @@ package projekt.view.gameControls;
 
 import java.util.List;
 
-import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
-
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
 import javafx.scene.image.Image;
@@ -40,7 +38,6 @@ public class PlayersOverviewBuilder implements Builder<Region> {
     }
 
     @Override
-    @StudentImplementationRequired
     public Region build() {
         final VBox mainBox = new VBox();
         for (final Player player : players) {

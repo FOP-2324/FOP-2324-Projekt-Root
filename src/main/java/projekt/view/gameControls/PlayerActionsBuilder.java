@@ -3,7 +3,6 @@ package projekt.view.gameControls;
 import java.util.function.Consumer;
 
 import org.tudalgo.algoutils.student.annotation.DoNotTouch;
-import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -19,8 +18,8 @@ import javafx.util.Builder;
  * during their turn.
  * Has methods to enable and disable the nodes.
  */
+@DoNotTouch
 public class PlayerActionsBuilder implements Builder<Region> {
-
     private final Consumer<ActionEvent> buildVillageButtonAction;
     private final Consumer<ActionEvent> upgradeVillageButtonAction;
     private final Consumer<ActionEvent> buildRoadButtonAction;
@@ -58,7 +57,6 @@ public class PlayerActionsBuilder implements Builder<Region> {
      * @param tradeButtonAction               The handler for the trade action.
      * @param abortButtonAction               The handler for the abort action.
      */
-    @DoNotTouch
     public PlayerActionsBuilder(
             final Consumer<ActionEvent> buildVillageButtonAction,
             final Consumer<ActionEvent> upgradeVillageButtonAction,
@@ -81,7 +79,6 @@ public class PlayerActionsBuilder implements Builder<Region> {
     }
 
     @Override
-    @StudentImplementationRequired
     public Region build() {
         mainBox.getChildren().clear();
 
