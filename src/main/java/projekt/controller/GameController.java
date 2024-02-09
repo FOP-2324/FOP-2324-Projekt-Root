@@ -1,13 +1,14 @@
 package projekt.controller;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.Stack;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.tudalgo.algoutils.student.annotation.DoNotTouch;
@@ -41,7 +42,7 @@ public class GameController {
     private final Map<Player, PlayerController> playerControllers;
     private final Iterator<Integer> dice;
     private final IntegerProperty currentDiceRoll = new SimpleIntegerProperty(0);
-    private final Stack<DevelopmentCardType> availableDevelopmentCards = Config.generateDevelopmentCards();
+    private final Supplier<DevelopmentCardType> availableDevelopmentCards = Config.developmentCardGenerator();
 
     private final Property<PlayerController> activePlayerControllerProperty = new SimpleObjectProperty<>();
 
@@ -175,21 +176,12 @@ public class GameController {
     }
 
     /**
-     * Returns the number of remaining development cards.
-     *
-     * @return The number of remaining development cards.
-     */
-    public int remainingDevelopmentCards() {
-        return availableDevelopmentCards.size();
-    }
-
-    /**
      * Draws a development card from the stack of available development cards.
      *
      * @return The drawn development card.
      */
     public DevelopmentCardType drawDevelopmentCard() {
-        return availableDevelopmentCards.pop();
+        return availableDevelopmentCards.get();
     }
 
     /**
@@ -199,9 +191,24 @@ public class GameController {
      */
     @StudentImplementationRequired
     public Set<Player> getWinners() {
-        return getState().getPlayers().stream()
-                .filter(player -> player.getVictoryPoints() >= 10)
-                .collect(Collectors.toUnmodifiableSet());
+        Player playerWithMostKnightsPlayed = getState().getPlayers()
+            .stream()
+            .filter(player -> player.getKnightsPlayed() >= 3)
+            .max(Comparator.comparingInt(Player::getKnightsPlayed))
+            .orElse(null);
+        Player playerWithLongestRoad = null; // TODO: uncomment code if getLongestRoad(Player) is implemented in HexGrid
+//        getState().getPlayers()
+//            .stream()
+//            .max(Comparator.comparingInt(player -> player.getHexGrid().getLongestRoad(player).size()))
+//            .orElse(null);
+
+        return getState().getPlayers()
+            .stream()
+            .filter(player -> (player.getVictoryPoints()
+                + (player == playerWithMostKnightsPlayed ? 2 : 0)
+                + (player == playerWithLongestRoad ? 2 : 0))
+                >= Config.REQUIRED_VICTORY_POINTS)
+            .collect(Collectors.toUnmodifiableSet());
     }
 
     /**
