@@ -2,13 +2,11 @@ package projekt;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 
 import javafx.application.Application;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import projekt.controller.GameController;
 import projekt.controller.gui.SceneSwitcher;
@@ -37,10 +35,6 @@ public class MyApplication extends Application {
         stage.setWidth(1280);
         stage.setHeight(720);
 
-        Font.loadFont(
-                Objects.requireNonNull(
-                        MyApplication.class.getResource("/fonts/Roboto-Merged-Icons.ttf")).toExternalForm(),
-                10);
         SceneSwitcher.getInstance(stage, gameLoopStart).loadScene(SceneType.MAIN_MENU);
     }
 
