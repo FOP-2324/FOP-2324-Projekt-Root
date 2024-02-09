@@ -1,4 +1,11 @@
 @font-face {
+    font-family: "Roboto Merged Icons Black";
+    font-style: normal;
+    font-weight: 900;
+    src: url("/fonts/Roboto-Merged-Icons-Black.ttf");
+}
+
+@font-face {
     font-family: "Roboto Merged Icons";
     font-style: normal;
     font-weight: normal;
@@ -50,9 +57,11 @@
     -fx-border-color: -selected-color;
 }
 
-.highlighted-label {
-    -fx-background-color: #ffffffe0;
-    -fx-background-radius: 2;
-    -fx-background-insets: 0 -2 0 -2;
-    /* -fx-font-size: 15px; */
+.highlighted-label.label .text {
+    -fx-font-family: "Roboto Merged Icons Black";
+    -fx-font-weight: 900;
+    -fx-font-size: 1.5em;
+    -fx-fill: white;
+    -fx-stroke: black;
+    -fx-stroke-width: 1px;
 }
