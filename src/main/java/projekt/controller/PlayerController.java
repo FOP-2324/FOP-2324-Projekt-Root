@@ -205,7 +205,7 @@ public class PlayerController {
 
     /**
      * Processes the selected resources for the current objective.
-     * If the current objective is {@link PlayerObjective#DROP_HALF_CARDS}, the
+     * If the current objective is {@link PlayerObjective#DROP_CARDS}, the
      * selected resources are removed. Otherwise, the selected resources are stored.
      *
      * @param selectedResources the selected resources
@@ -216,7 +216,7 @@ public class PlayerController {
         if (selectedResources.values().stream().mapToInt(Integer::intValue).sum() != getCardsToSelect()) {
             throw new IllegalActionException("Wrong amount of cards selected");
         }
-        if (PlayerObjective.DROP_HALF_CARDS.equals(playerObjectiveProperty.getValue())) {
+        if (PlayerObjective.DROP_CARDS.equals(playerObjectiveProperty.getValue())) {
             dropSelectedResources(selectedResources);
         }
         this.selectedResources = selectedResources;
