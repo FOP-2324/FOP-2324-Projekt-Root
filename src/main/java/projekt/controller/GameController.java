@@ -272,7 +272,7 @@ public class GameController {
      * Starts the regular turn of the active player and waits for the player to end
      * his turn.
      */
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H2.1")
     private void regularTurn() {
         final var pc = activePlayerControllerProperty.getValue();
         var action = pc.waitForNextAction(PlayerObjective.REGULAR_TURN);
@@ -286,7 +286,7 @@ public class GameController {
      *
      * Each player places two villages and two roads.
      */
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H2.1")
     private void firstRound() {
         for (final PlayerController playerController : playerControllers.values()) {
             withActivePlayer(playerController, () -> {
@@ -307,6 +307,7 @@ public class GameController {
      * @param offer          The resources the offering player offers.
      * @param request        The resources the offering player requests.
      */
+    @StudentImplementationRequired("H2.3")
     public void offerTrade(final Player offeringPlayer, final Map<ResourceType, Integer> offer,
             final Map<ResourceType, Integer> request) {
         final BooleanProperty tradeAccepted = new SimpleBooleanProperty(true);
@@ -336,7 +337,7 @@ public class GameController {
      * Then the active player must select a tile to place the robber on and can then
      * steal a card from a player next to the robber.
      */
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H2.1")
     private void diceRollSeven() {
         final var origPC = getActivePlayerController();
         for (final PlayerController playerController : playerControllers.values()) {
@@ -359,7 +360,7 @@ public class GameController {
      *
      * @param diceRoll The dice roll to distribute the resources for.
      */
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H2.2")
     public void distributeResources(final int diceRoll) {
         for (final var tile : state.getGrid().getTiles(diceRoll).stream().filter(Predicate.not(Tile::hasRobber))
                 .collect(Collectors.toSet())) {
