@@ -345,7 +345,7 @@ public class GameController {
                         .mapToInt(Integer::intValue).sum();
                 if (totalResources > 7) {
                     playerController.setCardsToSelect(totalResources / 2);
-                    playerController.waitForNextAction(PlayerObjective.DROP_HALF_CARDS);
+                    playerController.waitForNextAction(PlayerObjective.DROP_CARDS);
                 }
             });
         }

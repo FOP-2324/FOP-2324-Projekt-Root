@@ -483,8 +483,8 @@ public class PlayerActionsController implements Controller {
     @StudentImplementationRequired
     private void selectResources(final int amountToSelect) {
         final SelectResourcesDialog dialog = new SelectResourcesDialog(amountToSelect, getPlayer(),
-                PlayerObjective.DROP_HALF_CARDS.equals(getPlayerObjective()) ? getPlayer().getResources() : null,
-                PlayerObjective.DROP_HALF_CARDS.equals(getPlayerObjective()));
+                PlayerObjective.DROP_CARDS.equals(getPlayerObjective()) ? getPlayer().getResources() : null,
+                PlayerObjective.DROP_CARDS.equals(getPlayerObjective()));
         Optional<Map<ResourceType, Integer>> result = dialog.showAndWait();
         while (result.isEmpty() || result.get() == null) {
             result = dialog.showAndWait();
