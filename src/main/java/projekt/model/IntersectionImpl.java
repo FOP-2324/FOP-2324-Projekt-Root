@@ -53,15 +53,6 @@ public class IntersectionImpl implements Intersection {
         this.hexGrid = hexGrid;
     }
 
-    /**
-     * Returns the positions to identify the intersection.
-     *
-     * @return the positions to identify the intersection
-     */
-    public Set<TilePosition> getAdjacentPositions() {
-        return Set.of(position0, position1, position2);
-    }
-
     @Override
     public HexGrid getHexGrid() {
         return hexGrid;
@@ -70,6 +61,16 @@ public class IntersectionImpl implements Intersection {
     @Override
     public Settlement getSettlement() {
         return settlement;
+    }
+
+    @Override
+    public boolean hasSettlement() {
+        return settlement != null;
+    }
+
+    @Override
+    public boolean playerHasSettlement(Player player) {
+        return settlement != null && settlement.owner().equals(player);
     }
 
     @Override
@@ -100,12 +101,6 @@ public class IntersectionImpl implements Intersection {
     }
 
     @Override
-    public boolean playerHasConnectedRoad(final Player player) {
-        return getConnectedEdges().stream()
-                .anyMatch(edge -> edge.hasRoad() && edge.roadOwner().getValue().equals(player));
-    }
-
-    @Override
     public Set<Edge> getConnectedEdges() {
         return Stream.of(
                 Set.of(this.position1, this.position2),
@@ -115,6 +110,12 @@ public class IntersectionImpl implements Intersection {
             .filter(this.hexGrid.getEdges()::containsKey)
             .map(this.hexGrid.getEdges()::get)
             .collect(Collectors.toSet());
+    }
+
+    @Override
+    public boolean playerHasConnectedRoad(final Player player) {
+        return getConnectedEdges().stream()
+            .anyMatch(edge -> edge.hasRoad() && edge.roadOwner().getValue().equals(player));
     }
 
     @Override
@@ -134,18 +135,14 @@ public class IntersectionImpl implements Intersection {
     }
 
     @Override
-    public boolean isConnectedTo(final TilePosition position) {
-        return this.position1.equals(position) || this.position2.equals(position) || this.position0.equals(position);
-    }
-
-    @Override
     public boolean isConnectedTo(final TilePosition... positions) {
-        return Stream.of(positions).allMatch(this::isConnectedTo);
+        return Stream.of(positions)
+            .allMatch(position -> this.position0.equals(position) || this.position1.equals(position) || this.position2.equals(position));
     }
 
     @Override
     public int hashCode() {
-        return getAdjacentPositions().hashCode();
+        return getAdjacentTilePositions().hashCode();
     }
 
     @Override
@@ -155,16 +152,6 @@ public class IntersectionImpl implements Intersection {
         if (o == null || getClass() != o.getClass())
             return false;
         final IntersectionImpl intersection = (IntersectionImpl) o;
-        return getAdjacentPositions().equals(intersection.getAdjacentPositions());
-    }
-
-    @Override
-    public boolean playerHasSettlement(Player player) {
-        return settlement != null && settlement.owner().equals(player);
-    }
-
-    @Override
-    public boolean hasSettlement() {
-        return settlement != null;
+        return getAdjacentTilePositions().equals(intersection.getAdjacentTilePositions());
     }
 }

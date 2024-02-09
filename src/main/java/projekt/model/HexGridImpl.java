@@ -120,26 +120,27 @@ public class HexGridImpl implements HexGrid {
             .ifPresent(tile -> robberPosition = tile.getPosition());
     }
 
-    /**
-     * Adds a new tile to the grid.
-     *
-     * @param position            position of the new tile
-     * @param type                type of the new tile
-     * @param rollNumberGenerator a supplier returning the new tile's roll number
-     */
-    private void addTile(final TilePosition position, final Tile.Type type, final Supplier<Integer> rollNumberGenerator) {
-        final int rollNumber = type.resourceType != null ? rollNumberGenerator.get() : 0;
-        tiles.put(position, new TileImpl(position, type, rollNumber, tileHeight, tileWidth, this));
+
+    // Tiles
+
+    @Override
+    public double getTileWidth() {
+        return tileWidth.get();
+    }
+
+    @Override
+    public double getTileHeight() {
+        return tileHeight.get();
+    }
+
+    @Override
+    public double getTileSize() {
+        return tileSize.get();
     }
 
     @Override
     public ObservableDoubleValue tileWidthProperty() {
         return tileWidth;
-    }
-
-    @Override
-    public double getTileWidth() {
-        return tileWidth.get();
     }
 
     @Override
@@ -150,16 +151,6 @@ public class HexGridImpl implements HexGrid {
     @Override
     public DoubleProperty tileSizeProperty() {
         return tileSize;
-    }
-
-    @Override
-    public double getTileSize() {
-        return tileSize.get();
-    }
-
-    @Override
-    public double getTileHeight() {
-        return tileHeight.get();
     }
 
     @Override
@@ -182,6 +173,21 @@ public class HexGridImpl implements HexGrid {
         return tiles.get(position);
     }
 
+    /**
+     * Adds a new tile to the grid.
+     *
+     * @param position            position of the new tile
+     * @param type                type of the new tile
+     * @param rollNumberGenerator a supplier returning the new tile's roll number
+     */
+    private void addTile(final TilePosition position, final Tile.Type type, final Supplier<Integer> rollNumberGenerator) {
+        final int rollNumber = type.resourceType != null ? rollNumberGenerator.get() : 0;
+        tiles.put(position, new TileImpl(position, type, rollNumber, tileHeight, tileWidth, this));
+    }
+
+
+    // Intersections
+
     @Override
     public Map<Set<TilePosition>, Intersection> getIntersections() {
         return Collections.unmodifiableMap(intersections);
@@ -192,6 +198,9 @@ public class HexGridImpl implements HexGrid {
         return intersections.get(Set.of(position0, position1, position2));
     }
 
+
+    // Edges / Roads
+
     @Override
     public Map<Set<TilePosition>, Edge> getEdges() {
         return Collections.unmodifiableMap(edges);
@@ -200,12 +209,6 @@ public class HexGridImpl implements HexGrid {
     @Override
     public Edge getEdge(final TilePosition position0, final TilePosition position1) {
         return edges.get(Set.of(position0, position1));
-    }
-
-    @Override
-    public boolean removeRoad(final TilePosition position0, final TilePosition position1) {
-        edges.get(Set.of(position0, position1)).roadOwner().setValue(null);
-        return true;
     }
 
     @Override
@@ -224,16 +227,6 @@ public class HexGridImpl implements HexGrid {
     }
 
     @Override
-    public TilePosition getRobberPosition() {
-        return robberPosition;
-    }
-
-    @Override
-    public void setRobberPosition(final TilePosition position) {
-        robberPosition = position;
-    }
-
-    @Override
     @StudentImplementationRequired
     public boolean addRoad(
         final TilePosition position0, final TilePosition position1, final Player player,
@@ -244,16 +237,35 @@ public class HexGridImpl implements HexGrid {
             throw new IllegalArgumentException("Edge does not exist");
         }
         if (edge.hasRoad()
-                || (!checkVillages && edge.getConnectedEdges().stream()
-                        .noneMatch(e -> e.hasRoad() && e.roadOwner().getValue().equals(player)))
-                || (checkVillages && edge.getIntersections().stream()
-                        .noneMatch(intersection -> intersection.getSettlement() != null
-                                && intersection.getSettlement().owner().equals(player)
-                                && intersection.getConnectedEdges().stream().filter(e -> e.hasRoad())
-                                        .noneMatch(e -> e.roadOwner().getValue().equals(player))))) {
+            || (!checkVillages && edge.getConnectedEdges().stream()
+            .noneMatch(e -> e.hasRoad() && e.roadOwner().getValue().equals(player)))
+            || (checkVillages && edge.getIntersections().stream()
+            .noneMatch(intersection -> intersection.getSettlement() != null
+                && intersection.getSettlement().owner().equals(player)
+                && intersection.getConnectedEdges().stream().filter(Edge::hasRoad)
+                .noneMatch(e -> e.roadOwner().getValue().equals(player))))) {
             return false;
         }
         edge.roadOwner().setValue(player);
         return true;
+    }
+
+    @Override
+    public boolean removeRoad(final TilePosition position0, final TilePosition position1) {
+        edges.get(Set.of(position0, position1)).roadOwner().setValue(null);
+        return true;
+    }
+
+
+    // Robber / Bandit
+
+    @Override
+    public TilePosition getRobberPosition() {
+        return robberPosition;
+    }
+
+    @Override
+    public void setRobberPosition(final TilePosition position) {
+        robberPosition = position;
     }
 }

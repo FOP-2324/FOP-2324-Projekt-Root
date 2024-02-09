@@ -21,10 +21,10 @@ import projekt.model.buildings.Settlement;
  */
 public class PlayerImpl implements Player {
     private final HexGrid hexGrid;
-    private final Color color;
-    private final int id;
-    protected boolean ai;
     private final String name;
+    private final int id;
+    private final Color color;
+    protected boolean ai;
     private final Map<ResourceType, Integer> resources = new HashMap<>();
     private final Map<DevelopmentCardType, Integer> developmentCards = new HashMap<>();
     private final Map<DevelopmentCardType, Integer> playedDevelopmentCards = new HashMap<>();
@@ -43,6 +43,42 @@ public class PlayerImpl implements Player {
     }
 
     @Override
+    public String getName() {
+        return this.name;
+    }
+
+    @Override
+    public int getID() {
+        return id;
+    }
+
+    @Override
+    public Color getColor() {
+        return this.color;
+    }
+
+    @Override
+    public boolean isAi() {
+        return this.ai;
+    }
+
+    @Override
+    public int getVictoryPoints() {
+        int buildingVictoryPoints = getSettlements().stream()
+            .mapToInt(settlement -> switch (settlement.type()) {
+                case VILLAGE -> 1;
+                case CITY -> 2;
+            })
+            .sum();
+        int developmentCardsVictoryPoints = (int) getDevelopmentCards().keySet()
+            .stream()
+            .filter(developmentCardType -> developmentCardType == DevelopmentCardType.VICTORY_POINTS)
+            .count();
+
+        return buildingVictoryPoints + developmentCardsVictoryPoints;
+    }
+
+    @Override
     public Map<ResourceType, Integer> getResources() {
         return Collections.unmodifiableMap(this.resources);
     }
@@ -50,15 +86,22 @@ public class PlayerImpl implements Player {
     @Override
     @StudentImplementationRequired
     public void addResource(final ResourceType resourceType, final int amount) {
-        this.resources.put(resourceType, this.resources.getOrDefault(resourceType, 0) + amount);
+        this.resources.merge(resourceType, amount, Integer::sum);
     }
 
     @Override
     @StudentImplementationRequired
     public void addResources(final Map<ResourceType, Integer> resources) {
-        for (final var entry : resources.entrySet()) {
-            addResource(entry.getKey(), entry.getValue());
-        }
+        resources.forEach(this::addResource);
+    }
+
+    @Override
+    @StudentImplementationRequired
+    public boolean hasResources(final Map<ResourceType, Integer> resources) {
+        return resources
+            .entrySet()
+            .stream()
+            .noneMatch(e -> this.resources.getOrDefault(e.getKey(), 0) < e.getValue());
     }
 
     @Override
@@ -67,7 +110,7 @@ public class PlayerImpl implements Player {
         if (!hasResources(Map.of(resourceType, amount))) {
             return false;
         }
-        this.resources.put(resourceType, this.resources.getOrDefault(resourceType, 0) - amount);
+        this.resources.merge(resourceType, -amount, Integer::sum);
         return true;
     }
 
@@ -100,29 +143,20 @@ public class PlayerImpl implements Player {
     }
 
     @Override
-    @StudentImplementationRequired
-    public boolean hasResources(final Map<ResourceType, Integer> resources) {
-        return resources
-                .entrySet()
-                .stream()
-                .noneMatch(e -> this.resources.getOrDefault(e.getKey(), 0) < e.getValue());
+    public int getRemainingRoads() {
+        return MAX_ROADS - getRoads().size();
     }
 
     @Override
-    public int getRemainingRoads() {
-        return MAX_ROADS - getRoads().size();
+    public int getRemainingVillages() {
+        return (int) (MAX_VILLAGES - getSettlements().stream()
+            .filter(settlement -> settlement.type().equals(Settlement.Type.VILLAGE)).count());
     }
 
     @Override
     public int getRemainingCities() {
         return (int) (MAX_CITIES - getSettlements().stream()
                 .filter(settlement -> settlement.type().equals(Settlement.Type.CITY)).count());
-    }
-
-    @Override
-    public int getRemainingVillages() {
-        return (int) (MAX_VILLAGES - getSettlements().stream()
-                .filter(settlement -> settlement.type().equals(Settlement.Type.VILLAGE)).count());
     }
 
     @Override
@@ -133,7 +167,7 @@ public class PlayerImpl implements Player {
     @Override
     @StudentImplementationRequired
     public void addDevelopmentCard(final DevelopmentCardType developmentCardType) {
-        this.developmentCards.put(developmentCardType, this.developmentCards.getOrDefault(developmentCardType, 0) + 1);
+        this.developmentCards.merge(developmentCardType, 1, Integer::sum);
     }
 
     @Override
@@ -142,9 +176,8 @@ public class PlayerImpl implements Player {
         if (this.developmentCards.getOrDefault(developmentCardType, 0) <= 0) {
             return false;
         }
-        this.developmentCards.put(developmentCardType, this.developmentCards.getOrDefault(developmentCardType, 0) - 1);
-        this.playedDevelopmentCards.put(developmentCardType,
-                this.playedDevelopmentCards.getOrDefault(developmentCardType, 0) + 1);
+        this.developmentCards.merge(developmentCardType, -1, Integer::sum);
+        this.playedDevelopmentCards.merge(developmentCardType, 1, Integer::sum);
         return true;
     }
 
@@ -156,42 +189,6 @@ public class PlayerImpl implements Player {
     @Override
     public int getKnightsPlayed() {
         return this.playedDevelopmentCards.getOrDefault(DevelopmentCardType.KNIGHT, 0);
-    }
-
-    @Override
-    public Color getColor() {
-        return this.color;
-    }
-
-    @Override
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
-    public int getID() {
-        return id;
-    }
-
-    @Override
-    public int getVictoryPoints() {
-        int buildingVictoryPoints = getSettlements().stream()
-            .mapToInt(settlement -> switch (settlement.type()) {
-                case VILLAGE -> 1;
-                case CITY -> 2;
-            })
-            .sum();
-        int developmentCardsVictoryPoints = (int) getDevelopmentCards().keySet()
-            .stream()
-            .filter(developmentCardType -> developmentCardType == DevelopmentCardType.VICTORY_POINTS)
-            .count();
-
-        return buildingVictoryPoints + developmentCardsVictoryPoints;
-    }
-
-    @Override
-    public boolean isAi() {
-        return this.ai;
     }
 
     public static class Builder {

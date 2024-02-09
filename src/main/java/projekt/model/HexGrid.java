@@ -24,6 +24,8 @@ import projekt.model.tiles.Tile;
  */
 public interface HexGrid {
 
+    // Tiles
+
     /**
      * Returns the width of a tile.
      *
@@ -98,6 +100,9 @@ public interface HexGrid {
      */
     Tile getTileAt(TilePosition position);
 
+
+    // Intersections
+
     /**
      * Returns all intersections of the grid as a set.
      *
@@ -114,6 +119,41 @@ public interface HexGrid {
      * @return the intersection at the given position
      */
     Intersection getIntersectionAt(TilePosition position0, TilePosition position1, TilePosition position2);
+
+
+    // Edges / Roads
+
+    /**
+     * Returns all edges of the grid.
+     *
+     * @return all edges of the grid
+     */
+    Map<Set<TilePosition>, Edge> getEdges();
+
+    /**
+     * Returns the edge between the given positions.
+     *
+     * @param position0 the first position
+     * @param position1 the second position
+     * @return the edge between the given intersections
+     */
+    Edge getEdge(TilePosition position0, TilePosition position1);
+
+    /**
+     * Returns all roads of the given player.
+     *
+     * @param player the player to get the roads of
+     * @return all roads of the given player
+     */
+    Map<Set<TilePosition>, Edge> getRoads(Player player);
+
+    /**
+     * Returns the longest continuous road of the given player.
+     *
+     * @param player the player to get the longest road of
+     * @return list of all road segments that make up the longest road
+     */
+    List<Edge> getLongestRoad(Player player);
 
     /**
      * Adds the given road to the grid. Also, either checks if the player has a
@@ -140,33 +180,9 @@ public interface HexGrid {
      * @return whether the road was added
      */
     default boolean addRoad(final Tile tile, final EdgeDirection edgeDirection, final Player player,
-            final boolean checkVillages) {
+                            final boolean checkVillages) {
         return tile.addRoad(edgeDirection, player, checkVillages);
     }
-
-    /**
-     * Returns all edges of the grid.
-     *
-     * @return all edges of the grid
-     */
-    Map<Set<TilePosition>, Edge> getEdges();
-
-    /**
-     * Returns all roads of the given player.
-     *
-     * @param player the player to get the roads of
-     * @return all roads of the given player
-     */
-    Map<Set<TilePosition>, Edge> getRoads(Player player);
-
-    /**
-     * Returns the edge between the given positions.
-     *
-     * @param position0 the first position
-     * @param position1 the second position
-     * @return the edge between the given intersections
-     */
-    Edge getEdge(TilePosition position0, TilePosition position1);
 
     /**
      * Removes the road between the given positions.
@@ -187,13 +203,8 @@ public interface HexGrid {
         return removeRoad(road.position1(), road.position2());
     }
 
-    /**
-     * Returns the longest continuous road of the given player.
-     *
-     * @param player the player to get the longest road of
-     * @return list of all road segments that make up the longest road
-     */
-    List<Edge> getLongestRoad(Player player);
+
+    // Robber / Bandit
 
     /**
      * Returns the current position of the robber.

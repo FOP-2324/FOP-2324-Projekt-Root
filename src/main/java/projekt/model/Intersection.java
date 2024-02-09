@@ -1,5 +1,6 @@
 package projekt.model;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -46,6 +47,21 @@ public interface Intersection {
     Settlement getSettlement();
 
     /**
+     * Returns true if there is a settlement on this intersection
+     *
+     * @return true if there is a settlement on this intersection
+     */
+    boolean hasSettlement();
+
+    /**
+     * Returns true if the player has a settlement on this intersection
+     *
+     * @param player the player to check
+     * @return true if the player has a settlement on this intersection
+     */
+    boolean playerHasSettlement(Player player);
+
+    /**
      * Places a village on this intersection for the given player. Verifies that the
      * player has a connected road to this intersection if not explicitly ignored.
      * Does not check or remove resources.
@@ -63,21 +79,6 @@ public interface Intersection {
      * @return whether the upgrade was successful
      */
     boolean upgradeSettlement(Player player);
-
-    /**
-     * Returns true if the player has a settlement on this intersection
-     *
-     * @param player the player to check
-     * @return true if the player has a settlement on this intersection
-     */
-    boolean playerHasSettlement(Player player);
-
-    /**
-     * Returns true if there is a settlement on this intersection
-     *
-     * @return true if there is a settlement on this intersection
-     */
-    boolean hasSettlement();
 
     /**
      * Returns the port on this intersection or null
@@ -121,18 +122,13 @@ public interface Intersection {
      * @return a set of all adjacent Tiles
      */
     default Set<Tile> getAdjacentTiles() {
-        return getHexGrid().getTiles().entrySet().stream()
+        return getHexGrid().getTiles()
+            .entrySet()
+            .stream()
             .filter(entrySet -> getAdjacentTilePositions().contains(entrySet.getKey()))
-            .map(entrySet -> entrySet.getValue()).collect(Collectors.toSet());
+            .map(Map.Entry::getValue)
+            .collect(Collectors.toSet());
     }
-
-    /**
-     * Checks whether this intersection is connected to the given position
-     *
-     * @param position the position to check
-     * @return whether the position is connected
-     */
-    boolean isConnectedTo(TilePosition position);
 
     /**
      * Checks whether this intersection is connected to all given positions

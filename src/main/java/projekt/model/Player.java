@@ -30,6 +30,36 @@ public interface Player {
     HexGrid getHexGrid();
 
     /**
+     * Returns the name of the player.
+     *
+     * @return the name of the player
+     */
+    String getName();
+
+    /**
+     * Returns the Player ID, aka the Index of the Player, starting with 1
+     *
+     * @return the Player ID
+     */
+    int getID();
+
+    /**
+     * Returns the color of the player.
+     *
+     * @return the color of the player
+     */
+    Color getColor();
+
+    /**
+     * Returns true if the player is an AI, false otherwise.
+     *
+     * @return true if the player is an AI, false otherwise
+     */
+    default boolean isAi() {
+        return false;
+    }
+
+    /**
      * Returns the amount of victory points from settlements and development cards the player has.
      *
      * @return the amount of victory points from settlements and development cards the player has.
@@ -42,13 +72,6 @@ public interface Player {
      * @return a map of all resources the player currently has and how many of each.
      */
     Map<ResourceType, Integer> getResources();
-
-    /**
-     * Returns true if the player has the given resources, false otherwise.
-     *
-     * @return true if the player has the given resources, false otherwise
-     */
-    boolean hasResources(Map<ResourceType, Integer> resources);
 
     /**
      * Adds the given amount of the given resource to the player.
@@ -64,6 +87,13 @@ public interface Player {
      * @param resources a mapping of resources to their amounts
      */
     void addResources(Map<ResourceType, Integer> resources);
+
+    /**
+     * Returns true if the player has the given resources, false otherwise.
+     *
+     * @return true if the player has the given resources, false otherwise
+     */
+    boolean hasResources(Map<ResourceType, Integer> resources);
 
     /**
      * Removes the given amount of the given resource from the player.
@@ -90,34 +120,11 @@ public interface Player {
     int getTradeRatio(ResourceType resourceType);
 
     /**
-     * Returns all roads the player currently has.
-     *
-     * @return all roads the player currently has
-     */
-    default Map<Set<TilePosition>, Edge> getRoads() {
-        return getHexGrid().getRoads(this);
-    }
-
-    /**
      * Returns the amount of roads the player can still build.
      *
      * @return the amount of roads the player can still build
      */
     int getRemainingRoads();
-
-    /**
-     * Returns all settlements the player currently has.
-     *
-     * @return all settlements the player currently has
-     */
-    default Set<Settlement> getSettlements() {
-        return getHexGrid().getIntersections()
-            .values()
-            .stream()
-            .map(Intersection::getSettlement)
-            .filter(settlement -> settlement != null && settlement.owner().equals(this))
-            .collect(Collectors.toSet());
-    }
 
     /**
      * Returns the amount of villages the player can still build.
@@ -132,6 +139,29 @@ public interface Player {
      * @return the amount of cities the player can still build
      */
     int getRemainingCities();
+
+    /**
+     * Returns all roads the player currently has.
+     *
+     * @return all roads the player currently has
+     */
+    default Map<Set<TilePosition>, Edge> getRoads() {
+        return getHexGrid().getRoads(this);
+    }
+
+    /**
+     * Returns all settlements the player currently has.
+     *
+     * @return all settlements the player currently has
+     */
+    default Set<Settlement> getSettlements() {
+        return getHexGrid().getIntersections()
+            .values()
+            .stream()
+            .map(Intersection::getSettlement)
+            .filter(settlement -> settlement != null && settlement.owner().equals(this))
+            .collect(Collectors.toSet());
+    }
 
     /**
      * Returns a map of all development cards the player currently has and how many.
@@ -167,34 +197,4 @@ public interface Player {
      * @return the amount of knights the player has played
      */
     int getKnightsPlayed();
-
-    /**
-     * Returns the color of the player.
-     *
-     * @return the color of the player
-     */
-    Color getColor();
-
-    /**
-     * Returns the name of the player.
-     *
-     * @return the name of the player
-     */
-    String getName();
-
-    /**
-     * Returns the Player ID, aka the Index of the Player, starting with 1
-     *
-     * @return the Player ID
-     */
-    int getID();
-
-    /**
-     * Returns true if the player is an AI, false otherwise.
-     *
-     * @return true if the player is an AI, false otherwise
-     */
-    default boolean isAi() {
-        return false;
-    }
 }
