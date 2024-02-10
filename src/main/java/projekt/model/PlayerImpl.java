@@ -84,19 +84,19 @@ public class PlayerImpl implements Player {
     }
 
     @Override
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H1.1")
     public void addResource(final ResourceType resourceType, final int amount) {
         this.resources.merge(resourceType, amount, Integer::sum);
     }
 
     @Override
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H1.1")
     public void addResources(final Map<ResourceType, Integer> resources) {
         resources.forEach(this::addResource);
     }
 
     @Override
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H1.1")
     public boolean hasResources(final Map<ResourceType, Integer> resources) {
         return resources
             .entrySet()
@@ -105,7 +105,7 @@ public class PlayerImpl implements Player {
     }
 
     @Override
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H1.1")
     public boolean removeResource(final ResourceType resourceType, final int amount) {
         if (!hasResources(Map.of(resourceType, amount))) {
             return false;
@@ -115,7 +115,7 @@ public class PlayerImpl implements Player {
     }
 
     @Override
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H1.1")
     public boolean removeResources(final Map<ResourceType, Integer> resources) {
         if (!hasResources(resources)) {
             return false;
@@ -127,7 +127,7 @@ public class PlayerImpl implements Player {
     }
 
     @Override
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H1.1")
     public int getTradeRatio(final ResourceType resourceType) {
         return getHexGrid().getIntersections()
             .values()
@@ -160,18 +160,19 @@ public class PlayerImpl implements Player {
     }
 
     @Override
+    @StudentImplementationRequired("H1.2")
     public Map<DevelopmentCardType, Integer> getDevelopmentCards() {
         return Collections.unmodifiableMap(this.developmentCards);
     }
 
     @Override
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H1.2")
     public void addDevelopmentCard(final DevelopmentCardType developmentCardType) {
         this.developmentCards.merge(developmentCardType, 1, Integer::sum);
     }
 
     @Override
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H1.2")
     public boolean removeDevelopmentCard(final DevelopmentCardType developmentCardType) {
         if (this.developmentCards.getOrDefault(developmentCardType, 0) <= 0) {
             return false;
@@ -182,11 +183,13 @@ public class PlayerImpl implements Player {
     }
 
     @Override
+    @StudentImplementationRequired("H1.2")
     public int getTotalDevelopmentCards() {
         return this.developmentCards.values().stream().mapToInt(Integer::intValue).sum();
     }
 
     @Override
+    @StudentImplementationRequired("H1.2")
     public int getKnightsPlayed() {
         return this.playedDevelopmentCards.getOrDefault(DevelopmentCardType.KNIGHT, 0);
     }

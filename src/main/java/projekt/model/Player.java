@@ -67,9 +67,9 @@ public interface Player {
     int getVictoryPoints();
 
     /**
-     * Returns a map of all resources the player currently has and how many of each.
+     * Returns an immutable map of all resources the player currently has and how many of each.
      *
-     * @return a map of all resources the player currently has and how many of each.
+     * @return an immutable map of all resources the player currently has and how many of each.
      */
     Map<ResourceType, Integer> getResources();
 
@@ -164,9 +164,9 @@ public interface Player {
     }
 
     /**
-     * Returns a map of all development cards the player currently has and how many.
+     * Returns an unmodifiable map of all development cards the player currently has and how many.
      *
-     * @return a map of all development cards the player currently has and how many.
+     * @return an unmodifiable map of all development cards the player currently has and how many.
      */
     Map<DevelopmentCardType, Integer> getDevelopmentCards();
 
@@ -181,6 +181,7 @@ public interface Player {
      * Removes the given development card from the player.
      *
      * @param developmentCardType the development card to remove
+     * @return true if the card was removed, false otherwise
      */
     boolean removeDevelopmentCard(DevelopmentCardType developmentCardType);
 
@@ -192,9 +193,9 @@ public interface Player {
     int getTotalDevelopmentCards();
 
     /**
-     * Returns the amount of knights the player has played.
+     * Returns the amount of {@linkplain DevelopmentCardType#KNIGHT knights} the player has played.
      *
-     * @return the amount of knights the player has played
+     * @return the amount of {@linkplain DevelopmentCardType#KNIGHT knights} the player has played
      */
     int getKnightsPlayed();
 }
