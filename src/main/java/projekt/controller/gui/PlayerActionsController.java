@@ -478,7 +478,7 @@ public class PlayerActionsController implements Controller {
      *
      * Triggers the SelectCardsAction with the selected cards.
      *
-     * @param amountToDrop the amount of cards to select
+     * @param amountToSelect the amount of cards to select
      */
     @StudentImplementationRequired
     private void selectResources(final int amountToSelect) {

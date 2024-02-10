@@ -50,6 +50,10 @@ tasks {
         sourceCompatibility = "17"
         targetCompatibility = "17"
     }
+    javadoc {
+        options.jFlags?.add("-Duser.language=en")
+        options.optionFiles = mutableListOf(project.file("src/main/javadoc.options"))
+    }
 }
 
 javafx {
