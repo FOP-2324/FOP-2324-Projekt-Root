@@ -12,6 +12,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Region;
 import projekt.model.Player;
 import projekt.model.ResourceType;
 import projekt.view.CardPane;
@@ -42,11 +43,13 @@ public class SelectResourcesDialog extends Dialog<Map<ResourceType, Integer>> {
      */
     public SelectResourcesDialog(final int amountToSelect, final Player player,
             final Map<ResourceType, Integer> resourcesToSelectFrom, final boolean dropCards) {
-        init(amountToSelect, player, resourcesToSelectFrom, dropCards);
+        final DialogPane dialogPane = getDialogPane();
+        dialogPane.getButtonTypes().add(ButtonType.OK);
+        dialogPane.setContent(init(amountToSelect, player, resourcesToSelectFrom, dropCards));
     }
 
     @StudentImplementationRequired("H3.3")
-    private void init(final int amountToSelect, final Player player,
+    private Region init(final int amountToSelect, final Player player,
             Map<ResourceType, Integer> resourcesToSelectFrom, final boolean dropCards) {
         System.out.println("SelectResourceDialog");
         if (resourcesToSelectFrom == null || resourcesToSelectFrom.isEmpty()) {
@@ -61,9 +64,7 @@ public class SelectResourcesDialog extends Dialog<Map<ResourceType, Integer>> {
         final GridPane mainPane = new GridPane(10, 10);
         mainPane.getStylesheets().add("css/hexmap.css");
 
-        final DialogPane dialogPane = this.getDialogPane();
-        dialogPane.setContent(mainPane);
-        dialogPane.getButtonTypes().add(ButtonType.OK);
+        final DialogPane dialogPane = getDialogPane();
 
         for (final ResourceType resourceType : resourcesToSelectFrom.keySet()) {
             final CardPane resourceCard = new ResourceCardPane(resourceType,
@@ -109,6 +110,8 @@ public class SelectResourcesDialog extends Dialog<Map<ResourceType, Integer>> {
             }
             return null;
         });
+
+        return mainPane;
     }
 
     /**
