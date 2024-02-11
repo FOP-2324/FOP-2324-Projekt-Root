@@ -14,6 +14,7 @@ import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
+import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 import projekt.Config;
 import projekt.controller.actions.IllegalActionException;
 import projekt.controller.actions.PlayerAction;
@@ -333,6 +334,7 @@ public class PlayerController {
      *
      * @return whether the {@link Player} can build a village.
      */
+    @StudentImplementationRequired("H2.5")
     public boolean canBuildVillage() {
         final var requiredResources = Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.VILLAGE);
         return (playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_VILLAGE)
@@ -349,6 +351,7 @@ public class PlayerController {
      * @param intersection the intersection to build the village at
      * @throws IllegalActionException if the village cannot be built
      */
+    @StudentImplementationRequired("H2.5")
     public void buildVillage(final Intersection intersection) throws IllegalActionException {
         final var requiredResources = Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.VILLAGE);
         if (!canBuildVillage()) {
@@ -399,6 +402,7 @@ public class PlayerController {
      * @param intersection the intersection to upgrade the village at
      * @throws IllegalActionException if the village cannot be upgraded
      */
+    @StudentImplementationRequired("H2.6")
     public void upgradeVillage(final Intersection intersection) throws IllegalActionException {
         final var requiredResources = Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.CITY);
         if (!canUpgradeVillage()) {
@@ -444,6 +448,7 @@ public class PlayerController {
      *
      * @return whether the {@link Player} can build a road.
      */
+    @StudentImplementationRequired("H2.5")
     public boolean canBuildRoad() {
         final var requiredResources = Config.ROAD_BUILDING_COST;
         return (playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_ROAD)
@@ -475,6 +480,7 @@ public class PlayerController {
      * @param position1 the second position to build the road between
      * @throws IllegalActionException if the road cannot be built
      */
+    @StudentImplementationRequired("H2.5")
     public void buildRoad(final TilePosition position0, final TilePosition position1) throws IllegalActionException {
         if (!canBuildRoad()) {
             throw new IllegalActionException("Cannot build road");
@@ -580,6 +586,7 @@ public class PlayerController {
      * @param request     the type of resource to request
      * @throws IllegalActionException if the trade cannot be made
      */
+    @StudentImplementationRequired("H2.3")
     public void tradeWithBank(final ResourceType offerType, final int offerAmount, final ResourceType request)
             throws IllegalActionException {
         // check for port
@@ -666,6 +673,7 @@ public class PlayerController {
      *
      * @param accepted whether the trade offer is accepted
      */
+    @StudentImplementationRequired("H2.3")
     public void acceptTradeOffer(final boolean accepted) throws IllegalActionException {
         if (tradingPlayer == null || playerTradingOffer == null || playerTradingRequest == null) {
             throw new IllegalActionException("No trade offer to accept");

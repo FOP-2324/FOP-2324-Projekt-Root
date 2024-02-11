@@ -17,6 +17,9 @@ import javafx.util.Builder;
  * center area that can be filled with content.
  */
 public abstract class MenuBuilder implements Builder<Region> {
+    /**
+     * The root Region of the menu.
+     */
     protected final BorderPane root = new BorderPane();
     private final String returnText;
     private final Runnable returnHandler;

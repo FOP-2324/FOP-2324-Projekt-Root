@@ -19,6 +19,9 @@ public interface SceneController extends Controller {
 
     // --Setup Methods-- //
 
+    /**
+     * Terminates the application.
+     */
     public static void quit() {
         Platform.exit();
     }

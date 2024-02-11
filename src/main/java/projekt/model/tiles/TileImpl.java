@@ -1,5 +1,6 @@
 package projekt.model.tiles;
 
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import projekt.model.HexGrid;
 import projekt.model.Intersection;
 import projekt.model.Player;
@@ -45,6 +46,7 @@ public record TileImpl(
      * @param widthProperty  the width of this tile
      * @param hexGrid        the grid this tile is placed in
      */
+    @DoNotTouch
     public TileImpl(
         final int q,
         final int r,
