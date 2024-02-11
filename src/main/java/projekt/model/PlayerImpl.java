@@ -24,7 +24,7 @@ public class PlayerImpl implements Player {
     private final String name;
     private final int id;
     private final Color color;
-    protected boolean ai;
+    private final boolean ai;
     private final Map<ResourceType, Integer> resources = new HashMap<>();
     private final Map<DevelopmentCardType, Integer> developmentCards = new HashMap<>();
     private final Map<DevelopmentCardType, Integer> playedDevelopmentCards = new HashMap<>();
