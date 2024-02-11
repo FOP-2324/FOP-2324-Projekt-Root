@@ -12,6 +12,9 @@ import projekt.controller.GameController;
 import projekt.controller.gui.SceneSwitcher;
 import projekt.controller.gui.SceneSwitcher.SceneType;
 
+/**
+ * The main application of the game.
+ */
 @DoNotTouch
 public class MyApplication extends Application {
     private final Consumer<GameController> gameLoopStart = gc -> {

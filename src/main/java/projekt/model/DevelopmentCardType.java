@@ -20,6 +20,10 @@ public enum DevelopmentCardType {
     INVENTION(2),
     MONOPOLY(4);
 
+    /**
+     * The index of the icon for the development card on the development card sprite
+     * sheet.
+     */
     public final int iconIndex;
 
     DevelopmentCardType(final int iconIndex) {
