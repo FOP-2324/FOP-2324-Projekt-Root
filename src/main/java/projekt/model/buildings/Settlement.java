@@ -19,7 +19,7 @@ public record Settlement(Player owner, Type type, Intersection intersection) {
      * The icons are determined by the order of the enum values.
      * first value: village
      * second value: city
-     * potential third value: metropolis -- TODO: provide graphics for metropolis
+     * potential third value: metropolis
      */
     public enum Type {
         VILLAGE(1),
