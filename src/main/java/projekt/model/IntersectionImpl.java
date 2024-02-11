@@ -1,5 +1,6 @@
 package projekt.model;
 
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 import projekt.model.buildings.Port;
 import projekt.model.buildings.Edge;
@@ -22,6 +23,13 @@ public class IntersectionImpl implements Intersection {
     private final HexGrid hexGrid;
     private Settlement settlement;
 
+    /**
+     * Creates a new intersection with the given positions.
+     *
+     * @param hexGrid   the hex grid
+     * @param positions the positions
+     */
+    @DoNotTouch
     public IntersectionImpl(final HexGrid hexGrid, final List<TilePosition> positions) {
         this(positions.get(0), positions.get(1), positions.get(2), hexGrid);
     }
@@ -34,6 +42,7 @@ public class IntersectionImpl implements Intersection {
      * @param position1 the second position
      * @param position2 the third position
      */
+    @DoNotTouch
     public IntersectionImpl(final TilePosition position0, final TilePosition position1, final TilePosition position2, final HexGrid hexGrid) {
         if (position0 == null || position1 == null || position2 == null)
             throw new IllegalArgumentException("Positions must not be null");
@@ -74,19 +83,21 @@ public class IntersectionImpl implements Intersection {
     }
 
     @Override
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H1.4")
     public boolean placeVillage(final Player player, final boolean ignoreRoadCheck) {
-        if (settlement != null || (!ignoreRoadCheck && !playerHasConnectedRoad(player)))
+        if (settlement != null || (!ignoreRoadCheck && !playerHasConnectedRoad(player))) {
             return false;
+        }
         settlement = new Settlement(player, Settlement.Type.VILLAGE, this);
         return true;
     }
 
     @Override
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H1.4")
     public boolean upgradeSettlement(final Player player) {
-        if (settlement == null || settlement.type() != Settlement.Type.VILLAGE || !settlement.owner().equals(player))
+        if (settlement == null || settlement.type() != Settlement.Type.VILLAGE || !settlement.owner().equals(player)) {
             return false;
+        }
         settlement = new Settlement(player, Settlement.Type.CITY, this);
         return true;
     }
@@ -109,7 +120,7 @@ public class IntersectionImpl implements Intersection {
             )
             .filter(this.hexGrid.getEdges()::containsKey)
             .map(this.hexGrid.getEdges()::get)
-            .collect(Collectors.toSet());
+            .collect(Collectors.toUnmodifiableSet());
     }
 
     @Override
@@ -122,11 +133,11 @@ public class IntersectionImpl implements Intersection {
     public Set<Intersection> getAdjacentIntersections() {
         return hexGrid.getIntersections().entrySet().stream().filter(
                 entry -> entry.getKey().containsAll(Set.of(position0, position1)) ||
-                        entry.getKey().containsAll(Set.of(position1, position2)) ||
-                        entry.getKey().containsAll(Set.of(position2, position0)))
-                .map(Map.Entry::getValue)
-                .filter(Predicate.not(this::equals))
-                .collect(Collectors.toSet());
+                    entry.getKey().containsAll(Set.of(position1, position2)) ||
+                    entry.getKey().containsAll(Set.of(position2, position0)))
+            .map(Map.Entry::getValue)
+            .filter(Predicate.not(this::equals))
+            .collect(Collectors.toUnmodifiableSet());
     }
 
     @Override

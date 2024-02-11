@@ -1,5 +1,6 @@
 package projekt.model.buildings;
 
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import projekt.model.Intersection;
 import projekt.model.Player;
 
@@ -10,6 +11,7 @@ import projekt.model.Player;
  * @param type         the type of this settlement
  * @param intersection the intersection this settlement is placed on
  */
+@DoNotTouch
 public record Settlement(Player owner, Type type, Intersection intersection) {
 
     /**
@@ -23,6 +25,11 @@ public record Settlement(Player owner, Type type, Intersection intersection) {
         VILLAGE(1),
         CITY(2);
 
+        /**
+         * The amount of resources that are produced by a settlement of this type.
+         * Also used to determine how many victory points a settlement of this type is
+         * worth.
+         */
         public final int resourceAmount;
 
         Type(final int resourceAmount) {

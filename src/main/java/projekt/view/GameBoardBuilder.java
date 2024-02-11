@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -28,6 +30,7 @@ import projekt.view.gameControls.PlayersOverviewBuilder;
  * It creates a BorderPane with the hex grid in the center, the player
  * information and overview on the right and the player controls on the bottom.
  */
+@DoNotTouch
 public class GameBoardBuilder implements Builder<Region> {
     private final Region hexGrid;
     private final Supplier<Region> actions;

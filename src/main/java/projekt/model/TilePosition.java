@@ -1,6 +1,7 @@
 package projekt.model;
 
 import org.jetbrains.annotations.NotNull;
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -12,6 +13,7 @@ import java.util.stream.Stream;
 /**
  * A position in the grid using the axial coordinate system.
  */
+@DoNotTouch
 public record TilePosition(int q, int r) implements Comparable<TilePosition> {
 
     /**

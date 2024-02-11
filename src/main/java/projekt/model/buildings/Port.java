@@ -1,5 +1,6 @@
 package projekt.model.buildings;
 
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import projekt.model.ResourceType;
 
 /**
@@ -12,6 +13,7 @@ import projekt.model.ResourceType;
  * @param resourceType limit the resources that can be traded at this port to this resource type.
  *                     {@code null} means unrestricted
  */
+@DoNotTouch
 public record Port(int ratio, ResourceType resourceType) {
 
     /**

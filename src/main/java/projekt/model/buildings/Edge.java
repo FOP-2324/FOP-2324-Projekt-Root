@@ -58,11 +58,11 @@ public record Edge(
     }
 
     /**
-     * Returns the intersections on either end of this edge.
+     * Returns the intersections on either end of this edge, as retrieved from the {@link #grid}.
      *
-     * @return the intersections
+     * @return the intersections connected to this edge.
      */
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H1.3")
     public Set<Intersection> getIntersections() {
         final var edgeDir = TilePosition.EdgeDirection
             .fromRelativePosition(TilePosition.subtract(this.position2, this.position1));
@@ -86,7 +86,7 @@ public record Edge(
     public Set<Edge> getConnectedEdges() {
         return this.getIntersections().stream()
             .flatMap(i -> i.getConnectedEdges().stream())
-            .collect(java.util.stream.Collectors.toSet());
+            .collect(Collectors.toUnmodifiableSet());
     }
 
     /**
@@ -104,8 +104,8 @@ public record Edge(
      * @param player the player to check for.
      * @return the connected roads.
      */
-    @StudentImplementationRequired
-    public Set<Edge> getConnectedRoads(Player player) {
+    @StudentImplementationRequired("H1.3")
+    public Set<Edge> getConnectedRoads(final Player player) {
         return getConnectedEdges().stream()
             .filter(Edge::hasRoad)
             .filter(edge -> edge.roadOwner.getValue().equals(player))
