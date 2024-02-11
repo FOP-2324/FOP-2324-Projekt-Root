@@ -66,7 +66,7 @@ public interface Player {
      * the player has.
      *
      * @return the amount of victory points from settlements and development cards
-     *         the player has.
+     * the player has.
      */
     int getVictoryPoints();
 
@@ -75,7 +75,7 @@ public interface Player {
      * many of each.
      *
      * @return an immutable map of all resources the player currently has and how
-     *         many of each.
+     * many of each.
      */
     Map<ResourceType, Integer> getResources();
 
@@ -102,7 +102,7 @@ public interface Player {
      *
      * @param resources a mapping of resources to their amounts to check
      * @return true if the player has at least the given amount of the resource,
-     *         false otherwise
+     * false otherwise
      */
     boolean hasResources(Map<ResourceType, Integer> resources);
 
@@ -188,7 +188,7 @@ public interface Player {
      * and how many.
      *
      * @return an unmodifiable map of all development cards the player currently has
-     *         and how many.
+     * and how many.
      */
     Map<DevelopmentCardType, Integer> getDevelopmentCards();
 
@@ -219,7 +219,7 @@ public interface Player {
      * player has played.
      *
      * @return the amount of {@linkplain DevelopmentCardType#KNIGHT knights} the
-     *         player has played
+     * player has played
      */
     int getKnightsPlayed();
 }

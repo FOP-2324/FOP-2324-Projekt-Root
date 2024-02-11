@@ -57,15 +57,16 @@ public class PlayerActionsBuilder implements Builder<Region> {
      * @param abortButtonAction               The handler for the abort action.
      */
     public PlayerActionsBuilder(
-            final Consumer<ActionEvent> buildVillageButtonAction,
-            final Consumer<ActionEvent> upgradeVillageButtonAction,
-            final Consumer<ActionEvent> buildRoadButtonAction,
-            final Consumer<ActionEvent> buyDevelopmentCardButtonAction,
-            final Consumer<ActionEvent> playDevelopmentCardButtonAction,
-            final Consumer<ActionEvent> endTurnButtonAction,
-            final Consumer<ActionEvent> rollDiceButtonAction,
-            final Consumer<ActionEvent> tradeButtonAction,
-            final Consumer<ActionEvent> abortButtonAction) {
+        final Consumer<ActionEvent> buildVillageButtonAction,
+        final Consumer<ActionEvent> upgradeVillageButtonAction,
+        final Consumer<ActionEvent> buildRoadButtonAction,
+        final Consumer<ActionEvent> buyDevelopmentCardButtonAction,
+        final Consumer<ActionEvent> playDevelopmentCardButtonAction,
+        final Consumer<ActionEvent> endTurnButtonAction,
+        final Consumer<ActionEvent> rollDiceButtonAction,
+        final Consumer<ActionEvent> tradeButtonAction,
+        final Consumer<ActionEvent> abortButtonAction
+    ) {
         this.buildVillageButtonAction = buildVillageButtonAction;
         this.upgradeVillageButtonAction = upgradeVillageButtonAction;
         this.buildRoadButtonAction = buildRoadButtonAction;
@@ -120,7 +121,8 @@ public class PlayerActionsBuilder implements Builder<Region> {
         this.abortNode = abortButton;
 
         mainBox.getChildren().addAll(tradeButton, buildRoadButton, buildVillageButton, upgradeVillageButton,
-                buyDevelopmentCardButton, playDevelopmentCardButton, rollDiceButton, endTurnButton, abortButton);
+                                     buyDevelopmentCardButton, playDevelopmentCardButton, rollDiceButton, endTurnButton, abortButton
+        );
         mainBox.setSpacing(5);
         mainBox.setPadding(new Insets(10));
         return mainBox;
@@ -131,7 +133,7 @@ public class PlayerActionsBuilder implements Builder<Region> {
      */
     public void disableAllButtons() {
         mainBox.getChildren().stream().filter(Button.class::isInstance).map(node -> (Button) node)
-                .forEach(button -> button.setDisable(true));
+            .forEach(button -> button.setDisable(true));
     }
 
     /**
@@ -139,7 +141,7 @@ public class PlayerActionsBuilder implements Builder<Region> {
      */
     public void enableAllButtons() {
         mainBox.getChildren().stream().filter(Button.class::isInstance).map(node -> (Button) node)
-                .forEach(button -> button.setDisable(false));
+            .forEach(button -> button.setDisable(false));
     }
 
     /**

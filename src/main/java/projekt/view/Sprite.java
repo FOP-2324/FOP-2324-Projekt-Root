@@ -60,7 +60,7 @@ public class Sprite extends ColoredImageView {
         setPreserveRatio(true);
         setViewport(cellSize);
         imageIndex.addListener(
-                observable -> setViewport(cellSize));
+            observable -> setViewport(cellSize));
     }
 
     /**

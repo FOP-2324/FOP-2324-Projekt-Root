@@ -227,9 +227,9 @@ public class HexGridImpl implements HexGrid {
     @StudentImplementationRequired("H1.3")
     public Map<Set<TilePosition>, Edge> getRoads(final Player player) {
         return Collections.unmodifiableMap(edges.entrySet().stream()
-                .filter(entry -> entry.getValue().hasRoad())
-                .filter(entry -> entry.getValue().getRoadOwner().equals(player))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+                                               .filter(entry -> entry.getValue().hasRoad())
+                                               .filter(entry -> entry.getValue().getRoadOwner().equals(player))
+                                               .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
     }
 
     @Override
@@ -249,13 +249,17 @@ public class HexGridImpl implements HexGrid {
             throw new IllegalArgumentException("Edge does not exist");
         }
         if (edge.hasRoad()
-            || (!checkVillages && edge.getConnectedEdges().stream()
-            .noneMatch(e -> e.hasRoad() && e.getRoadOwner().equals(player)))
-            || (checkVillages && edge.getIntersections().stream()
-            .noneMatch(intersection -> intersection.getSettlement() != null
-                && intersection.getSettlement().owner().equals(player)
-                && intersection.getConnectedEdges().stream().filter(Edge::hasRoad)
-                .noneMatch(e -> e.getRoadOwner().equals(player))))) {
+            || (
+            !checkVillages && edge.getConnectedEdges().stream()
+                .noneMatch(e -> e.hasRoad() && e.getRoadOwner().equals(player))
+        )
+            || (
+            checkVillages && edge.getIntersections().stream()
+                .noneMatch(intersection -> intersection.getSettlement() != null
+                    && intersection.getSettlement().owner().equals(player)
+                    && intersection.getConnectedEdges().stream().filter(Edge::hasRoad)
+                    .noneMatch(e -> e.getRoadOwner().equals(player)))
+        )) {
             return false;
         }
         edge.getRoadOwnerProperty().setValue(player);

@@ -31,7 +31,7 @@ public class AcceptTradeDialog extends Dialog<Boolean> {
     public AcceptTradeDialog(final TradePayload trade, final Player player) {
         setTitle("Accept trade offer");
         setHeaderText(
-                String.format("%s wants to trade with you (%s).", trade.player().getName(), player.getName()));
+            String.format("%s wants to trade with you (%s).", trade.player().getName(), player.getName()));
         final GridPane mainPane = new GridPane(10, 10);
         mainPane.add(new Label("Offer:"), 0, 0);
         mainPane.add(new Label("Request:"), 0, 1);

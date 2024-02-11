@@ -31,7 +31,7 @@ import java.util.Objects;
  * user select a number of each resource.
  * If the player is trading with the bank, the dialog also shows the trade ratio
  * for each resource.
- *
+ * <p>
  * The result of the dialog is a {@link TradePayload}.
  */
 public class TradeDialog extends Dialog<TradePayload> {
@@ -66,9 +66,12 @@ public class TradeDialog extends Dialog<TradePayload> {
                     return new TradePayload(playerOffer, playerRequest, false, payload.player());
                 }
                 return new TradePayload(
-                        Map.of(selectedBankOffer.getValue(),
-                                payload.player().getTradeRatio(selectedBankOffer.getValue())),
-                        Map.of(selectedBankRequest.getValue(), 1), true, payload.player());
+                    Map.of(
+                        selectedBankOffer.getValue(),
+                        payload.player().getTradeRatio(selectedBankOffer.getValue())
+                    ),
+                    Map.of(selectedBankRequest.getValue(), 1), true, payload.player()
+                );
             }
             return null;
         });
@@ -167,8 +170,10 @@ public class TradeDialog extends Dialog<TradePayload> {
      *                             in.
      * @return The created card pane.
      */
-    private CardPane getSelectableResourceCard(final ResourceType resourceType,
-            final Property<ResourceType> selectedResourceType) {
+    private CardPane getSelectableResourceCard(
+        final ResourceType resourceType,
+        final Property<ResourceType> selectedResourceType
+    ) {
         final CardPane requestedResourceCard = new ResourceCardPane(resourceType, "", 50);
         requestedResourceCard.getStyleClass().add("selectable");
         requestedResourceCard.setOnMouseClicked(e -> {

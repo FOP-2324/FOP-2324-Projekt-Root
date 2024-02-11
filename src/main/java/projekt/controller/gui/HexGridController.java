@@ -39,23 +39,24 @@ public class HexGridController implements Controller {
      */
     public HexGridController(final HexGrid hexGrid) {
         this.intersectionControllers = hexGrid.getIntersections().values().stream().map(IntersectionController::new)
-                .collect(Collectors.toMap(IntersectionController::getIntersection, controller -> controller));
+            .collect(Collectors.toMap(IntersectionController::getIntersection, controller -> controller));
         this.edgeControllers = hexGrid.getEdges().values().stream().map(EdgeController::new)
-                .collect(Collectors.toMap(EdgeController::getEdge, controller -> controller));
+            .collect(Collectors.toMap(EdgeController::getEdge, controller -> controller));
         this.tileControllers = hexGrid.getTiles().values().stream().map(TileController::new)
-                .collect(Collectors.toMap(TileController::getTile, controller -> controller));
+            .collect(Collectors.toMap(TileController::getTile, controller -> controller));
         this.builder = new HexGridBuilder(hexGrid,
-                intersectionControllers.values().stream().map(IntersectionController::getBuilder)
-                        .collect(Collectors.toSet()),
-                edgeControllers.values().stream().map(EdgeController::getEdgeLine).collect(Collectors.toSet()),
-                tileControllers.values().stream().map(TileController::getBuilder).collect(Collectors.toSet()),
-                this::zoomHandler, this::mousePressedHandler, this::mouseDraggedHandler, this::centerPaneHandler);
+                                          intersectionControllers.values().stream().map(IntersectionController::getBuilder)
+                                              .collect(Collectors.toSet()),
+                                          edgeControllers.values().stream().map(EdgeController::getEdgeLine).collect(Collectors.toSet()),
+                                          tileControllers.values().stream().map(TileController::getBuilder).collect(Collectors.toSet()),
+                                          this::zoomHandler, this::mousePressedHandler, this::mouseDraggedHandler, this::centerPaneHandler
+        );
         this.hexGrid = hexGrid;
     }
 
     /**
      * The handler for the center pane button.
-     *
+     * <p>
      * Centers the given pane.
      *
      * @param event the event that triggered the handler
@@ -68,7 +69,7 @@ public class HexGridController implements Controller {
 
     /**
      * The handler for the mouse dragged event.
-     *
+     * <p>
      * Moves the pane when the mouse is dragged.
      *
      * @param event the event that triggered the handler
@@ -85,7 +86,7 @@ public class HexGridController implements Controller {
 
     /**
      * The handler for the mouse pressed event.
-     *
+     * <p>
      * Saves the last x and y position of the mouse. Used for moving the pane.
      *
      * @param event the event that triggered the handler
@@ -97,7 +98,7 @@ public class HexGridController implements Controller {
 
     /**
      * The handler for the zoom event.
-     *
+     * <p>
      * Zooms the pane in and out.
      *
      * @param event the event that triggered the handler

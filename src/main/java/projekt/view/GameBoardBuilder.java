@@ -63,8 +63,10 @@ public class GameBoardBuilder implements Builder<Region> {
 
         final ScrollPane playersInformationPane = new ScrollPane(rightBox);
         rightBox.setMinWidth(150);
-        rightBox.maxWidthProperty().bind(Bindings.createDoubleBinding(() -> playersInformationPane.getWidth() - 2,
-                playersInformationPane.widthProperty()));
+        rightBox.maxWidthProperty().bind(Bindings.createDoubleBinding(
+            () -> playersInformationPane.getWidth() - 2,
+            playersInformationPane.widthProperty()
+        ));
 
         mainPane.setRight(playersInformationPane);
 
@@ -73,16 +75,20 @@ public class GameBoardBuilder implements Builder<Region> {
         final HBox bottomBox = new HBox();
         final Label diceRoll = new Label();
         diceRoll.textProperty()
-                .bind(Bindings.createStringBinding(
-                        () -> String.format("Rolled Number: %s",
-                                diceRollProperty.get() == 0 ? "" : diceRollProperty.get()),
-                        diceRollProperty));
+            .bind(Bindings.createStringBinding(
+                () -> String.format(
+                    "Rolled Number: %s",
+                    diceRollProperty.get() == 0 ? "" : diceRollProperty.get()
+                ),
+                diceRollProperty
+            ));
         final Label roundCounter = new Label();
         roundCounter.textProperty()
-                .bind(Bindings.createStringBinding(
-                        () -> String.format("Round: %s", roundCounterProperty.get() == 0 ? "setup round"
-                                : roundCounterProperty.get()),
-                        roundCounterProperty));
+            .bind(Bindings.createStringBinding(
+                () -> String.format("Round: %s", roundCounterProperty.get() == 0 ? "setup round"
+                                                                                 : roundCounterProperty.get()),
+                roundCounterProperty
+            ));
         final VBox infoBox = new VBox();
         infoBox.getChildren().addAll(diceRoll, roundCounter);
         infoBox.setAlignment(Pos.CENTER);
@@ -107,8 +113,10 @@ public class GameBoardBuilder implements Builder<Region> {
      * @param players          The list of all players.
      * @param changedResources The resources that have changed for the player.
      */
-    public void updatePlayerInformation(final Player player, final List<Player> players,
-            final Map<ResourceType, Integer> changedResources) {
+    public void updatePlayerInformation(
+        final Player player, final List<Player> players,
+        final Map<ResourceType, Integer> changedResources
+    ) {
         playerInformation.getChildren().clear();
         playerInformation.getChildren().add(new PlayerInformationBuilder(player, changedResources).build());
         playerInformation.getChildren().add(new PlayersOverviewBuilder(players).build());

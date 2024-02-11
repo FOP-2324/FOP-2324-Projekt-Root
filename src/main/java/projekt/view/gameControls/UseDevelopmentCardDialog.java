@@ -19,7 +19,7 @@ import java.util.Map;
  * A dialog to prompt the user to select a development card to play.
  * The dialog shows the development cards the player can choose from and lets
  * the user select one.
- *
+ * <p>
  * The result of the dialog is the selected development card.
  */
 public class UseDevelopmentCardDialog extends Dialog<DevelopmentCardType> {
@@ -40,11 +40,11 @@ public class UseDevelopmentCardDialog extends Dialog<DevelopmentCardType> {
 
         int cards = 0;
         for (final DevelopmentCardType developmentCard : player.getDevelopmentCards()
-                .entrySet()
-                .stream()
-                .filter(entry -> entry.getValue() > 0 && entry.getKey() != DevelopmentCardType.VICTORY_POINTS)
-                .map(Map.Entry::getKey)
-                .toList()) {
+            .entrySet()
+            .stream()
+            .filter(entry -> entry.getValue() > 0 && entry.getKey() != DevelopmentCardType.VICTORY_POINTS)
+            .map(Map.Entry::getKey)
+            .toList()) {
             final CardPane cardPane = new DevelopmentCardPane(developmentCard, "", 50);
             cardPane.getStyleClass().add("selectable");
             cardPane.setOnMouseClicked(e -> {

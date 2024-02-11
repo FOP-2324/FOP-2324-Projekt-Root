@@ -65,7 +65,6 @@ public class PlayerController {
      * Creates a new {@link PlayerController} with the given {@link GameController}
      * and {@link Player}.
      *
-     *
      * @param gameController the {@link GameController} that manages the game logic
      *                       and this controller is part of.
      * @param player         the {@link Player} this controller belongs to. It is
@@ -147,9 +146,10 @@ public class PlayerController {
     @DoNotTouch
     private void updatePlayerState() {
         playerStateProperty
-                .setValue(new PlayerState(getBuildableVillageIntersections(), getUpgradeableVillageIntersections(),
-                        getBuildableRoadEdges(), getPlayersToStealFrom(), getPlayerTradingPayload(),
-                        getCardsToSelect(), getChangedResources()));
+            .setValue(new PlayerState(getBuildableVillageIntersections(), getUpgradeableVillageIntersections(),
+                                      getBuildableRoadEdges(), getPlayersToStealFrom(), getPlayerTradingPayload(),
+                                      getCardsToSelect(), getChangedResources()
+            ));
     }
 
     /**
@@ -194,10 +194,10 @@ public class PlayerController {
      */
     public List<Player> getOtherPlayers() {
         return gameController.getState()
-                .getPlayers()
-                .stream()
-                .filter(p -> p != player)
-                .toList();
+            .getPlayers()
+            .stream()
+            .filter(p -> p != player)
+            .toList();
     }
 
     /**
@@ -216,7 +216,7 @@ public class PlayerController {
      * @throws IllegalActionException if the selected resources are invalid
      */
     public void processSelectedResources(final Map<ResourceType, Integer> selectedResources)
-            throws IllegalActionException {
+    throws IllegalActionException {
         if (selectedResources.values().stream().mapToInt(Integer::intValue).sum() != getCardsToSelect()) {
             throw new IllegalActionException("Wrong amount of cards selected");
         }
@@ -284,7 +284,8 @@ public class PlayerController {
 
             if (!playerObjectiveProperty.getValue().allowedActions.contains(action.getClass())) {
                 throw new IllegalActionException(String.format("Illegal Action %s performed. Allowed Actions: %s",
-                        action, playerObjectiveProperty.getValue().getAllowedActions()));
+                                                               action, playerObjectiveProperty.getValue().getAllowedActions()
+                ));
             }
             action.execute(this);
             updatePlayerState();
@@ -315,11 +316,11 @@ public class PlayerController {
             return Set.of();
         }
         Stream<Intersection> intersections = gameController.getState().getGrid().getIntersections().values().stream()
-                .filter(intersection -> intersection.getSettlement() == null).filter(intersection -> intersection
-                        .getAdjacentIntersections().stream().noneMatch(Intersection::hasSettlement));
+            .filter(intersection -> intersection.getSettlement() == null).filter(intersection -> intersection
+                .getAdjacentIntersections().stream().noneMatch(Intersection::hasSettlement));
         if (!isFirstRound()) {
             intersections = intersections.filter(intersection -> intersection.getConnectedEdges().stream()
-                    .anyMatch(edge -> edge.hasRoad() && edge.getRoadOwner().equals(player)));
+                .anyMatch(edge -> edge.hasRoad() && edge.getRoadOwner().equals(player)));
         }
         return intersections.collect(Collectors.toUnmodifiableSet());
     }
@@ -334,8 +335,10 @@ public class PlayerController {
     @StudentImplementationRequired("H2.5")
     public boolean canBuildVillage() {
         final var requiredResources = Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.VILLAGE);
-        return (playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_VILLAGE)
-                || player.hasResources(requiredResources)) && player.getRemainingVillages() > 0;
+        return (
+            playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_VILLAGE)
+                || player.hasResources(requiredResources)
+        ) && player.getRemainingVillages() > 0;
     }
 
     /**
@@ -372,7 +375,7 @@ public class PlayerController {
             return Set.of();
         }
         return player.getSettlements().stream().filter(settlement -> settlement.type() == Settlement.Type.VILLAGE)
-                .map(Settlement::intersection).collect(Collectors.toUnmodifiableSet());
+            .map(Settlement::intersection).collect(Collectors.toUnmodifiableSet());
     }
 
     /**
@@ -385,8 +388,8 @@ public class PlayerController {
     public boolean canUpgradeVillage() {
         final var requiredResources = Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.CITY);
         return player.hasResources(requiredResources) && player.getSettlements().stream()
-                .anyMatch(settlement -> settlement.type() == Settlement.Type.VILLAGE)
-                && player.getRemainingCities() > 0;
+            .anyMatch(settlement -> settlement.type() == Settlement.Type.VILLAGE)
+            && player.getRemainingCities() > 0;
     }
 
     /**
@@ -426,14 +429,14 @@ public class PlayerController {
             return Set.of();
         }
         Stream<Edge> edges = gameController.getState().getGrid().getEdges().values().stream()
-                .filter(edge -> !edge.hasRoad());
+            .filter(edge -> !edge.hasRoad());
         if (isFirstRound()) {
             edges = edges.filter(edge -> edge.getIntersections().stream()
-                    .anyMatch(intersection -> intersection.playerHasSettlement(player)
-                            && intersection.getConnectedEdges().stream().noneMatch(Edge::hasRoad)));
+                .anyMatch(intersection -> intersection.playerHasSettlement(player)
+                    && intersection.getConnectedEdges().stream().noneMatch(Edge::hasRoad)));
         } else {
             edges = edges.filter(edge -> edge.getConnectedRoads(player).size() < 4)
-                    .filter(edge -> !edge.getConnectedRoads(player).isEmpty());
+                .filter(edge -> !edge.getConnectedRoads(player).isEmpty());
         }
         return edges.collect(Collectors.toUnmodifiableSet());
     }
@@ -448,21 +451,22 @@ public class PlayerController {
     @StudentImplementationRequired("H2.5")
     public boolean canBuildRoad() {
         final var requiredResources = Config.ROAD_BUILDING_COST;
-        return (playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_ROAD)
-                || player.hasResources(requiredResources)) && player.getRemainingRoads() > 0;
+        return (
+            playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_ROAD)
+                || player.hasResources(requiredResources)
+        ) && player.getRemainingRoads() > 0;
     }
 
     /**
      * Tries to build a road at the given edge.
      *
-     * @see #buildRoad(TilePosition, TilePosition)
-     *
      * @param tile          the tile to build the road at
      * @param edgeDirection the direction of the edge to build the road at
      * @throws IllegalActionException if the road cannot be built
+     * @see #buildRoad(TilePosition, TilePosition)
      */
     public void buildRoad(final Tile tile, final TilePosition.EdgeDirection edgeDirection)
-            throws IllegalActionException {
+    throws IllegalActionException {
         buildRoad(tile.getPosition(), TilePosition.neighbour(tile.getPosition(), edgeDirection));
     }
 
@@ -527,11 +531,10 @@ public class PlayerController {
      * After a development card is played, the {@link Player} continues his regular
      * turn.
      *
-     * @see DevelopmentCardType
-     *
      * @param developmentCard the development card to play
      * @throws IllegalActionException if the player does not have the selected
      *                                development card
+     * @see DevelopmentCardType
      */
     public void playDevelopmentCard(final DevelopmentCardType developmentCard) throws IllegalActionException {
         if (!getPlayer().removeDevelopmentCard(developmentCard)) {
@@ -576,21 +579,20 @@ public class PlayerController {
      * The {@link Player} must have enough resources to trade.
      * The trade ratio is determined by {@link Player#getTradeRatio(ResourceType)}.
      *
-     * @see Port
-     *
      * @param offerType   the type of resource to offer
      * @param offerAmount the amount of resources to offer
      * @param request     the type of resource to request
      * @throws IllegalActionException if the trade cannot be made
+     * @see Port
      */
     @StudentImplementationRequired("H2.3")
     public void tradeWithBank(final ResourceType offerType, final int offerAmount, final ResourceType request)
-            throws IllegalActionException {
+    throws IllegalActionException {
         // check for port
         final var ratio = player.getTradeRatio(offerType);
         if (offerAmount != ratio) {
             throw new IllegalActionException(String
-                    .format("Offered amount does not match trade ratio. Offered: %d, Ratio: %d", offerAmount, ratio));
+                                                 .format("Offered amount does not match trade ratio. Offered: %d, Ratio: %d", offerAmount, ratio));
         }
         if (!player.removeResource(offerType, offerAmount)) {
             throw new IllegalActionException("Player does not have the offered resources");
@@ -630,8 +632,10 @@ public class PlayerController {
      * @param offer   the offered resources
      * @param request the requested resources
      */
-    protected void setPlayerTradeOffer(final Player player, final Map<ResourceType, Integer> offer,
-            final Map<ResourceType, Integer> request) {
+    protected void setPlayerTradeOffer(
+        final Player player, final Map<ResourceType, Integer> offer,
+        final Map<ResourceType, Integer> request
+    ) {
         this.tradingPlayer = player;
         this.playerTradingOffer = offer;
         this.playerTradingRequest = request;
@@ -651,7 +655,7 @@ public class PlayerController {
      * player.
      *
      * @return a {@link TradePayload} with the current trade offer from the other
-     *         player.
+     * player.
      */
     private TradePayload getPlayerTradingPayload() {
         if (tradingPlayer == null || playerTradingOffer == null || playerTradingRequest == null) {
@@ -664,11 +668,10 @@ public class PlayerController {
      * Accepts the trade offer from the other player if one exists.
      * Both {@link Player}s must have the required resources.
      *
+     * @param accepted whether the trade offer is accepted
      * @throws IllegalActionException if no trade offer exists or if one
      *                                {@link Player} does not have the required
      *                                resources
-     *
-     * @param accepted whether the trade offer is accepted
      */
     @StudentImplementationRequired("H2.3")
     public void acceptTradeOffer(final boolean accepted) throws IllegalActionException {
@@ -724,7 +727,7 @@ public class PlayerController {
      *                                resource
      */
     public void selectPlayerAndResourceToSteal(final Player playerToStealFrom, final ResourceType resourceToSteal)
-            throws IllegalActionException {
+    throws IllegalActionException {
         if (!playerToStealFrom.removeResource(resourceToSteal, 1)) {
             throw new IllegalActionException("Player does not have the selected resource");
         }
@@ -749,11 +752,11 @@ public class PlayerController {
      */
     public List<Player> getPlayersToStealFrom() {
         return gameController.getState().getGrid().getTileAt(gameController.getState().getGrid().getRobberPosition())
-                .getIntersections().stream()
-                .filter(Intersection::hasSettlement)
-                .map(i -> i.getSettlement().owner())
-                .filter(Predicate.not(player::equals))
-                .filter(otherPlayer -> !otherPlayer.getResources().isEmpty())
-                .collect(Collectors.toUnmodifiableList());
+            .getIntersections().stream()
+            .filter(Intersection::hasSettlement)
+            .map(i -> i.getSettlement().owner())
+            .filter(Predicate.not(player::equals))
+            .filter(otherPlayer -> !otherPlayer.getResources().isEmpty())
+            .collect(Collectors.toUnmodifiableList());
     }
 }

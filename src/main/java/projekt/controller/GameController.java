@@ -58,9 +58,10 @@ public class GameController {
      * @param dice              The dice.
      */
     public GameController(
-            final GameState state,
-            final Map<Player, PlayerController> playerControllers,
-            final Supplier<Integer> dice) {
+        final GameState state,
+        final Map<Player, PlayerController> playerControllers,
+        final Supplier<Integer> dice
+    ) {
         this.state = state;
         this.playerControllers = playerControllers;
         this.dice = dice;
@@ -85,14 +86,13 @@ public class GameController {
      * The dice is initialized with the Random from {@link Config#RANDOM} and
      * respects the configured dice sides and number of dice.
      *
-     * @see #GameController(GameState, Supplier)
-     *
      * @param state The {@link GameState}.
+     * @see #GameController(GameState, Supplier)
      */
     public GameController(final GameState state) {
         this(state, () -> IntStream.rangeClosed(1, Config.NUMBER_OF_DICE)
-                .map(i -> Config.RANDOM.nextInt(1, Config.DICE_SIDES + 1))
-                .sum());
+            .map(i -> Config.RANDOM.nextInt(1, Config.DICE_SIDES + 1))
+            .sum());
     }
 
     /**
@@ -114,7 +114,8 @@ public class GameController {
             playerControllers.put(player, new PlayerController(this, player));
             if (player.isAi()) {
                 aiControllers.add(new BasicAiController(playerControllers.get(player), state.getGrid(), state,
-                        activePlayerControllerProperty));
+                                                        activePlayerControllerProperty
+                ));
             }
         }
     }
@@ -207,12 +208,12 @@ public class GameController {
      */
     public Set<Player> getWinners() {
         final Player playerWithMostKnightsPlayed = getState().getPlayers()
-                .stream()
-                .filter(player -> player.getKnightsPlayed() >= 3)
-                .max(Comparator.comparingInt(Player::getKnightsPlayed))
-                .orElse(null);
+            .stream()
+            .filter(player -> player.getKnightsPlayed() >= 3)
+            .max(Comparator.comparingInt(Player::getKnightsPlayed))
+            .orElse(null);
         final Player playerWithLongestRoad = null; // TODO: uncomment code if getLongestRoad(Player) is implemented in
-                                                   // HexGrid
+        // HexGrid
         // getState().getPlayers()
         // .stream()
         // .max(Comparator.comparingInt(player ->
@@ -220,11 +221,13 @@ public class GameController {
         // .orElse(null);
 
         return getState().getPlayers()
-                .stream()
-                .filter(player -> (player.getVictoryPoints()
-                        + (player == playerWithMostKnightsPlayed ? 2 : 0)
-                        + (player == playerWithLongestRoad ? 2 : 0)) >= Config.REQUIRED_VICTORY_POINTS)
-                .collect(Collectors.toUnmodifiableSet());
+            .stream()
+            .filter(player -> (
+                player.getVictoryPoints()
+                    + (player == playerWithMostKnightsPlayed ? 2 : 0)
+                    + (player == playerWithLongestRoad ? 2 : 0)
+            ) >= Config.REQUIRED_VICTORY_POINTS)
+            .collect(Collectors.toUnmodifiableSet());
     }
 
     /**
@@ -300,7 +303,7 @@ public class GameController {
 
     /**
      * Executes the first round of the game.
-     *
+     * <p>
      * Each player places two villages and two roads.
      */
     @StudentImplementationRequired("H2.1")
@@ -324,11 +327,13 @@ public class GameController {
      * @param request        The resources the offering player requests.
      */
     @StudentImplementationRequired("H2.3")
-    public void offerTrade(final Player offeringPlayer, final Map<ResourceType, Integer> offer,
-            final Map<ResourceType, Integer> request) {
+    public void offerTrade(
+        final Player offeringPlayer, final Map<ResourceType, Integer> offer,
+        final Map<ResourceType, Integer> request
+    ) {
         final BooleanProperty tradeAccepted = new SimpleBooleanProperty(true);
         for (final PlayerController playerController : playerControllers.values().stream()
-                .filter(pc -> pc.canAcceptTradeOffer(offeringPlayer, request)).collect(Collectors.toList())) {
+            .filter(pc -> pc.canAcceptTradeOffer(offeringPlayer, request)).collect(Collectors.toList())) {
             playerController.setPlayerTradeOffer(offeringPlayer, offer, request);
             withActivePlayer(playerController, () -> {
                 final PlayerAction action = playerController.waitForNextAction(PlayerObjective.ACCEPT_TRADE);
@@ -348,7 +353,7 @@ public class GameController {
 
     /**
      * Triggers the actions that happen when a 7 is rolled.
-     *
+     * <p>
      * Every player with too many cards must drop half of his cards.
      * Then the active player must select a tile to place the robber on and can then
      * steal a card from a player next to the robber.
@@ -359,7 +364,7 @@ public class GameController {
         for (final PlayerController playerController : playerControllers.values()) {
             withActivePlayer(playerController, () -> {
                 final int totalResources = playerController.getPlayer().getResources().values().stream()
-                        .mapToInt(Integer::intValue).sum();
+                    .mapToInt(Integer::intValue).sum();
                 if (totalResources > 7) {
                     playerController.setCardsToSelect(totalResources / 2);
                     playerController.waitForNextAction(PlayerObjective.DROP_CARDS);
@@ -379,12 +384,13 @@ public class GameController {
     @StudentImplementationRequired("H2.2")
     public void distributeResources(final int diceRoll) {
         for (final var tile : state.getGrid().getTiles(diceRoll).stream().filter(Predicate.not(Tile::hasRobber))
-                .collect(Collectors.toSet())) {
+            .collect(Collectors.toSet())) {
             for (final var intersection : tile.getIntersections()) {
                 Optional.ofNullable(intersection.getSettlement()).ifPresent(
-                        settlement -> settlement.owner().addResource(
-                                tile.getType().resourceType,
-                                settlement.type().resourceAmount));
+                    settlement -> settlement.owner().addResource(
+                        tile.getType().resourceType,
+                        settlement.type().resourceAmount
+                    ));
             }
         }
     }

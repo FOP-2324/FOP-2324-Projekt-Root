@@ -34,9 +34,11 @@ public class TileBuilder implements Builder<Region> {
         this.tile = tile;
         styleAndSizeTile(pane);
         if (tile.getType().resourceType != null) {
-            this.resourceIcon = new Sprite(Utils.resourcesSpriteSheet,
-                    tile.getType().resourceType.iconIndex,
-                    tile.getType().resourceType.color);
+            this.resourceIcon = new Sprite(
+                Utils.resourcesSpriteSheet,
+                tile.getType().resourceType.iconIndex,
+                tile.getType().resourceType.color
+            );
             resourceIcon.setPreserveRatio(true);
             resourceIcon.setFitWidth(tile.widthProperty().get() * 0.5);
         } else {

@@ -51,7 +51,8 @@ public class ResourceCardPane extends CardPane {
      */
     public ResourceCardPane(final ResourceType resourceType, final String labelText, final double cardWidth) {
         super(resourceType.color, new Sprite(Utils.resourcesSpriteSheet, resourceType.iconIndex, resourceType.color),
-                labelText, cardWidth);
+              labelText, cardWidth
+        );
         Utils.attachTooltip(resourceType.toString(), this);
     }
 }

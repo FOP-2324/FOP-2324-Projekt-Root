@@ -40,12 +40,16 @@ public class GameBoardController implements SceneController {
      * @param winnerProperty                 the winner property
      */
     @DoNotTouch
-    public GameBoardController(final GameState gameState,
-            final Property<PlayerController> activePlayerControllerProperty, final IntegerProperty diceRollProperty,
-            final Property<Player> winnerProperty, final IntegerProperty roundCounterProperty) {
+    public GameBoardController(
+        final GameState gameState,
+        final Property<PlayerController> activePlayerControllerProperty, final IntegerProperty diceRollProperty,
+        final Property<Player> winnerProperty, final IntegerProperty roundCounterProperty
+    ) {
         this.gameState = gameState;
-        this.playerActionsController = new PlayerActionsController(this,
-                activePlayerControllerProperty);
+        this.playerActionsController = new PlayerActionsController(
+            this,
+            activePlayerControllerProperty
+        );
         this.hexGridController = new HexGridController(gameState.getGrid());
         this.gameBoardBuilder = new GameBoardBuilder(hexGridController.buildView(), playerActionsController::buildView);
         activePlayerControllerProperty.addListener((observable, oldValue, newValue) -> {
@@ -66,7 +70,7 @@ public class GameBoardController implements SceneController {
             }
             Platform.runLater(() -> {
                 new Alert(Alert.AlertType.INFORMATION, String.format("Player %s won!", newValue.getName()))
-                        .showAndWait();
+                    .showAndWait();
                 SceneController.loadMainMenuScene();
             });
         });
@@ -96,7 +100,7 @@ public class GameBoardController implements SceneController {
      */
     public void updatePlayerInformation(final Player player, final Map<ResourceType, Integer> changedResources) {
         Platform.runLater(
-                () -> gameBoardBuilder.updatePlayerInformation(player, gameState.getPlayers(), changedResources));
+            () -> gameBoardBuilder.updatePlayerInformation(player, gameState.getPlayers(), changedResources));
     }
 
     @Override

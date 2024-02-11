@@ -145,14 +145,18 @@ public class PlayerImpl implements Player {
 
     @Override
     public int getRemainingVillages() {
-        return (int) (MAX_VILLAGES - getSettlements().stream()
-            .filter(settlement -> settlement.type().equals(Settlement.Type.VILLAGE)).count());
+        return (int) (
+            MAX_VILLAGES - getSettlements().stream()
+                .filter(settlement -> settlement.type().equals(Settlement.Type.VILLAGE)).count()
+        );
     }
 
     @Override
     public int getRemainingCities() {
-        return (int) (MAX_CITIES - getSettlements().stream()
-                .filter(settlement -> settlement.type().equals(Settlement.Type.CITY)).count());
+        return (int) (
+            MAX_CITIES - getSettlements().stream()
+                .filter(settlement -> settlement.type().equals(Settlement.Type.CITY)).count()
+        );
     }
 
     @Override
@@ -228,12 +232,13 @@ public class PlayerImpl implements Player {
          */
         public Builder color(final Color playerColor) {
             this.color = playerColor == null
-                    ? new Color(
-                            Config.RANDOM.nextDouble(),
-                            Config.RANDOM.nextDouble(),
-                            Config.RANDOM.nextDouble(),
-                            1)
-                    : playerColor;
+                         ? new Color(
+                Config.RANDOM.nextDouble(),
+                Config.RANDOM.nextDouble(),
+                Config.RANDOM.nextDouble(),
+                1
+            )
+                         : playerColor;
             return this;
         }
 

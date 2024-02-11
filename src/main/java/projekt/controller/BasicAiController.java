@@ -38,8 +38,10 @@ public class BasicAiController extends AiController {
      * @param gameState              the game state
      * @param activePlayerController the active player controller
      */
-    public BasicAiController(final PlayerController playerController, final HexGrid hexGrid, final GameState gameState,
-            final Property<PlayerController> activePlayerController) {
+    public BasicAiController(
+        final PlayerController playerController, final HexGrid hexGrid, final GameState gameState,
+        final Property<PlayerController> activePlayerController
+    ) {
         super(playerController, hexGrid, gameState, activePlayerController);
     }
 
@@ -101,10 +103,10 @@ public class BasicAiController extends AiController {
         final Map<ResourceType, Integer> selectedCards = new HashMap<>();
         for (int i = 0; i < playerController.getPlayerState().cardsToSelect(); i++) {
             playerController.getPlayer().getResources().entrySet().stream()
-                    .filter(entry -> entry.getValue() - selectedCards.getOrDefault(entry.getKey(), 0) > 0).findAny()
-                    .ifPresent(entry -> {
-                        selectedCards.put(entry.getKey(), selectedCards.getOrDefault(entry.getKey(), 0) + 1);
-                    });
+                .filter(entry -> entry.getValue() - selectedCards.getOrDefault(entry.getKey(), 0) > 0).findAny()
+                .ifPresent(entry -> {
+                    selectedCards.put(entry.getKey(), selectedCards.getOrDefault(entry.getKey(), 0) + 1);
+                });
         }
         playerController.triggerAction(new SelectCardsAction(selectedCards));
     }
@@ -114,12 +116,12 @@ public class BasicAiController extends AiController {
      */
     private void selectRobberTileAction() {
         playerController.triggerAction(
-                new SelectRobberTileAction(hexGrid.getTiles().values().stream().findAny().get().getPosition()));
+            new SelectRobberTileAction(hexGrid.getTiles().values().stream().findAny().get().getPosition()));
     }
 
     /**
      * This method steals a random card from a random player that has resources.
-     *
+     * <p>
      * Important: When there is nothing to steal or no one to steal from, no action
      * is performed and the EndTurnAction is triggered due to the control flow in
      * executeActionBasedOnObjective.
@@ -128,12 +130,12 @@ public class BasicAiController extends AiController {
      */
     private void stealCardAction() {
         final Player playerToStealFrom = playerController.getPlayerState().playersToStealFrom().stream().findAny()
-                .orElse(null);
+            .orElse(null);
         if (playerToStealFrom == null) {
             return;
         }
         final ResourceType resourceToSteal = playerToStealFrom.getResources().entrySet().stream()
-                .filter(entry -> entry.getValue() > 0).map(Entry::getKey).findAny().orElse(null);
+            .filter(entry -> entry.getValue() > 0).map(Entry::getKey).findAny().orElse(null);
         if (resourceToSteal == null) {
             return;
         }

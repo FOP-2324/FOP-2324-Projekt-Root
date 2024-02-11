@@ -48,7 +48,7 @@ public class SelectCardToStealDialog extends Dialog<Entry<Player, ResourceType>>
         for (final Player player : players) {
             mainPane.add(new PlayerLabel(player), 0, players.indexOf(player));
             final List<ResourceType> resourceTypes = player.getResources().keySet().stream()
-                    .collect(Collectors.toList());
+                .collect(Collectors.toList());
             Collections.shuffle(resourceTypes, Config.RANDOM);
             int cardCount = 0;
             for (int i = 0; i < resourceTypes.size(); i++) {

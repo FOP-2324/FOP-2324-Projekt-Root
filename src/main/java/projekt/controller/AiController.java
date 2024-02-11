@@ -28,8 +28,10 @@ public abstract class AiController {
      * @param gameState              the game state
      * @param activePlayerController the active player controller
      */
-    public AiController(final PlayerController playerController, final HexGrid hexGrid, final GameState gameState,
-            final Property<PlayerController> activePlayerController) {
+    public AiController(
+        final PlayerController playerController, final HexGrid hexGrid, final GameState gameState,
+        final Property<PlayerController> activePlayerController
+    ) {
         this.playerController = playerController;
         this.hexGrid = hexGrid;
         this.gameState = gameState;

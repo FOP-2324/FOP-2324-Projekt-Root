@@ -52,8 +52,10 @@ public class PlayerInformationBuilder implements Builder<Region> {
                 continue;
             }
 
-            final ResourceCardPane resourceCard = new ResourceCardPane(resourceType,
-                    player.getResources().get(resourceType));
+            final ResourceCardPane resourceCard = new ResourceCardPane(
+                resourceType,
+                player.getResources().get(resourceType)
+            );
             resourcesBox.getChildren().add(resourceCard);
             if (changedResources.containsKey(resourceType)) {
                 resourceCard.getStyleClass().add("highlighted");
@@ -67,23 +69,26 @@ public class PlayerInformationBuilder implements Builder<Region> {
                 continue;
             }
 
-            final CardPane developmentCardTypeCard = new DevelopmentCardPane(developmentCardType,
-                    player.getDevelopmentCards().get(developmentCardType));
+            final CardPane developmentCardTypeCard = new DevelopmentCardPane(
+                developmentCardType,
+                player.getDevelopmentCards().get(developmentCardType)
+            );
             developmentCardsBox.getChildren().add(developmentCardTypeCard);
         }
 
         final Label remainingRoadsLabel = new Label(
-                String.format("Your remaining Roads: %d", player.getRemainingRoads()));
+            String.format("Your remaining Roads: %d", player.getRemainingRoads()));
         final Label remainingVillagesLabel = new Label(
-                String.format("Your remaining Villages: %d", player.getRemainingVillages()));
+            String.format("Your remaining Villages: %d", player.getRemainingVillages()));
         final Label remainingCitiesLabel = new Label(
-                String.format("Your remaining Cities: %d", player.getRemainingCities()));
+            String.format("Your remaining Cities: %d", player.getRemainingCities()));
 
         final Label victoryPointsLabel = new Label(String.format("Your Victory Points: %d", player.getVictoryPoints()));
 
         mainBox.getChildren().addAll(playerName, resourcesLabel, resourcesBox, developmentCardsLabel,
-                developmentCardsBox, remainingRoadsLabel, remainingVillagesLabel, remainingCitiesLabel,
-                victoryPointsLabel);
+                                     developmentCardsBox, remainingRoadsLabel, remainingVillagesLabel, remainingCitiesLabel,
+                                     victoryPointsLabel
+        );
         mainBox.setPadding(new Insets(5));
         mainBox.setSpacing(5);
         return mainBox;

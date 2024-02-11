@@ -37,12 +37,14 @@ public final class Config {
 
     /**
      * The properties file containing the ratio of each tile type.
+     *
      * @see #TILE_RATIOS
      */
     private static final Properties TILE_RATIO_PROPERTIES = PropertyUtils.getProperties("tile_ratios.properties");
 
     /**
      * The properties file containing the ratio of each development card type.
+     *
      * @see #DEVELOPMENT_CARD_RATIOS
      */
     private static final Properties DEVELOPMENT_CARD_RATIO_PROPERTIES = PropertyUtils.getProperties("development_card_ratios.properties");
@@ -95,7 +97,8 @@ public final class Config {
      */
     public static final Map<ResourceType, Integer> ROAD_BUILDING_COST = Map.of(
         ResourceType.WOOD, 1,
-        ResourceType.CLAY, 1);
+        ResourceType.CLAY, 1
+    );
 
     /**
      * Maximum amount of villages a player can place / own.
@@ -115,10 +118,13 @@ public final class Config {
             ResourceType.WOOD, 1,
             ResourceType.CLAY, 1,
             ResourceType.GRAIN, 1,
-            ResourceType.WOOL, 1),
+            ResourceType.WOOL, 1
+        ),
         Settlement.Type.CITY, Map.of(
             ResourceType.GRAIN, 2,
-            ResourceType.ORE, 3));
+            ResourceType.ORE, 3
+        )
+    );
 
 
     // Tiles
@@ -182,14 +188,17 @@ public final class Config {
         final Predicate<TilePosition> isOutsideGrid = tilePosition -> abs(tilePosition.q()) >= GRID_RADIUS
             || abs(tilePosition.r()) >= GRID_RADIUS
             || abs(tilePosition.s()) >= GRID_RADIUS;
-        final Predicate<TilePosition> isOnEdge = tilePosition -> !(abs(tilePosition.q()) < GRID_RADIUS - 1
-            && abs(tilePosition.r()) < GRID_RADIUS - 1
-            && abs(tilePosition.s()) < GRID_RADIUS - 1)
+        final Predicate<TilePosition> isOnEdge = tilePosition -> !(
+            abs(tilePosition.q()) < GRID_RADIUS - 1
+                && abs(tilePosition.r()) < GRID_RADIUS - 1
+                && abs(tilePosition.s()) < GRID_RADIUS - 1
+        )
             && !isOutsideGrid.test(tilePosition);
         final BiFunction<TilePosition, TilePosition.EdgeDirection, Set<Set<TilePosition>>> mapToIntersectionsPositions =
             (tilePosition, edgeDirection) -> Set.of(
                 Set.of(tilePosition, TilePosition.add(tilePosition, edgeDirection.position), TilePosition.add(tilePosition, edgeDirection.left().position)),
-                Set.of(tilePosition, TilePosition.add(tilePosition, edgeDirection.position), TilePosition.add(tilePosition, edgeDirection.right().position)));
+                Set.of(tilePosition, TilePosition.add(tilePosition, edgeDirection.position), TilePosition.add(tilePosition, edgeDirection.right().position))
+            );
 
         return (tilePosition, edgeDirection) -> {
             final Set<Set<TilePosition>> intersectionPositions = mapToIntersectionsPositions.apply(tilePosition, edgeDirection);
@@ -213,7 +222,7 @@ public final class Config {
     }
 
 
-     // Development cards
+    // Development cards
 
     /**
      * The cost to buy a single development card of any type

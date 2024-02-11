@@ -43,8 +43,10 @@ public class PortBuilder implements Builder<Region> {
      * @param node0  The position of the first node.
      * @param node1  The position of the second node.
      */
-    public PortBuilder(final Edge edge, final ObservableDoubleValue width, final ObservableDoubleValue height,
-            final Point2D node0, final Point2D node1) {
+    public PortBuilder(
+        final Edge edge, final ObservableDoubleValue width, final ObservableDoubleValue height,
+        final Point2D node0, final Point2D node1
+    ) {
         this.width = width;
         this.height = height;
         this.node0 = node0;
@@ -68,7 +70,8 @@ public class PortBuilder implements Builder<Region> {
         final Node icon;
         if (edge.getPort().resourceType() != null) {
             final ImageView resourceImage = new Sprite(Utils.resourcesSpriteSheet, edge.getPort().resourceType().iconIndex,
-                    edge.getPort().resourceType().color);
+                                                       edge.getPort().resourceType().color
+            );
             resourceImage.setFitWidth(background.getRadius() * 2 * 0.5);
             resourceImage.setPreserveRatio(true);
             icon = resourceImage;

@@ -40,16 +40,20 @@ public class SelectResourcesDialog extends Dialog<Map<ResourceType, Integer>> {
      * @param dropCards             Whether the player should drop cards instead of
      *                              selecting them.
      */
-    public SelectResourcesDialog(final int amountToSelect, final Player player,
-            final Map<ResourceType, Integer> resourcesToSelectFrom, final boolean dropCards) {
+    public SelectResourcesDialog(
+        final int amountToSelect, final Player player,
+        final Map<ResourceType, Integer> resourcesToSelectFrom, final boolean dropCards
+    ) {
         final DialogPane dialogPane = getDialogPane();
         dialogPane.getButtonTypes().add(ButtonType.OK);
         dialogPane.setContent(init(amountToSelect, player, resourcesToSelectFrom, dropCards));
     }
 
     @StudentImplementationRequired("H3.3")
-    private Region init(final int amountToSelect, final Player player,
-            Map<ResourceType, Integer> resourcesToSelectFrom, final boolean dropCards) {
+    private Region init(
+        final int amountToSelect, final Player player,
+        Map<ResourceType, Integer> resourcesToSelectFrom, final boolean dropCards
+    ) {
         System.out.println("SelectResourceDialog");
         if (resourcesToSelectFrom == null || resourcesToSelectFrom.isEmpty()) {
             resourcesToSelectFrom = Arrays.stream(ResourceType.values()).collect(Collectors.toMap(r -> r, r -> -1));
@@ -58,7 +62,8 @@ public class SelectResourcesDialog extends Dialog<Map<ResourceType, Integer>> {
         final String action = dropCards ? "drop" : "select";
 
         this.setTitle(String.format("%s %d cards", action.substring(0, 1).toUpperCase() + action.substring(1),
-                amountToSelect));
+                                    amountToSelect
+        ));
         this.setHeaderText(constructTooFewCardsString(amountToSelect, player, action));
         final GridPane mainPane = new GridPane(10, 10);
         mainPane.getStylesheets().add("css/hexmap.css");
@@ -67,9 +72,11 @@ public class SelectResourcesDialog extends Dialog<Map<ResourceType, Integer>> {
         dialogPane.lookupButton(ButtonType.OK).setDisable(true);
 
         for (final ResourceType resourceType : resourcesToSelectFrom.keySet()) {
-            final CardPane resourceCard = new ResourceCardPane(resourceType,
-                    Integer.toString(resourcesToSelectFrom.get(resourceType)),
-                    50);
+            final CardPane resourceCard = new ResourceCardPane(
+                resourceType,
+                Integer.toString(resourcesToSelectFrom.get(resourceType)),
+                50
+            );
             mainPane.add(resourceCard, resourceType.ordinal(), 0);
 
             final IntegerField amountField = new IntegerField();
@@ -79,7 +86,7 @@ public class SelectResourcesDialog extends Dialog<Map<ResourceType, Integer>> {
                 } else {
                     final int enteredAmount = newValue.intValue();
                     if (enteredAmount > amountToSelect
-                            || dropCards && enteredAmount > resourcesToSelectFromFinal.get(resourceType)) {
+                        || dropCards && enteredAmount > resourcesToSelectFromFinal.get(resourceType)) {
                         amountField.setValue(oldValue);
                         return;
                     }
@@ -87,14 +94,14 @@ public class SelectResourcesDialog extends Dialog<Map<ResourceType, Integer>> {
                 }
 
                 final int currentTotalAmount = this.selectedResources.values().stream().mapToInt(Integer::intValue)
-                        .sum();
+                    .sum();
                 dialogPane.lookupButton(ButtonType.OK).setDisable(true);
                 if (currentTotalAmount > amountToSelect) {
                     this.setHeaderText(
-                            String.format("You (%s) can only %s %d cards", player.getName(), action, amountToSelect));
+                        String.format("You (%s) can only %s %d cards", player.getName(), action, amountToSelect));
                 } else if (currentTotalAmount < amountToSelect) {
                     this.setHeaderText(
-                            constructTooFewCardsString(amountToSelect - currentTotalAmount, player, action));
+                        constructTooFewCardsString(amountToSelect - currentTotalAmount, player, action));
                 } else {
                     this.setHeaderText("");
                     dialogPane.lookupButton(ButtonType.OK).setDisable(false);

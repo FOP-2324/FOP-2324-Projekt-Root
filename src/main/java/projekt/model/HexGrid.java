@@ -181,8 +181,10 @@ public interface HexGrid {
      * @param checkVillages whether to check if the player has a connected village
      * @return whether the road was added
      */
-    default boolean addRoad(final Tile tile, final EdgeDirection edgeDirection, final Player player,
-                            final boolean checkVillages) {
+    default boolean addRoad(
+        final Tile tile, final EdgeDirection edgeDirection, final Player player,
+        final boolean checkVillages
+    ) {
         return tile.addRoad(edgeDirection, player, checkVillages);
     }
 

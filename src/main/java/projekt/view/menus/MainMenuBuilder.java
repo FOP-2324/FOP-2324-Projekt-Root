@@ -32,8 +32,9 @@ public class MainMenuBuilder extends MenuBuilder {
      *                           scene.
      */
     public MainMenuBuilder(
-            final Runnable quitHandler, final Runnable createGameScene, final Runnable loadSettingsScene,
-            final Runnable loadHighscoreScene, final Runnable loadAboutScene) {
+        final Runnable quitHandler, final Runnable createGameScene, final Runnable loadSettingsScene,
+        final Runnable loadHighscoreScene, final Runnable loadAboutScene
+    ) {
         super("Main Menu", "Quit", quitHandler);
         this.loadGameScene = createGameScene;
         this.loadSettingsScene = loadSettingsScene;

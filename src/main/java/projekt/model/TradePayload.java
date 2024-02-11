@@ -13,12 +13,15 @@ import java.util.Map;
  * @param player   the player that initiated the trade
  */
 @DoNotTouch
-public record TradePayload(Map<ResourceType, Integer> offer, Map<ResourceType, Integer> request, boolean withBank,
-        Player player) {
+public record TradePayload(
+    Map<ResourceType, Integer> offer, Map<ResourceType, Integer> request, boolean withBank,
+    Player player
+) {
 
     @Override
     public String toString() {
         return String.format("TradePayload [offer=%s, request=%s, withBank=%s, player=%s]", offer, request, withBank,
-                player);
+                             player
+        );
     }
 }

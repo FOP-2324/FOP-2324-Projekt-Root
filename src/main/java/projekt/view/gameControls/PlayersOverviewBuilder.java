@@ -61,12 +61,12 @@ public class PlayersOverviewBuilder implements Builder<Region> {
         final Label resourcesLabel = new Label("Resources:");
         detailsBox.add(resourcesLabel, 0, 0);
         detailsBox.add(createValuePane(
-                Integer.toString(player.getResources().values().stream().reduce(0, Integer::sum))), 1, 0);
+            Integer.toString(player.getResources().values().stream().reduce(0, Integer::sum))), 1, 0);
 
         final Label developmentCardsLabel = new Label("Development Cards:");
         detailsBox.add(developmentCardsLabel, 0, 1);
         detailsBox.add(createValuePane(
-                Integer.toString(player.getDevelopmentCards().values().stream().reduce(0, Integer::sum))), 1, 1);
+            Integer.toString(player.getDevelopmentCards().values().stream().reduce(0, Integer::sum))), 1, 1);
 
         final Label victoryPointsLabel = new Label(String.format("Victory Points: %d", player.getVictoryPoints()));
         detailsBox.add(victoryPointsLabel, 0, 2);

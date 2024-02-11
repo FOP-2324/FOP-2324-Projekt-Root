@@ -13,8 +13,8 @@ public record PlayDevelopmentCardAction(DevelopmentCardType developmentCard) imp
     /**
      * Plays the development card.
      *
-     * @see DevelopmentCardType
      * @throws IllegalActionException if the development card cannot be played
+     * @see DevelopmentCardType
      */
     @Override
     public void execute(final PlayerController pc) throws IllegalActionException {

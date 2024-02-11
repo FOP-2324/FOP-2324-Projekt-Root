@@ -80,7 +80,7 @@ public record TilePosition(int q, int r) implements Comparable<TilePosition> {
      */
     public static Set<TilePosition> neighbours(final TilePosition position) {
         return Arrays.stream(EdgeDirection.values()).map(direction -> neighbour(position, direction))
-                .collect(Collectors.toSet());
+            .collect(Collectors.toSet());
     }
 
     /**
@@ -92,16 +92,18 @@ public record TilePosition(int q, int r) implements Comparable<TilePosition> {
      * @param function the function to execute, gets the current position and an
      *                 array with the radius, side index and tile index
      */
-    public static void forEachRing(final TilePosition center, final int radius,
-            final BiConsumer<TilePosition, Integer[]> function) {
+    public static void forEachRing(
+        final TilePosition center, final int radius,
+        final BiConsumer<TilePosition, Integer[]> function
+    ) {
         if (radius == 0) {
-            function.accept(center, new Integer[] { radius, 0, 0 });
+            function.accept(center, new Integer[]{radius, 0, 0});
             return;
         }
         TilePosition current = TilePosition.add(center, TilePosition.scale(EdgeDirection.values()[4].position, radius));
         for (int side = 0; side < 6; side++) {
             for (int tile = 0; tile < radius; tile++) {
-                function.accept(current, new Integer[] { radius, side, tile });
+                function.accept(current, new Integer[]{radius, side, tile});
                 current = TilePosition.neighbour(current, EdgeDirection.values()[side]);
             }
         }
@@ -115,8 +117,10 @@ public record TilePosition(int q, int r) implements Comparable<TilePosition> {
      * @param radius   the radius of the spiral including the center
      * @param function the function to execute
      */
-    public static void forEachSpiral(final TilePosition center, final int radius,
-            final BiConsumer<TilePosition, Integer[]> function) {
+    public static void forEachSpiral(
+        final TilePosition center, final int radius,
+        final BiConsumer<TilePosition, Integer[]> function
+    ) {
         for (int i = 0; i < radius; i++) {
             forEachRing(center, i, function);
         }
@@ -180,9 +184,9 @@ public record TilePosition(int q, int r) implements Comparable<TilePosition> {
          */
         public static EdgeDirection fromRelativePosition(final TilePosition position) {
             return Arrays.stream(EdgeDirection.values())
-                    .filter(direction -> direction.position.equals(position))
-                    .findFirst()
-                    .orElseThrow();
+                .filter(direction -> direction.position.equals(position))
+                .findFirst()
+                .orElseThrow();
         }
 
         /**
@@ -259,8 +263,8 @@ public record TilePosition(int q, int r) implements Comparable<TilePosition> {
         // top to bottom
         // left to right
         return Comparator.comparingInt(TilePosition::q)
-                .thenComparingInt(TilePosition::r)
-                .compare(this, otherPosition);
+            .thenComparingInt(TilePosition::r)
+            .compare(this, otherPosition);
     }
 
     /**
@@ -270,9 +274,10 @@ public record TilePosition(int q, int r) implements Comparable<TilePosition> {
     @Override
     public String toString() {
         return String.format(
-                "(%+d, %+d, %+d)",
-                this.q,
-                this.r,
-                this.s());
+            "(%+d, %+d, %+d)",
+            this.q,
+            this.r,
+            this.s()
+        );
     }
 }

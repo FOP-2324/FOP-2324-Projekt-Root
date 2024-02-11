@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  *     / \
  *    / 2 \
  * </pre>
- *
+ * <p>
  * Intersections connect at least two and at most three (virtual, if necessary) tiles / edges.
  * They hold information on...
  * <ul>

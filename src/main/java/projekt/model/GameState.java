@@ -59,7 +59,7 @@ public final class GameState {
      * {@link GameState}.
      *
      * @return an unmodifiable list of all {@link Player}s in this
-     *         {@link GameState}.
+     * {@link GameState}.
      */
     public List<Player> getPlayers() {
         return Collections.unmodifiableList(players);
@@ -127,9 +127,9 @@ public final class GameState {
      */
     public Player newPlayer(final @Nullable String name, final Color color) {
         final Player player = new PlayerImpl.Builder(this.players.size() + 1)
-                .color(color)
-                .name(name)
-                .build(this.grid);
+            .color(color)
+            .name(name)
+            .build(this.grid);
         if (!addPlayer(player)) {
             throw new IllegalStateException("Cannot add more players");
         }
@@ -144,7 +144,7 @@ public final class GameState {
     @Override
     public String toString() {
         return "GameState[" +
-                "grid=" + grid + ", " +
-                "players=" + players + ']';
+            "grid=" + grid + ", " +
+            "players=" + players + ']';
     }
 }

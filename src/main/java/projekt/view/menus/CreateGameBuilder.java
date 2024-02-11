@@ -40,9 +40,10 @@ public class CreateGameBuilder extends MenuBuilder {
      */
     @DoNotTouch
     public CreateGameBuilder(
-            final ObservableList<PlayerImpl.Builder> players,
-            final Runnable returnHandler,
-            final Supplier<Boolean> startGameHandler) {
+        final ObservableList<PlayerImpl.Builder> players,
+        final Runnable returnHandler,
+        final Supplier<Boolean> startGameHandler
+    ) {
         super("Start new Game", returnHandler);
         this.startGameHandler = startGameHandler;
         this.observablePlayers = players;
@@ -71,10 +72,11 @@ public class CreateGameBuilder extends MenuBuilder {
                     }
                 });
                 playerListingHBox.getChildren().addAll(
-                        playerNameTextField,
-                        createBotOrPlayerSelector(playerBuilder), // TODO: Remove from student template
-                        createPlayerColorPicker(playerBuilder), // TODO: Remove from student template
-                        createRemovePlayerButton(playerBuilder.getId())); // TODO: Remove from student template
+                    playerNameTextField,
+                    createBotOrPlayerSelector(playerBuilder), // TODO: Remove from student template
+                    createPlayerColorPicker(playerBuilder), // TODO: Remove from student template
+                    createRemovePlayerButton(playerBuilder.getId())
+                ); // TODO: Remove from student template
                 playerListVBox.getChildren().add(playerListingHBox);
             }
         });
@@ -88,10 +90,11 @@ public class CreateGameBuilder extends MenuBuilder {
         });
 
         mainBox.getChildren().addAll(
-                createAddPlayerButton(), // TODO: Remove from student template
-                playerListVBox,
-                startGameButton,
-                startGameErrorLabel);
+            createAddPlayerButton(), // TODO: Remove from student template
+            playerListVBox,
+            startGameButton,
+            startGameErrorLabel
+        );
         mainBox.alignmentProperty().set(Pos.TOP_CENTER);
         return mainBox;
     }
@@ -126,9 +129,9 @@ public class CreateGameBuilder extends MenuBuilder {
         playerColorPicker.setOnAction(e -> {
             final Color newColor = playerColorPicker.getValue();
             if (this.observablePlayers
-                    .stream()
-                    .filter(Predicate.not(playerBuilder::equals))
-                    .anyMatch(x -> x.getColor().equals(newColor))) {
+                .stream()
+                .filter(Predicate.not(playerBuilder::equals))
+                .anyMatch(x -> x.getColor().equals(newColor))) {
                 new Alert(Alert.AlertType.ERROR, "Two Players cannot have the same color!").showAndWait();
                 playerColorPicker.setValue(playerBuilder.getColor());
             } else {
@@ -162,7 +165,7 @@ public class CreateGameBuilder extends MenuBuilder {
         }
         final Button botOrPlayerSelectorButton = new Button();
         botOrPlayerSelectorButton.textProperty()
-                .bind(playerBuilder.aiProperty().map(x -> PlayerTypeIcos.getIcon(playerBuilder)));
+            .bind(playerBuilder.aiProperty().map(x -> PlayerTypeIcos.getIcon(playerBuilder)));
         botOrPlayerSelectorButton.setOnAction(e -> playerBuilder.ai(!playerBuilder.isAi()));
         return botOrPlayerSelectorButton;
     }

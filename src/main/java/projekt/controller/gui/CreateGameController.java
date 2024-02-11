@@ -26,9 +26,10 @@ public class CreateGameController implements SceneController {
     public CreateGameController(final GameState gameState) {
         this.gameState = gameState;
         this.builder = new CreateGameBuilder(
-                this.playerBuilderList,
-                SceneController::loadMainMenuScene,
-                this::startGameHandler);
+            this.playerBuilderList,
+            SceneController::loadMainMenuScene,
+            this::startGameHandler
+        );
     }
 
     @Override
@@ -36,16 +37,16 @@ public class CreateGameController implements SceneController {
         final var tmp = SceneController.super.buildView();
         // initial Players
         this.playerBuilderList.add(
-                this.builder.nextPlayerBuilder()
-                        .name(System.getProperty("user.name"))
-                        .color(Color.AQUA));
+            this.builder.nextPlayerBuilder()
+                .name(System.getProperty("user.name"))
+                .color(Color.AQUA));
         this.playerBuilderList.add(this.builder.nextPlayerBuilder());
         return tmp;
     }
 
     /**
      * The handler for the start game button.
-     *
+     * <p>
      * Tries to start the game with the current players. If there are not enough
      * players, the game will not start.
      *

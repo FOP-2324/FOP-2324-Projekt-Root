@@ -95,7 +95,8 @@ public interface Tile {
         return Set.of(
             getPosition(),
             TilePosition.neighbour(getPosition(), direction.leftDirection),
-            TilePosition.neighbour(getPosition(), direction.rightDirection));
+            TilePosition.neighbour(getPosition(), direction.rightDirection)
+        );
     }
 
     /**
@@ -105,9 +106,9 @@ public interface Tile {
      */
     default Set<Tile> getNeighbours() {
         return getHexGrid().getTiles().entrySet().stream()
-                .filter(entrySet -> TilePosition.neighbours(getPosition()).contains(entrySet.getKey()))
-                .map(Map.Entry::getValue)
-                .collect(Collectors.toSet());
+            .filter(entrySet -> TilePosition.neighbours(getPosition()).contains(entrySet.getKey()))
+            .map(Map.Entry::getValue)
+            .collect(Collectors.toSet());
     }
 
     /**
@@ -147,7 +148,7 @@ public interface Tile {
      */
     default Set<Settlement> getSettlements() {
         return getIntersections().stream().map(Intersection::getSettlement)
-                .filter(Objects::nonNull).collect(Collectors.toUnmodifiableSet());
+            .filter(Objects::nonNull).collect(Collectors.toUnmodifiableSet());
     }
 
     /**
@@ -161,9 +162,10 @@ public interface Tile {
      * @return whether the settlement was placed
      */
     default boolean placeVillage(
-            final IntersectionDirection direction,
-            final Player player,
-            final boolean ignoreRoadCheck) {
+        final IntersectionDirection direction,
+        final Player player,
+        final boolean ignoreRoadCheck
+    ) {
         return getIntersection(direction).placeVillage(player, ignoreRoadCheck);
     }
 

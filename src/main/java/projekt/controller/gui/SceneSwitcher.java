@@ -74,11 +74,12 @@ public class SceneSwitcher {
         GAME_BOARD(() -> {
             SceneSwitcher.getInstance().gameLoopStarter.accept(SceneSwitcher.getInstance().gameController);
             return new GameBoardController(
-                    getInstance().gameController.getState(),
-                    getInstance().gameController.getActivePlayerControllerProperty(),
-                    getInstance().gameController.getCurrentDiceRollProperty(),
-                    getInstance().gameController.getState().getWinnerProperty(),
-                    getInstance().gameController.getRoundCounterProperty());
+                getInstance().gameController.getState(),
+                getInstance().gameController.getActivePlayerControllerProperty(),
+                getInstance().gameController.getCurrentDiceRollProperty(),
+                getInstance().gameController.getState().getWinnerProperty(),
+                getInstance().gameController.getRoundCounterProperty()
+            );
         }),
         ABOUT(AboutController::new);
 

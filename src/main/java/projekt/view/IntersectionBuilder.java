@@ -49,7 +49,8 @@ public class IntersectionBuilder implements Builder<Region> {
         }
 
         final Sprite settlementSprite = new Sprite(Utils.settlementsSpriteSheet, settlement.type().ordinal(),
-                settlement.owner().getColor());
+                                                   settlement.owner().getColor()
+        );
         settlementSprite.setFitWidth(25);
         settlementSprite.setPreserveRatio(true);
 
