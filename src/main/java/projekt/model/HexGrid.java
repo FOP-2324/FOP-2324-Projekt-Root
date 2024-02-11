@@ -202,7 +202,7 @@ public interface HexGrid {
      * @return {@code true}, if the road has been successfully removed, {@code false} otherwise
      */
     default boolean removeRoad(final Edge road) {
-        return removeRoad(road.position1(), road.position2());
+        return removeRoad(road.getPosition1(), road.getPosition2());
     }
 
 

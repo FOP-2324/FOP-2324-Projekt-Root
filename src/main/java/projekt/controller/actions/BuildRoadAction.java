@@ -17,6 +17,6 @@ public record BuildRoadAction(Edge edge) implements PlayerAction {
      */
     @Override
     public void execute(final PlayerController pc) throws IllegalActionException {
-        pc.buildRoad(edge.position1(), edge.position2());
+        pc.buildRoad(edge.getPosition1(), edge.getPosition2());
     }
 }

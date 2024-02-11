@@ -106,7 +106,7 @@ public class IntersectionImpl implements Intersection {
     public Port getPort() {
         return getConnectedEdges().stream()
             .filter(Edge::hasPort)
-            .map(Edge::port)
+            .map(Edge::getPort)
             .findAny()
             .orElse(null);
     }
@@ -126,7 +126,7 @@ public class IntersectionImpl implements Intersection {
     @Override
     public boolean playerHasConnectedRoad(final Player player) {
         return getConnectedEdges().stream()
-            .anyMatch(edge -> edge.hasRoad() && edge.roadOwner().getValue().equals(player));
+            .anyMatch(edge -> edge.hasRoad() && edge.getRoadOwner().equals(player));
     }
 
     @Override

@@ -19,6 +19,7 @@ import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 import projekt.Config;
 import projekt.model.buildings.Edge;
+import projekt.model.buildings.EdgeImpl;
 import projekt.model.buildings.Port;
 import projekt.model.tiles.Tile;
 import projekt.model.tiles.TileImpl;
@@ -110,7 +111,7 @@ public class HexGridImpl implements HexGrid {
                             tile.getPosition(),
                             TilePosition.neighbour(tile.getPosition(), ed)
                         ),
-                        new Edge(
+                        new EdgeImpl(
                             this,
                             tile.getPosition(),
                             TilePosition.neighbour(tile.getPosition(), ed),
@@ -227,7 +228,7 @@ public class HexGridImpl implements HexGrid {
     public Map<Set<TilePosition>, Edge> getRoads(final Player player) {
         return Collections.unmodifiableMap(edges.entrySet().stream()
                 .filter(entry -> entry.getValue().hasRoad())
-                .filter(entry -> entry.getValue().roadOwner().getValue().equals(player))
+                .filter(entry -> entry.getValue().getRoadOwner().equals(player))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
     }
 
@@ -249,21 +250,21 @@ public class HexGridImpl implements HexGrid {
         }
         if (edge.hasRoad()
             || (!checkVillages && edge.getConnectedEdges().stream()
-            .noneMatch(e -> e.hasRoad() && e.roadOwner().getValue().equals(player)))
+            .noneMatch(e -> e.hasRoad() && e.getRoadOwner().equals(player)))
             || (checkVillages && edge.getIntersections().stream()
             .noneMatch(intersection -> intersection.getSettlement() != null
                 && intersection.getSettlement().owner().equals(player)
                 && intersection.getConnectedEdges().stream().filter(Edge::hasRoad)
-                .noneMatch(e -> e.roadOwner().getValue().equals(player))))) {
+                .noneMatch(e -> e.getRoadOwner().equals(player))))) {
             return false;
         }
-        edge.roadOwner().setValue(player);
+        edge.getRoadOwnerProperty().setValue(player);
         return true;
     }
 
     @Override
     public boolean removeRoad(final TilePosition position0, final TilePosition position1) {
-        edges.get(Set.of(position0, position1)).roadOwner().setValue(null);
+        edges.get(Set.of(position0, position1)).getRoadOwnerProperty().setValue(null);
         return true;
     }
 

@@ -322,7 +322,7 @@ public class PlayerController {
                         .getAdjacentIntersections().stream().noneMatch(Intersection::hasSettlement));
         if (!firstRound) {
             intersections = intersections.filter(intersection -> intersection.getConnectedEdges().stream()
-                    .anyMatch(edge -> edge.hasRoad() && edge.roadOwner().getValue().equals(player)));
+                    .anyMatch(edge -> edge.hasRoad() && edge.getRoadOwner().equals(player)));
         }
         return intersections.collect(Collectors.toUnmodifiableSet());
     }

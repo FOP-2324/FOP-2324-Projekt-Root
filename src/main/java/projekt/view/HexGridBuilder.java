@@ -97,7 +97,7 @@ public class HexGridBuilder implements Builder<Region> {
     public Region build() {
         hexGridPane.getChildren().clear();
 
-        edgeLines.stream().map(EdgeLine::getEdge).filter(edge -> edge.port() != null).forEach(this::placePort);
+        edgeLines.stream().map(EdgeLine::getEdge).filter(Edge::hasPort).forEach(this::placePort);
 
         hexGridPane.getChildren().addAll(tileBuilders.stream().map(this::placeTile).toList());
 
