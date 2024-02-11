@@ -12,7 +12,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static projekt.Config.*;
+import static projekt.Config.MAX_CITIES;
+import static projekt.Config.MAX_ROADS;
+import static projekt.Config.MAX_VILLAGES;
 
 /**
  * Default implementation of {@link Player}.

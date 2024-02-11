@@ -5,7 +5,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import projekt.model.*;
+import projekt.model.GameState;
+import projekt.model.HexGrid;
+import projekt.model.HexGridImpl;
+import projekt.model.Player;
+import projekt.model.PlayerImpl;
+import projekt.model.TilePosition;
 
 import java.util.List;
 

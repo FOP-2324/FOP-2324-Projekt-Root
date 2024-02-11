@@ -1,16 +1,31 @@
 package projekt.controller;
 
-import javafx.beans.property.*;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.Property;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 import projekt.Config;
 import projekt.controller.actions.AcceptTradeAction;
 import projekt.controller.actions.EndTurnAction;
 import projekt.controller.actions.PlayerAction;
-import projekt.model.*;
+import projekt.model.DevelopmentCardType;
+import projekt.model.GameState;
+import projekt.model.HexGridImpl;
+import projekt.model.Player;
+import projekt.model.ResourceType;
 import projekt.model.tiles.Tile;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
