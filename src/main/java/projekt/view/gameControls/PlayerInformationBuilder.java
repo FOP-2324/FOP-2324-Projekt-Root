@@ -2,8 +2,6 @@ package projekt.view.gameControls;
 
 import java.util.Map;
 
-import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
-
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
@@ -42,7 +40,6 @@ public class PlayerInformationBuilder implements Builder<Region> {
     }
 
     @Override
-    @StudentImplementationRequired
     public Region build() {
         final VBox mainBox = new VBox();
         mainBox.getStylesheets().add("css/hexmap.css");

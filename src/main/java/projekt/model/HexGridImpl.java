@@ -1,6 +1,11 @@
 package projekt.model;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -14,6 +19,7 @@ import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 import projekt.Config;
 import projekt.model.buildings.Edge;
+import projekt.model.buildings.EdgeImpl;
 import projekt.model.buildings.Port;
 import projekt.model.tiles.Tile;
 import projekt.model.tiles.TileImpl;
@@ -38,6 +44,7 @@ public class HexGridImpl implements HexGrid {
      * @param rollNumberGenerator a supplier returning a tile's roll number
      * @param tileTypeGenerator   a supplier returning a tile's type
      */
+    @DoNotTouch
     public HexGridImpl(final int radius, final Supplier<Integer> rollNumberGenerator, final Supplier<Tile.Type> tileTypeGenerator) {
         this.tileHeight = Bindings.createDoubleBinding(() -> tileSize.get() * 2, tileSize);
         this.tileWidth = Bindings.createDoubleBinding(() -> Math.sqrt(3) * tileSize.get(), tileSize);
@@ -53,6 +60,7 @@ public class HexGridImpl implements HexGrid {
      *
      * @param radius radius of the grid, center is included
      */
+    @DoNotTouch
     public HexGridImpl(final int radius) {
         this(radius, Config.generateRollNumbers(), Config.generateTileTypes());
     }
@@ -64,6 +72,7 @@ public class HexGridImpl implements HexGrid {
      * @param rollNumberGenerator a supplier returning a tile's roll number
      * @param tileTypeGenerator   a supplier returning a tile's type
      */
+    @DoNotTouch
     private void initTiles(final int grid_radius, final Supplier<Integer> rollNumberGenerator, final Supplier<Tile.Type> tileTypeGenerator) {
         final TilePosition center = new TilePosition(0, 0);
 
@@ -77,6 +86,7 @@ public class HexGridImpl implements HexGrid {
     /**
      * Initializes the intersections in this grid.
      */
+    @DoNotTouch
     private void initIntersections() {
         for (final var tile : this.tiles.values()) {
             Arrays.stream(TilePosition.IntersectionDirection.values())
@@ -89,6 +99,7 @@ public class HexGridImpl implements HexGrid {
     /**
      * Initializes the edges in this grid.
      */
+    @DoNotTouch
     private void initEdges() {
         BiFunction<TilePosition, TilePosition.EdgeDirection, Port> portMapper = Config.generatePortMapper();
 
@@ -100,7 +111,7 @@ public class HexGridImpl implements HexGrid {
                             tile.getPosition(),
                             TilePosition.neighbour(tile.getPosition(), ed)
                         ),
-                        new Edge(
+                        new EdgeImpl(
                             this,
                             tile.getPosition(),
                             TilePosition.neighbour(tile.getPosition(), ed),
@@ -115,6 +126,7 @@ public class HexGridImpl implements HexGrid {
     /**
      * Initializes the robber.
      */
+    @DoNotTouch
     private void initRobber() {
         this.tiles.values().stream().filter(tile -> tile.getType() == Tile.Type.DESERT).findAny()
             .ifPresent(tile -> robberPosition = tile.getPosition());
@@ -212,11 +224,11 @@ public class HexGridImpl implements HexGrid {
     }
 
     @Override
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H1.3")
     public Map<Set<TilePosition>, Edge> getRoads(final Player player) {
         return Collections.unmodifiableMap(edges.entrySet().stream()
                 .filter(entry -> entry.getValue().hasRoad())
-                .filter(entry -> entry.getValue().roadOwner().getValue().equals(player))
+                .filter(entry -> entry.getValue().getRoadOwner().equals(player))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
     }
 
@@ -227,7 +239,7 @@ public class HexGridImpl implements HexGrid {
     }
 
     @Override
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H1.3")
     public boolean addRoad(
         final TilePosition position0, final TilePosition position1, final Player player,
         final boolean checkVillages
@@ -238,21 +250,21 @@ public class HexGridImpl implements HexGrid {
         }
         if (edge.hasRoad()
             || (!checkVillages && edge.getConnectedEdges().stream()
-            .noneMatch(e -> e.hasRoad() && e.roadOwner().getValue().equals(player)))
+            .noneMatch(e -> e.hasRoad() && e.getRoadOwner().equals(player)))
             || (checkVillages && edge.getIntersections().stream()
             .noneMatch(intersection -> intersection.getSettlement() != null
                 && intersection.getSettlement().owner().equals(player)
                 && intersection.getConnectedEdges().stream().filter(Edge::hasRoad)
-                .noneMatch(e -> e.roadOwner().getValue().equals(player))))) {
+                .noneMatch(e -> e.getRoadOwner().equals(player))))) {
             return false;
         }
-        edge.roadOwner().setValue(player);
+        edge.getRoadOwnerProperty().setValue(player);
         return true;
     }
 
     @Override
     public boolean removeRoad(final TilePosition position0, final TilePosition position1) {
-        edges.get(Set.of(position0, position1)).roadOwner().setValue(null);
+        edges.get(Set.of(position0, position1)).getRoadOwnerProperty().setValue(null);
         return true;
     }
 

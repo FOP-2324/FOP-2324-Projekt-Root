@@ -18,6 +18,9 @@ import java.util.stream.IntStream;
 
 import static java.lang.Math.abs;
 
+/**
+ * Global configuration; mainly for {@link projekt.model.HexGrid} implementations and the {@link projekt.controller controller}.
+ */
 public final class Config {
 
     // Properties and global stuff

@@ -1,5 +1,7 @@
 package projekt.model;
 
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
+
 import java.util.Map;
 
 /**
@@ -10,6 +12,7 @@ import java.util.Map;
  * @param withBank whether the bank is the other party in this trade
  * @param player   the player that initiated the trade
  */
+@DoNotTouch
 public record TradePayload(Map<ResourceType, Integer> offer, Map<ResourceType, Integer> request, boolean withBank,
         Player player) {
 

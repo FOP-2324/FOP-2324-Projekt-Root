@@ -1,41 +1,53 @@
 package projekt.model.buildings;
 
 import javafx.beans.property.Property;
-import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 import projekt.model.HexGrid;
 import projekt.model.Intersection;
 import projekt.model.Player;
 import projekt.model.TilePosition;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Holds information on a tile's edge.
  * An edge is defined by two adjacent {@link TilePosition}s or by the intersections on either end.
- *
- * @param grid      the HexGrid instance this edge is placed in
- * @param position1 the first position
- * @param position2 the second position
- * @param roadOwner the road's owner, if a road has been built on this edge
- * @param port      a port this edge provides access to, if any
  */
-public record Edge(
-    HexGrid grid,
-    TilePosition position1,
-    TilePosition position2,
-    Property<Player> roadOwner,
-    Port port
-) {
+public interface Edge {
+
+    /**
+     * Returns the HexGrid instance this edge is placed in.
+     *
+     * @return the HexGrid instance this edge is placed in
+     */
+    HexGrid getHexGrid();
+
+    /**
+     * Returns the first position.
+     *
+     * @return the first position
+     */
+    TilePosition getPosition1();
+
+    /**
+     * Returns the second position.
+     *
+     * @return the second position
+     */
+    TilePosition getPosition2();
 
     /**
      * Returns {@code true} if this edge is on the edge of the grid a gives access to a port, {@code false} otherwise.
      *
      * @return whether this edge provides access to a port
      */
-    public boolean hasPort() {
-        return port != null;
-    }
+    boolean hasPort();
+
+    /**
+     * Returns the port this edge provides access to, if any.
+     *
+     * @return the port this edge provides access to, if any
+     */
+    Port getPort();
 
     /**
      * Returns {@code true} if the given edge connects to this edge and {@code false} otherwise.
@@ -43,18 +55,15 @@ public record Edge(
      * @param other the other edge
      * @return whether the two edges are connected
      */
-    @StudentImplementationRequired
-    public boolean connectsTo(final Edge other) {
-        return this.getIntersections().stream().anyMatch(i -> i.getConnectedEdges().contains(other));
-    }
+    boolean connectsTo(Edge other);
 
     /**
      * Returns the {@link TilePosition}s that this edge lies between.
      *
      * @return the adjacent tile positions
      */
-    public Set<TilePosition> getAdjacentTilePositions() {
-        return Set.of(this.position1, this.position2);
+    default Set<TilePosition> getAdjacentTilePositions() {
+        return Set.of(getPosition1(), getPosition2());
     }
 
     /**
@@ -62,29 +71,15 @@ public record Edge(
      *
      * @return the intersections
      */
-    @StudentImplementationRequired
-    public Set<Intersection> getIntersections() {
-        final var edgeDir = TilePosition.EdgeDirection
-            .fromRelativePosition(TilePosition.subtract(this.position2, this.position1));
-        final var is1 = this.grid.getIntersections()
-            .get(Set.of(this.position1, this.position2, TilePosition.neighbour(this.position1, edgeDir.left())));
-        final var is2 = this.grid.getIntersections()
-            .get(Set.of(this.position1, this.position2, TilePosition.neighbour(this.position1, edgeDir.right())));
-        if (is1 == null || is2 == null)
-            throw new RuntimeException("Edge is not connected to two intersections");
-        return Set.of(
-            is1,
-            is2
-        );
-    }
+    Set<Intersection> getIntersections();
 
     /**
      * Returns all edges that connect to this edge in the grid.
      *
      * @return all edges connected to this one
      */
-    public Set<Edge> getConnectedEdges() {
-        return this.getIntersections().stream()
+    default Set<Edge> getConnectedEdges() {
+        return getIntersections().stream()
             .flatMap(i -> i.getConnectedEdges().stream())
             .collect(java.util.stream.Collectors.toSet());
     }
@@ -94,8 +89,19 @@ public record Edge(
      *
      * @return whether a player has placed a road on this edge
      */
-    public boolean hasRoad() {
-        return roadOwner.getValue() != null;
+    default boolean hasRoad() {
+        return getRoadOwnerProperty().getValue() != null;
+    }
+
+    /**
+     * Returns the road's owner, if a road has been built on this edge.
+     *
+     * @return the road's owner, if a road has been built on this edge
+     */
+    Property<Player> getRoadOwnerProperty();
+
+    default Player getRoadOwner() {
+        return getRoadOwnerProperty().getValue();
     }
 
     /**
@@ -104,11 +110,5 @@ public record Edge(
      * @param player the player to check for.
      * @return the connected roads.
      */
-    @StudentImplementationRequired
-    public Set<Edge> getConnectedRoads(Player player) {
-        return getConnectedEdges().stream()
-            .filter(Edge::hasRoad)
-            .filter(edge -> edge.roadOwner.getValue().equals(player))
-            .collect(Collectors.toUnmodifiableSet());
-    }
+    Set<Edge> getConnectedRoads(Player player);
 }

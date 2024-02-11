@@ -10,11 +10,13 @@ import org.jetbrains.annotations.Nullable;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.paint.Color;
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import projekt.Config;
 
 /**
  * Holds information on the game's state.
  */
+@DoNotTouch
 public final class GameState {
 
     /**

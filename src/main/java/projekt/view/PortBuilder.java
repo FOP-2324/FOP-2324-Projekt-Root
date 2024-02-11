@@ -37,22 +37,22 @@ public class PortBuilder implements Builder<Region> {
     /**
      * Creates a new PortBuilder on the given {@link Edge}.
      *
-     * @param egde   The edge the port is on.
+     * @param edge   The edge the port is on.
      * @param width  The width of the port.
      * @param height The height of the port.
      * @param node0  The position of the first node.
      * @param node1  The position of the second node.
      */
-    public PortBuilder(final Edge egde, final ObservableDoubleValue width, final ObservableDoubleValue height,
+    public PortBuilder(final Edge edge, final ObservableDoubleValue width, final ObservableDoubleValue height,
             final Point2D node0, final Point2D node1) {
         this.width = width;
         this.height = height;
         this.node0 = node0;
         this.node1 = node1;
-        if (egde.port() == null) {
+        if (!edge.hasPort()) {
             throw new IllegalArgumentException("Edge has no port");
         }
-        this.edge = egde;
+        this.edge = edge;
     }
 
     @Override
@@ -66,9 +66,9 @@ public class PortBuilder implements Builder<Region> {
         background.setStroke(Color.BLACK);
         background.setStrokeWidth(3);
         final Node icon;
-        if (edge.port().resourceType() != null) {
-            final ImageView resourceImage = new Sprite(Utils.resourcesSpriteSheet, edge.port().resourceType().iconIndex,
-                    edge.port().resourceType().color);
+        if (edge.getPort().resourceType() != null) {
+            final ImageView resourceImage = new Sprite(Utils.resourcesSpriteSheet, edge.getPort().resourceType().iconIndex,
+                    edge.getPort().resourceType().color);
             resourceImage.setFitWidth(background.getRadius() * 2 * 0.5);
             resourceImage.setPreserveRatio(true);
             icon = resourceImage;
@@ -80,7 +80,7 @@ public class PortBuilder implements Builder<Region> {
             icon = missingLabel;
         }
 
-        final Label ratioLabel = new Label(String.format("%d:1", edge.port().ratio()));
+        final Label ratioLabel = new Label(String.format("%d:1", edge.getPort().ratio()));
         ratioLabel.setFont(Font.font(10));
         ratioLabel.getStyleClass().add("highlighted-label");
         final VBox iconBox = new VBox(icon, ratioLabel);
