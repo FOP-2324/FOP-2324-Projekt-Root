@@ -14,6 +14,7 @@ import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
+import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 import projekt.Config;
 import projekt.controller.actions.IllegalActionException;
 import projekt.controller.actions.PlayerAction;
@@ -321,7 +322,7 @@ public class PlayerController {
                         .getAdjacentIntersections().stream().noneMatch(Intersection::hasSettlement));
         if (!firstRound) {
             intersections = intersections.filter(intersection -> intersection.getConnectedEdges().stream()
-                    .anyMatch(edge -> edge.hasRoad() && edge.roadOwner().getValue().equals(player)));
+                    .anyMatch(edge -> edge.hasRoad() && edge.getRoadOwner().equals(player)));
         }
         return intersections.collect(Collectors.toUnmodifiableSet());
     }
@@ -333,6 +334,7 @@ public class PlayerController {
      *
      * @return whether the {@link Player} can build a village.
      */
+    @StudentImplementationRequired("H2.5")
     public boolean canBuildVillage() {
         final var requiredResources = Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.VILLAGE);
         return (playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_VILLAGE)
@@ -347,18 +349,20 @@ public class PlayerController {
      * and it is not the first round.
      *
      * @param intersection the intersection to build the village at
-     * @return whether the village was built
+     * @throws IllegalActionException if the village cannot be built
      */
-    public boolean buildVillage(final Intersection intersection) {
+    @StudentImplementationRequired("H2.5")
+    public void buildVillage(final Intersection intersection) throws IllegalActionException {
         final var requiredResources = Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.VILLAGE);
         if (!canBuildVillage()) {
-            return false;
+            throw new IllegalActionException("Cannot build village");
         }
         if (!intersection.placeVillage(player, firstRound)) {
-            return false;
+            throw new IllegalActionException("Cannot build village at given intersection");
         }
-        return playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_VILLAGE)
-                || player.removeResources(requiredResources);
+        if (!playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_VILLAGE)) {
+            player.removeResources(requiredResources);
+        }
     }
 
     /**
@@ -396,17 +400,18 @@ public class PlayerController {
      * upgraded.
      *
      * @param intersection the intersection to upgrade the village at
-     * @return whether the village was upgraded
+     * @throws IllegalActionException if the village cannot be upgraded
      */
-    public boolean upgradeVillage(final Intersection intersection) {
+    @StudentImplementationRequired("H2.6")
+    public void upgradeVillage(final Intersection intersection) throws IllegalActionException {
         final var requiredResources = Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.CITY);
         if (!canUpgradeVillage()) {
-            return false;
+            throw new IllegalActionException("Cannot upgrade village");
         }
         if (!intersection.upgradeSettlement(player)) {
-            return false;
+            throw new IllegalActionException("Cannot upgrade village at given intersection");
         }
-        return player.removeResources(requiredResources);
+        player.removeResources(requiredResources);
     }
 
     /**
@@ -443,6 +448,7 @@ public class PlayerController {
      *
      * @return whether the {@link Player} can build a road.
      */
+    @StudentImplementationRequired("H2.5")
     public boolean canBuildRoad() {
         final var requiredResources = Config.ROAD_BUILDING_COST;
         return (playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_ROAD)
@@ -456,10 +462,11 @@ public class PlayerController {
      *
      * @param tile          the tile to build the road at
      * @param edgeDirection the direction of the edge to build the road at
-     * @return whether the road was built
+     * @throws IllegalActionException if the road cannot be built
      */
-    public boolean buildRoad(final Tile tile, final TilePosition.EdgeDirection edgeDirection) {
-        return buildRoad(tile.getPosition(), TilePosition.neighbour(tile.getPosition(), edgeDirection));
+    public void buildRoad(final Tile tile, final TilePosition.EdgeDirection edgeDirection)
+            throws IllegalActionException {
+        buildRoad(tile.getPosition(), TilePosition.neighbour(tile.getPosition(), edgeDirection));
     }
 
     /**
@@ -471,18 +478,20 @@ public class PlayerController {
      *
      * @param position0 the first position to build the road between
      * @param position1 the second position to build the road between
-     * @return whether the road was built
+     * @throws IllegalActionException if the road cannot be built
      */
-    public boolean buildRoad(final TilePosition position0, final TilePosition position1) {
+    @StudentImplementationRequired("H2.5")
+    public void buildRoad(final TilePosition position0, final TilePosition position1) throws IllegalActionException {
         if (!canBuildRoad()) {
-            return false;
+            throw new IllegalActionException("Cannot build road");
         }
         if (!gameController.getState().getGrid().addRoad(position0, position1, player, firstRound)) {
-            return false;
+            throw new IllegalActionException("Cannot build road between given positions");
         }
         final var requiredResources = Config.ROAD_BUILDING_COST;
-        return playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_ROAD)
-                || player.removeResources(requiredResources);
+        if (!playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_ROAD)) {
+            player.removeResources(requiredResources);
+        }
     }
 
     // Development card methods
@@ -503,17 +512,16 @@ public class PlayerController {
      * Also removes the resources from the {@link Player} if the development card
      * was bought.
      *
-     * @return whether the development card was bought
+     * @throws IllegalActionException if the development card cannot be bought
      */
-    public boolean buyDevelopmentCard() {
+    public void buyDevelopmentCard() throws IllegalActionException {
         if (!canBuyDevelopmentCard()) {
-            return false;
+            throw new IllegalActionException("Cannot buy development card");
         }
 
         final var requiredResources = Config.DEVELOPMENT_CARD_COST;
         player.addDevelopmentCard(gameController.drawDevelopmentCard());
         player.removeResources(requiredResources);
-        return true;
     }
 
     /**
@@ -521,14 +529,17 @@ public class PlayerController {
      * The development card is removed from the {@link Player} after it is played.
      * After a development card is played, the {@link Player} continues his regular
      * turn.
-     * For instructions on what each development card does, reference the Task
-     * instructions.
      *
      * @see DevelopmentCardType
      *
      * @param developmentCard the development card to play
+     * @throws IllegalActionException if the player does not have the selected
+     *                                development card
      */
-    public void playDevelopmentCard(final DevelopmentCardType developmentCard) {
+    public void playDevelopmentCard(final DevelopmentCardType developmentCard) throws IllegalActionException {
+        if (!getPlayer().removeDevelopmentCard(developmentCard)) {
+            throw new IllegalActionException("Player does not have the selected development card");
+        }
         switch (developmentCard) {
             case KNIGHT -> {
                 waitForNextAction(PlayerObjective.SELECT_ROBBER_TILE);
@@ -558,7 +569,6 @@ public class PlayerController {
                 return;
             }
         }
-        getPlayer().removeDevelopmentCard(developmentCard);
         waitForNextAction(PlayerObjective.REGULAR_TURN);
     }
 
@@ -574,19 +584,21 @@ public class PlayerController {
      * @param offerType   the type of resource to offer
      * @param offerAmount the amount of resources to offer
      * @param request     the type of resource to request
-     * @return whether the trade was successful
+     * @throws IllegalActionException if the trade cannot be made
      */
-    public boolean tradeWithBank(final ResourceType offerType, final int offerAmount, final ResourceType request) {
+    @StudentImplementationRequired("H2.3")
+    public void tradeWithBank(final ResourceType offerType, final int offerAmount, final ResourceType request)
+            throws IllegalActionException {
         // check for port
         final var ratio = player.getTradeRatio(offerType);
         if (offerAmount != ratio) {
-            return false;
+            throw new IllegalActionException(String
+                    .format("Offered amount does not match trade ratio. Offered: %d, Ratio: %d", offerAmount, ratio));
         }
         if (!player.removeResource(offerType, offerAmount)) {
-            return false;
+            throw new IllegalActionException("Player does not have the offered resources");
         }
         player.addResource(request, 1);
-        return true;
     }
 
     /**
@@ -661,6 +673,7 @@ public class PlayerController {
      *
      * @param accepted whether the trade offer is accepted
      */
+    @StudentImplementationRequired("H2.3")
     public void acceptTradeOffer(final boolean accepted) throws IllegalActionException {
         if (tradingPlayer == null || playerTradingOffer == null || playerTradingRequest == null) {
             throw new IllegalActionException("No trade offer to accept");
@@ -715,12 +728,10 @@ public class PlayerController {
      */
     public void selectPlayerAndResourceToSteal(final Player playerToStealFrom, final ResourceType resourceToSteal)
             throws IllegalActionException {
-        if (!playerToStealFrom.hasResources(Map.of(resourceToSteal, 1))) {
+        if (!playerToStealFrom.removeResource(resourceToSteal, 1)) {
             throw new IllegalActionException("Player does not have the selected resource");
         }
         playerObjectiveProperty.setValue(PlayerObjective.IDLE);
-        // remove resource from player
-        playerToStealFrom.removeResources(Map.of(resourceToSteal, 1));
         // add resource to player
         player.addResource(resourceToSteal, 1);
     }

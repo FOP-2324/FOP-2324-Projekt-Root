@@ -8,9 +8,10 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import projekt.model.buildings.Edge;
+import projekt.model.buildings.EdgeImpl;
 
 /**
- * A Line that represents an {@link Edge}. Has methods to highlight and
+ * A Line that represents an {@link EdgeImpl}. Has methods to highlight and
  * unhighlight itself.
  */
 public class EdgeLine extends Line {
@@ -21,7 +22,7 @@ public class EdgeLine extends Line {
     private final Line outline = new Line();
 
     /**
-     * Creates a new EdgeLine for the given {@link Edge}.
+     * Creates a new EdgeLine for the given {@link EdgeImpl}.
      *
      * @param edge the edge to represent
      */
@@ -75,7 +76,7 @@ public class EdgeLine extends Line {
     public void init(final double dashScale) {
         this.distance = new Point2D(getStartX(), getStartY()).distance(getEndX(), getEndY());
         setStrokeWidth(strokeWidth);
-        setStroke(edge.hasRoad() ? edge.roadOwner().getValue().getColor() : Color.TRANSPARENT);
+        setStroke(edge.hasRoad() ? edge.getRoadOwner().getColor() : Color.TRANSPARENT);
         setStrokeDashOffset(-positionOffset / 2);
         getStrokeDashArray().clear();
         getStrokeDashArray().add((distance - positionOffset) * dashScale);

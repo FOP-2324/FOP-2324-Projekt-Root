@@ -121,10 +121,11 @@ public class PlayerActionsController implements Controller {
     /**
      * Updates the UI based on the given objective. This includes enabling and
      * disabling buttons and prompting the user if necessary.
+     * Also redraws the game board and updates the player information.
      *
      * @param objective the objective to check
      */
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H3.2")
     private void updateUIBasedOnObjective(final PlayerObjective objective) {
         System.out.println("objective: " + objective);
         removeAllHighlights();
@@ -133,13 +134,11 @@ public class PlayerActionsController implements Controller {
         getHexGridController().drawTiles();
         builder.disableAllButtons();
         updatePlayerInformation();
+
         if (getPlayer().isAi()) {
             return;
         }
-        if (objective == null) {
-            System.out.println("I am confusion");
-            return;
-        }
+
         final Set<Class<? extends PlayerAction>> allowedActions = getPlayerObjective().getAllowedActions();
         if (allowedActions.contains(EndTurnAction.class)) {
             builder.enableEndTurnButton();
@@ -311,7 +310,6 @@ public class PlayerActionsController implements Controller {
             removeAllHighlights();
             if (getPlayerController() != null) {
                 updateUIBasedOnObjective(getPlayerObjective());
-                updatePlayerInformation();
             }
         };
     }
@@ -320,7 +318,7 @@ public class PlayerActionsController implements Controller {
      * Enables or disable the build village button based on the currently allowed
      * actions and if there are any buildable intersections.
      */
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H3.1")
     private void updateBuildVillageButtonState() {
         if (getPlayerObjective().getAllowedActions().contains(BuildVillageAction.class)
                 && getPlayerState().buildableVillageIntersections().size() > 0) {
@@ -341,7 +339,7 @@ public class PlayerActionsController implements Controller {
      *
      * @param event the event that triggered the action
      */
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H3.1")
     private void buildVillageButtonAction(final ActionEvent event) {
         getPlayerState().buildableVillageIntersections().stream()
                 .map(intersection -> getHexGridController().getIntersectionControllersMap().get(intersection))
@@ -355,7 +353,7 @@ public class PlayerActionsController implements Controller {
      * Enables or disable the upgrade village button based on the currently allowed
      * actions and if there are any upgradeable villages.
      */
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H3.1")
     private void updateUpgradeVillageButtonState() {
         if (getPlayerObjective().getAllowedActions().contains(UpgradeVillageAction.class)
                 && getPlayerState().upgradableVillageIntersections().size() > 0) {
@@ -376,7 +374,7 @@ public class PlayerActionsController implements Controller {
      *
      * @param event the event that triggered the action
      */
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H3.1")
     private void upgradeVillageButtonAction(final ActionEvent event) {
         getPlayerState().upgradableVillageIntersections().stream()
                 .map(intersection -> getHexGridController().getIntersectionControllersMap().get(intersection))
@@ -390,7 +388,7 @@ public class PlayerActionsController implements Controller {
      * Enables or disable the build road button based on the currently allowed
      * actions and if there are any edges to build on.
      */
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H3.1")
     private void updateBuildRoadButtonState() {
         if (getPlayerObjective().getAllowedActions().contains(BuildRoadAction.class)
                 && getPlayerState().buildableRoadEdges().size() > 0) {
@@ -411,7 +409,7 @@ public class PlayerActionsController implements Controller {
      *
      * @param event the event that triggered the action
      */
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H3.1")
     private void buildRoadButtonAction(final ActionEvent event) {
         getPlayerState().buildableRoadEdges().stream()
                 .map(edge -> getHexGridController().getEdgeControllersMap().get(edge))
@@ -426,6 +424,7 @@ public class PlayerActionsController implements Controller {
      *
      * @param event the event that triggered the action
      */
+    @DoNotTouch
     private void endTurnButtonAction(final ActionEvent event) {
         getPlayerController().triggerAction(new EndTurnAction());
     }
@@ -435,6 +434,7 @@ public class PlayerActionsController implements Controller {
      *
      * @param event the event that triggered the action
      */
+    @DoNotTouch
     private void rollDiceButtonAction(final ActionEvent event) {
         getPlayerController().triggerAction(new RollDiceAction());
     }
@@ -447,7 +447,7 @@ public class PlayerActionsController implements Controller {
      *
      * @param tile the tile that was clicked
      */
-    @StudentImplementationRequired
+    @DoNotTouch
     private void selectRobberTileAction(final Tile tile) {
         getHexGridController().unhighlightTiles();
         getPlayerController().triggerAction(new SelectRobberTileAction(tile.getPosition()));
@@ -461,7 +461,7 @@ public class PlayerActionsController implements Controller {
      * StealCardAction with the selected card.
      * If no card is selected, triggers the EndTurnAction.
      */
-    @StudentImplementationRequired
+    @DoNotTouch
     private void selectCardToStealAction() {
         if (getPlayerState().playersToStealFrom().isEmpty()) {
             getPlayerController().triggerAction(new EndTurnAction());
@@ -482,9 +482,9 @@ public class PlayerActionsController implements Controller {
      *
      * Triggers the SelectCardsAction with the selected cards.
      *
-     * @param amountToDrop the amount of cards to select
+     * @param amountToSelect the amount of cards to select
      */
-    @StudentImplementationRequired
+    @DoNotTouch
     private void selectResources(final int amountToSelect) {
         final SelectResourcesDialog dialog = new SelectResourcesDialog(amountToSelect, getPlayer(),
                 PlayerObjective.DROP_CARDS.equals(getPlayerObjective()) ? getPlayer().getResources() : null,
@@ -502,6 +502,7 @@ public class PlayerActionsController implements Controller {
      * Enables or disable the buy development card button based on the currently
      * allowed actions and whether the player can buy a development card.
      */
+    @DoNotTouch
     private void updateBuyDevelopmentCardButtonState() {
         if (getPlayerObjective().getAllowedActions().contains(BuyDevelopmentCardAction.class)
                 && getPlayerController().canBuyDevelopmentCard()) {
@@ -519,6 +520,7 @@ public class PlayerActionsController implements Controller {
      *
      * @param event the event that triggered the action
      */
+    @DoNotTouch
     private void buyDevelopmentCardButtonAction(final ActionEvent event) {
         getPlayerController().triggerAction(new BuyDevelopmentCardAction());
         updateUIBasedOnObjective(getPlayerObjective());
@@ -528,6 +530,7 @@ public class PlayerActionsController implements Controller {
      * Enables or disable the use development card button based on the currently
      * allowed actions and whether the player has any development cards to play.
      */
+    @DoNotTouch
     private void updateUseDevelopmentCardButtonState() {
         if (getPlayerObjective().getAllowedActions().contains(PlayDevelopmentCardAction.class)
                 && getPlayer().getDevelopmentCards().entrySet().stream().anyMatch(
@@ -548,6 +551,7 @@ public class PlayerActionsController implements Controller {
      *
      * @param event the event that triggered the action
      */
+    @DoNotTouch
     public void useDevelopmentCardButtonAction(final ActionEvent event) {
         final UseDevelopmentCardDialog dialog = new UseDevelopmentCardDialog(getPlayer());
         dialog.showAndWait()
@@ -567,6 +571,7 @@ public class PlayerActionsController implements Controller {
      *
      * @param event the event that triggered the action
      */
+    @DoNotTouch
     private void tradeButtonAction(final ActionEvent event) {
         System.out.println("Trading");
         final TradeDialog dialog = new TradeDialog(new TradePayload(null, null, false, getPlayer()));
@@ -583,6 +588,7 @@ public class PlayerActionsController implements Controller {
      * Triggers the AcceptTradeAction with a boolean representing the players
      * decision.
      */
+    @DoNotTouch
     private void acceptTradeOffer() {
         final Optional<Boolean> optionalResult = new AcceptTradeDialog(getPlayerState().offeredTrade(), getPlayer())
                 .showAndWait();
@@ -597,6 +603,7 @@ public class PlayerActionsController implements Controller {
      *
      * @param event the event that triggered the action
      */
+    @DoNotTouch
     private void abortButtonAction(final ActionEvent event) {
         removeAllHighlights();
         updateUIBasedOnObjective(getPlayerObjective());
@@ -604,6 +611,7 @@ public class PlayerActionsController implements Controller {
     }
 
     @Override
+    @DoNotTouch
     public Builder<Region> getBuilder() {
         return builder;
     }

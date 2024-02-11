@@ -5,10 +5,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.tudalgo.algoutils.student.annotation.SolutionOnly;
+import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
+
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Region;
 import projekt.model.Player;
 import projekt.model.ResourceType;
 import projekt.view.CardPane;
@@ -25,7 +29,7 @@ import projekt.view.ResourceCardPane;
  * amounts.
  */
 public class SelectResourcesDialog extends Dialog<Map<ResourceType, Integer>> {
-
+    @SolutionOnly
     private final Map<ResourceType, Integer> selectedResources = new HashMap<>();
 
     /**
@@ -38,6 +42,14 @@ public class SelectResourcesDialog extends Dialog<Map<ResourceType, Integer>> {
      *                              selecting them.
      */
     public SelectResourcesDialog(final int amountToSelect, final Player player,
+            final Map<ResourceType, Integer> resourcesToSelectFrom, final boolean dropCards) {
+        final DialogPane dialogPane = getDialogPane();
+        dialogPane.getButtonTypes().add(ButtonType.OK);
+        dialogPane.setContent(init(amountToSelect, player, resourcesToSelectFrom, dropCards));
+    }
+
+    @StudentImplementationRequired("H3.3")
+    private Region init(final int amountToSelect, final Player player,
             Map<ResourceType, Integer> resourcesToSelectFrom, final boolean dropCards) {
         System.out.println("SelectResourceDialog");
         if (resourcesToSelectFrom == null || resourcesToSelectFrom.isEmpty()) {
@@ -52,9 +64,7 @@ public class SelectResourcesDialog extends Dialog<Map<ResourceType, Integer>> {
         final GridPane mainPane = new GridPane(10, 10);
         mainPane.getStylesheets().add("css/hexmap.css");
 
-        final DialogPane dialogPane = this.getDialogPane();
-        dialogPane.setContent(mainPane);
-        dialogPane.getButtonTypes().add(ButtonType.OK);
+        final DialogPane dialogPane = getDialogPane();
 
         for (final ResourceType resourceType : resourcesToSelectFrom.keySet()) {
             final CardPane resourceCard = new ResourceCardPane(resourceType,
@@ -100,6 +110,8 @@ public class SelectResourcesDialog extends Dialog<Map<ResourceType, Integer>> {
             }
             return null;
         });
+
+        return mainPane;
     }
 
     /**
@@ -110,6 +122,7 @@ public class SelectResourcesDialog extends Dialog<Map<ResourceType, Integer>> {
      * @param action The action the player is performing.
      * @return The constructed string.
      */
+    @SolutionOnly
     private String constructTooFewCardsString(final int amount, final Player player, final String action) {
         return String.format("You (%s) still need to %s %d cards", player.getName(), action, amount);
     }
