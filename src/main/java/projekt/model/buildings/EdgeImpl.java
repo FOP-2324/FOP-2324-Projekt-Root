@@ -53,13 +53,13 @@ public record EdgeImpl(
     }
 
     @Override
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H1.3")
     public boolean connectsTo(final Edge other) {
         return getIntersections().stream().anyMatch(i -> i.getConnectedEdges().contains(other));
     }
 
     @Override
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H1.3")
     public Set<Intersection> getIntersections() {
         final var edgeDir = TilePosition.EdgeDirection
             .fromRelativePosition(TilePosition.subtract(this.position2, this.position1));
@@ -81,7 +81,7 @@ public record EdgeImpl(
     }
 
     @Override
-    @StudentImplementationRequired
+    @StudentImplementationRequired("H1.3")
     public Set<Edge> getConnectedRoads(final Player player) {
         return getConnectedEdges().stream()
             .filter(Edge::hasRoad)

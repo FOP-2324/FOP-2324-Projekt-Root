@@ -22,7 +22,6 @@ import java.util.Set;
  * actions are allowed when the player has this
  * objective.
  */
-@StudentCreationRequired
 public enum PlayerObjective {
     DROP_CARDS(Set.of(SelectCardsAction.class)),
     SELECT_CARD_TO_STEAL(Set.of(StealCardAction.class, EndTurnAction.class)),

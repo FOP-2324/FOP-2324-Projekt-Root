@@ -205,7 +205,6 @@ public class GameController {
      *
      * @return The {@link Player}s that have reached the victory condition.
      */
-    @StudentImplementationRequired
     public Set<Player> getWinners() {
         final Player playerWithMostKnightsPlayed = getState().getPlayers()
                 .stream()
