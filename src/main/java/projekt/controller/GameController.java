@@ -113,7 +113,7 @@ public class GameController {
         for (final Player player : state.getPlayers()) {
             playerControllers.put(player, new PlayerController(this, player));
             if (player.isAi()) {
-                aiControllers.add(new AiController(playerControllers.get(player), state.getGrid(), state,
+                aiControllers.add(new BasicAiController(playerControllers.get(player), state.getGrid(), state,
                         activePlayerControllerProperty));
             }
         }

@@ -1,30 +1,33 @@
 package projekt.controller;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 import javafx.beans.property.Property;
-import projekt.controller.actions.AcceptTradeAction;
-import projekt.controller.actions.BuildRoadAction;
-import projekt.controller.actions.BuildVillageAction;
-import projekt.controller.actions.EndTurnAction;
-import projekt.controller.actions.PlayerAction;
-import projekt.controller.actions.RollDiceAction;
-import projekt.controller.actions.SelectCardsAction;
-import projekt.controller.actions.SelectRobberTileAction;
-import projekt.controller.actions.StealCardAction;
 import projekt.model.GameState;
 import projekt.model.HexGrid;
-import projekt.model.Player;
-import projekt.model.ResourceType;
 
-public class AiController {
-    private final PlayerController playerController;
-    private final HexGrid hexGrid;
-    private final GameState gameState;
-    private final Property<PlayerController> activePlayerController;
+/**
+ * Represents an AI controller that can execute actions based on a player's
+ * objective.
+ * Gets all information that could be needed to execute actions.
+ * Automatically subscribes to the player objective property to execute actions
+ * when the player's objective changes.
+ */
+public abstract class AiController {
+    protected final PlayerController playerController;
+    protected final HexGrid hexGrid;
+    protected final GameState gameState;
+    protected final Property<PlayerController> activePlayerController;
 
+    /**
+     * Creates a new AI controller with the given player controller, hex grid, game
+     * state and active player controller.
+     * Adds a subscription to the player objective property to execute actions when
+     * the player's objective changes.
+     *
+     * @param playerController       the player controller
+     * @param hexGrid                the hex grid
+     * @param gameState              the game state
+     * @param activePlayerController the active player controller
+     */
     public AiController(final PlayerController playerController, final HexGrid hexGrid, final GameState gameState,
             final Property<PlayerController> activePlayerController) {
         this.playerController = playerController;
@@ -34,72 +37,11 @@ public class AiController {
         playerController.getPlayerObjectiveProperty().subscribe(this::executeActionBasedOnObjective);
     }
 
-    private void executeActionBasedOnObjective(final PlayerObjective objective) {
-        final Set<Class<? extends PlayerAction>> actions = objective.getAllowedActions();
-
-        if (actions.contains(RollDiceAction.class)) {
-            playerController.triggerAction(new RollDiceAction());
-        }
-        if (actions.contains(BuildVillageAction.class)) {
-            buildVillage();
-        }
-        if (actions.contains(BuildRoadAction.class)) {
-            buildRoad();
-        }
-        if (actions.contains(SelectCardsAction.class)) {
-            selectCards();
-        }
-        if (actions.contains(SelectRobberTileAction.class)) {
-            selectRobberTileAction();
-        }
-        if (actions.contains(AcceptTradeAction.class)) {
-            playerController.triggerAction(new AcceptTradeAction(true));
-        }
-        if (actions.contains(StealCardAction.class)) {
-            stealCardAction();
-        }
-        if (actions.contains(EndTurnAction.class)) {
-            playerController.triggerAction(new EndTurnAction());
-        }
-    }
-
-    private void buildVillage() {
-        playerController.getPlayerState().buildableVillageIntersections().stream().findAny().ifPresent(intersection -> {
-            playerController.triggerAction(new BuildVillageAction(intersection));
-        });
-    }
-
-    private void buildRoad() {
-        playerController.getPlayerState().buildableRoadEdges().stream().findAny().ifPresent(edge -> {
-            playerController.triggerAction(new BuildRoadAction(edge));
-        });
-    }
-
-    private void selectCards() {
-        final Map<ResourceType, Integer> selectedCards = new HashMap<>();
-        for (int i = 0; i < playerController.getPlayerState().cradsToSelect(); i++) {
-            playerController.getPlayer().getResources().entrySet().stream()
-                    .filter(entry -> entry.getValue() - selectedCards.getOrDefault(entry.getKey(), 0) > 0).findAny()
-                    .ifPresent(entry -> {
-                        selectedCards.put(entry.getKey(), selectedCards.getOrDefault(entry.getKey(), 0) + 1);
-                    });
-        }
-        playerController.triggerAction(new SelectCardsAction(selectedCards));
-    }
-
-    private void selectRobberTileAction() {
-        playerController.triggerAction(
-                new SelectRobberTileAction(hexGrid.getTiles().values().stream().findAny().get().getPosition()));
-    }
-
-    private void stealCardAction() {
-        final Player playerToStealFrom = playerController.getPlayerState().playersToStealFrom().stream().findAny()
-                .orElse(null);
-        if (playerToStealFrom == null) {
-            return;
-        }
-        final ResourceType resourceToSteal = playerToStealFrom.getResources().entrySet().stream()
-                .filter(entry -> entry.getValue() > 0).findAny().get().getKey();
-        playerController.triggerAction(new StealCardAction(resourceToSteal, playerToStealFrom));
-    }
+    /**
+     * Executes an action that is allowed by the given player objective.
+     * May perform multiple actions if necessary and allowed.
+     *
+     * @param objective the player objective
+     */
+    protected abstract void executeActionBasedOnObjective(final PlayerObjective objective);
 }
