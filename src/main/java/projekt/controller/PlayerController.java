@@ -718,12 +718,10 @@ public class PlayerController {
      */
     public void selectPlayerAndResourceToSteal(final Player playerToStealFrom, final ResourceType resourceToSteal)
             throws IllegalActionException {
-        if (!playerToStealFrom.hasResources(Map.of(resourceToSteal, 1))) {
+        if (!playerToStealFrom.removeResource(resourceToSteal, 1)) {
             throw new IllegalActionException("Player does not have the selected resource");
         }
         playerObjectiveProperty.setValue(PlayerObjective.IDLE);
-        // remove resource from player
-        playerToStealFrom.removeResources(Map.of(resourceToSteal, 1));
         // add resource to player
         player.addResource(resourceToSteal, 1);
     }
