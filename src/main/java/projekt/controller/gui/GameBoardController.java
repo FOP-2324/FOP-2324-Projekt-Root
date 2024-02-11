@@ -16,6 +16,9 @@ import projekt.model.Player;
 import projekt.model.ResourceType;
 import projekt.view.GameBoardBuilder;
 
+/**
+ * The controller for the game board scene.
+ */
 @DoNotTouch
 public class GameBoardController implements SceneController {
     private final GameState gameState;
@@ -23,6 +26,21 @@ public class GameBoardController implements SceneController {
     private HexGridController hexGridController;
     private GameBoardBuilder gameBoardBuilder;
 
+    /**
+     * Creates a new game board controller.
+     * Updates the player information on the game board when the active player
+     * changes.
+     * Updates the dice roll on the game board when the dice roll changes.
+     * Shows an alert when a player wins.
+     *
+     * <b>Do not touch this constructor!</b>
+     *
+     * @param gameState                      the game state
+     * @param activePlayerControllerProperty the active player controller property
+     * @param diceRollProperty               the dice roll property
+     * @param winnerProperty                 the winner property
+     */
+    @DoNotTouch
     public GameBoardController(final GameState gameState,
             final Property<PlayerController> activePlayerControllerProperty, final IntegerProperty diceRollProperty,
             final Property<Player> winnerProperty) {
@@ -55,10 +73,22 @@ public class GameBoardController implements SceneController {
         });
     }
 
+    /**
+     * Returns the hex grid controller.
+     *
+     * @return the hex grid controller
+     */
     public HexGridController getHexGridController() {
         return hexGridController;
     }
 
+    /**
+     * Updates the player information on the game board.
+     *
+     * @param player           the current player
+     * @param changedResources the resources that have changed for the current
+     *                         player
+     */
     public void updatePlayerInformation(final Player player, final Map<ResourceType, Integer> changedResources) {
         Platform.runLater(
                 () -> gameBoardBuilder.updatePlayerInformation(player, gameState.getPlayers(), changedResources));

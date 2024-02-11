@@ -167,8 +167,8 @@ public class PlayerActionsController implements Controller {
         if (allowedActions.contains(StealCardAction.class)) {
             selectCardToStealAction();
         }
-        if (allowedActions.contains(SelectCardsAction.class) && getPlayerState().cradsToSelect() > 0) {
-            selectResources(getPlayerState().cradsToSelect());
+        if (allowedActions.contains(SelectCardsAction.class) && getPlayerState().cardsToSelect() > 0) {
+            selectResources(getPlayerState().cardsToSelect());
         }
         if (allowedActions.contains(AcceptTradeAction.class)) {
             acceptTradeOffer();
@@ -354,7 +354,7 @@ public class PlayerActionsController implements Controller {
     @StudentImplementationRequired
     private void updateUpgradeVillageButtonState() {
         if (getPlayerObjective().getAllowedActions().contains(UpgradeVillageAction.class)
-                && getPlayerState().upgradebleVillageIntersections().size() > 0) {
+                && getPlayerState().upgradableVillageIntersections().size() > 0) {
             builder.enableUpgradeVillageButton();
             return;
         }
@@ -374,7 +374,7 @@ public class PlayerActionsController implements Controller {
      */
     @StudentImplementationRequired
     private void upgradeVillageButtonAction(final ActionEvent event) {
-        getPlayerState().upgradebleVillageIntersections().stream()
+        getPlayerState().upgradableVillageIntersections().stream()
                 .map(intersection -> getHexGridController().getIntersectionControllersMap().get(intersection))
                 .forEach(ic -> ic.highlight(buildActionWrapper(e -> {
                     getPlayerController().triggerAction(new UpgradeVillageAction(ic.getIntersection()));
@@ -483,8 +483,8 @@ public class PlayerActionsController implements Controller {
     @StudentImplementationRequired
     private void selectResources(final int amountToSelect) {
         final SelectResourcesDialog dialog = new SelectResourcesDialog(amountToSelect, getPlayer(),
-                PlayerObjective.DROP_HALF_CARDS.equals(getPlayerObjective()) ? getPlayer().getResources() : null,
-                PlayerObjective.DROP_HALF_CARDS.equals(getPlayerObjective()));
+                PlayerObjective.DROP_CARDS.equals(getPlayerObjective()) ? getPlayer().getResources() : null,
+                PlayerObjective.DROP_CARDS.equals(getPlayerObjective()));
         Optional<Map<ResourceType, Integer>> result = dialog.showAndWait();
         while (result.isEmpty() || result.get() == null) {
             result = dialog.showAndWait();
@@ -494,6 +494,10 @@ public class PlayerActionsController implements Controller {
 
     // Development card actions
 
+    /**
+     * Enables or disable the buy development card button based on the currently
+     * allowed actions and whether the player can buy a development card.
+     */
     private void updateBuyDevelopmentCardButtonState() {
         if (getPlayerObjective().getAllowedActions().contains(BuyDevelopmentCardAction.class)
                 && getPlayerController().canBuyDevelopmentCard()) {
@@ -516,6 +520,10 @@ public class PlayerActionsController implements Controller {
         updateUIBasedOnObjective(getPlayerObjective());
     }
 
+    /**
+     * Enables or disable the use development card button based on the currently
+     * allowed actions and whether the player has any development cards to play.
+     */
     private void updateUseDevelopmentCardButtonState() {
         if (getPlayerObjective().getAllowedActions().contains(PlayDevelopmentCardAction.class)
                 && getPlayer().getDevelopmentCards().entrySet().stream().anyMatch(
@@ -526,6 +534,16 @@ public class PlayerActionsController implements Controller {
         builder.disablePlayDevelopmentCardButton();
     }
 
+    /**
+     * Performs the action of playing a development card.
+     * Prompts the user to select a development card to play.
+     * If the user cancels, the action is cancelled.
+     * Triggers the PlayDevelopmentCardAction with the selected card.
+     *
+     * This method is prepared to be used with a button.
+     *
+     * @param event the event that triggered the action
+     */
     public void useDevelopmentCardButtonAction(final ActionEvent event) {
         final UseDevelopmentCardDialog dialog = new UseDevelopmentCardDialog(getPlayer());
         dialog.showAndWait()

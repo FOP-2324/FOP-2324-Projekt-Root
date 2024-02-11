@@ -60,7 +60,7 @@ public class EdgeLine extends Line {
 
     /**
      * Initializes the EdgeLine with a dashScale of 1.
-     * 
+     *
      * @see #init(double)
      */
     public void init() {

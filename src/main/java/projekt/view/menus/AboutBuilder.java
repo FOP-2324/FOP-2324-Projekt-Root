@@ -3,7 +3,16 @@ package projekt.view.menus;
 import javafx.scene.Node;
 import javafx.scene.control.TextArea;
 
+/**
+ * A Builder to create the about page.
+ * The about page contains information about the project and copyright notices.
+ */
 public class AboutBuilder extends MenuBuilder {
+    /**
+     * Creates a new AboutBuilder with the given return handler.
+     *
+     * @param returnHandler The handler for the return button.
+     */
     public AboutBuilder(final Runnable returnHandler) {
         super("About FOP-Project WiSe 23/24", returnHandler);
     }

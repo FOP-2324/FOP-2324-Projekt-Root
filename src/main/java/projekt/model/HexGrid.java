@@ -10,7 +10,22 @@ import projekt.model.TilePosition.EdgeDirection;
 import projekt.model.buildings.Edge;
 import projekt.model.tiles.Tile;
 
+/**
+ * Holds all the information displayed on the hexagonal grid and information for
+ * rendering. In short, the game board.
+ * Specifically, information on...
+ * <ul>
+ *     <li>tiles and their logical and graphical properties (position, height, width, etc.)</li>
+ *     <li>edges</li>
+ *     <li>intersections</li>
+ *     <li>the robber / bandit</li>
+ * </ul>
+ * are saved in and modified by instances of this interface.
+ */
 public interface HexGrid {
+
+    // Tiles
+
     /**
      * Returns the width of a tile.
      *
@@ -85,6 +100,9 @@ public interface HexGrid {
      */
     Tile getTileAt(TilePosition position);
 
+
+    // Intersections
+
     /**
      * Returns all intersections of the grid as a set.
      *
@@ -102,10 +120,45 @@ public interface HexGrid {
      */
     Intersection getIntersectionAt(TilePosition position0, TilePosition position1, TilePosition position2);
 
+
+    // Edges / Roads
+
     /**
-     * Adds the given road to the grid. Also either checks if the player has a
+     * Returns all edges of the grid.
+     *
+     * @return all edges of the grid
+     */
+    Map<Set<TilePosition>, Edge> getEdges();
+
+    /**
+     * Returns the edge between the given positions.
+     *
+     * @param position0 the first position
+     * @param position1 the second position
+     * @return the edge between the given intersections
+     */
+    Edge getEdge(TilePosition position0, TilePosition position1);
+
+    /**
+     * Returns all roads of the given player.
+     *
+     * @param player the player to get the roads of
+     * @return all roads of the given player
+     */
+    Map<Set<TilePosition>, Edge> getRoads(Player player);
+
+    /**
+     * Returns the longest continuous road of the given player.
+     *
+     * @param player the player to get the longest road of
+     * @return list of all road segments that make up the longest road
+     */
+    List<Edge> getLongestRoad(Player player);
+
+    /**
+     * Adds the given road to the grid. Also, either checks if the player has a
      * connected road or a connected village with no other roads. Does not check or
-     * remove Player's resources.
+     * remove the player's resources.
      *
      * @param position0     the first position of the road
      * @param position1     the second position of the road
@@ -117,7 +170,7 @@ public interface HexGrid {
 
     /**
      * Adds the given road to the grid relative to the given tile.
-     * Check {@link HexGrid#addRoad(TilePosition, TilePosition, Player, boolean)}
+     * See {@link HexGrid#addRoad(TilePosition, TilePosition, Player, boolean)}
      * for details.
      *
      * @param tile          the tile the road is next to
@@ -127,33 +180,9 @@ public interface HexGrid {
      * @return whether the road was added
      */
     default boolean addRoad(final Tile tile, final EdgeDirection edgeDirection, final Player player,
-            final boolean checkVillages) {
+                            final boolean checkVillages) {
         return tile.addRoad(edgeDirection, player, checkVillages);
     }
-
-    /**
-     * Returns all edges of the grid.
-     *
-     * @return all edges of the grid
-     */
-    Map<Set<TilePosition>, Edge> getEdges();
-
-    /**
-     * Returns all roads of the given player.
-     *
-     * @param player the player to get the roads of
-     * @return all roads of the given player
-     */
-    Map<Set<TilePosition>, Edge> getRoads(Player player);
-
-    /**
-     * Returns the edge between the given positions.
-     *
-     * @param position0 the first position
-     * @param position1 the second position
-     * @return the edge between the given intersections
-     */
-    Edge getEdge(TilePosition position0, TilePosition position1);
 
     /**
      * Removes the road between the given positions.
@@ -166,28 +195,26 @@ public interface HexGrid {
 
     /**
      * Removes the road at the given edge.
+     *
+     * @param road (the edge of) the road to remove
+     * @return {@code true}, if the road has been successfully removed, {@code false} otherwise
      */
     default boolean removeRoad(final Edge road) {
         return removeRoad(road.position1(), road.position2());
     }
 
-    /**
-     * Returns the longest road of the given player
-     *
-     * @param player the player to get the longest road of
-     * @return list of all roads that make up the longest road
-     */
-    List<Edge> getLongestRoad(Player player);
+
+    // Robber / Bandit
 
     /**
-     * Returns the current position of the robber
+     * Returns the current position of the robber.
      *
      * @return the current position of the robber
      */
     TilePosition getRobberPosition();
 
     /**
-     * Sets the position of the robber
+     * Sets the position of the robber.
      *
      * @param position the new position of the robber
      */

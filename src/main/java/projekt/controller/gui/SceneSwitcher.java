@@ -12,6 +12,7 @@ import projekt.controller.GameController;
 /**
  * A SceneSwitcher is responsible for switching between the different
  * {@link Scene}s.
+ * It is a singleton and can be accessed via {@link #getInstance()}.
  */
 @DoNotTouch
 public class SceneSwitcher {
@@ -20,12 +21,26 @@ public class SceneSwitcher {
     private static SceneSwitcher INSTANCE;
     private final Consumer<GameController> gameLoopStarter;
 
+    /**
+     * Creates a new SceneSwitcher.
+     *
+     * @param stage           The {@link Stage} to show the {@link Scene} on.
+     * @param gameLoopStarter The consumer that starts the game loop.
+     */
     @DoNotTouch
     private SceneSwitcher(final Stage stage, final Consumer<GameController> gameLoopStarter) {
         this.stage = stage;
         this.gameLoopStarter = gameLoopStarter;
     }
 
+    /**
+     * Returns the instance of the SceneSwitcher.
+     * Creates a new instance if it does not exist yet.
+     *
+     * @param stage           The {@link Stage} to show the {@link Scene} on.
+     * @param gameLoopStarter The consumer that starts the game loop.
+     * @return The instance of the SceneSwitcher.
+     */
     @DoNotTouch
     public static SceneSwitcher getInstance(final Stage stage, final Consumer<GameController> gameLoopStarter) {
         if (INSTANCE == null) {
@@ -34,6 +49,12 @@ public class SceneSwitcher {
         return INSTANCE;
     }
 
+    /**
+     * Returns the instance of the SceneSwitcher.
+     * Throws an {@link IllegalStateException} if the instance does not exist yet.
+     *
+     * @return The instance of the SceneSwitcher.
+     */
     @DoNotTouch
     public static SceneSwitcher getInstance() {
         if (INSTANCE == null) {
@@ -43,7 +64,7 @@ public class SceneSwitcher {
     }
 
     /**
-     * An enum that represents the different scenes that can be switched to.
+     * The different types of scenes that can be loaded.
      */
     public static enum SceneType {
         MAIN_MENU(MainMenuSceneController::new),
@@ -63,19 +84,20 @@ public class SceneSwitcher {
 
         private final Supplier<SceneController> controller;
 
+        /**
+         * Creates a new SceneType.
+         *
+         * @param controller The controller to use for the scene.
+         */
         SceneType(final Supplier<SceneController> controller) {
             this.controller = controller;
         }
     }
 
     /**
-     * Loads the given {@link SceneType} and initializes its Controller.
-     * // TODO: UI Thread
+     * Loads the given {@link SceneType} and shows it on the {@link Stage}.
      *
-     * @param sceneType The {@link SceneType} to load.
-     * @param stage     The {@link Stage} to show the {@link Scene} on.
-     * @return The {@link Scene} that was switched to.
-     * @see #loadScene(SceneAndController, Stage)
+     * @param sceneType The type of the scene to load.
      */
     @DoNotTouch
     public void loadScene(final SceneType sceneType) {

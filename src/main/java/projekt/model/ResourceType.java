@@ -4,9 +4,7 @@ import javafx.scene.paint.Color;
 
 /**
  * Enum for the different resource types.
- *
  * Each resource type has a color and icon index associated with it.
- *
  * Icon index is used to determine which icon to use for the resource type.
  * The different icons are:
  * 0: Sheep

@@ -5,12 +5,32 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 
+/**
+ * A Builder to create the main menu.
+ * The main menu has buttons to start a new game, open the settings, view the
+ * highscores and open the about page.
+ * The return button is used to quit the application.
+ */
 public class MainMenuBuilder extends MenuBuilder {
     private final Runnable loadGameScene;
     private final Runnable loadSettingsScene;
     private final Runnable loadHighscoreScene;
     private final Runnable loadAboutScene;
 
+    /**
+     * Creates a new MainMenuBuilder with the given handlers.
+     *
+     * @param quitHandler        The handler for the return button. Exits the
+     *                           application.
+     * @param createGameScene    The handler for the create game button. Opens the
+     *                           game scene.
+     * @param loadSettingsScene  The handler for the settings button. Opens the
+     *                           settings scene.
+     * @param loadHighscoreScene The handler for the highscores button. Opens the
+     *                           highscores scene.
+     * @param loadAboutScene     The handler for the about button. Opens the about
+     *                           scene.
+     */
     public MainMenuBuilder(
             final Runnable quitHandler, final Runnable createGameScene, final Runnable loadSettingsScene,
             final Runnable loadHighscoreScene, final Runnable loadAboutScene) {
