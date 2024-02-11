@@ -3,6 +3,7 @@ package projekt.controller;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -43,6 +44,7 @@ public class GameController {
     private final Map<Player, PlayerController> playerControllers;
     private final Supplier<Integer> dice;
     private final IntegerProperty currentDiceRoll = new SimpleIntegerProperty(0);
+    private final List<AiController> aiControllers = new ArrayList<>();
     private final Supplier<DevelopmentCardType> availableDevelopmentCards = Config.developmentCardGenerator();
 
     private final Property<PlayerController> activePlayerControllerProperty = new SimpleObjectProperty<>();
@@ -89,8 +91,8 @@ public class GameController {
      */
     public GameController(final GameState state) {
         this(state, () -> IntStream.rangeClosed(1, Config.NUMBER_OF_DICE)
-            .map(i -> Config.RANDOM.nextInt(1, Config.DICE_SIDES + 1))
-            .sum());
+                .map(i -> Config.RANDOM.nextInt(1, Config.DICE_SIDES + 1))
+                .sum());
     }
 
     /**
@@ -110,6 +112,10 @@ public class GameController {
     public void initPlayerControllers() {
         for (final Player player : state.getPlayers()) {
             playerControllers.put(player, new PlayerController(this, player));
+            if (player.isAi()) {
+                aiControllers.add(new BasicAiController(playerControllers.get(player), state.getGrid(), state,
+                        activePlayerControllerProperty));
+            }
         }
     }
 
@@ -192,24 +198,25 @@ public class GameController {
      */
     @StudentImplementationRequired
     public Set<Player> getWinners() {
-        Player playerWithMostKnightsPlayed = getState().getPlayers()
-            .stream()
-            .filter(player -> player.getKnightsPlayed() >= 3)
-            .max(Comparator.comparingInt(Player::getKnightsPlayed))
-            .orElse(null);
-        Player playerWithLongestRoad = null; // TODO: uncomment code if getLongestRoad(Player) is implemented in HexGrid
-//        getState().getPlayers()
-//            .stream()
-//            .max(Comparator.comparingInt(player -> player.getHexGrid().getLongestRoad(player).size()))
-//            .orElse(null);
+        final Player playerWithMostKnightsPlayed = getState().getPlayers()
+                .stream()
+                .filter(player -> player.getKnightsPlayed() >= 3)
+                .max(Comparator.comparingInt(Player::getKnightsPlayed))
+                .orElse(null);
+        final Player playerWithLongestRoad = null; // TODO: uncomment code if getLongestRoad(Player) is implemented in
+                                                   // HexGrid
+        // getState().getPlayers()
+        // .stream()
+        // .max(Comparator.comparingInt(player ->
+        // player.getHexGrid().getLongestRoad(player).size()))
+        // .orElse(null);
 
         return getState().getPlayers()
-            .stream()
-            .filter(player -> (player.getVictoryPoints()
-                + (player == playerWithMostKnightsPlayed ? 2 : 0)
-                + (player == playerWithLongestRoad ? 2 : 0))
-                >= Config.REQUIRED_VICTORY_POINTS)
-            .collect(Collectors.toUnmodifiableSet());
+                .stream()
+                .filter(player -> (player.getVictoryPoints()
+                        + (player == playerWithMostKnightsPlayed ? 2 : 0)
+                        + (player == playerWithLongestRoad ? 2 : 0)) >= Config.REQUIRED_VICTORY_POINTS)
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     /**

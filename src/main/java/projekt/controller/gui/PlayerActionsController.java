@@ -131,8 +131,13 @@ public class PlayerActionsController implements Controller {
         removeAllHighlights();
         drawEdges();
         drawIntersections();
+        getHexGridController().drawTiles();
         builder.disableAllButtons();
         updatePlayerInformation();
+
+        if (getPlayer().isAi()) {
+            return;
+        }
 
         final Set<Class<? extends PlayerAction>> allowedActions = getPlayerObjective().getAllowedActions();
         if (allowedActions.contains(EndTurnAction.class)) {
