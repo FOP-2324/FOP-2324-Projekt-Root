@@ -46,6 +46,7 @@ public class GameController {
     private final IntegerProperty currentDiceRoll = new SimpleIntegerProperty(0);
     private final List<AiController> aiControllers = new ArrayList<>();
     private final Supplier<DevelopmentCardType> availableDevelopmentCards = Config.developmentCardGenerator();
+    private final IntegerProperty roundCounter = new SimpleIntegerProperty(0);
 
     private final Property<PlayerController> activePlayerControllerProperty = new SimpleObjectProperty<>();
 
@@ -165,6 +166,15 @@ public class GameController {
     }
 
     /**
+     * Returns the {@link IntegerProperty} of the round counter.
+     *
+     * @return The {@link IntegerProperty} of the round counter.
+     */
+    public IntegerProperty getRoundCounterProperty() {
+        return roundCounter;
+    }
+
+    /**
      * Sets the active {@link PlayerController} {@link Property} to the
      * {@link PlayerController} of the given {@link Player}.
      */
@@ -236,6 +246,7 @@ public class GameController {
 
         firstRound();
 
+        roundCounter.set(1);
         while (getWinners().isEmpty()) {
             for (final PlayerController playerController : playerControllers.values()) {
                 withActivePlayer(playerController, () -> {
@@ -252,6 +263,7 @@ public class GameController {
                     regularTurn();
                 });
             }
+            roundCounter.set(roundCounter.get() + 1);
         }
 
         // Game End
@@ -302,7 +314,6 @@ public class GameController {
                 playerController.waitForNextAction(PlayerObjective.PLACE_VILLAGE);
                 playerController.waitForNextAction(PlayerObjective.PLACE_ROAD);
             });
-            playerController.setFirstRound(false);
         }
     }
 

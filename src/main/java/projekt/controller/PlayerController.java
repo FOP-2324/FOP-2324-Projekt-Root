@@ -11,10 +11,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.tudalgo.algoutils.student.annotation.DoNotTouch;
+import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
-import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 import projekt.Config;
 import projekt.controller.actions.IllegalActionException;
 import projekt.controller.actions.PlayerAction;
@@ -61,8 +61,6 @@ public class PlayerController {
     private Map<ResourceType, Integer> oldResources = new HashMap<>();
 
     private int cardsToSelect = 0;
-
-    private boolean firstRound = true;
 
     /**
      * Creates a new {@link PlayerController} with the given {@link GameController}
@@ -134,13 +132,13 @@ public class PlayerController {
     }
 
     /**
-     * Sets the value of firstRound to the given value.
+     * Returns true if it is the first round of the game.
+     * The first round is defined as the round where the round counter is 0.
      *
-     * @param firstRound the value to set
+     * @return true if it is the first round of the game
      */
-    @DoNotTouch
-    public void setFirstRound(final boolean firstRound) {
-        this.firstRound = firstRound;
+    private boolean isFirstRound() {
+        return gameController.getRoundCounterProperty().get() == 0;
     }
 
     /**
@@ -320,7 +318,7 @@ public class PlayerController {
         Stream<Intersection> intersections = gameController.getState().getGrid().getIntersections().values().stream()
                 .filter(intersection -> intersection.getSettlement() == null).filter(intersection -> intersection
                         .getAdjacentIntersections().stream().noneMatch(Intersection::hasSettlement));
-        if (!firstRound) {
+        if (!isFirstRound()) {
             intersections = intersections.filter(intersection -> intersection.getConnectedEdges().stream()
                     .anyMatch(edge -> edge.hasRoad() && edge.getRoadOwner().equals(player)));
         }
@@ -357,7 +355,7 @@ public class PlayerController {
         if (!canBuildVillage()) {
             throw new IllegalActionException("Cannot build village");
         }
-        if (!intersection.placeVillage(player, firstRound)) {
+        if (!intersection.placeVillage(player, isFirstRound())) {
             throw new IllegalActionException("Cannot build village at given intersection");
         }
         if (!playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_VILLAGE)) {
@@ -430,7 +428,7 @@ public class PlayerController {
         }
         Stream<Edge> edges = gameController.getState().getGrid().getEdges().values().stream()
                 .filter(edge -> !edge.hasRoad());
-        if (firstRound) {
+        if (isFirstRound()) {
             edges = edges.filter(edge -> edge.getIntersections().stream()
                     .anyMatch(intersection -> intersection.playerHasSettlement(player)
                             && intersection.getConnectedEdges().stream().noneMatch(Edge::hasRoad)));
@@ -485,7 +483,7 @@ public class PlayerController {
         if (!canBuildRoad()) {
             throw new IllegalActionException("Cannot build road");
         }
-        if (!gameController.getState().getGrid().addRoad(position0, position1, player, firstRound)) {
+        if (!gameController.getState().getGrid().addRoad(position0, position1, player, isFirstRound())) {
             throw new IllegalActionException("Cannot build road between given positions");
         }
         final var requiredResources = Config.ROAD_BUILDING_COST;

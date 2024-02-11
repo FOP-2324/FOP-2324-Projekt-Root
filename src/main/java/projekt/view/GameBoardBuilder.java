@@ -36,6 +36,7 @@ public class GameBoardBuilder implements Builder<Region> {
     private final Supplier<Region> actions;
     private final Pane playerInformation = new VBox();
     private final IntegerProperty diceRollProperty = new SimpleIntegerProperty(0);
+    private final IntegerProperty roundCounterProperty = new SimpleIntegerProperty(0);
 
     /**
      * Creates a new game board builder with the given hex grid and supplier for the
@@ -77,8 +78,17 @@ public class GameBoardBuilder implements Builder<Region> {
                         () -> String.format("Rolled Number: %s",
                                 diceRollProperty.get() == 0 ? "" : diceRollProperty.get()),
                         diceRollProperty));
+        final Label roundCounter = new Label();
+        roundCounter.textProperty()
+                .bind(Bindings.createStringBinding(
+                        () -> String.format("Round: %s", roundCounterProperty.get() == 0 ? "setup round"
+                                : roundCounterProperty.get()),
+                        roundCounterProperty));
+        final VBox infoBox = new VBox();
+        infoBox.getChildren().addAll(diceRoll, roundCounter);
+        infoBox.setAlignment(Pos.CENTER);
         final Region actionsRegion = actions.get();
-        bottomBox.getChildren().addAll(actionsRegion, diceRoll);
+        bottomBox.getChildren().addAll(actionsRegion, infoBox);
         bottomBox.setAlignment(Pos.CENTER_LEFT);
         bottomBox.setBackground(Background.fill(Color.WHITE));
         bottomBox.setMinHeight(50);
@@ -112,5 +122,14 @@ public class GameBoardBuilder implements Builder<Region> {
      */
     public void setDiceRoll(final int diceRoll) {
         diceRollProperty.set(diceRoll);
+    }
+
+    /**
+     * Sets the round counter
+     *
+     * @param roundCounter the value to set the round counter to
+     */
+    public void setRoundCounter(final int roundCounter) {
+        roundCounterProperty.set(roundCounter);
     }
 }
