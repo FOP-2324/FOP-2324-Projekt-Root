@@ -23,10 +23,22 @@ import projekt.model.ResourceType;
 import projekt.view.CardPane;
 import projekt.view.PlayerLabel;
 
+/**
+ * A dialog to prompt the user to select a card to steal from a player.
+ * The dialog shows the cards of all given players and lets the user select one.
+ * Does not show which type of resource the cards represent.
+ * The result of the dialog is the player and the resource type of the selected
+ * card.
+ */
 public class SelectCardToStealDialog extends Dialog<Entry<Player, ResourceType>> {
     private final ObservableMap<Player, ResourceType> selectedResource = FXCollections.observableMap(new HashMap<>());
     private final ObjectProperty<CardPane> selectedCard = new SimpleObjectProperty<>();
 
+    /**
+     * Creates a new SelectCardToStealDialog for the given players.
+     *
+     * @param players The players a card can be stolen from.
+     */
     public SelectCardToStealDialog(final List<Player> players) {
         this.setTitle("Select card to steal");
         this.setHeaderText("Select a card to steal from a player");

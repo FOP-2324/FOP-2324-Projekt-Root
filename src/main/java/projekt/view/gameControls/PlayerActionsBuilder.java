@@ -13,6 +13,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.util.Builder;
 
+/**
+ * A Builder to create the player actions view.
+ * The player actions view contains nodes to perform all actions a player can do
+ * during their turn.
+ * Has methods to enable and disable the nodes.
+ */
 public class PlayerActionsBuilder implements Builder<Region> {
 
     private final Consumer<ActionEvent> buildVillageButtonAction;
@@ -35,6 +41,23 @@ public class PlayerActionsBuilder implements Builder<Region> {
     private Node rollDiceNode;
     private Node tradeNode;
 
+    /**
+     * Creates a new PlayerActionsBuilder with the given actions.
+     *
+     * @param buildVillageButtonAction        The handler for the build village
+     *                                        action.
+     * @param upgradeVillageButtonAction      The handler for the upgrade village
+     *                                        action.
+     * @param buildRoadButtonAction           The handler for the build road action.
+     * @param buyDevelopmentCardButtonAction  The handler for the buy development
+     *                                        card action.
+     * @param playDevelopmentCardButtonAction The handler for the play development
+     *                                        card action.
+     * @param endTurnButtonAction             The handler for the end turn action.
+     * @param rollDiceButtonAction            The handler for the roll dice action.
+     * @param tradeButtonAction               The handler for the trade action.
+     * @param abortButtonAction               The handler for the abort action.
+     */
     @DoNotTouch
     public PlayerActionsBuilder(
             final Consumer<ActionEvent> buildVillageButtonAction,
@@ -107,84 +130,144 @@ public class PlayerActionsBuilder implements Builder<Region> {
         return mainBox;
     }
 
+    /**
+     * Disables all buttons in the view.
+     */
     public void disableAllButtons() {
         mainBox.getChildren().stream().filter(Button.class::isInstance).map(node -> (Button) node)
                 .forEach(button -> button.setDisable(true));
     }
 
+    /**
+     * Enables all buttons in the view.
+     */
     public void enableAllButtons() {
         mainBox.getChildren().stream().filter(Button.class::isInstance).map(node -> (Button) node)
                 .forEach(button -> button.setDisable(false));
     }
 
+    /**
+     * Disables the abort button.
+     */
     public void disableAbortButton() {
         abortNode.setDisable(true);
     }
 
+    /**
+     * Enables the abort button.
+     */
     public void enableAbortButton() {
         abortNode.setDisable(false);
     }
 
+    /**
+     * Disables the build road button.
+     */
     public void disableBuildRoadButton() {
         buildRoadNode.setDisable(true);
     }
 
+    /**
+     * Enables the build road button.
+     */
     public void enableBuildRoadButton() {
         buildRoadNode.setDisable(false);
     }
 
+    /**
+     * Disables the build village button.
+     */
     public void disableBuildVillageButton() {
         buildVillageNode.setDisable(true);
     }
 
+    /**
+     * Enables the build village button.
+     */
     public void enableBuildVillageButton() {
         buildVillageNode.setDisable(false);
     }
 
+    /**
+     * Disables the upgrade village button.
+     */
     public void disableUpgradeVillageButton() {
         upgradeVillageNode.setDisable(true);
     }
 
+    /**
+     * Enables the upgrade village button.
+     */
     public void enableUpgradeVillageButton() {
         upgradeVillageNode.setDisable(false);
     }
 
+    /**
+     * Disables the buy development card button.
+     */
     public void disableBuyDevelopmentCardButton() {
         buyDevelopmentCardNode.setDisable(true);
     }
 
+    /**
+     * Enables the buy development card button.
+     */
     public void enableBuyDevelopmentCardButton() {
         buyDevelopmentCardNode.setDisable(false);
     }
 
+    /**
+     * Disables the play development card button.
+     */
     public void disablePlayDevelopmentCardButton() {
         playDevelopmentCardNode.setDisable(true);
     }
 
+    /**
+     * Enables the play development card button.
+     */
     public void enablePlayDevelopmentCardButton() {
         playDevelopmentCardNode.setDisable(false);
     }
 
+    /**
+     * Disables the end turn button.
+     */
     public void disableEndTurnButton() {
         endTurnNode.setDisable(true);
     }
 
+    /**
+     * Enables the end turn button.
+     */
     public void enableEndTurnButton() {
         endTurnNode.setDisable(false);
     }
 
+    /**
+     * Disables the roll dice button.
+     */
     public void disableRollDiceButton() {
         rollDiceNode.setDisable(true);
     }
 
+    /**
+     * Enables the roll dice button.
+     */
     public void enableRollDiceButton() {
         rollDiceNode.setDisable(false);
     }
 
+    /**
+     * Disables the trade button.
+     */
     public void disableTradeButton() {
         tradeNode.setDisable(true);
     }
 
+    /**
+     * Enables the trade button.
+     */
     public void enableTradeButton() {
         tradeNode.setDisable(false);
     }

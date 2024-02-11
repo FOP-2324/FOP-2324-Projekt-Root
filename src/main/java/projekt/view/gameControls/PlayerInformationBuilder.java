@@ -18,10 +18,24 @@ import projekt.view.DevelopmentCardPane;
 import projekt.view.PlayerLabel;
 import projekt.view.ResourceCardPane;
 
+/**
+ * A Builder to create the player information view.
+ * The player information view contains information about the player's
+ * resources, development cards, remaining roads/villages/cities and victory
+ * points.
+ * Highlights resources that have changed since the last update.
+ */
 public class PlayerInformationBuilder implements Builder<Region> {
     private final Player player;
     private final Map<ResourceType, Integer> changedResources;
 
+    /**
+     * Creates a new PlayerInformationBuilder with the given player and changed
+     * resources.
+     *
+     * @param player           the player to display information for
+     * @param changedResources the resources that have changed since the last update
+     */
     public PlayerInformationBuilder(final Player player, final Map<ResourceType, Integer> changedResources) {
         this.player = player;
         this.changedResources = changedResources;

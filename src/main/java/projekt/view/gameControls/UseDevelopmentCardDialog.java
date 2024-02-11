@@ -15,11 +15,23 @@ import projekt.model.Player;
 import projekt.view.CardPane;
 import projekt.view.DevelopmentCardPane;
 
+/**
+ * A dialog to prompt the user to select a development card to play.
+ * The dialog shows the development cards the player can choose from and lets
+ * the user select one.
+ *
+ * The result of the dialog is the selected development card.
+ */
 public class UseDevelopmentCardDialog extends Dialog<DevelopmentCardType> {
 
     private final ObjectProperty<CardPane> selectedCard = new SimpleObjectProperty<>();
     private final ObjectProperty<DevelopmentCardType> selectedDevelopmentCard = new SimpleObjectProperty<>();
 
+    /**
+     * Creates a new UseDevelopmentCardDialog for the given player.
+     *
+     * @param player The player that is prompted to select a development card.
+     */
     public UseDevelopmentCardDialog(final Player player) {
         this.setTitle("Select development card to play");
         this.setHeaderText("Select a development card to play");

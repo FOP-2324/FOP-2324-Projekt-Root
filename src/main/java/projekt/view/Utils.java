@@ -12,6 +12,9 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.util.Duration;
 
+/**
+ * A collection of utility methods and constants for the gui.
+ */
 @DoNotTouch
 public final class Utils {
     /**
@@ -39,13 +42,28 @@ public final class Utils {
         Tooltip.install(target, tooltip);
     }
 
+    /**
+     * The sprite sheet for the resources.
+     */
     public static final Image resourcesSpriteSheet = new Image("img/resources.png");
 
+    /**
+     * The sprite sheet for the settlements.
+     */
     public static final Image settlementsSpriteSheet = new Image("img/settlements.png");
 
+    /**
+     * The sprite sheet for the cities.
+     */
     public static final Image developmentCardsSpriteSheet = new Image("img/development_cards.png");
 
+    /**
+     * The sprite sheet for the development cards.
+     */
     public static final Image emptyCardImage = new Image("img/empty_card.png");
 
+    /**
+     * The sprite sheet for the development cards.
+     */
     public static final Image robberImage = new Image("img/robber.png");
 }
