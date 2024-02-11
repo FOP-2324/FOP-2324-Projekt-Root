@@ -65,6 +65,7 @@ public class SelectResourcesDialog extends Dialog<Map<ResourceType, Integer>> {
         mainPane.getStylesheets().add("css/hexmap.css");
 
         final DialogPane dialogPane = getDialogPane();
+        dialogPane.lookupButton(ButtonType.OK).setDisable(true);
 
         for (final ResourceType resourceType : resourcesToSelectFrom.keySet()) {
             final CardPane resourceCard = new ResourceCardPane(resourceType,
