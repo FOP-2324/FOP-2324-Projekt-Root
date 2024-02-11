@@ -44,6 +44,7 @@ public class GameController {
     private final Supplier<Integer> dice;
     private final IntegerProperty currentDiceRoll = new SimpleIntegerProperty(0);
     private final Supplier<DevelopmentCardType> availableDevelopmentCards = Config.developmentCardGenerator();
+    private final IntegerProperty roundCounter = new SimpleIntegerProperty(0);
 
     private final Property<PlayerController> activePlayerControllerProperty = new SimpleObjectProperty<>();
 
@@ -159,6 +160,15 @@ public class GameController {
     }
 
     /**
+     * Returns the {@link IntegerProperty} of the round counter.
+     *
+     * @return The {@link IntegerProperty} of the round counter.
+     */
+    public IntegerProperty getRoundCounterProperty() {
+        return roundCounter;
+    }
+
+    /**
      * Sets the active {@link PlayerController} {@link Property} to the
      * {@link PlayerController} of the given {@link Player}.
      */
@@ -245,6 +255,7 @@ public class GameController {
                     regularTurn();
                 });
             }
+            roundCounter.add(1);
         }
 
         // Game End
