@@ -65,20 +65,15 @@ public class PlayerImpl implements Player {
     @Override
     public int getVictoryPoints() {
         int buildingVictoryPoints = getSettlements().stream()
-            .mapToInt(settlement -> switch (settlement.type()) {
-                case VILLAGE -> 1;
-                case CITY -> 2;
-            })
+            .mapToInt(settlement -> settlement.type().resourceAmount)
             .sum();
-        int developmentCardsVictoryPoints = (int) getDevelopmentCards().keySet()
-            .stream()
-            .filter(developmentCardType -> developmentCardType == DevelopmentCardType.VICTORY_POINTS)
-            .count();
+        int developmentCardsVictoryPoints = developmentCards.getOrDefault(DevelopmentCardType.VICTORY_POINTS, 0);
 
         return buildingVictoryPoints + developmentCardsVictoryPoints;
     }
 
     @Override
+    @StudentImplementationRequired("H1.1")
     public Map<ResourceType, Integer> getResources() {
         return Collections.unmodifiableMap(this.resources);
     }
