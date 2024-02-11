@@ -22,6 +22,12 @@ public class IntersectionImpl implements Intersection {
     private final HexGrid hexGrid;
     private Settlement settlement;
 
+    /**
+     * Creates a new intersection with the given positions.
+     *
+     * @param hexGrid   the hex grid
+     * @param positions the positions
+     */
     public IntersectionImpl(final HexGrid hexGrid, final List<TilePosition> positions) {
         this(positions.get(0), positions.get(1), positions.get(2), hexGrid);
     }

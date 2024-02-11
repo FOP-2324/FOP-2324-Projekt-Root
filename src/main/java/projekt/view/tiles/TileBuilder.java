@@ -88,6 +88,12 @@ public class TileBuilder implements Builder<Region> {
         stackPane.setBackground(Background.fill(tile.getType().color));
     }
 
+    /**
+     * Creates a VBox with labels for the position, resource and roll number of the
+     * tile.
+     *
+     * @return the created VBox
+     */
     private VBox createLabels() {
         final VBox labelBox = new VBox();
         final Label positionLabel = new Label(tile.getPosition().toString());

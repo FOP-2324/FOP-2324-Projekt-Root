@@ -23,6 +23,11 @@ public record Settlement(Player owner, Type type, Intersection intersection) {
         VILLAGE(1),
         CITY(2);
 
+        /**
+         * The amount of resources that are produced by a settlement of this type.
+         * Also used to determine how many victory points a settlement of this type is
+         * worth.
+         */
         public final int resourceAmount;
 
         Type(final int resourceAmount) {

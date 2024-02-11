@@ -51,9 +51,9 @@ public class PlayersOverviewBuilder implements Builder<Region> {
      * The titled pane contains information about the player's resources,
      * development cards, victory points and knights.
      *
-     * @param player
-     * @param playerNumber
-     * @return
+     * @param player       the player to create the titled pane for
+     * @param playerNumber the number of the player
+     * @return the created titled pane
      */
     public TitledPane createPlayerTiltedPane(final Player player, final int playerNumber) {
         final GridPane detailsBox = new GridPane();

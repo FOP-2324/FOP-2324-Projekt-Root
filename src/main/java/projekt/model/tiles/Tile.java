@@ -186,7 +186,13 @@ public interface Tile {
         MOUNTAIN(Color.web("#B5B5B5"), ResourceType.ORE),
         DESERT(Color.web("#FFE05C"), null);
 
+        /**
+         * The color of the tile.
+         */
         public final Color color;
+        /**
+         * The resource type of the tile.
+         */
         public final ResourceType resourceType;
 
         Type(final Color color, final ResourceType resourceType) {

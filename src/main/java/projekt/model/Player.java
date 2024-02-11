@@ -60,21 +60,26 @@ public interface Player {
     }
 
     /**
-     * Returns the amount of victory points from settlements and development cards the player has.
+     * Returns the amount of victory points from settlements and development cards
+     * the player has.
      *
-     * @return the amount of victory points from settlements and development cards the player has.
+     * @return the amount of victory points from settlements and development cards
+     *         the player has.
      */
     int getVictoryPoints();
 
     /**
-     * Returns an immutable map of all resources the player currently has and how many of each.
+     * Returns an immutable map of all resources the player currently has and how
+     * many of each.
      *
-     * @return an immutable map of all resources the player currently has and how many of each.
+     * @return an immutable map of all resources the player currently has and how
+     *         many of each.
      */
     Map<ResourceType, Integer> getResources();
 
     /**
      * Adds the given amount of the given resource to the player.
+     * Expects a positive amount.
      *
      * @param resourceType the ResourceType to add
      * @param amount       the amount to add
@@ -83,30 +88,43 @@ public interface Player {
 
     /**
      * Adds the given resources to the player.
+     * Expects positive amounts.
      *
      * @param resources a mapping of resources to their amounts
      */
     void addResources(Map<ResourceType, Integer> resources);
 
     /**
-     * Returns true if the player has the given resources, false otherwise.
+     * Returns true if the player has at least the given amount of the resource.
+     * Returns false otherwise.
      *
-     * @return true if the player has the given resources, false otherwise
+     * @param resources a mapping of resources to their amounts to check
+     * @return true if the player has at least the given amount of the resource,
+     *         false otherwise
      */
     boolean hasResources(Map<ResourceType, Integer> resources);
 
     /**
      * Removes the given amount of the given resource from the player.
+     * Expects a positive amount.
+     * Checks if the player has enough resources to remove.
+     * If the player does not have enough resources, nothing is removed.
+     * Ensures the player never has negative resources.
      *
      * @param resourceType the ResourceType to remove from
      * @param amount       the amount to remove
+     * @return true if the player had enough resources to remove, false otherwise
      */
     boolean removeResource(ResourceType resourceType, int amount);
 
     /**
      * Removes the given resources from the player.
+     * Expects positive amounts.
+     * Checks if the player has enough resources to remove.
+     * If the player does not have enough resources, nothing is removed.
+     * Ensures the player never has negative resources.
      *
-     * @param resources the resources to remove
+     * @param resources a mapping of resources to their amounts to remove
      * @return true if the player had enough resources to remove, false otherwise
      */
     boolean removeResources(Map<ResourceType, Integer> resources);
@@ -164,9 +182,11 @@ public interface Player {
     }
 
     /**
-     * Returns an unmodifiable map of all development cards the player currently has and how many.
+     * Returns an unmodifiable map of all development cards the player currently has
+     * and how many.
      *
-     * @return an unmodifiable map of all development cards the player currently has and how many.
+     * @return an unmodifiable map of all development cards the player currently has
+     *         and how many.
      */
     Map<DevelopmentCardType, Integer> getDevelopmentCards();
 
@@ -193,9 +213,11 @@ public interface Player {
     int getTotalDevelopmentCards();
 
     /**
-     * Returns the amount of {@linkplain DevelopmentCardType#KNIGHT knights} the player has played.
+     * Returns the amount of {@linkplain DevelopmentCardType#KNIGHT knights} the
+     * player has played.
      *
-     * @return the amount of {@linkplain DevelopmentCardType#KNIGHT knights} the player has played
+     * @return the amount of {@linkplain DevelopmentCardType#KNIGHT knights} the
+     *         player has played
      */
     int getKnightsPlayed();
 }
