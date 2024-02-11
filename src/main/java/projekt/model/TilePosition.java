@@ -12,6 +12,9 @@ import java.util.stream.Stream;
 
 /**
  * A position in the grid using the axial coordinate system.
+ *
+ * @param q the q-coordinate
+ * @param r the r-coordinate
  */
 @DoNotTouch
 public record TilePosition(int q, int r) implements Comparable<TilePosition> {
