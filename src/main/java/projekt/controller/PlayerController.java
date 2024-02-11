@@ -523,8 +523,6 @@ public class PlayerController {
      * The development card is removed from the {@link Player} after it is played.
      * After a development card is played, the {@link Player} continues his regular
      * turn.
-     * For instructions on what each development card does, reference the Task
-     * instructions.
      *
      * @see DevelopmentCardType
      *
