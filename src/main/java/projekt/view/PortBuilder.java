@@ -1,7 +1,5 @@
 package projekt.view;
 
-import java.util.List;
-
 import javafx.beans.value.ObservableDoubleValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
@@ -19,6 +17,8 @@ import javafx.scene.text.Font;
 import javafx.util.Builder;
 import projekt.model.buildings.Edge;
 import projekt.model.buildings.Port;
+
+import java.util.List;
 
 /**
  * A Builder to create views for {@link Port}s.

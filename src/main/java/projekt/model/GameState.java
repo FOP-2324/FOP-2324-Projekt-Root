@@ -1,17 +1,16 @@
 package projekt.model;
 
+import javafx.beans.property.Property;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.scene.paint.Color;
+import org.jetbrains.annotations.Nullable;
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
+import projekt.Config;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-
-import org.jetbrains.annotations.Nullable;
-
-import javafx.beans.property.Property;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.scene.paint.Color;
-import org.tudalgo.algoutils.student.annotation.DoNotTouch;
-import projekt.Config;
 
 /**
  * Holds information on the game's state.

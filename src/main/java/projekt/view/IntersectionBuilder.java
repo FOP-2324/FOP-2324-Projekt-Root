@@ -1,7 +1,5 @@
 package projekt.view;
 
-import java.util.function.Consumer;
-
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
@@ -10,6 +8,8 @@ import javafx.scene.shape.Circle;
 import javafx.util.Builder;
 import projekt.model.Intersection;
 import projekt.model.buildings.Settlement;
+
+import java.util.function.Consumer;
 
 /**
  * A Builder to create views for {@link Intersection}s.

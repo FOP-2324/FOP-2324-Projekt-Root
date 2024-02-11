@@ -1,13 +1,13 @@
 package projekt.model;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import javafx.scene.paint.Color;
 import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import projekt.model.buildings.Edge;
 import projekt.model.buildings.Settlement;
+
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Represents a player in the game.

@@ -1,5 +1,6 @@
 package projekt.model.tiles;
 
+import javafx.beans.value.ObservableDoubleValue;
 import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import projekt.model.HexGrid;
 import projekt.model.Intersection;
@@ -11,8 +12,6 @@ import projekt.model.buildings.Edge;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import javafx.beans.value.ObservableDoubleValue;
 
 /**
  * Holds information on a tile.

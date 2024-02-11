@@ -1,15 +1,5 @@
 package projekt.model;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.BiFunction;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -23,6 +13,11 @@ import projekt.model.buildings.EdgeImpl;
 import projekt.model.buildings.Port;
 import projekt.model.tiles.Tile;
 import projekt.model.tiles.TileImpl;
+
+import java.util.*;
+import java.util.function.BiFunction;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * Default implementation of {@link HexGrid}.
@@ -101,7 +96,7 @@ public class HexGridImpl implements HexGrid {
      */
     @DoNotTouch
     private void initEdges() {
-        BiFunction<TilePosition, TilePosition.EdgeDirection, Port> portMapper = Config.generatePortMapper();
+        final BiFunction<TilePosition, TilePosition.EdgeDirection, Port> portMapper = Config.generatePortMapper();
 
         for (final var tile : this.tiles.values()) {
             Arrays.stream(TilePosition.EdgeDirection.values())

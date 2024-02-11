@@ -1,13 +1,12 @@
 package projekt.controller.gui;
 
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
-import org.tudalgo.algoutils.student.annotation.DoNotTouch;
-
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import projekt.controller.GameController;
+
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * A SceneSwitcher is responsible for switching between the different
@@ -66,7 +65,7 @@ public class SceneSwitcher {
     /**
      * The different types of scenes that can be loaded.
      */
-    public static enum SceneType {
+    public enum SceneType {
         MAIN_MENU(MainMenuSceneController::new),
         CREATE_GAME(() -> {
             SceneSwitcher.getInstance().gameController = new GameController();

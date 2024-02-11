@@ -1,23 +1,22 @@
 package projekt.view.gameControls;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.tudalgo.algoutils.student.annotation.SolutionOnly;
-import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
-
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
+import org.tudalgo.algoutils.student.annotation.SolutionOnly;
+import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 import projekt.model.Player;
 import projekt.model.ResourceType;
 import projekt.view.CardPane;
 import projekt.view.IntegerField;
 import projekt.view.ResourceCardPane;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * A dialog to prompt the user to select a number of resources.

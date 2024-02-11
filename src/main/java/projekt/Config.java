@@ -1,7 +1,6 @@
 package projekt;
 
 import org.tudalgo.algoutils.student.io.PropertyUtils;
-
 import projekt.model.DevelopmentCardType;
 import projekt.model.ResourceType;
 import projekt.model.TilePosition;
@@ -145,7 +144,7 @@ public final class Config {
      * @see #makeSupplier(SortedMap, boolean)
      */
     public static Supplier<Integer> generateRollNumbers() {
-        Map<Integer, Integer> ratios = IntStream.iterate(NUMBER_OF_DICE, i -> i >= NUMBER_OF_DICE && i <= NUMBER_OF_DICE * DICE_SIDES, i -> i + 1)
+        final Map<Integer, Integer> ratios = IntStream.iterate(NUMBER_OF_DICE, i -> i >= NUMBER_OF_DICE && i <= NUMBER_OF_DICE * DICE_SIDES, i -> i + 1)
             .filter(i -> i != 7)
             .mapToObj(i -> Map.entry(i, i == NUMBER_OF_DICE || i == NUMBER_OF_DICE * DICE_SIDES ? 1 : 2))
             .collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -167,22 +166,22 @@ public final class Config {
      * @see TilePosition
      */
     public static BiFunction<TilePosition, TilePosition.EdgeDirection, Port> generatePortMapper() {
-        Iterator<ResourceType> resourceTypes = Spliterators.iterator(Arrays.spliterator(ResourceType.values()));
-        Set<Set<TilePosition>> visitedIntersections = new HashSet<>();
-        Predicate<TilePosition> isOutsideGrid = tilePosition -> abs(tilePosition.q()) >= GRID_RADIUS
+        final Iterator<ResourceType> resourceTypes = Spliterators.iterator(Arrays.spliterator(ResourceType.values()));
+        final Set<Set<TilePosition>> visitedIntersections = new HashSet<>();
+        final Predicate<TilePosition> isOutsideGrid = tilePosition -> abs(tilePosition.q()) >= GRID_RADIUS
             || abs(tilePosition.r()) >= GRID_RADIUS
             || abs(tilePosition.s()) >= GRID_RADIUS;
-        Predicate<TilePosition> isOnEdge = tilePosition -> !(abs(tilePosition.q()) < GRID_RADIUS - 1
+        final Predicate<TilePosition> isOnEdge = tilePosition -> !(abs(tilePosition.q()) < GRID_RADIUS - 1
             && abs(tilePosition.r()) < GRID_RADIUS - 1
             && abs(tilePosition.s()) < GRID_RADIUS - 1)
             && !isOutsideGrid.test(tilePosition);
-        BiFunction<TilePosition, TilePosition.EdgeDirection, Set<Set<TilePosition>>> mapToIntersectionsPositions =
+        final BiFunction<TilePosition, TilePosition.EdgeDirection, Set<Set<TilePosition>>> mapToIntersectionsPositions =
             (tilePosition, edgeDirection) -> Set.of(
                 Set.of(tilePosition, TilePosition.add(tilePosition, edgeDirection.position), TilePosition.add(tilePosition, edgeDirection.left().position)),
                 Set.of(tilePosition, TilePosition.add(tilePosition, edgeDirection.position), TilePosition.add(tilePosition, edgeDirection.right().position)));
 
         return (tilePosition, edgeDirection) -> {
-            Set<Set<TilePosition>> intersectionPositions = mapToIntersectionsPositions.apply(tilePosition, edgeDirection);
+            final Set<Set<TilePosition>> intersectionPositions = mapToIntersectionsPositions.apply(tilePosition, edgeDirection);
             if (!isOnEdge.test(tilePosition)
                 || !isOutsideGrid.test(TilePosition.add(tilePosition, edgeDirection.position))
                 || intersectionPositions.stream().anyMatch(visitedIntersections::contains)) {
@@ -218,7 +217,7 @@ public final class Config {
      * The ratio / frequency of occurrence of each {@link projekt.model.DevelopmentCardType}.
      */
     public static final SortedMap<DevelopmentCardType, Integer> DEVELOPMENT_CARD_RATIOS = Collections.unmodifiableSortedMap(new TreeMap<>() {{
-        for (DevelopmentCardType developmentCardType : DevelopmentCardType.values()) {
+        for (final DevelopmentCardType developmentCardType : DevelopmentCardType.values()) {
             put(developmentCardType, Integer.parseInt(DEVELOPMENT_CARD_RATIO_PROPERTIES.getProperty(developmentCardType.name(), "0")));
         }
     }});
@@ -248,21 +247,21 @@ public final class Config {
      * @param enableCounter whether to enable the counter / log
      * @return a supplier returning chosen keys
      */
-    private static <T> Supplier<T> makeSupplier(SortedMap<T, Integer> ratios, boolean enableCounter) {
-        Map<T, Integer> counter = new HashMap<>();
-        int sum = ratios.values().stream().mapToInt(i -> i).sum();
+    private static <T> Supplier<T> makeSupplier(final SortedMap<T, Integer> ratios, final boolean enableCounter) {
+        final Map<T, Integer> counter = new HashMap<>();
+        final int sum = ratios.values().stream().mapToInt(i -> i).sum();
         return () -> {
             T result = null;
             while (result == null || (enableCounter && counter.getOrDefault(result, 0) >= ratios.get(result))) {
                 if (enableCounter && counter.equals(ratios)) {
                     counter.clear();
                 }
-                int d = RANDOM.nextInt(sum);
+                final int d = RANDOM.nextInt(sum);
                 int start = 0;
                 int bound = 0;
 
-                for (Map.Entry<T, Integer> entry : ratios.entrySet()) {
-                    int ratio = entry.getValue();
+                for (final Map.Entry<T, Integer> entry : ratios.entrySet()) {
+                    final int ratio = entry.getValue();
                     bound += ratio;
                     if (d >= start && d < bound) {
                         result = entry.getKey();

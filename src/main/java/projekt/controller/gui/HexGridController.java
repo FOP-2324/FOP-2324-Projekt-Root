@@ -1,25 +1,24 @@
 package projekt.controller.gui;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import org.tudalgo.algoutils.student.annotation.DoNotTouch;
-
 import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Region;
 import javafx.util.Builder;
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import projekt.controller.gui.tiles.TileController;
 import projekt.model.HexGrid;
 import projekt.model.Intersection;
 import projekt.model.buildings.Edge;
 import projekt.model.tiles.Tile;
 import projekt.view.HexGridBuilder;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * The controller for the hex grid.

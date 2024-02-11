@@ -1,12 +1,11 @@
 package projekt.view;
 
-import org.tudalgo.algoutils.student.annotation.DoNotTouch;
-
 import javafx.scene.effect.Light;
 import javafx.scene.effect.Lighting;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 
 /**
  * An ImageView that can be colored with the provided color.
@@ -19,7 +18,7 @@ public class ColoredImageView extends ImageView {
      * @param imagePath path to the image
      * @param color     color to colorize the image with
      */
-    public ColoredImageView(String imagePath, Color color) {
+    public ColoredImageView(final String imagePath, final Color color) {
         super(imagePath);
         colorize(color);
     }
@@ -30,7 +29,7 @@ public class ColoredImageView extends ImageView {
      * @param image image to display
      * @param color color to colorize the image with
      */
-    public ColoredImageView(Image image, Color color) {
+    public ColoredImageView(final Image image, final Color color) {
         super(image);
         colorize(color);
     }
@@ -40,12 +39,12 @@ public class ColoredImageView extends ImageView {
      *
      * @param color color to colorize the image with
      */
-    private void colorize(Color color) {
+    private void colorize(final Color color) {
         if (color == null) {
             return;
         }
 
-        Lighting lighting = new Lighting();
+        final Lighting lighting = new Lighting();
         lighting.setDiffuseConstant(1.0);
         lighting.setSpecularConstant(0.0);
         lighting.setSpecularExponent(0.0);

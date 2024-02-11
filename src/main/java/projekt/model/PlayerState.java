@@ -1,11 +1,11 @@
 package projekt.model;
 
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
+import projekt.model.buildings.Edge;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.tudalgo.algoutils.student.annotation.DoNotTouch;
-import projekt.model.buildings.Edge;
 
 /**
  * Holds information on a player's state.

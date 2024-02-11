@@ -1,9 +1,5 @@
 package projekt.view.gameControls;
 
-import java.util.function.Consumer;
-
-import org.tudalgo.algoutils.student.annotation.DoNotTouch;
-
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -11,6 +7,9 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.util.Builder;
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
+
+import java.util.function.Consumer;
 
 /**
  * A Builder to create the player actions view.

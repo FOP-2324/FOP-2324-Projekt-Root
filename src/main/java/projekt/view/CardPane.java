@@ -1,7 +1,5 @@
 package projekt.view;
 
-import org.tudalgo.algoutils.student.annotation.DoNotTouch;
-
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -9,6 +7,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 
 /**
  * A StackPane that displays a card with an icon and a label.

@@ -1,9 +1,5 @@
 package projekt.view;
 
-import java.util.function.UnaryOperator;
-
-import org.tudalgo.algoutils.student.annotation.DoNotTouch;
-
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
@@ -11,6 +7,9 @@ import javafx.scene.control.TextFormatter.Change;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.util.Duration;
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
+
+import java.util.function.UnaryOperator;
 
 /**
  * A collection of utility methods and constants for the gui.
@@ -36,7 +35,7 @@ public final class Utils {
      * @param text   The text to display in the tooltip.
      * @param target The node to attach the tooltip to.
      */
-    public static final void attachTooltip(final String text, final Node target) {
+    public static void attachTooltip(final String text, final Node target) {
         final Tooltip tooltip = new Tooltip(text);
         tooltip.setShowDelay(Duration.millis(100));
         Tooltip.install(target, tooltip);

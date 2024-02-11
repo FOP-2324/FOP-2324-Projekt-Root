@@ -1,7 +1,5 @@
 package projekt.view;
 
-import java.util.function.Consumer;
-
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Point2D;
 import javafx.scene.input.MouseEvent;
@@ -9,6 +7,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import projekt.model.buildings.Edge;
 import projekt.model.buildings.EdgeImpl;
+
+import java.util.function.Consumer;
 
 /**
  * A Line that represents an {@link EdgeImpl}. Has methods to highlight and

@@ -1,10 +1,10 @@
 package projekt.controller.gui.tiles;
 
-import java.util.function.Consumer;
-
 import projekt.controller.gui.Controller;
 import projekt.model.tiles.Tile;
 import projekt.view.tiles.TileBuilder;
+
+import java.util.function.Consumer;
 
 /**
  * The controller for a tile.

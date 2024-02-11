@@ -1,13 +1,5 @@
 package projekt.controller.gui;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
-
-import org.tudalgo.algoutils.student.annotation.DoNotTouch;
-import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
-
 import javafx.application.Platform;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
@@ -16,33 +8,19 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.util.Builder;
 import javafx.util.Subscription;
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
+import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 import projekt.controller.PlayerController;
 import projekt.controller.PlayerObjective;
-import projekt.controller.actions.AcceptTradeAction;
-import projekt.controller.actions.BuildRoadAction;
-import projekt.controller.actions.BuildVillageAction;
-import projekt.controller.actions.BuyDevelopmentCardAction;
-import projekt.controller.actions.EndTurnAction;
-import projekt.controller.actions.PlayDevelopmentCardAction;
-import projekt.controller.actions.PlayerAction;
-import projekt.controller.actions.RollDiceAction;
-import projekt.controller.actions.SelectCardsAction;
-import projekt.controller.actions.SelectRobberTileAction;
-import projekt.controller.actions.StealCardAction;
-import projekt.controller.actions.TradeAction;
-import projekt.controller.actions.UpgradeVillageAction;
-import projekt.model.DevelopmentCardType;
-import projekt.model.Player;
-import projekt.model.PlayerState;
-import projekt.model.ResourceType;
-import projekt.model.TradePayload;
+import projekt.controller.actions.*;
+import projekt.model.*;
 import projekt.model.tiles.Tile;
-import projekt.view.gameControls.AcceptTradeDialog;
-import projekt.view.gameControls.PlayerActionsBuilder;
-import projekt.view.gameControls.SelectCardToStealDialog;
-import projekt.view.gameControls.SelectResourcesDialog;
-import projekt.view.gameControls.TradeDialog;
-import projekt.view.gameControls.UseDevelopmentCardDialog;
+import projekt.view.gameControls.*;
+
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * This class is responsible for handling all player actions performed through

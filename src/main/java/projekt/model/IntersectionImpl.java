@@ -2,8 +2,8 @@ package projekt.model;
 
 import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
-import projekt.model.buildings.Port;
 import projekt.model.buildings.Edge;
+import projekt.model.buildings.Port;
 import projekt.model.buildings.Settlement;
 
 import java.util.List;
@@ -78,7 +78,7 @@ public class IntersectionImpl implements Intersection {
     }
 
     @Override
-    public boolean playerHasSettlement(Player player) {
+    public boolean playerHasSettlement(final Player player) {
         return settlement != null && settlement.owner().equals(player);
     }
 

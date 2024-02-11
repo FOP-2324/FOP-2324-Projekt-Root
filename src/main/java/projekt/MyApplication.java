@@ -1,16 +1,15 @@
 package projekt;
 
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.util.function.Consumer;
-
-import org.tudalgo.algoutils.student.annotation.DoNotTouch;
-
 import javafx.application.Application;
 import javafx.stage.Stage;
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import projekt.controller.GameController;
 import projekt.controller.gui.SceneSwitcher;
 import projekt.controller.gui.SceneSwitcher.SceneType;
+
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.function.Consumer;
 
 /**
  * The main application of the game.

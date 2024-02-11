@@ -61,10 +61,7 @@ public class AcceptTradeDialog extends Dialog<Boolean> {
         dialogPane.getButtonTypes().add(ButtonType.NO);
 
         setResultConverter(buttonType -> {
-            if (ButtonType.YES.equals(buttonType)) {
-                return true;
-            }
-            return false;
+            return ButtonType.YES.equals(buttonType);
         });
     }
 }

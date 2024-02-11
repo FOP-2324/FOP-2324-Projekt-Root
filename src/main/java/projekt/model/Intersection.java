@@ -1,14 +1,14 @@
 package projekt.model;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import projekt.model.buildings.Edge;
 import projekt.model.buildings.Port;
 import projekt.model.buildings.Settlement;
 import projekt.model.tiles.Tile;
+
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Represents an intersection between three tile positions or at least two edges in the game.

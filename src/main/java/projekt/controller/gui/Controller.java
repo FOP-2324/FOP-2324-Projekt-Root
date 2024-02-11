@@ -1,9 +1,8 @@
 package projekt.controller.gui;
 
-import org.tudalgo.algoutils.student.annotation.DoNotTouch;
-
 import javafx.scene.layout.Region;
 import javafx.util.Builder;
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 
 /**
  * A controller for a view.

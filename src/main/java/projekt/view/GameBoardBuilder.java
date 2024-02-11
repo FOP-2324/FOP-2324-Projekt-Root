@@ -1,29 +1,23 @@
 package projekt.view;
 
-import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
-
-import org.tudalgo.algoutils.student.annotation.DoNotTouch;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.util.Builder;
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import projekt.model.Player;
 import projekt.model.ResourceType;
 import projekt.view.gameControls.PlayerInformationBuilder;
 import projekt.view.gameControls.PlayersOverviewBuilder;
+
+import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * The builder for the game board.

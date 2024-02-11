@@ -1,19 +1,10 @@
 package projekt.view.gameControls;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Pos;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.DialogPane;
-import javafx.scene.control.Label;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
+import javafx.scene.control.*;
 import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -24,6 +15,10 @@ import projekt.model.TradePayload;
 import projekt.view.CardPane;
 import projekt.view.IntegerField;
 import projekt.view.ResourceCardPane;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * A dialog to prompt the user to make a trade with the bank or another player.

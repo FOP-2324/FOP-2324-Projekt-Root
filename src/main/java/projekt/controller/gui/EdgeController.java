@@ -1,10 +1,10 @@
 package projekt.controller.gui;
 
-import java.util.function.Consumer;
-
 import javafx.scene.input.MouseEvent;
 import projekt.model.buildings.Edge;
 import projekt.view.EdgeLine;
+
+import java.util.function.Consumer;
 
 /**
  * The controller for an edge.

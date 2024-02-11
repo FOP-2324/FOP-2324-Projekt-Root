@@ -1,15 +1,5 @@
 package projekt.view;
 
-import java.util.List;
-import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.IntBinaryOperator;
-import java.util.function.Predicate;
-import java.util.function.ToIntFunction;
-import java.util.stream.Collectors;
-
 import javafx.beans.binding.Bindings;
 import javafx.event.Event;
 import javafx.geometry.Point2D;
@@ -26,6 +16,11 @@ import projekt.model.TilePosition;
 import projekt.model.buildings.Edge;
 import projekt.model.tiles.Tile;
 import projekt.view.tiles.TileBuilder;
+
+import java.util.List;
+import java.util.Set;
+import java.util.function.*;
+import java.util.stream.Collectors;
 
 /**
  * The builder for the {@link HexGrid}.

@@ -1,12 +1,11 @@
 package projekt.view;
 
-import org.tudalgo.algoutils.student.annotation.DoNotTouch;
-
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 
 /**
  * A Sprite is used to display a single image from a sprite sheet and can be

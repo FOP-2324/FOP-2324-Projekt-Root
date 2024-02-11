@@ -82,7 +82,7 @@ public record EdgeImpl(
 
     @Override
     @StudentImplementationRequired
-    public Set<Edge> getConnectedRoads(Player player) {
+    public Set<Edge> getConnectedRoads(final Player player) {
         return getConnectedEdges().stream()
             .filter(Edge::hasRoad)
             .filter(edge -> edge.getRoadOwnerProperty().getValue().equals(player))

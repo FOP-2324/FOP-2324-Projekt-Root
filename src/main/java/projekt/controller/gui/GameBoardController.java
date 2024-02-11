@@ -1,20 +1,19 @@
 package projekt.controller.gui;
 
-import java.util.Map;
-
-import org.tudalgo.algoutils.student.annotation.DoNotTouch;
-
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.Property;
 import javafx.scene.control.Alert;
 import javafx.scene.layout.Region;
 import javafx.util.Builder;
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import projekt.controller.PlayerController;
 import projekt.model.GameState;
 import projekt.model.Player;
 import projekt.model.ResourceType;
 import projekt.view.GameBoardBuilder;
+
+import java.util.Map;
 
 /**
  * The controller for the game board scene.
@@ -22,9 +21,9 @@ import projekt.view.GameBoardBuilder;
 @DoNotTouch
 public class GameBoardController implements SceneController {
     private final GameState gameState;
-    private PlayerActionsController playerActionsController;
-    private HexGridController hexGridController;
-    private GameBoardBuilder gameBoardBuilder;
+    private final PlayerActionsController playerActionsController;
+    private final HexGridController hexGridController;
+    private final GameBoardBuilder gameBoardBuilder;
 
     /**
      * Creates a new game board controller.

@@ -1,11 +1,11 @@
 package projekt.controller.actions;
 
-import java.util.Map.Entry;
-
 import projekt.controller.PlayerController;
 import projekt.model.Player;
 import projekt.model.ResourceType;
 import projekt.model.TradePayload;
+
+import java.util.Map.Entry;
 
 /**
  * An action to trade with the bank or other players.

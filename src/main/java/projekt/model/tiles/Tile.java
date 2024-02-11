@@ -1,22 +1,18 @@
 package projekt.model.tiles;
 
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import javafx.beans.value.ObservableDoubleValue;
 import javafx.scene.paint.Color;
 import org.tudalgo.algoutils.student.annotation.DoNotTouch;
-import projekt.model.HexGrid;
-import projekt.model.Intersection;
-import projekt.model.Player;
-import projekt.model.TilePosition;
-import projekt.model.ResourceType;
+import projekt.model.*;
 import projekt.model.TilePosition.EdgeDirection;
 import projekt.model.TilePosition.IntersectionDirection;
 import projekt.model.buildings.Edge;
 import projekt.model.buildings.Settlement;
+
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Represents a tile in the game grid.

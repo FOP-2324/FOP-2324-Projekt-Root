@@ -1,7 +1,5 @@
 package projekt.view.gameControls;
 
-import java.util.Map;
-
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.ButtonType;
@@ -14,6 +12,8 @@ import projekt.model.DevelopmentCardType;
 import projekt.model.Player;
 import projekt.view.CardPane;
 import projekt.view.DevelopmentCardPane;
+
+import java.util.Map;
 
 /**
  * A dialog to prompt the user to select a development card to play.

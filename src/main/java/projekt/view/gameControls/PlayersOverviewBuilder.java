@@ -1,15 +1,9 @@
 package projekt.view.gameControls;
 
-import java.util.List;
-
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
 import javafx.scene.image.Image;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Builder;
@@ -17,6 +11,8 @@ import projekt.model.DevelopmentCardType;
 import projekt.model.Player;
 import projekt.view.CardPane;
 import projekt.view.DevelopmentCardPane;
+
+import java.util.List;
 
 /**
  * A Builder to create the player overview view.

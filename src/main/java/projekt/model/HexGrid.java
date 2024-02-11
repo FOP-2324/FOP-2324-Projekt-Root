@@ -1,15 +1,15 @@
 package projekt.model;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.value.ObservableDoubleValue;
 import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import projekt.model.TilePosition.EdgeDirection;
 import projekt.model.buildings.Edge;
 import projekt.model.tiles.Tile;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Holds all the information displayed on the hexagonal grid and information for

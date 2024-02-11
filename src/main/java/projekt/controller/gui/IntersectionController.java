@@ -1,11 +1,11 @@
 package projekt.controller.gui;
 
-import java.util.function.Consumer;
-
 import javafx.application.Platform;
 import javafx.scene.input.MouseEvent;
 import projekt.model.Intersection;
 import projekt.view.IntersectionBuilder;
+
+import java.util.function.Consumer;
 
 /**
  * The controller for an intersection.

@@ -1,11 +1,5 @@
 package projekt.view.gameControls;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
-
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -22,6 +16,12 @@ import projekt.model.Player;
 import projekt.model.ResourceType;
 import projekt.view.CardPane;
 import projekt.view.PlayerLabel;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 /**
  * A dialog to prompt the user to select a card to steal from a player.

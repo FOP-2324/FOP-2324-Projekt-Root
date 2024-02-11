@@ -1,7 +1,5 @@
 package projekt.view.gameControls;
 
-import java.util.Map;
-
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
@@ -15,6 +13,8 @@ import projekt.view.CardPane;
 import projekt.view.DevelopmentCardPane;
 import projekt.view.PlayerLabel;
 import projekt.view.ResourceCardPane;
+
+import java.util.Map;
 
 /**
  * A Builder to create the player information view.

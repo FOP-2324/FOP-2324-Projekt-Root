@@ -1,5 +1,18 @@
 package projekt.controller;
 
+import javafx.beans.property.Property;
+import javafx.beans.property.SimpleObjectProperty;
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
+import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
+import projekt.Config;
+import projekt.controller.actions.IllegalActionException;
+import projekt.controller.actions.PlayerAction;
+import projekt.model.*;
+import projekt.model.buildings.Edge;
+import projekt.model.buildings.Port;
+import projekt.model.buildings.Settlement;
+import projekt.model.tiles.Tile;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,26 +22,6 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import org.tudalgo.algoutils.student.annotation.DoNotTouch;
-import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
-
-import javafx.beans.property.Property;
-import javafx.beans.property.SimpleObjectProperty;
-import projekt.Config;
-import projekt.controller.actions.IllegalActionException;
-import projekt.controller.actions.PlayerAction;
-import projekt.model.DevelopmentCardType;
-import projekt.model.Intersection;
-import projekt.model.Player;
-import projekt.model.PlayerState;
-import projekt.model.ResourceType;
-import projekt.model.TilePosition;
-import projekt.model.TradePayload;
-import projekt.model.buildings.Edge;
-import projekt.model.buildings.Port;
-import projekt.model.buildings.Settlement;
-import projekt.model.tiles.Tile;
 
 /**
  * The PlayerController class represents a controller for a {@link Player} in

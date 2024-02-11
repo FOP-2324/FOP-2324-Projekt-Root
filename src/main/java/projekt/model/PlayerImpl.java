@@ -1,21 +1,18 @@
 package projekt.model;
 
-import static projekt.Config.MAX_CITIES;
-import static projekt.Config.MAX_ROADS;
-import static projekt.Config.MAX_VILLAGES;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.scene.paint.Color;
+import org.jetbrains.annotations.Nullable;
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
+import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
+import projekt.Config;
+import projekt.model.buildings.Settlement;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jetbrains.annotations.Nullable;
-import org.tudalgo.algoutils.student.annotation.DoNotTouch;
-import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
-
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.scene.paint.Color;
-import projekt.Config;
-import projekt.model.buildings.Settlement;
+import static projekt.Config.*;
 
 /**
  * Default implementation of {@link Player}.
@@ -66,10 +63,10 @@ public class PlayerImpl implements Player {
 
     @Override
     public int getVictoryPoints() {
-        int buildingVictoryPoints = getSettlements().stream()
+        final int buildingVictoryPoints = getSettlements().stream()
             .mapToInt(settlement -> settlement.type().resourceAmount)
             .sum();
-        int developmentCardsVictoryPoints = developmentCards.getOrDefault(DevelopmentCardType.VICTORY_POINTS, 0);
+        final int developmentCardsVictoryPoints = developmentCards.getOrDefault(DevelopmentCardType.VICTORY_POINTS, 0);
 
         return buildingVictoryPoints + developmentCardsVictoryPoints;
     }

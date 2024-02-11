@@ -1,9 +1,9 @@
 package projekt.controller.actions;
 
-import java.util.Map;
-
 import projekt.controller.PlayerController;
 import projekt.model.ResourceType;
+
+import java.util.Map;
 
 /**
  * An action to select cards from the player's hand.

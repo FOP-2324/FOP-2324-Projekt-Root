@@ -24,7 +24,7 @@ public class AboutBuilder extends MenuBuilder {
         textArea.setWrapText(true);
         textArea.setText(
                 """
-                        Project for the subject \"Functional and Objectoriented programming concepts\" in the winter semester 2023/24.
+                        Project for the subject "Functional and Objectoriented programming concepts" in the winter semester 2023/24.
                         Based on the game: Die Siedler von Catan
                         Icons from:
                             - https://github.com/Templarian/MaterialDesign

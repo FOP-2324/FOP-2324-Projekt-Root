@@ -1,7 +1,6 @@
 package projekt.view;
 
 import org.tudalgo.algoutils.student.annotation.DoNotTouch;
-
 import projekt.model.ResourceType;
 
 /**
