@@ -6,6 +6,7 @@ import java.util.Set;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.value.ObservableDoubleValue;
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import projekt.model.TilePosition.EdgeDirection;
 import projekt.model.buildings.Edge;
 import projekt.model.tiles.Tile;
@@ -22,6 +23,7 @@ import projekt.model.tiles.Tile;
  * </ul>
  * are saved in and modified by instances of this interface.
  */
+@DoNotTouch
 public interface HexGrid {
 
     // Tiles

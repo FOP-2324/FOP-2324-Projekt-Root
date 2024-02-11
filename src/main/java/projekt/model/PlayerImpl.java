@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.jetbrains.annotations.Nullable;
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 
 import javafx.beans.property.SimpleBooleanProperty;
@@ -29,6 +30,7 @@ public class PlayerImpl implements Player {
     private final Map<DevelopmentCardType, Integer> developmentCards = new HashMap<>();
     private final Map<DevelopmentCardType, Integer> playedDevelopmentCards = new HashMap<>();
 
+    @DoNotTouch("Please don't create a public Contructor, use the Builder instead.")
     private PlayerImpl(final HexGrid hexGrid, final Color color, final int id, final String name, final boolean ai) {
         this.hexGrid = hexGrid;
         this.color = color;
@@ -193,6 +195,7 @@ public class PlayerImpl implements Player {
      * Builder for {@link PlayerImpl}.
      * Allows to create a new player and modify its properties before building it.
      */
+    @DoNotTouch
     public static class Builder {
         private int id;
         private Color color;

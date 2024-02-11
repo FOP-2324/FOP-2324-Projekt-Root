@@ -1,5 +1,6 @@
 package projekt.model;
 
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import org.tudalgo.algoutils.student.annotation.StudentImplementationRequired;
 import projekt.model.buildings.Port;
 import projekt.model.buildings.Edge;
@@ -28,6 +29,7 @@ public class IntersectionImpl implements Intersection {
      * @param hexGrid   the hex grid
      * @param positions the positions
      */
+    @DoNotTouch
     public IntersectionImpl(final HexGrid hexGrid, final List<TilePosition> positions) {
         this(positions.get(0), positions.get(1), positions.get(2), hexGrid);
     }
@@ -40,6 +42,7 @@ public class IntersectionImpl implements Intersection {
      * @param position1 the second position
      * @param position2 the third position
      */
+    @DoNotTouch
     public IntersectionImpl(final TilePosition position0, final TilePosition position1, final TilePosition position2, final HexGrid hexGrid) {
         if (position0 == null || position1 == null || position2 == null)
             throw new IllegalArgumentException("Positions must not be null");
@@ -130,11 +133,11 @@ public class IntersectionImpl implements Intersection {
     public Set<Intersection> getAdjacentIntersections() {
         return hexGrid.getIntersections().entrySet().stream().filter(
                 entry -> entry.getKey().containsAll(Set.of(position0, position1)) ||
-                        entry.getKey().containsAll(Set.of(position1, position2)) ||
-                        entry.getKey().containsAll(Set.of(position2, position0)))
-                .map(Map.Entry::getValue)
-                .filter(Predicate.not(this::equals))
-                .collect(Collectors.toUnmodifiableSet());
+                    entry.getKey().containsAll(Set.of(position1, position2)) ||
+                    entry.getKey().containsAll(Set.of(position2, position0)))
+            .map(Map.Entry::getValue)
+            .filter(Predicate.not(this::equals))
+            .collect(Collectors.toUnmodifiableSet());
     }
 
     @Override

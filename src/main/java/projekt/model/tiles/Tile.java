@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import javafx.beans.value.ObservableDoubleValue;
 import javafx.scene.paint.Color;
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import projekt.model.HexGrid;
 import projekt.model.Intersection;
 import projekt.model.Player;
@@ -21,6 +22,7 @@ import projekt.model.buildings.Settlement;
  * Represents a tile in the game grid.
  * A tile has six sides ({@link Edge}s), six vertices ({@link Intersection}s), a {@link ResourceType} and a roll number.
  */
+@DoNotTouch
 public interface Tile {
 
     /**

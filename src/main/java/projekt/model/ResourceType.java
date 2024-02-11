@@ -1,6 +1,7 @@
 package projekt.model;
 
 import javafx.scene.paint.Color;
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 
 /**
  * Enum for the different resource types.
@@ -14,6 +15,7 @@ import javafx.scene.paint.Color;
  * 4: Rocks
  * 5: Ingots
  */
+@DoNotTouch
 public enum ResourceType {
     WOOD(Color.DARKGREEN, 3),
     CLAY(Color.SIENNA, 2),

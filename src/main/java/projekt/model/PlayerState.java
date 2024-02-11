@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import projekt.model.buildings.Edge;
 
 /**
@@ -17,6 +18,7 @@ import projekt.model.buildings.Edge;
  * @param cardsToSelect                  how many cards this player has to drop
  * @param changedResources               which resources have changed since the last update
  */
+@DoNotTouch
 public record PlayerState(
         Set<Intersection> buildableVillageIntersections,
         Set<Intersection> upgradableVillageIntersections,

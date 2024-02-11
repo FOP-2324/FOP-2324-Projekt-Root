@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javafx.scene.paint.Color;
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import projekt.model.buildings.Edge;
 import projekt.model.buildings.Settlement;
 
@@ -20,6 +21,7 @@ import projekt.model.buildings.Settlement;
  *     <li>miscellaneous, such as color, name, ID, etc.</li>
  * </ul>
  */
+@DoNotTouch
 public interface Player {
 
     /**

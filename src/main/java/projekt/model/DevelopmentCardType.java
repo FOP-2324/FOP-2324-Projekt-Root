@@ -1,5 +1,7 @@
 package projekt.model;
 
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
+
 /**
  * The different types of development cards.
  * Each development card has an icon index associated with it.
@@ -11,6 +13,7 @@ package projekt.model;
  * 3: Knight
  * 4: Monopoly
  */
+@DoNotTouch
 public enum DevelopmentCardType {
     KNIGHT(3),
     VICTORY_POINTS(1),

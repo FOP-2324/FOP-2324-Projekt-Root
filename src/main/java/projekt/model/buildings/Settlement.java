@@ -1,5 +1,6 @@
 package projekt.model.buildings;
 
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
 import projekt.model.Intersection;
 import projekt.model.Player;
 
@@ -10,6 +11,7 @@ import projekt.model.Player;
  * @param type         the type of this settlement
  * @param intersection the intersection this settlement is placed on
  */
+@DoNotTouch
 public record Settlement(Player owner, Type type, Intersection intersection) {
 
     /**
