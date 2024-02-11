@@ -529,8 +529,13 @@ public class PlayerController {
      * @see DevelopmentCardType
      *
      * @param developmentCard the development card to play
+     * @throws IllegalActionException if the player does not have the selected
+     *                                development card
      */
-    public void playDevelopmentCard(final DevelopmentCardType developmentCard) {
+    public void playDevelopmentCard(final DevelopmentCardType developmentCard) throws IllegalActionException {
+        if (!getPlayer().removeDevelopmentCard(developmentCard)) {
+            throw new IllegalActionException("Player does not have the selected development card");
+        }
         switch (developmentCard) {
             case KNIGHT -> {
                 waitForNextAction(PlayerObjective.SELECT_ROBBER_TILE);
@@ -560,7 +565,6 @@ public class PlayerController {
                 return;
             }
         }
-        getPlayer().removeDevelopmentCard(developmentCard);
         waitForNextAction(PlayerObjective.REGULAR_TURN);
     }
 
