@@ -43,7 +43,7 @@ public class GameBoardController implements SceneController {
     @DoNotTouch
     public GameBoardController(final GameState gameState,
             final Property<PlayerController> activePlayerControllerProperty, final IntegerProperty diceRollProperty,
-            final Property<Player> winnerProperty) {
+            final Property<Player> winnerProperty, final IntegerProperty roundCounterProperty) {
         this.gameState = gameState;
         this.playerActionsController = new PlayerActionsController(this,
                 activePlayerControllerProperty);
@@ -70,6 +70,12 @@ public class GameBoardController implements SceneController {
                         .showAndWait();
                 SceneController.loadMainMenuScene();
             });
+        });
+        roundCounterProperty.subscribe((oldValue, newValue) -> {
+            if (newValue == null) {
+                return;
+            }
+            Platform.runLater(() -> gameBoardBuilder.setRoundCounter(newValue.intValue()));
         });
     }
 
