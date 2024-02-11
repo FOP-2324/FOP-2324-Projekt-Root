@@ -239,6 +239,7 @@ public class GameController {
 
         firstRound();
 
+        roundCounter.set(1);
         while (getWinners().isEmpty()) {
             for (final PlayerController playerController : playerControllers.values()) {
                 withActivePlayer(playerController, () -> {
@@ -255,7 +256,7 @@ public class GameController {
                     regularTurn();
                 });
             }
-            roundCounter.add(1);
+            roundCounter.set(roundCounter.get() + 1);
         }
 
         // Game End
