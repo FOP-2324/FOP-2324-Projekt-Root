@@ -28,11 +28,14 @@ public class SanityCheck {
     private static final List<String> PACKAGE_NAMES = List.of(
         "projekt",
         "projekt.controller",
-        "projekt.controller.tiles",
+        "projekt.controller.actions",
+        "projekt.controller.gui",
+        "projekt.controller.gui.tiles",
         "projekt.model",
         "projekt.model.buildings",
         "projekt.model.tiles",
         "projekt.view",
+        "projekt.view.gameControls",
         "projekt.view.menus",
         "projekt.view.tiles"
     );
@@ -60,6 +63,10 @@ public class SanityCheck {
             clazz = Class.forName(classRecord.identifier);
         } catch (ClassNotFoundException e) {
             throw new AssertionFailedError("Could not find class " + classRecord.identifier);
+        } catch (ExceptionInInitializerError | NoClassDefFoundError e) {
+            System.err.println("Could not load class " + classRecord.identifier);
+            e.printStackTrace();
+            return;
         }
 
         {

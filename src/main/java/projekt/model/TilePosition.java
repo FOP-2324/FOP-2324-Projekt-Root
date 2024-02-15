@@ -1,15 +1,22 @@
 package projekt.model;
 
+import org.jetbrains.annotations.NotNull;
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
+
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * A position on the board using the axial coordinate system.
+ * A position in the grid using the axial coordinate system.
+ *
+ * @param q the q-coordinate
+ * @param r the r-coordinate
  */
+@DoNotTouch
 public record TilePosition(int q, int r) implements Comparable<TilePosition> {
 
     /**
@@ -37,18 +44,18 @@ public record TilePosition(int q, int r) implements Comparable<TilePosition> {
      *
      * @param position1 the first position
      * @param position2 the second position
-     * @return a new position
+     * @return the newly calculated position
      */
     public static TilePosition add(final TilePosition position1, final TilePosition position2) {
         return new TilePosition(position1.q + position2.q, position1.r + position2.r);
     }
 
     /**
-     * Substracts two positions from each other
+     * Subtracts two positions from each other.
      *
      * @param position1 the first position
      * @param position2 the second position
-     * @return
+     * @return the newly calculated position
      */
     public static TilePosition subtract(final TilePosition position1, final TilePosition position2) {
         return new TilePosition(position1.q - position2.q, position1.r - position2.r);
@@ -73,29 +80,30 @@ public record TilePosition(int q, int r) implements Comparable<TilePosition> {
      */
     public static Set<TilePosition> neighbours(final TilePosition position) {
         return Arrays.stream(EdgeDirection.values()).map(direction -> neighbour(position, direction))
-                .collect(Collectors.toSet());
+            .collect(Collectors.toSet());
     }
 
     /**
-     * Executes the given function on each TilePosition on a ring with the given
-     * radius
-     * around the given center.
+     * Executes the given function on each {@link TilePosition} on a ring with the given
+     * radius around the given center.
      *
      * @param center   the center of the ring
      * @param radius   the radius of the ring
      * @param function the function to execute, gets the current position and an
-     *                 array with the radius, side and tile
+     *                 array with the radius, side index and tile index
      */
-    public static void forEachRing(final TilePosition center, final int radius,
-            final BiConsumer<TilePosition, Integer[]> function) {
+    public static void forEachRing(
+        final TilePosition center, final int radius,
+        final BiConsumer<TilePosition, Integer[]> function
+    ) {
         if (radius == 0) {
-            function.accept(center, new Integer[] { radius, 0, 0 });
+            function.accept(center, new Integer[]{radius, 0, 0});
             return;
         }
         TilePosition current = TilePosition.add(center, TilePosition.scale(EdgeDirection.values()[4].position, radius));
         for (int side = 0; side < 6; side++) {
             for (int tile = 0; tile < radius; tile++) {
-                function.accept(current, new Integer[] { radius, side, tile });
+                function.accept(current, new Integer[]{radius, side, tile});
                 current = TilePosition.neighbour(current, EdgeDirection.values()[side]);
             }
         }
@@ -109,16 +117,18 @@ public record TilePosition(int q, int r) implements Comparable<TilePosition> {
      * @param radius   the radius of the spiral including the center
      * @param function the function to execute
      */
-    public static void forEachSpiral(final TilePosition center, final int radius,
-            final BiConsumer<TilePosition, Integer[]> function) {
+    public static void forEachSpiral(
+        final TilePosition center, final int radius,
+        final BiConsumer<TilePosition, Integer[]> function
+    ) {
         for (int i = 0; i < radius; i++) {
             forEachRing(center, i, function);
         }
     }
 
     /**
-     * The directions around a position and their relative position. The order of
-     * the directions must be anticlockwise.
+     * The possible directions around a tile position other tiles may be placed.
+     * The order of the directions is counterclockwise.
      */
     public enum EdgeDirection {
         EAST(new TilePosition(1, 0)),
@@ -128,8 +138,16 @@ public record TilePosition(int q, int r) implements Comparable<TilePosition> {
         SOUTH_WEST(new TilePosition(-1, 1)),
         SOUTH_EAST(new TilePosition(0, 1));
 
+        /**
+         * The relative position this direction is pointing to; with q, r, s in [-1, 1].
+         */
         public final TilePosition position;
 
+        /**
+         * The direction of the left intersection, as seen from the original tile position.
+         *
+         * @return the direction of the intersection
+         */
         public IntersectionDirection getLeftIntersection() {
             return switch (this) {
                 case NORTH_EAST -> IntersectionDirection.NORTH;
@@ -141,6 +159,11 @@ public record TilePosition(int q, int r) implements Comparable<TilePosition> {
             };
         }
 
+        /**
+         * The direction of the right intersection, as seen from the original tile position.
+         *
+         * @return the direction of the intersection
+         */
         public IntersectionDirection getRightIntersection() {
             return switch (this) {
                 case NORTH_EAST -> IntersectionDirection.NORTH_EAST;
@@ -152,21 +175,45 @@ public record TilePosition(int q, int r) implements Comparable<TilePosition> {
             };
         }
 
+        /**
+         * Calculates the edge direction from the given tile position relative to position (0, 0, 0).
+         * The given tile position must satisfy "q, r, s in [-1, 1]".
+         *
+         * @param position the tile position to get the edge direction for
+         * @return the direction of the edge
+         */
         public static EdgeDirection fromRelativePosition(final TilePosition position) {
             return Arrays.stream(EdgeDirection.values())
-                    .filter(direction -> direction.position.equals(position))
-                    .findFirst()
-                    .orElseThrow();
+                .filter(direction -> direction.position.equals(position))
+                .findFirst()
+                .orElseThrow();
         }
 
+        /**
+         * The direction of the third tile (left, as seen from the original tile position)
+         * needed to derive an intersection's position.
+         *
+         * @return the direction of the third tile
+         */
         public EdgeDirection left() {
             return getLeftIntersection().leftDirection;
         }
 
+        /**
+         * The direction of the third tile (right, as seen from the original tile position)
+         * needed to derive an intersection's position.
+         *
+         * @return the direction of the third tile
+         */
         public EdgeDirection right() {
             return getRightIntersection().rightDirection;
         }
 
+        /**
+         * Returns a stream of all possible edge directions.
+         *
+         * @return a stream of all possible edge directions
+         */
         public static Stream<EdgeDirection> stream() {
             return Arrays.stream(EdgeDirection.values());
         }
@@ -176,6 +223,10 @@ public record TilePosition(int q, int r) implements Comparable<TilePosition> {
         }
     }
 
+    /**
+     * The possible directions around a tile position where its intersections are located.
+     * The order of the directions is clockwise.
+     */
     public enum IntersectionDirection {
         NORTH(EdgeDirection.NORTH_WEST, EdgeDirection.NORTH_EAST),
         NORTH_EAST(EdgeDirection.NORTH_EAST, EdgeDirection.EAST),
@@ -184,7 +235,14 @@ public record TilePosition(int q, int r) implements Comparable<TilePosition> {
         SOUTH_WEST(EdgeDirection.SOUTH_WEST, EdgeDirection.WEST),
         NORTH_WEST(EdgeDirection.WEST, EdgeDirection.NORTH_WEST);
 
+        /**
+         * Direction of the third tile needed to derive the left intersection's position.
+         */
         public final EdgeDirection leftDirection;
+
+        /**
+         * Direction of the third tile needed to derive the right intersection's position.
+         */
         public final EdgeDirection rightDirection;
 
         IntersectionDirection(final EdgeDirection leftPosition, final EdgeDirection rightPosition) {
@@ -193,22 +251,33 @@ public record TilePosition(int q, int r) implements Comparable<TilePosition> {
         }
     }
 
+    /**
+     * Compares a given tile position with this one.
+     * Positions are first compared based on their q-coordinate, then based on their r-coordinate.
+     * The general contract of {@link Comparable#compareTo(Object)} holds.
+     *
+     * @param otherPosition the tile position to compare
+     */
     @Override
-    public int compareTo(final TilePosition o) {
+    public int compareTo(@NotNull final TilePosition otherPosition) {
         // top to bottom
         // left to right
         return Comparator.comparingInt(TilePosition::q)
-                .thenComparingInt(TilePosition::r)
-                .compare(this, o);
+            .thenComparingInt(TilePosition::r)
+            .compare(this, otherPosition);
     }
 
+    /**
+     * Returns the string representation of this position.
+     * The returned string has the format "(±q, ±r, ±s)".
+     */
     @Override
     public String toString() {
         return String.format(
-                "(%+d, %+d, %+d)",
-                this.q,
-                this.r,
-                this.s());
+            "(%+d, %+d, %+d)",
+            this.q,
+            this.r,
+            this.s()
+        );
     }
-
 }

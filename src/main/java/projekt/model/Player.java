@@ -1,15 +1,29 @@
 package projekt.model;
 
+import javafx.scene.paint.Color;
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
+import projekt.model.buildings.Edge;
+import projekt.model.buildings.Settlement;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javafx.beans.property.IntegerProperty;
-import javafx.scene.paint.Color;
-import projekt.model.buildings.Edge;
-import projekt.model.buildings.Settlement;
-
+/**
+ * Represents a player in the game.
+ * Players hold information on...
+ * <ul>
+ *     <li>the grid they are playing on</li>
+ *     <li>victory points</li>
+ *     <li>resources and their amounts</li>
+ *     <li>roads and settlements</li>
+ *     <li>development cards and their amounts</li>
+ *     <li>miscellaneous, such as color, name, ID, etc.</li>
+ * </ul>
+ */
+@DoNotTouch
 public interface Player {
+
     /**
      * Returns the hexGrid instance
      *
@@ -18,53 +32,101 @@ public interface Player {
     HexGrid getHexGrid();
 
     /**
-     * Returns a map of all resources the player currently has and how many of each.
+     * Returns the name of the player.
      *
-     * @return a map of all resources the player currently has and how many of each.
+     * @return the name of the player
      */
-    Map<ResourceType, Integer> getResources();
+    String getName();
 
     /**
-     * Returns a property of the amount of victory points the player has.
+     * Returns the Player ID, aka the Index of the Player, starting with 1
      *
-     * @return a property of the amount of victory points the player has.
+     * @return the Player ID
      */
-    IntegerProperty getVictoryPointsProperty();
+    int getID();
 
     /**
-     * Returns the amount of victory points the player has.
+     * Returns the color of the player.
      *
-     * @return the amount of victory points the player has.
+     * @return the color of the player
+     */
+    Color getColor();
+
+    /**
+     * Returns true if the player is an AI, false otherwise.
+     *
+     * @return true if the player is an AI, false otherwise
+     */
+    default boolean isAi() {
+        return false;
+    }
+
+    /**
+     * Returns the amount of victory points from settlements and development cards
+     * the player has.
+     *
+     * @return the amount of victory points from settlements and development cards
+     * the player has.
      */
     int getVictoryPoints();
 
     /**
-     * Returns true if the player has the given resources, false otherwise.
+     * Returns an immutable map of all resources the player currently has and how
+     * many of each.
      *
-     * @return true if the player has the given resources, false otherwise
+     * @return an immutable map of all resources the player currently has and how
+     * many of each.
      */
-    boolean hasResources(Map<ResourceType, Integer> resources);
+    Map<ResourceType, Integer> getResources();
 
     /**
      * Adds the given amount of the given resource to the player.
+     * Expects a positive amount.
      *
-     * @param resourceType the ResourceType to add to
+     * @param resourceType the ResourceType to add
      * @param amount       the amount to add
      */
     void addResource(ResourceType resourceType, int amount);
 
     /**
+     * Adds the given resources to the player.
+     * Expects positive amounts.
+     *
+     * @param resources a mapping of resources to their amounts
+     */
+    void addResources(Map<ResourceType, Integer> resources);
+
+    /**
+     * Returns true if the player has at least the given amount of the resource.
+     * Returns false otherwise.
+     *
+     * @param resources a mapping of resources to their amounts to check
+     * @return true if the player has at least the given amount of the resource,
+     * false otherwise
+     */
+    boolean hasResources(Map<ResourceType, Integer> resources);
+
+    /**
      * Removes the given amount of the given resource from the player.
+     * Expects a positive amount.
+     * Checks if the player has enough resources to remove.
+     * If the player does not have enough resources, nothing is removed.
+     * Ensures the player never has negative resources.
      *
      * @param resourceType the ResourceType to remove from
      * @param amount       the amount to remove
+     * @return true if the player had enough resources to remove, false otherwise
      */
     boolean removeResource(ResourceType resourceType, int amount);
 
     /**
      * Removes the given resources from the player.
+     * Expects positive amounts.
+     * Checks if the player has enough resources to remove.
+     * If the player does not have enough resources, nothing is removed.
+     * Ensures the player never has negative resources.
      *
-     * @param resources the resources to remove
+     * @param resources a mapping of resources to their amounts to remove
      * @return true if the player had enough resources to remove, false otherwise
      */
     boolean removeResources(Map<ResourceType, Integer> resources);
@@ -78,6 +140,27 @@ public interface Player {
     int getTradeRatio(ResourceType resourceType);
 
     /**
+     * Returns the amount of roads the player can still build.
+     *
+     * @return the amount of roads the player can still build
+     */
+    int getRemainingRoads();
+
+    /**
+     * Returns the amount of villages the player can still build.
+     *
+     * @return the amount of villages the player can still build
+     */
+    int getRemainingVillages();
+
+    /**
+     * Returns the amount of cities the player can still build.
+     *
+     * @return the amount of cities the player can still build
+     */
+    int getRemainingCities();
+
+    /**
      * Returns all roads the player currently has.
      *
      * @return all roads the player currently has
@@ -87,36 +170,25 @@ public interface Player {
     }
 
     /**
-     * Returns the amount of roads the player can still build.
-     *
-     * @return the amount of roads the player can still build
-     */
-    int getRemainingRoads();
-
-    /**
      * Returns all settlements the player currently has.
      *
      * @return all settlements the player currently has
      */
     default Set<Settlement> getSettlements() {
-        return getHexGrid().getIntersections().values().stream()
-                .filter(intersection -> intersection.getSettlement() != null)
-                .filter(intersection -> intersection.getSettlement().owner().equals(this))
-                .map(Intersection::getSettlement)
-                .collect(Collectors.toSet());
+        return getHexGrid().getIntersections()
+            .values()
+            .stream()
+            .map(Intersection::getSettlement)
+            .filter(settlement -> settlement != null && settlement.owner().equals(this))
+            .collect(Collectors.toSet());
     }
 
     /**
-     * Returns the amount of settlements the player can still build.
+     * Returns an unmodifiable map of all development cards the player currently has
+     * and how many.
      *
-     * @return the amount of settlements the player can still build
-     */
-    int getRemainingSettlements();
-
-    /**
-     * Returns a map of all development cards the player currently has and how many.
-     *
-     * @return a map of all development cards the player currently has and how many.
+     * @return an unmodifiable map of all development cards the player currently has
+     * and how many.
      */
     Map<DevelopmentCardType, Integer> getDevelopmentCards();
 
@@ -131,6 +203,7 @@ public interface Player {
      * Removes the given development card from the player.
      *
      * @param developmentCardType the development card to remove
+     * @return true if the card was removed, false otherwise
      */
     boolean removeDevelopmentCard(DevelopmentCardType developmentCardType);
 
@@ -142,32 +215,11 @@ public interface Player {
     int getTotalDevelopmentCards();
 
     /**
-     * Returns the amount of knights the player has played.
+     * Returns the amount of {@linkplain DevelopmentCardType#KNIGHT knights} the
+     * player has played.
      *
-     * @return the amount of knights the player has played
+     * @return the amount of {@linkplain DevelopmentCardType#KNIGHT knights} the
+     * player has played
      */
     int getKnightsPlayed();
-
-    /**
-     * Returns the color of the player.
-     *
-     * @return the color of the player
-     */
-    Color getColor();
-
-    /**
-     * Returns the name of the player.
-     *
-     * @return the name of the player
-     */
-    String getName();
-
-    /**
-     * Returns true if the player is an AI, false otherwise.
-     *
-     * @return true if the player is an AI, false otherwise
-     */
-    default boolean isAi() {
-        return false;
-    }
 }

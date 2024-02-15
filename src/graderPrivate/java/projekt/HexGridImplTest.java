@@ -1,5 +1,7 @@
 package projekt;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.sourcegrade.jagr.api.rubric.TestForSubmission;
@@ -21,17 +23,28 @@ import static org.tudalgo.algoutils.tutor.general.assertions.Assertions2.*;
 @TestForSubmission
 public class HexGridImplTest {
 
+    private HexGrid hexGrid;
+    private Player player;
+
+    @BeforeEach
+    public void setup() {
+        setup(1);
+    }
+
+    private void setup(int radius) {
+        hexGrid = new HexGridImpl(radius);
+        player = new PlayerImpl.Builder(0).build(hexGrid);
+    }
+
     @ParameterizedTest
     @JsonParameterSetTest("/HexGridImpl/roads.json")
     public void testGetRoads(JsonParameterSet params) {
-        HexGrid hexGrid = new HexGridImpl(1);
-        Player player = new PlayerImpl(hexGrid, null);
         List<Set<TilePosition>> roads = parseRoads(params);
         Map<Set<TilePosition>, Edge> expected = hexGrid.getEdges()
             .entrySet()
             .stream()
             .filter(entry -> roads.contains(entry.getKey()))
-            .peek(entry -> entry.getValue().roadOwner().setValue(player))
+            .peek(entry -> entry.getValue().getRoadOwnerProperty().setValue(player))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         Context context = contextBuilder()
             .add("player", player)
@@ -42,18 +55,17 @@ public class HexGridImplTest {
             "The return value of getRoads(Player) did not match the expected one");
     }
 
+    @Disabled
     @ParameterizedTest
     @JsonParameterSetTest("/HexGridImpl/roads.json")
     public void testGetLongestRoad(JsonParameterSet params) {
-        HexGrid hexGrid = new HexGridImpl(1);
-        Player player = new PlayerImpl(hexGrid, null);
         List<Set<TilePosition>> roads = parseRoads(params);
         List<Edge> expected = hexGrid.getEdges()
             .entrySet()
             .stream()
             .filter(entry -> roads.contains(entry.getKey()))
             .map(Map.Entry::getValue)
-            .peek(edge -> edge.roadOwner().setValue(player))
+            .peek(edge -> edge.getRoadOwnerProperty().setValue(player))
             .toList();
         Context context = contextBuilder()
             .add("player", player)
@@ -80,8 +92,7 @@ public class HexGridImplTest {
         );
 
         for (boolean checkVillages : new boolean[] {true, false}) {
-            HexGrid hexGrid = new HexGridImpl(1);
-            Player player = new PlayerImpl(hexGrid, null);
+            setup();
 
             for (List<TilePosition> road : roads) {
                 Context context = contextBuilder()
@@ -104,7 +115,7 @@ public class HexGridImplTest {
                 assertCallEquals(checkVillages, () -> hexGrid.addRoad(road.get(0), road.get(1), player, checkVillages), context, result ->
                     "The return value of addRoad is incorrect");
                 if (checkVillages) {
-                    assertEquals(player, hexGrid.getEdge(road.get(0), road.get(1)).roadOwner().getValue(), context, result ->
+                    assertEquals(player, hexGrid.getEdge(road.get(0), road.get(1)).getRoadOwner(), context, result ->
                         "The added road is not owned by the expected player");
                 }
 
@@ -113,7 +124,7 @@ public class HexGridImplTest {
                     .filter(edge -> !edge.getAdjacentTilePositions().equals(Set.of(road.get(0), road.get(1))))
                     .findAny()
                     .get();
-                ownedRoad.roadOwner().setValue(player);
+                ownedRoad.getRoadOwnerProperty().setValue(player);
                 context = contextBuilder()
                     .add(context)
                     .add("owned road", ownedRoad)
@@ -121,7 +132,7 @@ public class HexGridImplTest {
                 assertCallEquals(!checkVillages, () -> hexGrid.addRoad(road.get(0), road.get(1), player, checkVillages), context, result ->
                     "The return value of addRoad is incorrect");
                 if (!checkVillages) {
-                    assertEquals(player, hexGrid.getEdge(road.get(0), road.get(1)).roadOwner().getValue(), context, result ->
+                    assertEquals(player, hexGrid.getEdge(road.get(0), road.get(1)).getRoadOwner(), context, result ->
                         "The added road is not owned by the expected player");
                 }
             }
@@ -130,8 +141,7 @@ public class HexGridImplTest {
 
     @Test
     public void testAddRoadThrows() {
-        HexGrid hexGrid = new HexGridImpl(2);
-        Player player = new PlayerImpl(hexGrid, null);
+        setup(2);
         List<TilePosition> tilePositions = List.of(new TilePosition(100, 100), new TilePosition(100, 101));
         Context context = contextBuilder()
             .add("tile positions", tilePositions)

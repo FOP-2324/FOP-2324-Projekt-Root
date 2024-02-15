@@ -10,6 +10,7 @@ import org.tudalgo.algoutils.tutor.general.json.JsonParameterSet;
 import org.tudalgo.algoutils.tutor.general.json.JsonParameterSetTest;
 import projekt.model.*;
 import projekt.model.buildings.Edge;
+import projekt.model.buildings.EdgeImpl;
 import projekt.model.buildings.Port;
 import projekt.model.buildings.Settlement;
 
@@ -34,7 +35,7 @@ public class PlayerImplTest {
 
         @BeforeEach
         public void setup() throws ReflectiveOperationException {
-            instance = new PlayerImpl(null, null);
+            instance = (PlayerImpl) new PlayerImpl.Builder(0).build(null);
             resourcesField = PlayerImpl.class.getDeclaredField("resources");
             resourcesField.trySetAccessible();
         }
@@ -178,7 +179,7 @@ public class PlayerImplTest {
     @Test
     public void testGetTradeRatio() throws ReflectiveOperationException {
         HexGridImpl hexGrid = new HexGridImpl(1);
-        Player player = new PlayerImpl(hexGrid, null);
+        Player player = new PlayerImpl.Builder(0).build(hexGrid);
 
         // Test default
         {
@@ -208,7 +209,7 @@ public class PlayerImplTest {
             try {
                 Map<Set<TilePosition>, Edge> edges = (Map<Set<TilePosition>, Edge>) edgesField.get(hexGrid);
                 Edge oldEdge = edges.get(tilePositions);
-                Edge newEdge = new Edge(oldEdge.grid(), oldEdge.position1(), oldEdge.position2(), oldEdge.roadOwner(), port);
+                Edge newEdge = new EdgeImpl(oldEdge.getHexGrid(), oldEdge.getPosition1(), oldEdge.getPosition2(), oldEdge.getRoadOwnerProperty(), port);
                 edges.put(tilePositions, newEdge);
 
                 Intersection intersection = newEdge.getIntersections().stream().findAny().get();

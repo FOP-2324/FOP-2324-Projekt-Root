@@ -1,26 +1,10 @@
 package projekt;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-import java.util.Iterator;
-import java.util.stream.Stream;
-import javafx.scene.paint.Color;
 import projekt.controller.GameController;
-import projekt.controller.PlayerController;
-import projekt.controller.PlayerObjective;
 import projekt.model.GameState;
 import projekt.model.HexGrid;
-import projekt.model.HexGridImpl;
-import projekt.model.Player;
-import projekt.model.PlayerImpl;
-import projekt.model.ResourceType;
-import projekt.model.TilePosition.EdgeDirection;
-import projekt.model.TilePosition.IntersectionDirection;
-import projekt.model.buildings.Settlement;
-import projekt.model.tiles.Tile;
+
+import java.util.Iterator;
 
 public class GameControllerTests {
     private GameController gameController;

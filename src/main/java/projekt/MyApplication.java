@@ -2,17 +2,42 @@ package projekt;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
-import projekt.controller.SceneSwitcher;
-import projekt.controller.SceneSwitcher.SceneType;
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
+import projekt.controller.GameController;
+import projekt.controller.gui.SceneSwitcher;
+import projekt.controller.gui.SceneSwitcher.SceneType;
 
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.function.Consumer;
+
+/**
+ * The main application of the game.
+ */
+@DoNotTouch
 public class MyApplication extends Application {
+    private final Consumer<GameController> gameLoopStart = gc -> {
+        final Thread gameLoopThread = new Thread(gc::startGame);
+        gameLoopThread.setName("GameLoopThread");
+        gameLoopThread.setDaemon(true);
+        gameLoopThread.start();
+    };
 
     @Override
     public void start(final Stage stage) throws Exception {
-        stage.setMinWidth(450);
-        stage.setMinHeight(400);
+        System.setErr(new PrintStream(new OutputStream() {
+            @Override
+            public void write(final int b) {
+                System.out.write(b);
+            }
+        }));
 
-        SceneSwitcher.loadScene(SceneType.MAIN_MENU, stage);
+        stage.setMinWidth(1000);
+        stage.setMinHeight(520);
+        stage.setWidth(1280);
+        stage.setHeight(720);
+
+        SceneSwitcher.getInstance(stage, gameLoopStart).loadScene(SceneType.MAIN_MENU);
     }
 
     /**

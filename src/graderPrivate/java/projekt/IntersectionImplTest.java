@@ -20,7 +20,7 @@ import static org.tudalgo.algoutils.tutor.general.assertions.Assertions2.*;
 public class IntersectionImplTest {
 
     private final HexGrid hexGrid = new HexGridImpl(1);
-    private final Player player = new PlayerImpl(hexGrid, null);
+    private final Player player = new PlayerImpl.Builder(0).build(hexGrid);
 
     @ParameterizedTest
     @JsonParameterSetTest("/IntersectionImpl/tilePositions.json")
@@ -51,7 +51,7 @@ public class IntersectionImplTest {
         if (!ignoreRoadCheck) {
             assertCallFalse(() -> intersection.placeVillage(player, false), context, result ->
                 "Return value of placeVillage is incorrect");
-            hexGrid.getEdge(tilePositions.get(0), tilePositions.get(1)).roadOwner().setValue(player);
+            hexGrid.getEdge(tilePositions.get(0), tilePositions.get(1)).getRoadOwnerProperty().setValue(player);
             connectedRoad.set(true);
         }
 
@@ -85,12 +85,12 @@ public class IntersectionImplTest {
         assertCallFalse(() -> intersection.upgradeSettlement(player), context, result ->
             "Return value of upgradeSettlement is incorrect");
 
-        settlementRef.set(new Settlement(new PlayerImpl(hexGrid, null), Settlement.Type.CITY, intersection));
+        settlementRef.set(new Settlement(new PlayerImpl.Builder(0).build(hexGrid), Settlement.Type.CITY, intersection));
         settlementField.set(intersection, settlementRef.get());
         assertCallFalse(() -> intersection.upgradeSettlement(player), context, result ->
             "Return value of upgradeSettlement is incorrect");
 
-        settlementRef.set(new Settlement(new PlayerImpl(hexGrid, null), Settlement.Type.VILLAGE, intersection));
+        settlementRef.set(new Settlement(new PlayerImpl.Builder(0).build(hexGrid), Settlement.Type.VILLAGE, intersection));
         settlementField.set(intersection, settlementRef.get());
         assertCallFalse(() -> intersection.upgradeSettlement(player), context, result ->
             "Return value of upgradeSettlement is incorrect");
@@ -120,15 +120,15 @@ public class IntersectionImplTest {
         assertCallFalse(() -> intersection.playerHasConnectedRoad(player), context, result ->
             "The player does not own any roads that connect to this intersection");
 
-        hexGrid.getEdge(tilePositions.get(0), tilePositions.get(1)).roadOwner().setValue(new PlayerImpl(hexGrid, null));
+        hexGrid.getEdge(tilePositions.get(0), tilePositions.get(1)).getRoadOwnerProperty().setValue(new PlayerImpl.Builder(0).build(hexGrid));
         assertCallFalse(() -> intersection.playerHasConnectedRoad(player), context, result ->
             "The player does not own any roads that connect to this intersection");
 
-        hexGrid.getEdge(tilePositions.get(0), tilePositions.get(1)).roadOwner().setValue(player);
+        hexGrid.getEdge(tilePositions.get(0), tilePositions.get(1)).getRoadOwnerProperty().setValue(player);
         assertCallTrue(() -> intersection.playerHasConnectedRoad(player), context, result ->
             "The player owns at least one road that connects to this intersection");
 
-        hexGrid.getEdge(tilePositions.get(0), tilePositions.get(2)).roadOwner().setValue(player);
+        hexGrid.getEdge(tilePositions.get(0), tilePositions.get(2)).getRoadOwnerProperty().setValue(player);
         assertCallTrue(() -> intersection.playerHasConnectedRoad(player), context, result ->
             "The player owns at least one road that connects to this intersection");
     }
