@@ -22,8 +22,8 @@ public class Projekt_RubricProvider implements RubricProvider {
                                     .grader(Grader.testAwareBuilder()
                                         .requirePass(JUnitTestRef.and(
                                             JUnitTestRef.ofMethod(() -> PlayerImplTest.InventorySystem.class.getDeclaredMethod("testGetResources")),
-                                            JUnitTestRef.ofMethod(() -> PlayerImplTest.InventorySystem.class.getDeclaredMethod("testAddResource", JsonParameterSet.class))
-//                                            JUnitTestRef.ofMethod(() -> PlayerImplTest.InventorySystem.class.getDeclaredMethod("testAddResources", JsonParameterSet.class))
+                                            JUnitTestRef.ofMethod(() -> PlayerImplTest.InventorySystem.class.getDeclaredMethod("testAddResource", JsonParameterSet.class)),
+                                            JUnitTestRef.ofMethod(() -> PlayerImplTest.InventorySystem.class.getDeclaredMethod("testAddResources", JsonParameterSet.class))
                                         ))
                                         .pointsFailedMin()
                                         .pointsPassedMax()
@@ -64,9 +64,29 @@ public class Projekt_RubricProvider implements RubricProvider {
                             .addChildCriteria(
                                 Criterion.builder()
                                     .shortDescription("Die Methoden getDevelopmentCards, addDevelopmentCard und removeDevelopmentCard funktionieren wie beschrieben")
+                                    .grader(Grader.testAwareBuilder()
+                                        .requirePass(JUnitTestRef.and(
+                                            JUnitTestRef.ofMethod(() -> PlayerImplTest.DevelopmentCards.class.getDeclaredMethod("testGetDevelopmentCards", JsonParameterSet.class)),
+                                            JUnitTestRef.ofMethod(() -> PlayerImplTest.DevelopmentCards.class.getDeclaredMethod("testAddDevelopmentCard", JsonParameterSet.class)),
+                                            JUnitTestRef.ofMethod(() -> PlayerImplTest.DevelopmentCards.class.getDeclaredMethod("testRemoveDevelopmentCard", JsonParameterSet.class))
+                                        ))
+                                        .pointsFailedMin()
+                                        .pointsPassedMax()
+                                        .build())
                                     .build(),
                                 Criterion.builder()
                                     .shortDescription("Die Methoden getTotalDevelopmentCards und getKnightsPlayed funktionieren wie beschrieben")
+                                    .grader(Grader.testAwareBuilder()
+                                        .requirePass(JUnitTestRef.and(
+                                            JUnitTestRef.ofMethod(() -> PlayerImplTest.DevelopmentCards.class.getDeclaredMethod("testGetTotalDevelopmentCards", JsonParameterSet.class)),
+                                            JUnitTestRef.or(
+                                                JUnitTestRef.ofMethod(() -> PlayerImplTest.DevelopmentCards.class.getDeclaredMethod("testGetKnightsPlayed_viaField", JsonParameterSet.class)),
+                                                JUnitTestRef.ofMethod(() -> PlayerImplTest.DevelopmentCards.class.getDeclaredMethod("testGetKnightsPlayed_viaMethod", JsonParameterSet.class))
+                                            )
+                                        ))
+                                        .pointsFailedMin()
+                                        .pointsPassedMax()
+                                        .build())
                                     .build())
                             .build(),
                         Criterion.builder()
