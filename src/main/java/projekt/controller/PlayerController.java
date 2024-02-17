@@ -346,7 +346,7 @@ public class PlayerController {
      * Validates whether the {@link Player} has enough resources and whether the
      * village can be built at the given intersection.
      * Also removes the resources from the {@link Player} if the village was built
-     * and it is not the first round.
+     * and the current objective is not {@link PlayerObjective#PLACE_VILLAGE}.
      *
      * @param intersection the intersection to build the village at
      * @throws IllegalActionException if the village cannot be built
@@ -473,9 +473,9 @@ public class PlayerController {
     /**
      * Tries to build a road between the given positions.
      * Validates whether the {@link Player} has enough resources and whether the
-     * road can be built bewteen the given positions.
+     * road can be built between the given positions.
      * Also removes the resources from the {@link Player} if the road was built and
-     * it is not the first round.
+     * the current objective is not {@link PlayerObjective#PLACE_ROAD}.
      *
      * @param position0 the first position to build the road between
      * @param position1 the second position to build the road between
