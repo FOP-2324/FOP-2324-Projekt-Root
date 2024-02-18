@@ -328,7 +328,8 @@ public class PlayerController {
     /**
      * Checks whether the {@link Player} can build a village.
      * To build a village, the {@link Player} must have enough resources or the
-     * current objective must be {@link PlayerObjective#PLACE_VILLAGE}.
+     * current objective must be {@link PlayerObjective#PLACE_VILLAGE}. The
+     * {@link Player} must also have enough villages left.
      *
      * @return whether the {@link Player} can build a village.
      */
@@ -380,8 +381,8 @@ public class PlayerController {
 
     /**
      * Checks whether the {@link Player} can upgrade a village to a city.
-     * To upgrade a village to a city, the {@link Player} must have enough resources
-     * and at least one village.
+     * To upgrade a village to a city, the {@link Player} must have enough
+     * resources, at least one village and enough cities left.
      *
      * @return whether the {@link Player} can upgrade a village to a city.
      */
@@ -444,7 +445,8 @@ public class PlayerController {
     /**
      * Checks whether the {@link Player} can build a road.
      * To build a road, the {@link Player} must have enough resources or the current
-     * objective must be {@link PlayerObjective#PLACE_ROAD}.
+     * objective must be {@link PlayerObjective#PLACE_ROAD}. The {@link Player} must
+     * also have enough roads left.
      *
      * @return whether the {@link Player} can build a road.
      */
