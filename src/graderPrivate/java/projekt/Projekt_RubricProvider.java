@@ -3,6 +3,7 @@ package projekt;
 import org.sourcegrade.jagr.api.rubric.*;
 import org.tudalgo.algoutils.tutor.general.jagr.RubricUtils;
 import org.tudalgo.algoutils.tutor.general.json.JsonParameterSet;
+import projekt.controller.GameControllerTest;
 import projekt.model.EdgeImplTest;
 import projekt.model.HexGridImplTest;
 import projekt.model.IntersectionImplTest;
@@ -179,16 +180,31 @@ public class Projekt_RubricProvider implements RubricProvider {
                                     .shortDescription("Methode firstRound funktioniert wie beschrieben")
                                     .minPoints(0)
                                     .maxPoints(2)
+                                    .grader(Grader.testAwareBuilder()
+                                        .requirePass(JUnitTestRef.ofMethod(() -> GameControllerTest.class.getDeclaredMethod("testFirstRound")))
+                                        .pointsFailedMin()
+                                        .pointsPassedMax()
+                                        .build())
                                     .build(),
                                 Criterion.builder()
                                     .shortDescription("Method regularTurn funktioniert wie beschrieben")
                                     .maxPoints(0)
                                     .maxPoints(2)
+                                    .grader(Grader.testAwareBuilder()
+                                        .requirePass(JUnitTestRef.ofMethod(() -> GameControllerTest.class.getDeclaredMethod("testRegularTurn")))
+                                        .pointsFailedMin()
+                                        .pointsPassedMax()
+                                        .build())
                                     .build(),
                                 Criterion.builder()
                                     .shortDescription("Methode diceRollSeven funktioniert wie beschrieben")
                                     .minPoints(0)
                                     .maxPoints(2)
+                                    .grader(Grader.testAwareBuilder()
+                                        .requirePass(JUnitTestRef.ofMethod(() -> GameControllerTest.class.getDeclaredMethod("testDiceRollSeven")))
+                                        .pointsFailedMin()
+                                        .pointsPassedMax()
+                                        .build())
                                     .build())
                             .build(),
                         Criterion.builder()
