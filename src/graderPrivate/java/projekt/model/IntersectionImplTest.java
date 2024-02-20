@@ -1,11 +1,10 @@
-package projekt;
+package projekt.model;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.sourcegrade.jagr.api.rubric.TestForSubmission;
 import org.tudalgo.algoutils.tutor.general.assertions.Context;
 import org.tudalgo.algoutils.tutor.general.json.JsonParameterSet;
 import org.tudalgo.algoutils.tutor.general.json.JsonParameterSetTest;
-import projekt.model.*;
 import projekt.model.buildings.Settlement;
 
 import java.lang.reflect.Field;
@@ -23,13 +22,13 @@ public class IntersectionImplTest {
     private final Player player = new PlayerImpl.Builder(0).build(hexGrid);
 
     @ParameterizedTest
-    @JsonParameterSetTest("/IntersectionImpl/tilePositions.json")
+    @JsonParameterSetTest("/model/IntersectionImpl/tilePositions.json")
     public void testPlaceVillage_roadCheck(JsonParameterSet params) {
         testPlaceVillage(false, params);
     }
 
     @ParameterizedTest
-    @JsonParameterSetTest("/IntersectionImpl/tilePositions.json")
+    @JsonParameterSetTest("/model/IntersectionImpl/tilePositions.json")
     public void testPlaceVillage_noRoadCheck(JsonParameterSet params) {
         testPlaceVillage(true, params);
     }
@@ -66,7 +65,7 @@ public class IntersectionImplTest {
     }
 
     @ParameterizedTest
-    @JsonParameterSetTest("/IntersectionImpl/tilePositions.json")
+    @JsonParameterSetTest("/model/IntersectionImpl/tilePositions.json")
     public void testUpgradeSettlement(JsonParameterSet params) throws ReflectiveOperationException {
         List<TilePosition> tilePositions = params.<List<Map<String, Integer>>>get("tilePositions")
             .stream()
@@ -105,7 +104,7 @@ public class IntersectionImplTest {
     }
 
     @ParameterizedTest
-    @JsonParameterSetTest("/IntersectionImpl/tilePositions.json")
+    @JsonParameterSetTest("/model/IntersectionImpl/tilePositions.json")
     public void testPlayerHasConnectedRoad(JsonParameterSet params) {
         List<TilePosition> tilePositions = params.<List<Map<String, Integer>>>get("tilePositions")
             .stream()

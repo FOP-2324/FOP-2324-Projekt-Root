@@ -1,4 +1,4 @@
-package projekt;
+package projekt.model;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -8,7 +8,6 @@ import org.sourcegrade.jagr.api.rubric.TestForSubmission;
 import org.tudalgo.algoutils.tutor.general.assertions.Context;
 import org.tudalgo.algoutils.tutor.general.json.JsonParameterSet;
 import org.tudalgo.algoutils.tutor.general.json.JsonParameterSetTest;
-import projekt.model.*;
 import projekt.model.buildings.Edge;
 import projekt.model.buildings.Settlement;
 
@@ -37,7 +36,7 @@ public class HexGridImplTest {
     }
 
     @ParameterizedTest
-    @JsonParameterSetTest("/HexGridImpl/roads.json")
+    @JsonParameterSetTest("/model/HexGridImpl/roads.json")
     public void testGetRoads(JsonParameterSet params) {
         List<Set<TilePosition>> roads = parseRoads(params);
         Map<Set<TilePosition>, Edge> expected = hexGrid.getEdges()
@@ -57,7 +56,7 @@ public class HexGridImplTest {
 
     @Disabled
     @ParameterizedTest
-    @JsonParameterSetTest("/HexGridImpl/roads.json")
+    @JsonParameterSetTest("/model/HexGridImpl/roads.json")
     public void testGetLongestRoad(JsonParameterSet params) {
         List<Set<TilePosition>> roads = parseRoads(params);
         List<Edge> expected = hexGrid.getEdges()

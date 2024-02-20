@@ -1,4 +1,4 @@
-package projekt;
+package projekt.model;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -8,7 +8,6 @@ import org.sourcegrade.jagr.api.rubric.TestForSubmission;
 import org.tudalgo.algoutils.tutor.general.assertions.Context;
 import org.tudalgo.algoutils.tutor.general.json.JsonParameterSet;
 import org.tudalgo.algoutils.tutor.general.json.JsonParameterSetTest;
-import projekt.model.*;
 import projekt.model.buildings.Edge;
 import projekt.model.buildings.EdgeImpl;
 import projekt.model.buildings.Port;
@@ -68,7 +67,7 @@ public class PlayerImplTest {
         }
 
         @ParameterizedTest
-        @JsonParameterSetTest("/PlayerImpl/addResource.json")
+        @JsonParameterSetTest("/model/PlayerImpl/addResource.json")
         public void testAddResource(JsonParameterSet params) throws ReflectiveOperationException {
             Map<ResourceType, Integer> resourcesBacking = (Map<ResourceType, Integer>) resourcesField.get(instance);
             Context context = contextBuilder()
@@ -83,7 +82,7 @@ public class PlayerImplTest {
         }
 
         @ParameterizedTest
-        @JsonParameterSetTest("/PlayerImpl/add_has_removeResources.json")
+        @JsonParameterSetTest("/model/PlayerImpl/add_has_removeResources.json")
         public void testAddResources(JsonParameterSet params) throws ReflectiveOperationException {
             Map<ResourceType, Integer> resourcesBacking = makeResourceMap(params.get("backing"));
             resourcesField.set(instance, resourcesBacking);
@@ -106,7 +105,7 @@ public class PlayerImplTest {
         }
 
         @ParameterizedTest
-        @JsonParameterSetTest("/PlayerImpl/add_has_removeResources.json")
+        @JsonParameterSetTest("/model/PlayerImpl/add_has_removeResources.json")
         public void testHasResources(JsonParameterSet params) throws ReflectiveOperationException {
             Map<ResourceType, Integer> resourcesPreMod = makeResourceMap(params.get("backing"));
             Map<ResourceType, Integer> resourcesBacking = makeResourceMap(params.get("backing"));
@@ -133,7 +132,7 @@ public class PlayerImplTest {
         }
 
         @ParameterizedTest
-        @JsonParameterSetTest("/PlayerImpl/removeResource.json")
+        @JsonParameterSetTest("/model/PlayerImpl/removeResource.json")
         public void testRemoveResource(JsonParameterSet params) throws ReflectiveOperationException {
             Map<ResourceType, Integer> resourcesPreMod = makeResourceMap(params.get("backing"));
             Map<ResourceType, Integer> resourcesBacking = makeResourceMap(params.get("backing"));
@@ -164,7 +163,7 @@ public class PlayerImplTest {
         }
 
         @ParameterizedTest
-        @JsonParameterSetTest("/PlayerImpl/add_has_removeResources.json")
+        @JsonParameterSetTest("/model/PlayerImpl/add_has_removeResources.json")
         public void testRemoveResources(JsonParameterSet params) throws ReflectiveOperationException {
             Map<ResourceType, Integer> resourcesPreMod = makeResourceMap(params.get("backing"));
             Map<ResourceType, Integer> resourcesBacking = makeResourceMap(params.get("backing"));
@@ -212,7 +211,7 @@ public class PlayerImplTest {
             developmentCardsField.trySetAccessible();
         }
         @ParameterizedTest
-        @JsonParameterSetTest("/PlayerImpl/developmentCards.json")
+        @JsonParameterSetTest("/model/PlayerImpl/developmentCards.json")
         public void testGetDevelopmentCards(JsonParameterSet params) throws ReflectiveOperationException {
             Map<DevelopmentCardType, Integer> backing = makeDevelopmentCardMap(params.get("backing"));
             developmentCardsField.set(instance, backing);
@@ -239,7 +238,7 @@ public class PlayerImplTest {
         }
 
         @ParameterizedTest
-        @JsonParameterSetTest("/PlayerImpl/developmentCards.json")
+        @JsonParameterSetTest("/model/PlayerImpl/developmentCards.json")
         public void testAddDevelopmentCard(JsonParameterSet params) throws ReflectiveOperationException {
             Map<DevelopmentCardType, Integer> backingPreMod = makeDevelopmentCardMap(params.get("backing"));
             Map<DevelopmentCardType, Integer> backing = makeDevelopmentCardMap(params.get("backing"));
@@ -259,7 +258,7 @@ public class PlayerImplTest {
         }
 
         @ParameterizedTest
-        @JsonParameterSetTest("/PlayerImpl/developmentCards.json")
+        @JsonParameterSetTest("/model/PlayerImpl/developmentCards.json")
         public void testRemoveDevelopmentCard(JsonParameterSet params) throws ReflectiveOperationException {
             Map<DevelopmentCardType, Integer> backingPreMod = makeDevelopmentCardMap(params.get("backing"));
             Map<DevelopmentCardType, Integer> backing = makeDevelopmentCardMap(params.get("backing"));
@@ -285,7 +284,7 @@ public class PlayerImplTest {
         }
 
         @ParameterizedTest
-        @JsonParameterSetTest("/PlayerImpl/developmentCards.json")
+        @JsonParameterSetTest("/model/PlayerImpl/developmentCards.json")
         public void testGetTotalDevelopmentCards(JsonParameterSet params) throws ReflectiveOperationException {
             Map<DevelopmentCardType, Integer> backing = makeDevelopmentCardMap(params.get("backing"));
             developmentCardsField.set(instance, backing);
@@ -302,7 +301,7 @@ public class PlayerImplTest {
         }
 
         @ParameterizedTest
-        @JsonParameterSetTest("/PlayerImpl/developmentCards.json")
+        @JsonParameterSetTest("/model/PlayerImpl/developmentCards.json")
         public void testGetKnightsPlayed_viaField(JsonParameterSet params) throws ReflectiveOperationException {
             Field playedDevelopmentCardsField = PlayerImpl.class.getDeclaredField("playedDevelopmentCards");
             Map<DevelopmentCardType, Integer> backingNoMod = makeDevelopmentCardMap(params.get("backing"));
@@ -322,7 +321,7 @@ public class PlayerImplTest {
         }
 
         @ParameterizedTest
-        @JsonParameterSetTest("/PlayerImpl/developmentCards.json")
+        @JsonParameterSetTest("/model/PlayerImpl/developmentCards.json")
         public void testGetKnightsPlayed_viaMethod(JsonParameterSet params) throws ReflectiveOperationException {
             Map<DevelopmentCardType, Integer> backingNoMod = makeDevelopmentCardMap(params.get("backing"));
             Map<DevelopmentCardType, Integer> backing = makeDevelopmentCardMap(params.get("backing"));

@@ -3,6 +3,10 @@ package projekt;
 import org.sourcegrade.jagr.api.rubric.*;
 import org.tudalgo.algoutils.tutor.general.jagr.RubricUtils;
 import org.tudalgo.algoutils.tutor.general.json.JsonParameterSet;
+import projekt.model.EdgeImplTest;
+import projekt.model.HexGridImplTest;
+import projekt.model.IntersectionImplTest;
+import projekt.model.PlayerImplTest;
 
 public class Projekt_RubricProvider implements RubricProvider {
 

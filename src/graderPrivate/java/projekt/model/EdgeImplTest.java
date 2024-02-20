@@ -1,4 +1,4 @@
-package projekt;
+package projekt.model;
 
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
@@ -8,7 +8,6 @@ import org.sourcegrade.jagr.api.rubric.TestForSubmission;
 import org.tudalgo.algoutils.tutor.general.assertions.Context;
 import org.tudalgo.algoutils.tutor.general.json.JsonParameterSet;
 import org.tudalgo.algoutils.tutor.general.json.JsonParameterSetTest;
-import projekt.model.*;
 import projekt.model.buildings.Edge;
 import projekt.model.buildings.EdgeImpl;
 import projekt.model.buildings.Port;
@@ -30,7 +29,7 @@ public class EdgeImplTest {
     }
 
     @ParameterizedTest
-    @JsonParameterSetTest("/EdgeImpl/edges.json")
+    @JsonParameterSetTest("/model/EdgeImpl/edges.json")
     public void testGetIntersections(JsonParameterSet params) {
         List<TilePosition> tilePositions = getTilePositions(params, "edge");
         EdgeImpl instance = new EdgeImpl(hexGrid, tilePositions.get(0), tilePositions.get(1), new SimpleObjectProperty<>(), null);
@@ -51,7 +50,7 @@ public class EdgeImplTest {
     }
 
     @ParameterizedTest
-    @JsonParameterSetTest("/EdgeImpl/edges.json")
+    @JsonParameterSetTest("/model/EdgeImpl/edges.json")
     public void testConnectsTo(JsonParameterSet params) {
         List<TilePosition> tilePositions = getTilePositions(params, "edge");
         EdgeImpl instance = new EdgeImpl(hexGrid, tilePositions.get(0), tilePositions.get(1), new SimpleObjectProperty<>(), null);
@@ -69,7 +68,7 @@ public class EdgeImplTest {
     }
 
     @ParameterizedTest
-    @JsonParameterSetTest("/EdgeImpl/edges.json")
+    @JsonParameterSetTest("/model/EdgeImpl/edges.json")
     public void testGetConnectedRoads(JsonParameterSet params) {
         List<TilePosition> tilePositions = getTilePositions(params, "edge");
         EdgeImpl instance = new EdgeImpl(hexGrid, tilePositions.get(0), tilePositions.get(1), new SimpleObjectProperty<>(), null);
