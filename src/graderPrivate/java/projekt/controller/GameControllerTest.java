@@ -8,6 +8,7 @@ import projekt.Config;
 import projekt.controller.actions.EndTurnAction;
 import projekt.controller.actions.PlayerAction;
 import projekt.model.*;
+import projekt.util.PlayerMock;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -26,7 +27,7 @@ public class GameControllerTest {
 
     private final HexGrid hexGrid = new HexGridImpl(Config.GRID_RADIUS);
     private final List<Player> players = IntStream.range(0, 3)
-        .mapToObj(i -> new PlayerImpl.Builder(i).build(hexGrid))
+        .mapToObj(i -> (Player) new PlayerMock(new PlayerImpl.Builder(i).build(hexGrid)))
         .toList();
     private final GameController gameController = new GameController(new GameState(hexGrid, players));
     private final AtomicReference<PlayerAction> playerAction = new AtomicReference<>(playerController -> {});
@@ -131,10 +132,10 @@ public class GameControllerTest {
         cardsToSelectField.trySetAccessible();
 
         Player rollingPlayer = players.get(0);
-        Player dropCardsPlayer = players.get(1);
+        PlayerMock dropCardsPlayer = (PlayerMock) players.get(1);
         Field resourcesField = PlayerImpl.class.getDeclaredField("resources");
         resourcesField.trySetAccessible();
-        resourcesField.set(dropCardsPlayer, new HashMap<>() {{put(ResourceType.WOOD, 15);}});
+        resourcesField.set(dropCardsPlayer.getDelegate(), new HashMap<>() {{put(ResourceType.WOOD, 15);}});
         gameController.getActivePlayerControllerProperty().setValue(playerControllers.get(rollingPlayer));
 
         call(() -> diceRollSevenMethod.invoke(gameController), baseContext, result ->
