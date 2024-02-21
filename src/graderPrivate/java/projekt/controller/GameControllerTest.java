@@ -8,6 +8,8 @@ import projekt.Config;
 import projekt.controller.actions.EndTurnAction;
 import projekt.controller.actions.PlayerAction;
 import projekt.model.*;
+import projekt.model.buildings.Settlement;
+import projekt.model.tiles.Tile;
 import projekt.util.PlayerMock;
 
 import java.lang.reflect.Field;
@@ -16,6 +18,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -25,7 +28,7 @@ import static projekt.controller.PlayerObjective.*;
 @TestForSubmission
 public class GameControllerTest {
 
-    private final HexGrid hexGrid = new HexGridImpl(Config.GRID_RADIUS);
+    private final HexGrid hexGrid = new HexGridImpl(Config.GRID_RADIUS, () -> 6, () -> Tile.Type.WOODLAND);
     private final List<Player> players = IntStream.range(0, 3)
         .mapToObj(i -> (Player) new PlayerMock(new PlayerImpl.Builder(i).build(hexGrid)))
         .toList();
@@ -161,5 +164,60 @@ public class GameControllerTest {
                     "Actual objectives do not match the expected ones");
             }
         });
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testDistributeResources() throws ReflectiveOperationException {
+        Field intersectionsField = HexGridImpl.class.getDeclaredField("intersections");
+        intersectionsField.trySetAccessible();
+        PlayerMock activePlayer = (PlayerMock) players.get(0);
+        List<TilePosition> tilePositions = List.of(new TilePosition(0, 0), new TilePosition(0, 1), new TilePosition(-1, 1));
+        AtomicReference<Settlement> settlementRef = new AtomicReference<>();
+        Intersection intersection = new IntersectionImpl(hexGrid, tilePositions) {
+            @Override
+            public boolean playerHasSettlement(Player player) {
+                return player == activePlayer;
+            }
+
+            @Override
+            public boolean hasSettlement() {
+                return true;
+            }
+
+            @Override
+            public Settlement getSettlement() {
+                return settlementRef.get();
+            }
+        };
+        Settlement settlement = new Settlement(activePlayer, Settlement.Type.VILLAGE, intersection);
+        settlementRef.set(settlement);
+        Map<ResourceType, Integer> resources = new HashMap<>();
+        ((Map<Set<TilePosition>, Intersection>) intersectionsField.get(hexGrid)).put(Set.copyOf(tilePositions), intersection);
+        activePlayer.setUseDelegate(Predicate.not(List.of("getSettlements", "addResource", "addResources")::contains));
+        activePlayer.setMethodAction((methodName, params) -> switch (methodName) {
+            case "getSettlements" -> Set.of(settlement);
+            case "addResource" -> resources.put((ResourceType) params[1], (Integer) params[2]);
+            case "addResources" -> {
+                resources.putAll((Map<? extends ResourceType, ? extends Integer>) params[1]);
+                yield null;
+            }
+            default -> null;
+        });
+
+        TilePosition robberPosition = new TilePosition(1, 2);
+        int diceRoll = 6;
+        Context context = contextBuilder()
+            .add(baseContext)
+            .add("settlements", Set.of(settlement))
+            .add("robber position", robberPosition)
+            .add("diceRoll", diceRoll)
+            .build();
+
+        hexGrid.setRobberPosition(robberPosition);
+        call(() -> gameController.distributeResources(diceRoll), context, result ->
+            "An exception occurred while invoking GameController.distributeResources");
+        assertEquals(Map.of(ResourceType.WOOD, 1), resources, context, result ->
+            "The added resources do not match the expected ones");
     }
 }

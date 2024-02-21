@@ -214,6 +214,11 @@ public class Projekt_RubricProvider implements RubricProvider {
                                     .shortDescription("Methode distributeResources funktioniert wie beschrieben")
                                     .minPoints(0)
                                     .maxPoints(3)
+                                    .grader(Grader.testAwareBuilder()
+                                        .requirePass(JUnitTestRef.ofMethod(() -> GameControllerTest.class.getDeclaredMethod("testDistributeResources")))
+                                        .pointsFailedMin()
+                                        .pointsPassedMax()
+                                        .build())
                                     .build())
                             .build(),
                         Criterion.builder()
