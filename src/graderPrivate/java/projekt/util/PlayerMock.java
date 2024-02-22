@@ -7,6 +7,7 @@ import projekt.model.Player;
 import projekt.model.ResourceType;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
@@ -147,7 +148,13 @@ public class PlayerMock implements MockClass<Player>, Player {
         if(useDelegate.test("removeResources")) {
             return delegate.removeResources(resources);
         } else {
-            return (boolean) methodAction.apply("removeResources", new Object[] {this, resources});
+            // WHY DOES A SWITCH STATEMENT RETURN AN OPTIONAL; WTF!??!?
+            Object result = methodAction.apply("removeResources", new Object[] {this, resources});
+            if (result instanceof Optional<?> optional) {
+                return (boolean) optional.get();
+            } else {
+                return (boolean) result;
+            }
         }
     }
 

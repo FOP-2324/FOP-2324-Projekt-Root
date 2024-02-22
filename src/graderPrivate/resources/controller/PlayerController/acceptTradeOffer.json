@@ -1,0 +1,58 @@
+[
+  {
+    "accepted": false,
+    "exception": true,
+    "exceptionMessage": null,
+    "tradingPlayerSet": false,
+    "playerTradingOffer": [
+      {"key": "WOOD", "value": 1}
+    ],
+    "playerTradingRequest": [
+      {"key": "ORE", "value": 1}
+    ]
+  },
+  {
+    "accepted": false,
+    "exception": true,
+    "exceptionMessage": null,
+    "tradingPlayerSet": true,
+    "playerTradingOffer": null,
+    "playerTradingRequest": [
+      {"key": "ORE", "value": 1}
+    ]
+  },
+  {
+    "accepted": false,
+    "exception": true,
+    "exceptionMessage": null,
+    "tradingPlayerSet": true,
+    "playerTradingOffer": [
+      {"key": "WOOD", "value": 1}
+    ],
+    "playerTradingRequest": null
+  },
+  {
+    "accepted": false,
+    "exception": false,
+    "exceptionMessage": null,
+    "tradingPlayerSet": true,
+    "playerTradingOffer": [
+      {"key": "WOOD", "value": 1}
+    ],
+    "playerTradingRequest": [
+      {"key": "ORE", "value": 1}
+    ]
+  },
+  {
+    "accepted": true,
+    "exception": false,
+    "exceptionMessage": null,
+    "tradingPlayerSet": true,
+    "playerTradingOffer": [
+      {"key": "WOOD", "value": 1}
+    ],
+    "playerTradingRequest": [
+      {"key": "ORE", "value": 1}
+    ]
+  }
+]
