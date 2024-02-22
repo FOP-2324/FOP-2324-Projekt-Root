@@ -11,7 +11,7 @@ import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
 @SuppressWarnings("unchecked")
-public class PlayerMock implements Player {
+public class PlayerMock implements MockClass<Player>, Player {
 
     private final Player delegate;
     private Predicate<String> useDelegate;
@@ -27,22 +27,27 @@ public class PlayerMock implements Player {
         this.methodAction = methodAction;
     }
 
+    @Override
     public Player getDelegate() {
         return delegate;
     }
 
+    @Override
     public Predicate<String> getUseDelegate() {
         return useDelegate;
     }
 
+    @Override
     public void setUseDelegate(Predicate<String> useDelegate) {
         this.useDelegate = useDelegate;
     }
 
+    @Override
     public BiFunction<String, Object[], ?> getMethodAction() {
         return methodAction;
     }
 
+    @Override
     public void setMethodAction(BiFunction<String, Object[], ?> methodAction) {
         this.methodAction = methodAction;
     }
