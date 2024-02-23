@@ -4,6 +4,7 @@ import org.sourcegrade.jagr.api.rubric.*;
 import org.tudalgo.algoutils.tutor.general.jagr.RubricUtils;
 import org.tudalgo.algoutils.tutor.general.json.JsonParameterSet;
 import projekt.controller.GameControllerTest;
+import projekt.controller.PlayerControllerTest;
 import projekt.model.EdgeImplTest;
 import projekt.model.HexGridImplTest;
 import projekt.model.IntersectionImplTest;
@@ -228,11 +229,21 @@ public class Projekt_RubricProvider implements RubricProvider {
                                     .shortDescription("Methode acceptTradeOffer funktioniert wie beschrieben")
                                     .maxPoints(0)
                                     .maxPoints(3)
+                                    .grader(Grader.testAwareBuilder()
+                                        .requirePass(JUnitTestRef.ofMethod(() -> PlayerControllerTest.class.getDeclaredMethod("testAcceptTradeOffer", JsonParameterSet.class)))
+                                        .pointsFailedMin()
+                                        .pointsPassedMax()
+                                        .build())
                                     .build(),
                                 Criterion.builder()
                                     .shortDescription("Methode tradeWithBank funktioniert wie beschrieben")
                                     .maxPoints(0)
                                     .maxPoints(3)
+                                    .grader(Grader.testAwareBuilder()
+                                        .requirePass(JUnitTestRef.ofMethod(() -> PlayerControllerTest.class.getDeclaredMethod("testTradeWithBank", JsonParameterSet.class)))
+                                        .pointsFailedMin()
+                                        .pointsPassedMax()
+                                        .build())
                                     .build(),
                                 Criterion.builder()
                                     .shortDescription("Methode offerTrade funktioniert wie beschrieben")

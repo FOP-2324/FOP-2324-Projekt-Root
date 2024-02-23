@@ -15,8 +15,6 @@ import projekt.util.Utils;
 
 import java.lang.reflect.Field;
 import java.util.*;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -58,20 +56,16 @@ public class PlayerControllerTest {
         player.setUseDelegate("addResource", "addResources", "hasResources", "removeResource", "removeResources");
         player.setMethodAction((methodName, params) -> switch (methodName) {
             case "addResource" -> {
-                ResourceType key = (ResourceType) params[1];
-                Integer value = (Integer) params[2];
-                playerInventory.merge(key, value, Integer::sum);
+                playerInventory.merge((ResourceType) params[1], (Integer) params[2], Integer::sum);
                 yield null;
             }
             case "addResources" -> {
                 ((Map<ResourceType, Integer>) params[1]).forEach(((Player) params[0])::addResource);
                 yield null;
             }
-            case "hasResources" -> playerTradingRequest.equals(params[1]);
+            case "hasResources" -> jsonParams.getBoolean("enablePlayerInventory") && playerTradingRequest.equals(params[1]);
             case "removeResource" -> {
-                ResourceType key = (ResourceType) params[1];
-                Integer value = (Integer) params[2];
-                playerInventory.merge(key, -value, Integer::sum);
+                playerInventory.merge((ResourceType) params[1], -((Integer) params[2]), Integer::sum);
                 yield true;
             }
             case "removeResources" -> ((Map<ResourceType, Integer>) params[1]).entrySet()
@@ -106,7 +100,7 @@ public class PlayerControllerTest {
                     ((Map<ResourceType, Integer>) params[1]).forEach(((Player) params[0])::addResource);
                     yield null;
                 }
-                case "hasResources" -> playerTradingOffer.equals(params[1]);
+                case "hasResources" -> jsonParams.getBoolean("enablePartnerInventory") && playerTradingOffer.equals(params[1]);
                 case "removeResource" -> {
                     ResourceType key = (ResourceType) params[1];
                     Integer value = (Integer) params[2];
@@ -141,11 +135,98 @@ public class PlayerControllerTest {
                 "PlayerController.acceptTradeOffer threw an uncaught exception");
 
             if (accepted) {
+                Map<ResourceType, Integer> originalOffer = Utils.deserializeEnumMap(jsonParams.get("playerTradingOffer"), ResourceType.class, Utils.AS_INTEGER);
+                Map<ResourceType, Integer> originalRequest = Utils.deserializeEnumMap(jsonParams.get("playerTradingRequest"), ResourceType.class, Utils.AS_INTEGER);
 
+                assertEquals(originalOffer,
+                    playerInventory.entrySet()
+                        .stream()
+                        .filter(entry -> entry.getValue() > 0)
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)),
+                    context,
+                    result -> "Current player's inventory does not equal the expected state");
+                assertEquals(originalRequest,
+                    tradingPlayerInventory.entrySet()
+                        .stream()
+                        .filter(entry -> entry.getValue() > 0)
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)),
+                    context,
+                    result -> "Trading partner's inventory does not equal the expected state");
             }
 
             assertEquals(PlayerObjective.IDLE, playerController.getPlayerObjectiveProperty().getValue(), context, result ->
                 "PlayerController.acceptTradeOffer did not set the player objective to IDLE");
+        }
+    }
+
+    @ParameterizedTest
+    @JsonParameterSetTest("/controller/PlayerController/tradeWithBank.json")
+    @SuppressWarnings("unchecked")
+    public void testTradeWithBank(JsonParameterSet jsonParams) {
+        ResourceType offerType = jsonParams.get("offerType", ResourceType.class);
+        int offerAmount = jsonParams.getInt("offerAmount");
+        ResourceType request = jsonParams.get("request", ResourceType.class);
+        int tradeRatio = jsonParams.getInt("tradeRatio");
+
+        PlayerMock player = (PlayerMock) players.get(0);
+        Map<ResourceType, Integer> playerInventory = new HashMap<>(Map.of(offerType, offerAmount));
+        player.setUseDelegate("addResource", "addResources", "hasResources", "removeResource", "removeResources", "getTradeRatio");
+        player.setMethodAction((methodName, params) -> switch (methodName) {
+            case "addResource" -> {
+                playerInventory.merge((ResourceType) params[1], (Integer) params[2], Integer::sum);
+                yield null;
+            }
+            case "addResources" -> {
+                ((Map<ResourceType, Integer>) params[1]).forEach(((Player) params[0])::addResource);
+                yield null;
+            }
+            case "hasResources" -> jsonParams.getBoolean("enablePlayerInventory") && Map.of(offerType, offerAmount).equals(params[1]);
+            case "removeResource" -> {
+                if (!jsonParams.getBoolean("enablePlayerInventory") || playerInventory.getOrDefault(params[1], -1) < (Integer) params[2]) {
+                    yield false;
+                }
+                playerInventory.merge((ResourceType) params[1], -((Integer) params[2]), Integer::sum);
+                yield true;
+            }
+            case "removeResources" -> {
+                if (((Map<ResourceType, Integer>) params[1]).entrySet()
+                    .stream()
+                    .allMatch(entry -> playerInventory.containsKey(entry.getKey()) &&
+                                       playerInventory.getOrDefault(entry.getKey(), -1) >= entry.getValue())) {
+                    yield false;
+                }
+                ((Map<ResourceType, Integer>) params[1]).forEach((key, value) -> ((Player) params[0]).removeResource(key, value));
+                yield true;
+            }
+            case "getTradeRatio" -> tradeRatio;
+            default -> null;
+        });
+        PlayerControllerMock playerController = new PlayerControllerMock(gameController, player,
+            Predicate.not(List.of("blockingGetNextAction", "waitForNextAction")::contains),
+            (methodName, params) -> {
+                if (params.length == 1 + 1 && params[1] instanceof PlayerObjective playerObjective) {
+                    ((PlayerController) params[0]).setPlayerObjective(playerObjective);
+                }
+                return null;
+            });
+
+        Context context = contextBuilder()
+            .add("player", player)
+            .add("offerType", offerType)
+            .add("offerAmount", offerAmount)
+            .add("request", request)
+            .add("trade ratio", tradeRatio)
+            .build();
+        if (jsonParams.getBoolean("exception")) {
+            assertThrows(IllegalActionException.class, () -> playerController.tradeWithBank(offerType, offerAmount, request), context, result ->
+                "Expected PlayerController.tradeWithBank to throw an IllegalActionException");
+        } else {
+            call(() -> playerController.tradeWithBank(offerType, offerAmount, request), context, result ->
+                "PlayerController.tradeWithBank threw an uncaught exception");
+            assertEquals(Map.of(offerType, 0, request, 1),
+                playerInventory,
+                context,
+                result -> "Player's inventory is not in the expected state after invoking PlayerController.tradeWithBank");
         }
     }
 }
