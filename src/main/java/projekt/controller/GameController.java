@@ -331,7 +331,7 @@ public class GameController {
         final Player offeringPlayer, final Map<ResourceType, Integer> offer,
         final Map<ResourceType, Integer> request
     ) {
-        final BooleanProperty tradeAccepted = new SimpleBooleanProperty(true);
+        final BooleanProperty tradeAccepted = new SimpleBooleanProperty(false);
         for (final PlayerController playerController : playerControllers.values().stream()
             .filter(pc -> pc.canAcceptTradeOffer(offeringPlayer, request)).collect(Collectors.toList())) {
             playerController.setPlayerTradeOffer(offeringPlayer, offer, request);
