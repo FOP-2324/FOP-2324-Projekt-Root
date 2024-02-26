@@ -2,9 +2,13 @@ package projekt.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
 import org.sourcegrade.jagr.api.rubric.TestForSubmission;
 import org.tudalgo.algoutils.tutor.general.assertions.Context;
+import org.tudalgo.algoutils.tutor.general.json.JsonParameterSet;
+import org.tudalgo.algoutils.tutor.general.json.JsonParameterSetTest;
 import projekt.Config;
+import projekt.controller.actions.AcceptTradeAction;
 import projekt.controller.actions.EndTurnAction;
 import projekt.controller.actions.PlayerAction;
 import projekt.model.*;
@@ -12,6 +16,7 @@ import projekt.model.buildings.Settlement;
 import projekt.model.tiles.Tile;
 import projekt.util.PlayerControllerMock;
 import projekt.util.PlayerMock;
+import projekt.util.Utils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -30,7 +35,7 @@ import static projekt.controller.PlayerObjective.*;
 public class GameControllerTest {
 
     private final HexGrid hexGrid = new HexGridImpl(Config.GRID_RADIUS, () -> 6, () -> Tile.Type.WOODLAND);
-    private final List<Player> players = IntStream.range(0, 3)
+    private final List<Player> players = IntStream.range(0, Config.MAX_PLAYERS)
         .mapToObj(i -> (Player) new PlayerMock(new PlayerImpl.Builder(i).build(hexGrid)))
         .toList();
     private final GameController gameController = new GameController(new GameState(hexGrid, players));
@@ -216,5 +221,82 @@ public class GameControllerTest {
             "An exception occurred while invoking GameController.distributeResources");
         assertEquals(Map.of(ResourceType.WOOD, 1), resources, context, result ->
             "The added resources do not match the expected ones");
+    }
+
+    @ParameterizedTest
+    @JsonParameterSetTest("/controller/GameController/offerTrade.json")
+    public void testOfferTrade(JsonParameterSet jsonParams) {
+        PlayerMock offeringPlayer = (PlayerMock) players.get(0);
+        Integer acceptingPlayerIndex = jsonParams.get("acceptingPlayerIndex");
+        PlayerMock acceptingPlayer = (PlayerMock) (acceptingPlayerIndex != null ? players.get(acceptingPlayerIndex) : null);
+        Map<ResourceType, Integer> offer = Utils.deserializeEnumMap(jsonParams.get("offer"), ResourceType.class, Utils.AS_INTEGER);
+        Map<ResourceType, Integer> request = Utils.deserializeEnumMap(jsonParams.get("request"), ResourceType.class, Utils.AS_INTEGER);
+        Map<PlayerMock, Boolean> offeredTrade = new HashMap<>();
+        Map<PlayerMock, Boolean> calledSetPlayerTradeOffer = new HashMap<>();
+        Map<PlayerMock, Boolean> calledResetPlayerTradeOffer = new HashMap<>();
+        Map<PlayerMock, PlayerControllerMock> playerControllers = this.playerControllers.entrySet()
+            .stream()
+            .map(entry -> Map.entry((PlayerMock) entry.getKey(), (PlayerControllerMock) entry.getValue()))
+            .peek(entry -> {
+                PlayerControllerMock playerControllerMock = entry.getValue();
+                playerControllerMock.setUseDelegate(Predicate.not(List.of(
+                    "blockingGetNextAction", "waitForNextAction", "canAcceptTradeOffer", "acceptTradeOffer",
+                    "setPlayerTradeOffer", "resetPlayerTradeOffer")::contains));
+                playerControllerMock.setMethodAction((methodName, params) -> switch (methodName) {
+                    case "blockingGetNextAction", "waitForNextAction" -> {
+                        PlayerControllerMock pcMock = (PlayerControllerMock) params[0];
+                        PlayerMock player = (PlayerMock) pcMock.getPlayer();
+                        if (methodName.equals("waitForNextAction") && params.length == 2 && params[1] instanceof PlayerObjective nextObjective) {
+                            if (nextObjective == ACCEPT_TRADE) {
+                                offeredTrade.put(player, true);
+                            }
+                            pcMock.setPlayerObjective(nextObjective);
+                        }
+                        yield player == offeringPlayer ? playerAction.get() : new AcceptTradeAction(player == acceptingPlayer);
+                    }
+                    case "canAcceptTradeOffer" -> ((PlayerControllerMock) params[0]).getPlayer() != offeringPlayer;
+                    case "setPlayerTradeOffer", "resetPlayerTradeOffer" -> {
+                        Map<PlayerMock, Boolean> map = methodName.equals("setPlayerTradeOffer") ? calledSetPlayerTradeOffer : calledResetPlayerTradeOffer;
+                        map.put((PlayerMock) ((PlayerControllerMock) params[0]).getPlayer(), true);
+                        yield null;
+                    }
+                    default -> null;
+                });
+            })
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        Context baseContext = contextBuilder()
+            .add("offeringPlayer", offeringPlayer)
+            .add("accepting Player", acceptingPlayer)
+            .add("offer", offer)
+            .add("request", request)
+            .build();
+        call(() -> gameController.offerTrade(offeringPlayer, offer, request), baseContext, result ->
+            "GameController.offerTrade threw an uncaught exception");
+        for (Map.Entry<PlayerMock, PlayerControllerMock> entry : playerControllers.entrySet()) {
+            PlayerMock player = entry.getKey();
+            PlayerControllerMock playerController = entry.getValue();
+            Context context = contextBuilder()
+                .add(baseContext)
+                .add("current Player", player)
+                .add("current PlayerController", playerController)
+                .build();
+            if (player == offeringPlayer) {
+                assertEquals(List.of(), playerObjectives.get(player), context, result ->
+                    "The objectives of the current player do not match the expected ones");
+            } else {
+                if (offeredTrade.getOrDefault(player, false)) {
+                    assertEquals(List.of(ACCEPT_TRADE, IDLE), playerObjectives.get(player), context, result ->
+                        "The objectives of the current player do not match the expected ones");
+                    assertTrue(calledSetPlayerTradeOffer.get(player), context, result ->
+                        "setPlayerTradeOffer was not invoked on current PlayerController");
+                    assertTrue(calledResetPlayerTradeOffer.get(player), context, result ->
+                        "resetPlayerTradeOffer was not invoked on current PlayerController");
+                } else {
+                    assertEquals(List.of(), playerObjectives.get(player), context, result ->
+                        "The objectives of the current player do not match the expected ones");
+                }
+            }
+        }
     }
 }

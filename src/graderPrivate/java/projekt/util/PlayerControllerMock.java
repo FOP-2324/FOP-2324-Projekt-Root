@@ -1,6 +1,7 @@
 package projekt.util;
 
 import javafx.beans.property.Property;
+import javafx.beans.property.SimpleObjectProperty;
 import projekt.controller.GameController;
 import projekt.controller.PlayerController;
 import projekt.controller.PlayerObjective;
@@ -9,6 +10,7 @@ import projekt.controller.actions.PlayerAction;
 import projekt.model.*;
 import projekt.model.tiles.Tile;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -31,6 +33,13 @@ public class PlayerControllerMock extends PlayerController implements MockClass<
         super(gameController, player);
         this.useDelegate = useDelegate;
         this.methodAction = methodAction;
+        try {
+            Field playerObjectivePropertyField = PlayerController.class.getDeclaredField("playerObjectiveProperty");
+            playerObjectivePropertyField.trySetAccessible();
+            playerObjectivePropertyField.set(this, new SimpleObjectProperty<>(PlayerObjective.IDLE));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
