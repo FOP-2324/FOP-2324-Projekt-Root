@@ -10,6 +10,7 @@ import projekt.controller.actions.PlayerAction;
 import projekt.model.*;
 import projekt.model.buildings.Settlement;
 import projekt.model.tiles.Tile;
+import projekt.util.PlayerControllerMock;
 import projekt.util.PlayerMock;
 
 import java.lang.reflect.Field;
@@ -34,7 +35,6 @@ public class GameControllerTest {
         .toList();
     private final GameController gameController = new GameController(new GameState(hexGrid, players));
     private final AtomicReference<PlayerAction> playerAction = new AtomicReference<>(playerController -> {});
-    private final AtomicReference<Runnable> blockingAction = new AtomicReference<>(() -> {});
     private Map<Player, List<PlayerObjective>> playerObjectives;
     private Map<Player, PlayerController> playerControllers;
     private final Context baseContext = contextBuilder().add("players", players).build();
@@ -44,29 +44,19 @@ public class GameControllerTest {
         playerObjectives = players.stream()
             .collect(Collectors.toMap(Function.identity(), player -> new ArrayList<>()));
         playerControllers = players.stream()
-            .collect(Collectors.toMap(Function.identity(), player -> new PlayerController(gameController, player) {
-                {
+            .collect(Collectors.toMap(Function.identity(), player -> new PlayerControllerMock(gameController, player,
+                Predicate.not(List.of("blockingGetNextAction", "waitForNextAction")::contains),
+                (methodName, params) -> switch (methodName) {
+                    case "blockingGetNextAction", "waitForNextAction" -> {
+                        if (methodName.equals("waitForNextAction") && params.length == 2 && params[1] instanceof PlayerObjective nextObjective) {
+                            ((PlayerController) params[0]).setPlayerObjective(nextObjective);
+                        }
+                        yield playerAction.get();
+                    }
+                    default -> null;
+                }) {{
                     getPlayerObjectiveProperty().addListener((observable, oldValue, newValue) -> playerObjectives.get(getPlayer()).add(newValue));
-                }
-
-                @Override
-                public PlayerAction blockingGetNextAction() {
-                    blockingAction.get().run();
-                    return playerAction.get();
-                }
-
-                @Override
-                public PlayerAction waitForNextAction(PlayerObjective nextObjective) {
-                    setPlayerObjective(nextObjective);
-                    return waitForNextAction();
-                }
-
-                @Override
-                public PlayerAction waitForNextAction() {
-                    blockingAction.get().run();
-                    return playerAction.get();
-                }
-            }));
+                }}));
         Field playerControllersField = GameController.class.getDeclaredField("playerControllers");
         playerControllersField.trySetAccessible();
         playerControllersField.set(gameController, playerControllers);
@@ -94,12 +84,19 @@ public class GameControllerTest {
     @Test
     public void testRegularTurn() throws ReflectiveOperationException, InterruptedException {
         Player activePlayer = players.get(0);
-        PlayerController activePlayerController = playerControllers.get(activePlayer);
+        PlayerControllerMock activePlayerController = (PlayerControllerMock) playerControllers.get(activePlayer);
         AtomicInteger counter = new AtomicInteger();
-        blockingAction.set(() -> {
-            if (counter.incrementAndGet() > 3) {
-                playerAction.set(new EndTurnAction());
+        activePlayerController.setMethodAction((methodName, params) -> switch (methodName) {
+            case "blockingGetNextAction", "waitForNextAction" -> {
+                if (methodName.equals("waitForNextAction") && params.length == 2 && params[1] instanceof PlayerObjective nextObjective) {
+                    ((PlayerController) params[0]).setPlayerObjective(nextObjective);
+                }
+                if (counter.incrementAndGet() > 3) {
+                    playerAction.set(new EndTurnAction());
+                }
+                yield playerAction.get();
             }
+            default -> null;
         });
         gameController.getActivePlayerControllerProperty().setValue(activePlayerController);
         Method regularTurnMethod = GameController.class.getDeclaredMethod("regularTurn");
