@@ -10,12 +10,14 @@ import projekt.Config;
 import projekt.controller.actions.IllegalActionException;
 import projekt.model.*;
 import projekt.model.buildings.Settlement;
+import projekt.util.IntersectionMock;
 import projekt.util.PlayerControllerMock;
 import projekt.util.PlayerMock;
 import projekt.util.Utils;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -295,5 +297,70 @@ public class PlayerControllerTest {
         }
         assertCallEquals(jsonParams.getBoolean("expected"), playerController::canBuildRoad, context, result ->
             "PlayerController.canBuildRoad did not return the expected value");
+    }
+
+    @ParameterizedTest
+    @JsonParameterSetTest("/controller/PlayerController/buildVillage.json")
+    public void testBuildVillage(JsonParameterSet jsonParams) {
+        boolean firstRound = jsonParams.getBoolean("firstRound");
+        AtomicBoolean calledRemoveResources = new AtomicBoolean();
+        PlayerMock player = (PlayerMock) players.get(0);
+        player.setUseDelegate("addResource", "addResources", "hasResources", "removeResource", "removeResources");
+        player.setMethodAction((methodName, params) -> switch (methodName) {
+            case "hasResources" -> jsonParams.getBoolean("canBuildVillage") && Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.VILLAGE).equals(params[1]);
+            case "removeResource", "removeResources" -> {
+                calledRemoveResources.set(true);
+                yield true;
+            }
+            default -> null;
+        });
+        PlayerControllerMock playerController = new PlayerControllerMock(gameController, player,
+            Predicate.not(List.of("blockingGetNextAction", "waitForNextAction", "canBuildVillage")::contains),
+            (methodName, params) -> switch (methodName) {
+                case "waitForNextAction" -> {
+                    if (params.length == 1 + 1 && params[1] instanceof PlayerObjective playerObjective) {
+                        ((PlayerController) params[0]).setPlayerObjective(playerObjective);
+                    }
+                    yield null;
+                }
+                case "canBuildVillage" -> jsonParams.getBoolean("canBuildVillage");
+                default -> null;
+            });
+        AtomicBoolean calledPlaceVillage = new AtomicBoolean();
+        IntersectionMock intersection = new IntersectionMock(new IntersectionImpl(
+            new TilePosition(0, 0), new TilePosition(0, 1), new TilePosition(1, 0), hexGrid),
+            Predicate.not(List.of("placeVillage")::contains),
+            (methodName, params) -> switch (methodName) {
+                case "placeVillage" -> {
+                    calledPlaceVillage.set(true);
+                    yield !jsonParams.getBoolean("exception");
+                }
+                default -> null;
+            });
+
+        gameController.getRoundCounterProperty().set(firstRound ? 0 : 1);
+        playerController.setPlayerObjective(firstRound ? PlayerObjective.PLACE_VILLAGE : PlayerObjective.IDLE);
+
+        Context context = contextBuilder()
+            .add("player", player)
+            .add("playerController", playerController)
+            .add("first round", firstRound)
+            .add("canBuildVillage", jsonParams.getBoolean("canBuildVillage"))
+            .build();
+        if (jsonParams.getBoolean("exception")) {
+            assertThrows(IllegalActionException.class, () -> playerController.buildVillage(intersection), context, result ->
+                "Expected PlayerController.buildVillage to throw an IllegalActionException");
+            assertFalse(calledPlaceVillage.get(), context, result ->
+                "PlayerController.buildVillage called Intersection.placeVillage on the given intersection");
+            assertFalse(calledRemoveResources.get(), context, result ->
+                "PlayerController.buildVillage called Player.removeResource(s) on the current player");
+        } else {
+            call(() -> playerController.buildVillage(intersection), context, result ->
+                "PlayerController.buildVillage threw an uncaught exception");
+            assertTrue(calledPlaceVillage.get(), context, result ->
+                "PlayerController.buildVillage did not call Intersection.placeVillage on the given intersection");
+            assertTrue(firstRound || calledRemoveResources.get(), context, result ->
+                "PlayerController.buildVillage did not call Player.removeResource(s) on the current player");
+        }
     }
 }
