@@ -261,6 +261,11 @@ public class Projekt_RubricProvider implements RubricProvider {
                             .addChildCriteria(
                                 Criterion.builder()
                                     .shortDescription("Methode canBuildVillage funktioniert wie beschrieben")
+                                    .grader(Grader.testAwareBuilder()
+                                        .requirePass(JUnitTestRef.ofMethod(() -> PlayerControllerTest.class.getDeclaredMethod("testCanBuildVillage", JsonParameterSet.class)))
+                                        .pointsFailedMin()
+                                        .pointsPassedMax()
+                                        .build())
                                     .build(),
                                 Criterion.builder()
                                     .shortDescription("Methode canBuildRoad funktioniert wie beschrieben")

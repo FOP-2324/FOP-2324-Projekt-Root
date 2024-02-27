@@ -9,6 +9,7 @@ import org.tudalgo.algoutils.tutor.general.json.JsonParameterSetTest;
 import projekt.Config;
 import projekt.controller.actions.IllegalActionException;
 import projekt.model.*;
+import projekt.model.buildings.Settlement;
 import projekt.util.PlayerControllerMock;
 import projekt.util.PlayerMock;
 import projekt.util.Utils;
@@ -228,5 +229,38 @@ public class PlayerControllerTest {
                 context,
                 result -> "Player's inventory is not in the expected state after invoking PlayerController.tradeWithBank");
         }
+    }
+
+    @ParameterizedTest
+    @JsonParameterSetTest("/controller/PlayerController/canBuildVillage.json")
+    public void testCanBuildVillage(JsonParameterSet jsonParams) {
+        PlayerMock player = (PlayerMock) players.get(0);
+        player.setUseDelegate("addResource", "addResources", "hasResources", "removeResource", "removeResources", "getRemainingVillages");
+        player.setMethodAction((methodName, params) -> switch (methodName) {
+            case "hasResources" -> jsonParams.getBoolean("hasResources") && Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.VILLAGE).equals(params[1]);
+            case "getRemainingVillages" -> jsonParams.getInt("remainingVillages");
+            default -> null;
+        });
+        PlayerControllerMock playerController = new PlayerControllerMock(gameController, player,
+            Predicate.not(List.of("blockingGetNextAction", "waitForNextAction")::contains),
+            (methodName, params) -> {
+                if (methodName.equals("waitForNextAction") && params.length == 1 + 1 && params[1] instanceof PlayerObjective playerObjective) {
+                    ((PlayerController) params[0]).setPlayerObjective(playerObjective);
+                }
+                return null;
+            });
+
+        boolean objectiveSet = jsonParams.getBoolean("objectiveSet");
+        Context context = contextBuilder()
+            .add("player", player)
+            .add("playerController", playerController)
+            .add("objective set to PLACE_VILLAGE", objectiveSet)
+            .add("remaining villages", jsonParams.getInt("remainingVillages"))
+            .build();
+        if (objectiveSet) {
+            playerController.setPlayerObjective(PlayerObjective.PLACE_VILLAGE);
+        }
+        assertCallEquals(jsonParams.getBoolean("expected"), playerController::canBuildVillage, context, result ->
+            "PlayerController.canBuildVillage did not return the expected value");
     }
 }
