@@ -10,10 +10,7 @@ import projekt.Config;
 import projekt.controller.actions.IllegalActionException;
 import projekt.model.*;
 import projekt.model.buildings.Settlement;
-import projekt.util.IntersectionMock;
-import projekt.util.PlayerControllerMock;
-import projekt.util.PlayerMock;
-import projekt.util.Utils;
+import projekt.util.*;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -27,7 +24,7 @@ import static org.tudalgo.algoutils.tutor.general.assertions.Assertions2.*;
 @TestForSubmission
 public class PlayerControllerTest {
 
-    private final HexGrid hexGrid = new HexGridImpl(Config.GRID_RADIUS);
+    private final HexGridMock hexGrid = new HexGridMock(new HexGridImpl(Config.GRID_RADIUS));
     private final List<Player> players = IntStream.range(0, Config.MAX_PLAYERS)
         .mapToObj(i -> new PlayerMock(new PlayerImpl.Builder(i).build(hexGrid)))
         .collect(Collectors.toList());
@@ -361,6 +358,72 @@ public class PlayerControllerTest {
                 "PlayerController.buildVillage did not call Intersection.placeVillage on the given intersection");
             assertTrue(firstRound || calledRemoveResources.get(), context, result ->
                 "PlayerController.buildVillage did not call Player.removeResource(s) on the current player");
+        }
+    }
+
+    @ParameterizedTest
+    @JsonParameterSetTest("/controller/PlayerController/buildRoad.json")
+    public void testBuildRoad(JsonParameterSet jsonParams) {
+        boolean firstRound = jsonParams.getBoolean("firstRound");
+        AtomicBoolean calledRemoveResources = new AtomicBoolean();
+        PlayerMock player = (PlayerMock) players.get(0);
+        player.setUseDelegate("addResource", "addResources", "hasResources", "removeResource", "removeResources");
+        player.setMethodAction((methodName, params) -> switch (methodName) {
+            case "hasResources" -> jsonParams.getBoolean("canBuildRoad") && Config.ROAD_BUILDING_COST.equals(params[1]);
+            case "removeResource", "removeResources" -> {
+                calledRemoveResources.set(true);
+                yield true;
+            }
+            default -> null;
+        });
+        PlayerControllerMock playerController = new PlayerControllerMock(gameController, player,
+            Predicate.not(List.of("blockingGetNextAction", "waitForNextAction", "canBuildRoad")::contains),
+            (methodName, params) -> switch (methodName) {
+                case "waitForNextAction" -> {
+                    if (params.length == 1 + 1 && params[1] instanceof PlayerObjective playerObjective) {
+                        ((PlayerController) params[0]).setPlayerObjective(playerObjective);
+                    }
+                    yield null;
+                }
+                case "canBuildRoad" -> jsonParams.getBoolean("canBuildRoad");
+                default -> null;
+            });
+        AtomicBoolean calledAddRoad = new AtomicBoolean();
+        TilePosition tilePosition1 = new TilePosition(0, 0);
+        TilePosition tilePosition2 = new TilePosition(0, 1);
+
+        hexGrid.setUseDelegate("addRoad");
+        hexGrid.setMethodAction((methodName, params) -> switch (methodName) {
+            case "addRoad" -> {
+                calledAddRoad.set(true);
+                yield !jsonParams.getBoolean("exception");
+            }
+            default -> null;
+        });
+
+        gameController.getRoundCounterProperty().set(firstRound ? 0 : 1);
+        playerController.setPlayerObjective(firstRound ? PlayerObjective.PLACE_ROAD : PlayerObjective.IDLE);
+
+        Context context = contextBuilder()
+            .add("player", player)
+            .add("playerController", playerController)
+            .add("first round", firstRound)
+            .add("canBuildRoad", jsonParams.getBoolean("canBuildRoad"))
+            .build();
+        if (jsonParams.getBoolean("exception")) {
+            assertThrows(IllegalActionException.class, () -> playerController.buildRoad(tilePosition1, tilePosition2), context, result ->
+                "Expected PlayerController.buildRoad to throw an IllegalActionException");
+            assertFalse(calledAddRoad.get(), context, result ->
+                "PlayerController.buildRoad called HexGrid.addRoad on the given intersection");
+            assertFalse(calledRemoveResources.get(), context, result ->
+                "PlayerController.buildRoad called Player.removeResource(s) on the current player");
+        } else {
+            call(() -> playerController.buildRoad(tilePosition1, tilePosition2), context, result ->
+                "PlayerController.buildRoad threw an uncaught exception");
+            assertTrue(calledAddRoad.get(), context, result ->
+                "PlayerController.buildRoad did not call HexGrid.addRoad on the given intersection");
+            assertTrue(firstRound || calledRemoveResources.get(), context, result ->
+                "PlayerController.buildRoad did not call Player.removeResource(s) on the current player");
         }
     }
 }
