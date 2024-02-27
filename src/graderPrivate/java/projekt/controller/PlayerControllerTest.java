@@ -263,4 +263,37 @@ public class PlayerControllerTest {
         assertCallEquals(jsonParams.getBoolean("expected"), playerController::canBuildVillage, context, result ->
             "PlayerController.canBuildVillage did not return the expected value");
     }
+
+    @ParameterizedTest
+    @JsonParameterSetTest("/controller/PlayerController/canBuildRoad.json")
+    public void testCanBuildRoad(JsonParameterSet jsonParams) {
+        PlayerMock player = (PlayerMock) players.get(0);
+        player.setUseDelegate("addResource", "addResources", "hasResources", "removeResource", "removeResources", "getRemainingRoads");
+        player.setMethodAction((methodName, params) -> switch (methodName) {
+            case "hasResources" -> jsonParams.getBoolean("hasResources") && Config.ROAD_BUILDING_COST.equals(params[1]);
+            case "getRemainingRoads" -> jsonParams.getInt("remainingRoads");
+            default -> null;
+        });
+        PlayerControllerMock playerController = new PlayerControllerMock(gameController, player,
+            Predicate.not(List.of("blockingGetNextAction", "waitForNextAction")::contains),
+            (methodName, params) -> {
+                if (methodName.equals("waitForNextAction") && params.length == 1 + 1 && params[1] instanceof PlayerObjective playerObjective) {
+                    ((PlayerController) params[0]).setPlayerObjective(playerObjective);
+                }
+                return null;
+            });
+
+        boolean objectiveSet = jsonParams.getBoolean("objectiveSet");
+        Context context = contextBuilder()
+            .add("player", player)
+            .add("playerController", playerController)
+            .add("objective set to PLACE_ROAD", objectiveSet)
+            .add("remaining roads", jsonParams.getInt("remainingRoads"))
+            .build();
+        if (objectiveSet) {
+            playerController.setPlayerObjective(PlayerObjective.PLACE_ROAD);
+        }
+        assertCallEquals(jsonParams.getBoolean("expected"), playerController::canBuildRoad, context, result ->
+            "PlayerController.canBuildRoad did not return the expected value");
+    }
 }
