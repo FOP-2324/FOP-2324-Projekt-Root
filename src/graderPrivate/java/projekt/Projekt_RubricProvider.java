@@ -249,6 +249,11 @@ public class Projekt_RubricProvider implements RubricProvider {
                                     .shortDescription("Methode offerTrade funktioniert wie beschrieben")
                                     .maxPoints(0)
                                     .maxPoints(3)
+                                    .grader(Grader.testAwareBuilder()
+                                        .requirePass(JUnitTestRef.ofMethod(() -> GameControllerTest.class.getDeclaredMethod("testOfferTrade", JsonParameterSet.class)))
+                                        .pointsFailedMin()
+                                        .pointsPassedMax()
+                                        .build())
                                     .build())
                             .build(),
                         Criterion.builder()
