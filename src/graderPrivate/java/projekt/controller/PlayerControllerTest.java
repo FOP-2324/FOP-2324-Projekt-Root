@@ -426,4 +426,62 @@ public class PlayerControllerTest {
                 "PlayerController.buildRoad did not call Player.removeResource(s) on the current player");
         }
     }
+
+    @ParameterizedTest
+    @JsonParameterSetTest("/controller/PlayerController/upgradeVillage.json")
+    public void testUpgradeVillage(JsonParameterSet jsonParams) {
+        AtomicBoolean calledRemoveResources = new AtomicBoolean();
+        PlayerMock player = (PlayerMock) players.get(0);
+        player.setUseDelegate("addResource", "addResources", "hasResources", "removeResource", "removeResources");
+        player.setMethodAction((methodName, params) -> switch (methodName) {
+            case "hasResources" -> jsonParams.getBoolean("canUpgradeVillage") && Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.CITY).equals(params[1]);
+            case "removeResource", "removeResources" -> {
+                calledRemoveResources.set(true);
+                yield true;
+            }
+            default -> null;
+        });
+        PlayerControllerMock playerController = new PlayerControllerMock(gameController, player,
+            Predicate.not(List.of("blockingGetNextAction", "waitForNextAction", "canUpgradeVillage")::contains),
+            (methodName, params) -> switch (methodName) {
+                case "waitForNextAction" -> {
+                    if (params.length == 1 + 1 && params[1] instanceof PlayerObjective playerObjective) {
+                        ((PlayerController) params[0]).setPlayerObjective(playerObjective);
+                    }
+                    yield null;
+                }
+                case "canUpgradeVillage" -> jsonParams.getBoolean("canUpgradeVillage");
+                default -> null;
+            });
+        AtomicBoolean calledUpgradeVillage = new AtomicBoolean();
+        IntersectionMock intersection = new IntersectionMock(new IntersectionImpl(
+            new TilePosition(0, 0), new TilePosition(0, 1), new TilePosition(1, 0), hexGrid),
+            Predicate.not(List.of("upgradeSettlement")::contains),
+            (methodName, params) -> switch (methodName) {
+                case "upgradeSettlement" -> {
+                    calledUpgradeVillage.set(true);
+                    yield !jsonParams.getBoolean("exception");
+                }
+                default -> null;
+            });
+
+        Context context = contextBuilder()
+            .add("player", player)
+            .add("playerController", playerController)
+            .add("canUpgradeVillage", jsonParams.getBoolean("canUpgradeVillage"))
+            .build();
+        if (jsonParams.getBoolean("exception")) {
+            assertThrows(IllegalActionException.class, () -> playerController.upgradeVillage(intersection), context, result ->
+                "Expected PlayerController.upgradeVillage to throw an IllegalActionException");
+            assertFalse(!jsonParams.getBoolean("canUpgradeVillage") && calledUpgradeVillage.get(), context, result ->
+                "PlayerController.upgradeVillage called Intersection.upgradeSettlement on the given intersection");
+            assertFalse(calledRemoveResources.get(), context, result ->
+                "PlayerController.upgradeVillage called Player.removeResource(s) on the current player");
+        } else {
+            call(() -> playerController.upgradeVillage(intersection), context, result ->
+                "PlayerController.upgradeVillage threw an uncaught exception");
+            assertTrue(calledUpgradeVillage.get(), context, result ->
+                "PlayerController.upgradeVillage did not call Intersection.upgradeSettlement on the given intersection");
+        }
+    }
 }

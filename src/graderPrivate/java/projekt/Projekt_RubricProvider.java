@@ -289,6 +289,11 @@ public class Projekt_RubricProvider implements RubricProvider {
                                     .shortDescription("Methode buildRoad funktioniert wie beschrieben")
                                     .minPoints(0)
                                     .maxPoints(2)
+                                    .grader(Grader.testAwareBuilder()
+                                        .requirePass(JUnitTestRef.ofMethod(() -> PlayerControllerTest.class.getDeclaredMethod("testBuildRoad", JsonParameterSet.class)))
+                                        .pointsFailedMin()
+                                        .pointsPassedMax()
+                                        .build())
                                     .build())
                             .build(),
                         Criterion.builder()
@@ -298,6 +303,11 @@ public class Projekt_RubricProvider implements RubricProvider {
                                     .shortDescription("Methode upgradeVillage funktioniert wie beschrieben")
                                     .minPoints(0)
                                     .maxPoints(2)
+                                    .grader(Grader.testAwareBuilder()
+                                        .requirePass(JUnitTestRef.ofMethod(() -> PlayerControllerTest.class.getDeclaredMethod("testUpgradeVillage", JsonParameterSet.class)))
+                                        .pointsFailedMin()
+                                        .pointsPassedMax()
+                                        .build())
                                     .build())
                             .build())
                     .build(),
