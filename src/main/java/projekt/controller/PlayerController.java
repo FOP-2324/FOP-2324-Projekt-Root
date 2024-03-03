@@ -333,7 +333,7 @@ public class PlayerController {
      *
      * @return whether the {@link Player} can build a village.
      */
-    @StudentImplementationRequired("H2.5")
+    @StudentImplementationRequired("H2.4")
     public boolean canBuildVillage() {
         final var requiredResources = Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.VILLAGE);
         return (
@@ -352,7 +352,7 @@ public class PlayerController {
      * @param intersection the intersection to build the village at
      * @throws IllegalActionException if the village cannot be built
      */
-    @StudentImplementationRequired("H2.5")
+    @StudentImplementationRequired("H2.4")
     public void buildVillage(final Intersection intersection) throws IllegalActionException {
         final var requiredResources = Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.VILLAGE);
         if (!canBuildVillage()) {
@@ -403,7 +403,7 @@ public class PlayerController {
      * @param intersection the intersection to upgrade the village at
      * @throws IllegalActionException if the village cannot be upgraded
      */
-    @StudentImplementationRequired("H2.6")
+    @StudentImplementationRequired("H2.5")
     public void upgradeVillage(final Intersection intersection) throws IllegalActionException {
         final var requiredResources = Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.CITY);
         if (!canUpgradeVillage()) {
@@ -450,7 +450,7 @@ public class PlayerController {
      *
      * @return whether the {@link Player} can build a road.
      */
-    @StudentImplementationRequired("H2.5")
+    @StudentImplementationRequired("H2.4")
     public boolean canBuildRoad() {
         final var requiredResources = Config.ROAD_BUILDING_COST;
         return (
@@ -483,7 +483,7 @@ public class PlayerController {
      * @param position1 the second position to build the road between
      * @throws IllegalActionException if the road cannot be built
      */
-    @StudentImplementationRequired("H2.5")
+    @StudentImplementationRequired("H2.4")
     public void buildRoad(final TilePosition position0, final TilePosition position1) throws IllegalActionException {
         if (!canBuildRoad()) {
             throw new IllegalActionException("Cannot build road");
