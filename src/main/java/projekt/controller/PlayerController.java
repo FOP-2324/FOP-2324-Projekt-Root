@@ -47,7 +47,7 @@ public class PlayerController {
 
     private final Property<PlayerState> playerStateProperty = new SimpleObjectProperty<>();
 
-    private final Property<PlayerObjective> playerObjectiveProperty = new SimpleObjectProperty<>(PlayerObjective.IDLE);
+    private PlayerObjective playerObjective;
 
     private Player tradingPlayer;
 
@@ -74,9 +74,6 @@ public class PlayerController {
     public PlayerController(final GameController gameController, final Player player) {
         this.gameController = gameController;
         this.player = player;
-        this.playerObjectiveProperty.addListener((observable, oldValue, newValue) -> {
-            updatePlayerState();
-        });
     }
 
     /**
@@ -109,13 +106,13 @@ public class PlayerController {
     }
 
     /**
-     * Returns a {@link Property} with the current {@link PlayerObjective}
+     * Returns the current {@link PlayerObjective}
      *
-     * @return a {@link Property} with the current {@link PlayerObjective}
+     * @return the current {@link PlayerObjective}
      */
     @DoNotTouch
-    public Property<PlayerObjective> getPlayerObjectiveProperty() {
-        return playerObjectiveProperty;
+    public PlayerObjective getPlayerObjective() {
+        return playerObjective;
     }
 
     /**
@@ -126,7 +123,7 @@ public class PlayerController {
      */
     @DoNotTouch
     public void setPlayerObjective(final PlayerObjective nextObjective) {
-        playerObjectiveProperty.setValue(nextObjective);
+        playerObjective = nextObjective;
     }
 
     /**
@@ -146,10 +143,9 @@ public class PlayerController {
     @DoNotTouch
     private void updatePlayerState() {
         playerStateProperty
-            .setValue(new PlayerState(getBuildableVillageIntersections(), getUpgradeableVillageIntersections(),
-                                      getBuildableRoadEdges(), getPlayersToStealFrom(), getPlayerTradingPayload(),
-                                      getCardsToSelect(), getChangedResources()
-            ));
+                .setValue(new PlayerState(getBuildableVillageIntersections(), getUpgradeableVillageIntersections(),
+                        getBuildableRoadEdges(), getPlayersToStealFrom(), getPlayerTradingPayload(),
+                        getCardsToSelect(), getChangedResources(), playerObjective));
     }
 
     /**
@@ -220,7 +216,7 @@ public class PlayerController {
         if (selectedResources.values().stream().mapToInt(Integer::intValue).sum() != getCardsToSelect()) {
             throw new IllegalActionException("Wrong amount of cards selected");
         }
-        if (PlayerObjective.DROP_CARDS.equals(playerObjectiveProperty.getValue())) {
+        if (PlayerObjective.DROP_CARDS.equals(getPlayerObjective())) {
             dropSelectedResources(selectedResources);
         }
         this.selectedResources = selectedResources;
@@ -277,15 +273,15 @@ public class PlayerController {
     public PlayerAction waitForNextAction() {
         try {
             oldResources = new HashMap<>(player.getResources());
+            updatePlayerState();
             // blocking, waiting for viewing thread
             final PlayerAction action = blockingGetNextAction();
 
             System.out.println("TRIGGER " + action + " [" + player.getName() + "]");
 
-            if (!playerObjectiveProperty.getValue().allowedActions.contains(action.getClass())) {
+            if (!getPlayerObjective().allowedActions.contains(action.getClass())) {
                 throw new IllegalActionException(String.format("Illegal Action %s performed. Allowed Actions: %s",
-                                                               action, playerObjectiveProperty.getValue().getAllowedActions()
-                ));
+                        action, getPlayerObjective().getAllowedActions()));
             }
             action.execute(this);
             updatePlayerState();
@@ -336,10 +332,8 @@ public class PlayerController {
     @StudentImplementationRequired("H2.4")
     public boolean canBuildVillage() {
         final var requiredResources = Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.VILLAGE);
-        return (
-            playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_VILLAGE)
-                || player.hasResources(requiredResources)
-        ) && player.getRemainingVillages() > 0;
+        return (getPlayerObjective().equals(PlayerObjective.PLACE_VILLAGE)
+                || player.hasResources(requiredResources)) && player.getRemainingVillages() > 0;
     }
 
     /**
@@ -361,7 +355,7 @@ public class PlayerController {
         if (!intersection.placeVillage(player, isFirstRound())) {
             throw new IllegalActionException("Cannot build village at given intersection");
         }
-        if (!playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_VILLAGE)) {
+        if (!getPlayerObjective().equals(PlayerObjective.PLACE_VILLAGE)) {
             player.removeResources(requiredResources);
         }
     }
@@ -453,10 +447,8 @@ public class PlayerController {
     @StudentImplementationRequired("H2.4")
     public boolean canBuildRoad() {
         final var requiredResources = Config.ROAD_BUILDING_COST;
-        return (
-            playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_ROAD)
-                || player.hasResources(requiredResources)
-        ) && player.getRemainingRoads() > 0;
+        return (getPlayerObjective().equals(PlayerObjective.PLACE_ROAD)
+                || player.hasResources(requiredResources)) && player.getRemainingRoads() > 0;
     }
 
     /**
@@ -492,7 +484,7 @@ public class PlayerController {
             throw new IllegalActionException("Cannot build road between given positions");
         }
         final var requiredResources = Config.ROAD_BUILDING_COST;
-        if (!playerObjectiveProperty.getValue().equals(PlayerObjective.PLACE_ROAD)) {
+        if (!getPlayerObjective().equals(PlayerObjective.PLACE_ROAD)) {
             player.removeResources(requiredResources);
         }
     }
@@ -682,7 +674,7 @@ public class PlayerController {
         }
 
         if (!accepted) {
-            playerObjectiveProperty.setValue(PlayerObjective.IDLE);
+            setPlayerObjective(PlayerObjective.IDLE);
             return;
         }
 
@@ -692,7 +684,7 @@ public class PlayerController {
         if (!tradingPlayer.hasResources(playerTradingOffer)) {
             throw new IllegalActionException("Other player does not have the offered resources");
         }
-        playerObjectiveProperty.setValue(PlayerObjective.IDLE);
+        setPlayerObjective(PlayerObjective.IDLE);
 
         player.removeResources(playerTradingRequest);
         tradingPlayer.addResources(playerTradingRequest);
@@ -714,7 +706,7 @@ public class PlayerController {
         if (!player.hasResources(resourcesToDrop)) {
             return;
         }
-        playerObjectiveProperty.setValue(PlayerObjective.IDLE);
+        setPlayerObjective(PlayerObjective.IDLE);
         // remove resources from player
         player.removeResources(resourcesToDrop);
         cardsToSelect = 0;
@@ -733,7 +725,7 @@ public class PlayerController {
         if (!playerToStealFrom.removeResource(resourceToSteal, 1)) {
             throw new IllegalActionException("Player does not have the selected resource");
         }
-        playerObjectiveProperty.setValue(PlayerObjective.IDLE);
+        setPlayerObjective(PlayerObjective.IDLE);
         // add resource to player
         player.addResource(resourceToSteal, 1);
     }

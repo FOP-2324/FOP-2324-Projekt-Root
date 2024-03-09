@@ -29,14 +29,14 @@ public abstract class AiController {
      * @param activePlayerController the active player controller
      */
     public AiController(
-        final PlayerController playerController, final HexGrid hexGrid, final GameState gameState,
-        final Property<PlayerController> activePlayerController
-    ) {
+            final PlayerController playerController, final HexGrid hexGrid, final GameState gameState,
+            final Property<PlayerController> activePlayerController) {
         this.playerController = playerController;
         this.hexGrid = hexGrid;
         this.gameState = gameState;
         this.activePlayerController = activePlayerController;
-        playerController.getPlayerObjectiveProperty().subscribe(this::executeActionBasedOnObjective);
+        playerController.getPlayerStateProperty()
+                .subscribe(state -> this.executeActionBasedOnObjective(state.playerObjective()));
     }
 
     /**

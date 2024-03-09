@@ -58,9 +58,7 @@ public class PlayerActionsController implements Controller {
     private final PlayerActionsBuilder builder;
     private final GameBoardController gameBoardController;
     private final Property<PlayerController> playerControllerProperty = new SimpleObjectProperty<>();
-    private final Property<PlayerObjective> playerObjectiveProperty = new SimpleObjectProperty<>(PlayerObjective.IDLE);
     private final Property<PlayerState> playerStateProperty = new SimpleObjectProperty<>();
-    private Subscription playerObjectiveSubscription = Subscription.EMPTY;
     private Subscription playerStateSubscription = Subscription.EMPTY;
 
     /**
@@ -79,22 +77,14 @@ public class PlayerActionsController implements Controller {
      */
     @DoNotTouch
     public PlayerActionsController(
-        final GameBoardController gameBoardController,
-        final Property<PlayerController> playerControllerProperty
-    ) {
+            final GameBoardController gameBoardController,
+            final Property<PlayerController> playerControllerProperty) {
         this.playerControllerProperty.subscribe((oldValue, newValue) -> {
             Platform.runLater(() -> {
-                playerObjectiveSubscription.unsubscribe();
-                playerObjectiveSubscription = newValue.getPlayerObjectiveProperty().subscribe((
-                                                                                                  oldObjective,
-                                                                                                  newObjective
-                                                                                              ) -> Platform.runLater(() -> this.playerObjectiveProperty.setValue(newObjective)));
-
                 playerStateSubscription.unsubscribe();
                 playerStateSubscription = newValue.getPlayerStateProperty().subscribe(
-                    (oldState, newState) -> Platform.runLater(() -> this.playerStateProperty.setValue(newState)));
+                        (oldState, newState) -> Platform.runLater(() -> this.playerStateProperty.setValue(newState)));
                 this.playerStateProperty.setValue(newValue.getPlayerStateProperty().getValue());
-                this.playerObjectiveProperty.setValue(newValue.getPlayerObjectiveProperty().getValue());
             });
         });
         this.gameBoardController = gameBoardController;
@@ -212,7 +202,7 @@ public class PlayerActionsController implements Controller {
      */
     @DoNotTouch
     private PlayerObjective getPlayerObjective() {
-        return playerObjectiveProperty.getValue();
+        return getPlayerState().playerObjective();
     }
 
     /**
@@ -628,7 +618,6 @@ public class PlayerActionsController implements Controller {
     public Region buildView() {
         final Region view = builder.build();
 
-        playerObjectiveProperty.subscribe((oldValue, newValue) -> updateUIBasedOnObjective(newValue));
         playerStateProperty.subscribe((oldValue, newValue) -> updateUIBasedOnObjective(getPlayerObjective()));
         builder.disableAllButtons();
         if (getPlayerController() != null) {
