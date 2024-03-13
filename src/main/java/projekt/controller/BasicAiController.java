@@ -48,7 +48,12 @@ public class BasicAiController extends AiController {
     @Override
     protected void executeActionBasedOnObjective(final PlayerObjective objective) {
         final Set<Class<? extends PlayerAction>> actions = objective.getAllowedActions();
-
+        try {
+            Thread.sleep(1000);
+        } catch (final InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         if (actions.contains(RollDiceAction.class)) {
             playerController.triggerAction(new RollDiceAction());
         }
