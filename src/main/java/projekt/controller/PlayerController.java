@@ -145,7 +145,7 @@ public class PlayerController {
         playerStateProperty
                 .setValue(new PlayerState(getBuildableVillageIntersections(), getUpgradeableVillageIntersections(),
                         getBuildableRoadEdges(), getPlayersToStealFrom(), getPlayerTradingPayload(),
-                        getCardsToSelect(), getChangedResources(), playerObjective));
+                        getCardsToSelect(), getChangedResources(), getPlayerObjective()));
     }
 
     /**
