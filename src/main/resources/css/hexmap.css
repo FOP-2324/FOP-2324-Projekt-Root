@@ -38,6 +38,16 @@
     -fx-border-color: transparent;
 }
 
+.fixed-popup {
+    -fx-background-color: #000000d0;
+    -fx-background-radius: 5px;
+    -fx-padding: 10px;
+}
+
+.fixed-popup .text {
+    -fx-fill: white;
+}
+
 .hex-tile.selectable {
     -fx-border-color: -selected-color;
 }
