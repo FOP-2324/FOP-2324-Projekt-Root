@@ -7,6 +7,7 @@ algoutils-student = { module = "org.tudalgo:algoutils-student", version.ref = "a
 algoutils-tutor = { module = "org.tudalgo:algoutils-tutor", version.ref = "algoutils" }
 junit-core = { module = "org.junit.jupiter:junit-jupiter", version = "5.9.1" }
 junit-pioneer = { module = "org.junit-pioneer:junit-pioneer", version = "2.1.0" }
+asm-tree = { module = "org.ow2.asm:asm-tree", version = "9.6"}
 
 [plugins]
 style = { id = "org.sourcegrade.style", version = "2.1.0" }

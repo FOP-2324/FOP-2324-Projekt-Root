@@ -42,6 +42,7 @@ dependencies {
     implementation(libs.annotations)
     implementation(libs.algoutils.student)
     testImplementation(libs.junit.core)
+    testImplementation(libs.asm.tree)
 }
 
 application {
