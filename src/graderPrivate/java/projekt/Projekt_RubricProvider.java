@@ -1,6 +1,7 @@
 package projekt;
 
 import org.sourcegrade.jagr.api.rubric.*;
+import org.sourcegrade.jagr.api.testing.RubricConfiguration;
 import org.tudalgo.algoutils.tutor.general.jagr.RubricUtils;
 import org.tudalgo.algoutils.tutor.general.json.JsonParameterSet;
 import projekt.controller.GameControllerTest;
@@ -27,9 +28,9 @@ public class Projekt_RubricProvider implements RubricProvider {
                                     .shortDescription("Die Methoden getResources, addResource und addResources funktionieren wie beschrieben")
                                     .grader(Grader.testAwareBuilder()
                                         .requirePass(JUnitTestRef.and(
-                                            JUnitTestRef.ofMethod(() -> PlayerImplTest.InventorySystem.class.getDeclaredMethod("testGetResources")),
-                                            JUnitTestRef.ofMethod(() -> PlayerImplTest.InventorySystem.class.getDeclaredMethod("testAddResource", JsonParameterSet.class)),
-                                            JUnitTestRef.ofMethod(() -> PlayerImplTest.InventorySystem.class.getDeclaredMethod("testAddResources", JsonParameterSet.class))
+                                            JUnitTestRef.ofMethod(() -> PlayerImplTest.class.getDeclaredMethod("testGetResources")),
+                                            JUnitTestRef.ofMethod(() -> PlayerImplTest.class.getDeclaredMethod("testAddResource", JsonParameterSet.class)),
+                                            JUnitTestRef.ofMethod(() -> PlayerImplTest.class.getDeclaredMethod("testAddResources", JsonParameterSet.class))
                                         ))
                                         .pointsFailedMin()
                                         .pointsPassedMax()
@@ -38,7 +39,7 @@ public class Projekt_RubricProvider implements RubricProvider {
                                 Criterion.builder()
                                     .shortDescription("Methode hasResource funktioniert wie beschrieben")
                                     .grader(Grader.testAwareBuilder()
-                                        .requirePass(JUnitTestRef.ofMethod(() -> PlayerImplTest.InventorySystem.class.getDeclaredMethod("testHasResources", JsonParameterSet.class)))
+                                        .requirePass(JUnitTestRef.ofMethod(() -> PlayerImplTest.class.getDeclaredMethod("testHasResources", JsonParameterSet.class)))
                                         .pointsFailedMin()
                                         .pointsPassedMax()
                                         .build())
@@ -47,8 +48,8 @@ public class Projekt_RubricProvider implements RubricProvider {
                                     .shortDescription("Die Methoden removeResource und removeResources funktionieren wie beschrieben")
                                     .grader(Grader.testAwareBuilder()
                                         .requirePass(JUnitTestRef.and(
-                                            JUnitTestRef.ofMethod(() -> PlayerImplTest.InventorySystem.class.getDeclaredMethod("testRemoveResource", JsonParameterSet.class)),
-                                            JUnitTestRef.ofMethod(() -> PlayerImplTest.InventorySystem.class.getDeclaredMethod("testRemoveResources", JsonParameterSet.class))
+                                            JUnitTestRef.ofMethod(() -> PlayerImplTest.class.getDeclaredMethod("testRemoveResource", JsonParameterSet.class)),
+                                            JUnitTestRef.ofMethod(() -> PlayerImplTest.class.getDeclaredMethod("testRemoveResources", JsonParameterSet.class))
                                         ))
                                         .pointsFailedMin()
                                         .pointsPassedMax()
@@ -72,9 +73,9 @@ public class Projekt_RubricProvider implements RubricProvider {
                                     .shortDescription("Die Methoden getDevelopmentCards, addDevelopmentCard und removeDevelopmentCard funktionieren wie beschrieben")
                                     .grader(Grader.testAwareBuilder()
                                         .requirePass(JUnitTestRef.and(
-                                            JUnitTestRef.ofMethod(() -> PlayerImplTest.DevelopmentCards.class.getDeclaredMethod("testGetDevelopmentCards", JsonParameterSet.class)),
-                                            JUnitTestRef.ofMethod(() -> PlayerImplTest.DevelopmentCards.class.getDeclaredMethod("testAddDevelopmentCard", JsonParameterSet.class)),
-                                            JUnitTestRef.ofMethod(() -> PlayerImplTest.DevelopmentCards.class.getDeclaredMethod("testRemoveDevelopmentCard", JsonParameterSet.class))
+                                            JUnitTestRef.ofMethod(() -> PlayerImplTest.class.getDeclaredMethod("testGetDevelopmentCards", JsonParameterSet.class)),
+                                            JUnitTestRef.ofMethod(() -> PlayerImplTest.class.getDeclaredMethod("testAddDevelopmentCard", JsonParameterSet.class)),
+                                            JUnitTestRef.ofMethod(() -> PlayerImplTest.class.getDeclaredMethod("testRemoveDevelopmentCard", JsonParameterSet.class))
                                         ))
                                         .pointsFailedMin()
                                         .pointsPassedMax()
@@ -84,10 +85,10 @@ public class Projekt_RubricProvider implements RubricProvider {
                                     .shortDescription("Die Methoden getTotalDevelopmentCards und getKnightsPlayed funktionieren wie beschrieben")
                                     .grader(Grader.testAwareBuilder()
                                         .requirePass(JUnitTestRef.and(
-                                            JUnitTestRef.ofMethod(() -> PlayerImplTest.DevelopmentCards.class.getDeclaredMethod("testGetTotalDevelopmentCards", JsonParameterSet.class)),
+                                            JUnitTestRef.ofMethod(() -> PlayerImplTest.class.getDeclaredMethod("testGetTotalDevelopmentCards", JsonParameterSet.class)),
                                             JUnitTestRef.or(
-                                                JUnitTestRef.ofMethod(() -> PlayerImplTest.DevelopmentCards.class.getDeclaredMethod("testGetKnightsPlayed_viaField", JsonParameterSet.class)),
-                                                JUnitTestRef.ofMethod(() -> PlayerImplTest.DevelopmentCards.class.getDeclaredMethod("testGetKnightsPlayed_viaMethod", JsonParameterSet.class))
+                                                JUnitTestRef.ofMethod(() -> PlayerImplTest.class.getDeclaredMethod("testGetKnightsPlayed_viaField", JsonParameterSet.class)),
+                                                JUnitTestRef.ofMethod(() -> PlayerImplTest.class.getDeclaredMethod("testGetKnightsPlayed_viaMethod", JsonParameterSet.class))
                                             )
                                         ))
                                         .pointsFailedMin()
@@ -111,7 +112,7 @@ public class Projekt_RubricProvider implements RubricProvider {
                                     .minPoints(0)
                                     .maxPoints(3)
                                     .grader(Grader.testAwareBuilder()
-                                        .requirePass(JUnitTestRef.ofMethod(() -> HexGridImplTest.class.getDeclaredMethod("testAddRoad")))
+                                        .requirePass(JUnitTestRef.ofMethod(() -> HexGridImplTest.class.getDeclaredMethod("testAddRoad", boolean.class)))
                                         .pointsFailedMin()
                                         .pointsPassedMax()
                                         .build())
@@ -526,5 +527,11 @@ public class Projekt_RubricProvider implements RubricProvider {
                         .build())
                     .build())
             .build();
+    }
+
+    @Override
+    public void configure(RubricConfiguration configuration) {
+        configuration.addTransformer(new ClassTransformer("projekt"));
+        RubricProvider.super.configure(configuration);
     }
 }

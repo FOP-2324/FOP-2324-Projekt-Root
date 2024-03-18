@@ -1,10 +1,12 @@
 package projekt.model;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.sourcegrade.jagr.api.rubric.TestForSubmission;
 import org.tudalgo.algoutils.tutor.general.assertions.Context;
 import org.tudalgo.algoutils.tutor.general.json.JsonParameterSet;
 import org.tudalgo.algoutils.tutor.general.json.JsonParameterSetTest;
+import projekt.SubmissionExecutionHandler;
 import projekt.model.buildings.Settlement;
 
 import java.lang.reflect.Field;
@@ -18,22 +20,29 @@ import static org.tudalgo.algoutils.tutor.general.assertions.Assertions2.*;
 @TestForSubmission
 public class IntersectionImplTest {
 
+    private final SubmissionExecutionHandler executionHandler = SubmissionExecutionHandler.getInstance();
     private final HexGrid hexGrid = new HexGridImpl(1);
     private final Player player = new PlayerImpl.Builder(0).build(hexGrid);
 
+    @AfterEach
+    public void reset() {
+        executionHandler.resetMethodInvocationLogging();
+        executionHandler.resetMethodDelegation();
+    }
+
     @ParameterizedTest
     @JsonParameterSetTest("/model/IntersectionImpl/tilePositions.json")
-    public void testPlaceVillage_roadCheck(JsonParameterSet params) {
+    public void testPlaceVillage_roadCheck(JsonParameterSet params) throws ReflectiveOperationException {
         testPlaceVillage(false, params);
     }
 
     @ParameterizedTest
     @JsonParameterSetTest("/model/IntersectionImpl/tilePositions.json")
-    public void testPlaceVillage_noRoadCheck(JsonParameterSet params) {
+    public void testPlaceVillage_noRoadCheck(JsonParameterSet params) throws ReflectiveOperationException {
         testPlaceVillage(true, params);
     }
 
-    private void testPlaceVillage(boolean ignoreRoadCheck, JsonParameterSet params) {
+    private void testPlaceVillage(boolean ignoreRoadCheck, JsonParameterSet params) throws ReflectiveOperationException {
         List<TilePosition> tilePositions = params.<List<Map<String, Integer>>>get("tilePositions")
             .stream()
             .map(map -> new TilePosition(map.get("q"), map.get("r")))
@@ -47,6 +56,7 @@ public class IntersectionImplTest {
             .add("connected road", connectedRoad)
             .build();
 
+        executionHandler.disableMethodDelegation(IntersectionImpl.class.getDeclaredMethod("placeVillage", Player.class, boolean.class));
         if (!ignoreRoadCheck) {
             assertCallFalse(() -> intersection.placeVillage(player, false), context, result ->
                 "Return value of placeVillage is incorrect");
@@ -81,6 +91,7 @@ public class IntersectionImplTest {
             .add("settlement", settlementRef)
             .build();
 
+        executionHandler.disableMethodDelegation(IntersectionImpl.class.getDeclaredMethod("upgradeSettlement", Player.class));
         assertCallFalse(() -> intersection.upgradeSettlement(player), context, result ->
             "Return value of upgradeSettlement is incorrect");
 
@@ -105,7 +116,7 @@ public class IntersectionImplTest {
 
     @ParameterizedTest
     @JsonParameterSetTest("/model/IntersectionImpl/tilePositions.json")
-    public void testPlayerHasConnectedRoad(JsonParameterSet params) {
+    public void testPlayerHasConnectedRoad(JsonParameterSet params) throws ReflectiveOperationException {
         List<TilePosition> tilePositions = params.<List<Map<String, Integer>>>get("tilePositions")
             .stream()
             .map(map -> new TilePosition(map.get("q"), map.get("r")))
@@ -116,6 +127,7 @@ public class IntersectionImplTest {
             .add("player", player)
             .build();
 
+        executionHandler.disableMethodDelegation(IntersectionImpl.class.getDeclaredMethod("playerHasConnectedRoad", Player.class));
         assertCallFalse(() -> intersection.playerHasConnectedRoad(player), context, result ->
             "The player does not own any roads that connect to this intersection");
 
