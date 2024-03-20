@@ -3,6 +3,7 @@ package projekt;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.MethodNode;
 import projekt.SubmissionExecutionHandler.Invocation;
+import projekt.SubmissionExecutionHandler.MethodSubstitution;
 
 import java.io.InputStream;
 import java.util.Arrays;
@@ -63,6 +64,7 @@ public class ClassTransformer implements org.sourcegrade.jagr.api.testing.ClassT
                     // if method is not abstract and a MethodNode for the current method exists
                     if ((access & ACC_ABSTRACT) == 0 && classMethodNodes.containsKey(nameDescriptor)) {
                         Type[] argumentTypes = Type.getArgumentTypes(descriptor);
+                        Label substitutionCheckLabel = new Label();
                         Label delegationCheckLabel = new Label();
                         Label submissionCodeLabel = new Label();
 
@@ -82,33 +84,57 @@ public class ClassTransformer implements org.sourcegrade.jagr.api.testing.ClassT
                             "logInvocation",
                             "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z",
                             false);
-                        super.visitJumpInsn(IFEQ, delegationCheckLabel);
+                        super.visitJumpInsn(IFEQ, name.equals("<init>") ? delegationCheckLabel : substitutionCheckLabel); // jump to label if logInvocation(...) == false
                         // intercept parameters
                         super.visitInsn(DUP); // duplicate SubmissionExecutionHandler reference
                         super.visitLdcInsn(className);
                         super.visitLdcInsn(name);
                         super.visitLdcInsn(descriptor);
-                        super.visitTypeInsn(NEW, Invocation.INTERNAL_NAME);
-                        super.visitInsn(DUP);
-                        super.visitMethodInsn(INVOKESPECIAL, Invocation.INTERNAL_NAME, "<init>", "()V", false);
-                        for (int i = 0; i < argumentTypes.length; i++) {
-                            super.visitInsn(DUP);
-                            // load parameter with opcode (ALOAD, ILOAD, etc.) for type and ignore "this", if it exists
-                            super.visitVarInsn(argumentTypes[i].getOpcode(ILOAD), getLocalsIndex(argumentTypes, i) + ((access & ACC_STATIC) == 0 ? 1 : 0));
-                            boxType(getDelegate(), argumentTypes[i]);
-                            super.visitMethodInsn(INVOKEVIRTUAL,
-                                Invocation.INTERNAL_NAME,
-                                "addParameter",
-                                "(Ljava/lang/Object;)V",
-                                false);
-                        }
+                        buildInvocation(argumentTypes);
                         super.visitMethodInsn(INVOKEVIRTUAL,
                             SubmissionExecutionHandler.INTERNAL_NAME,
                             "addInvocation",
                             "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;L" + Invocation.INTERNAL_NAME + ";)V",
                             false);
 
-                        // check if call should be delegated or not
+                        // check if substitution exists for this method if not constructor (because waaay too complex right now)
+                        if (!name.equals("<init>")) {
+                            super.visitFrame(F_SAME1, 0, null, 1, new Object[]{SubmissionExecutionHandler.INTERNAL_NAME});
+                            super.visitLabel(substitutionCheckLabel);
+                            super.visitInsn(DUP);
+                            super.visitLdcInsn(className);
+                            super.visitLdcInsn(name);
+                            super.visitLdcInsn(descriptor);
+                            super.visitMethodInsn(INVOKEVIRTUAL,
+                                SubmissionExecutionHandler.INTERNAL_NAME,
+                                "useSubstitution",
+                                "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z",
+                                false);
+                            super.visitJumpInsn(IFEQ, delegationCheckLabel); // jump to label if useSubstitution(...) == false
+                            super.visitLdcInsn(className);
+                            super.visitLdcInsn(name);
+                            super.visitLdcInsn(descriptor);
+                            super.visitMethodInsn(INVOKEVIRTUAL,
+                                SubmissionExecutionHandler.INTERNAL_NAME,
+                                "getSubstitution",
+                                "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)L" + MethodSubstitution.INTERNAL_NAME + ";",
+                                false);
+                            buildInvocation(argumentTypes);
+                            super.visitMethodInsn(INVOKEINTERFACE,
+                                MethodSubstitution.INTERNAL_NAME,
+                                "execute",
+                                "(L" + Invocation.INTERNAL_NAME + ";)Ljava/lang/Object;",
+                                true);
+                            Type returnType = Type.getReturnType(descriptor);
+                            if (returnType.getSort() == Type.ARRAY || returnType.getSort() == Type.OBJECT) {
+                                super.visitTypeInsn(CHECKCAST, returnType.getInternalName());
+                            } else {
+                                unboxType(getDelegate(), returnType);
+                            }
+                            super.visitInsn(returnType.getOpcode(IRETURN));
+                        }
+
+                        // else check if call should be delegated to solution or not
                         super.visitFrame(F_SAME1, 0, null, 1, new Object[] {SubmissionExecutionHandler.INTERNAL_NAME});
                         super.visitLabel(delegationCheckLabel);
                         super.visitLdcInsn(className);
@@ -119,7 +145,7 @@ public class ClassTransformer implements org.sourcegrade.jagr.api.testing.ClassT
                             "useStudentImpl",
                             "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z",
                             false);
-                        super.visitJumpInsn(IFNE, submissionCodeLabel);
+                        super.visitJumpInsn(IFNE, submissionCodeLabel); // jump to label if useStudentImpl(...) == true
                         classMethodNodes.get(nameDescriptor).accept(getDelegate()); // replay instructions from solution
 
                         // calculate the frame for the beginning of the submission code
@@ -141,8 +167,31 @@ public class ClassTransformer implements org.sourcegrade.jagr.api.testing.ClassT
                             super.visitFrame(F_FULL, parameterTypes.length, parameterTypes, 0, null);
                         }
                         super.visitLabel(submissionCodeLabel);
+                        // else execute original code
                     }
                     super.visitCode();
+                }
+
+                private void buildInvocation(Type[] argumentTypes) {
+                    super.visitTypeInsn(NEW, Invocation.INTERNAL_NAME);
+                    super.visitInsn(DUP);
+                    if ((access & ACC_STATIC) == 0 && !name.equals("<init>")) {
+                        super.visitVarInsn(ALOAD, 0);
+                        super.visitMethodInsn(INVOKESPECIAL, Invocation.INTERNAL_NAME, "<init>", "(Ljava/lang/Object;)V", false);
+                    } else {
+                        super.visitMethodInsn(INVOKESPECIAL, Invocation.INTERNAL_NAME, "<init>", "()V", false);
+                    }
+                    for (int i = 0; i < argumentTypes.length; i++) {
+                        super.visitInsn(DUP);
+                        // load parameter with opcode (ALOAD, ILOAD, etc.) for type and ignore "this", if it exists
+                        super.visitVarInsn(argumentTypes[i].getOpcode(ILOAD), getLocalsIndex(argumentTypes, i) + ((access & ACC_STATIC) == 0 ? 1 : 0));
+                        boxType(getDelegate(), argumentTypes[i]);
+                        super.visitMethodInsn(INVOKEVIRTUAL,
+                            Invocation.INTERNAL_NAME,
+                            "addParameter",
+                            "(Ljava/lang/Object;)V",
+                            false);
+                    }
                 }
             };
         }
@@ -176,14 +225,38 @@ public class ClassTransformer implements org.sourcegrade.jagr.api.testing.ClassT
          */
         private static void unboxType(MethodVisitor mv, Type type) {
             switch (type.getSort()) {
-                case Type.BOOLEAN -> mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Boolean", "booleanValue", "()Z", false);
-                case Type.BYTE -> mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Byte", "byteValue", "()B", false);
-                case Type.SHORT -> mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Short", "shortValue", "()S", false);
-                case Type.CHAR -> mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Character", "charValue", "()C", false);
-                case Type.INT -> mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I", false);
-                case Type.FLOAT -> mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Float", "floatValue", "()F", false);
-                case Type.LONG -> mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Long", "longValue", "()J", false);
-                case Type.DOUBLE -> mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Double", "doubleValue", "()D", false);
+                case Type.BOOLEAN -> {
+                    mv.visitTypeInsn(CHECKCAST, "java/lang/Boolean");
+                    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Boolean", "booleanValue", "()Z", false);
+                }
+                case Type.BYTE -> {
+                    mv.visitTypeInsn(CHECKCAST, "java/lang/Byte");
+                    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Byte", "byteValue", "()B", false);
+                }
+                case Type.SHORT -> {
+                    mv.visitTypeInsn(CHECKCAST, "java/lang/Short");
+                    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Short", "shortValue", "()S", false);
+                }
+                case Type.CHAR -> {
+                    mv.visitTypeInsn(CHECKCAST, "java/lang/Character");
+                    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Character", "charValue", "()C", false);
+                }
+                case Type.INT -> {
+                    mv.visitTypeInsn(CHECKCAST, "java/lang/Integer");
+                    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I", false);
+                }
+                case Type.FLOAT -> {
+                    mv.visitTypeInsn(CHECKCAST, "java/lang/Float");
+                    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Float", "floatValue", "()F", false);
+                }
+                case Type.LONG -> {
+                    mv.visitTypeInsn(CHECKCAST, "java/lang/Long");
+                    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Long", "longValue", "()J", false);
+                }
+                case Type.DOUBLE -> {
+                    mv.visitTypeInsn(CHECKCAST, "java/lang/Double");
+                    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Double", "doubleValue", "()D", false);
+                }
             }
         }
 

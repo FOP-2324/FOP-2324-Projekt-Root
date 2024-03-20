@@ -1,5 +1,6 @@
 package projekt;
 
+import kotlin.Pair;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
@@ -15,6 +16,7 @@ public class SubmissionExecutionHandler {
 
     private final Map<String, Map<String, List<Invocation>>> methodInvocations = new HashMap<>();
     private final Map<String, Map<String, Boolean>> methodDelegationWhitelist = new HashMap<>();
+    private final Map<String, Map<String, MethodSubstitution<?>>> methodSubstitutions = new HashMap<>();
 
     private SubmissionExecutionHandler() {}
 
@@ -96,9 +98,26 @@ public class SubmissionExecutionHandler {
         methodDelegationWhitelist.get(className).put(name + descriptor, true);
     }
 
+    public <T> void substituteMethod(Method method, MethodSubstitution<T> substitute) {
+        substituteMethod(Type.getInternalName(method.getDeclaringClass()), method.getName(), Type.getMethodDescriptor(method), substitute);
+    }
+
+    public <T> void substituteMethod(String className, String name, String descriptor, MethodSubstitution<T> substitute) {
+        methodSubstitutions.putIfAbsent(className, new HashMap<>());
+        methodSubstitutions.get(className).put(name + descriptor, substitute);
+    }
+
     public boolean useStudentImpl(String className, String name, String descriptor) {
         return methodDelegationWhitelist.getOrDefault(className, Collections.emptyMap())
             .getOrDefault(name + descriptor, false);
+    }
+
+    public boolean useSubstitution(String className, String name, String descriptor) {
+        return methodSubstitutions.getOrDefault(className, Collections.emptyMap()).containsKey(name + descriptor);
+    }
+
+    public MethodSubstitution<?> getSubstitution(String className, String name, String descriptor) {
+        return methodSubstitutions.get(className).get(name + descriptor);
     }
 
     @SuppressWarnings("unchecked")
@@ -106,7 +125,28 @@ public class SubmissionExecutionHandler {
 
         public static final String INTERNAL_NAME = Type.getInternalName(Invocation.class);
 
+        private final Object instance;
         private final List<Object> parameterValues = new ArrayList<>();
+
+        /**
+         * Constructs a new invocation.
+         */
+        public Invocation() {
+            this(null);
+        }
+
+        /**
+         * Constructs a new invocation.
+         *
+         * @param instance the object on which this invocation takes place
+         */
+        public Invocation(Object instance) {
+            this.instance = instance;
+        }
+
+        public Object getInstance() {
+            return instance;
+        }
 
         public List<Object> getParameters() {
             return Collections.unmodifiableList(parameterValues);
@@ -243,5 +283,41 @@ public class SubmissionExecutionHandler {
         public void set(T value) {
             this.value = value;
         }
+    }
+
+    public interface MethodSubstitution<T> {
+
+        String INTERNAL_NAME = Type.getInternalName(MethodSubstitution.class);
+
+        /**
+         * DO NOT USE, THIS METHOD HAS NO EFFECT RIGHT NOW.
+         * TODO: implement constructor substitution
+         * <br><br>
+         * Defines the behaviour of method substitution when the substituted method is a constructor.
+         * When a constructor method is substituted, either {@code super(...)} or {@code this(...)} must be called
+         * before calling {@link #execute(Invocation)}.
+         * This method returns a pair consisting of...
+         * <ol>
+         *     <li>the internal class name / owner of the target constructor and</li>
+         *     <li>the values that are passed to the constructor of that class.</li>
+         * </ol>
+         * The first pair entry must be either the original method's owner (for {@code this(...)}) or
+         * the superclass (for {@code super(...)}).
+         * The second entry is an array of parameter values for that constructor.
+         * Default behaviour assumes calling the constructor of {@link Object}, i.e., a class that has no superclass.
+         *
+         * @return a pair containing the target method's owner and arguments
+         */
+        default Pair<String, Object[]> constructorBehaviour() {
+            return new Pair<>("java/lang/Object", new Object[0]);
+        }
+
+        /**
+         * Defines the actions of the substituted method.
+         *
+         * @param invocation an {@link Invocation} object holding all parameter values of the original method call
+         * @return the return value of the substituted method
+         */
+        T execute(Invocation invocation);
     }
 }
