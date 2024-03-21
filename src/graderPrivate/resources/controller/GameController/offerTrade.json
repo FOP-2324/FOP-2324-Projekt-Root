@@ -2,10 +2,18 @@
   {
     "acceptingPlayerIndex": 2,
     "offer": [
-      {"key": "WOOD", "value": 1}
+      {"key": "WOOD", "value": 1},
+      {"key": "WOOL", "value": 0},
+      {"key": "CLAY", "value": 0},
+      {"key": "ORE", "value": 0},
+      {"key": "GRAIN", "value": 0}
     ],
     "request": [
-      {"key": "CLAY", "value": 2}
+      {"key": "CLAY", "value": 2},
+      {"key": "WOOD", "value": 0},
+      {"key": "WOOL", "value": 0},
+      {"key": "ORE", "value": 0},
+      {"key": "GRAIN", "value": 0}
     ]
   }
 ]
