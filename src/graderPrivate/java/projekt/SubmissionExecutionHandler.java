@@ -89,6 +89,10 @@ public class SubmissionExecutionHandler {
         methodDelegationWhitelist.clear();
     }
 
+    public void resetMethodSubstitution() {
+        methodSubstitutions.clear();
+    }
+
     public void disableMethodDelegation(Method method) {
         disableMethodDelegation(Type.getInternalName(method.getDeclaringClass()), method.getName(), Type.getMethodDescriptor(method));
     }
