@@ -1,5 +1,6 @@
 package projekt.controller;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.sourcegrade.jagr.api.rubric.TestForSubmission;
@@ -7,15 +8,17 @@ import org.tudalgo.algoutils.tutor.general.assertions.Context;
 import org.tudalgo.algoutils.tutor.general.json.JsonParameterSet;
 import org.tudalgo.algoutils.tutor.general.json.JsonParameterSetTest;
 import projekt.Config;
+import projekt.SubmissionExecutionHandler;
 import projekt.controller.actions.IllegalActionException;
 import projekt.model.*;
 import projekt.model.buildings.Settlement;
-import projekt.util.*;
+import projekt.util.Utils;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -24,21 +27,42 @@ import static org.tudalgo.algoutils.tutor.general.assertions.Assertions2.*;
 @TestForSubmission
 public class PlayerControllerTest {
 
-    private final HexGridMock hexGrid = new HexGridMock(new HexGridImpl(Config.GRID_RADIUS));
+    private final SubmissionExecutionHandler executionHandler = SubmissionExecutionHandler.getInstance();
+    private final HexGrid hexGrid = new HexGridImpl(Config.GRID_RADIUS);
     private final List<Player> players = IntStream.range(0, Config.MAX_PLAYERS)
-        .mapToObj(i -> new PlayerMock(new PlayerImpl.Builder(i).build(hexGrid)))
-        .collect(Collectors.toList());
+        .mapToObj(i -> new PlayerImpl.Builder(i).build(hexGrid))
+        .toList();
     private GameController gameController;
+    private Player player;
+    private PlayerController playerController;
+    private Context baseContext;
 
     @BeforeEach
-    public void setup() {
+    public void setup() throws NoSuchMethodException {
         GameState gameState = new GameState(hexGrid, players);
         gameController = new GameController(gameState);
+        player = players.get(0);
+        playerController = new PlayerController(gameController, player);
+        baseContext = contextBuilder()
+            .add("player", player)
+            .add("playerController", playerController)
+            .build();
+
+        executionHandler.substituteMethod(PlayerController.class.getDeclaredMethod("blockingGetNextAction"),
+            invocation -> null);
+        executionHandler.substituteMethod(PlayerController.class.getDeclaredMethod("waitForNextAction"),
+            invocation -> null);
+    }
+
+    @AfterEach
+    public void reset() {
+        executionHandler.resetMethodInvocationLogging();
+        executionHandler.resetMethodDelegation();
+        executionHandler.resetMethodSubstitution();
     }
 
     @ParameterizedTest
     @JsonParameterSetTest("/controller/PlayerController/acceptTradeOffer.json")
-    @SuppressWarnings("unchecked")
     public void testAcceptTradeOffer(JsonParameterSet jsonParams) throws ReflectiveOperationException {
         Field tradingPlayerField = PlayerController.class.getDeclaredField("tradingPlayer");
         Field playerTradingOfferField = PlayerController.class.getDeclaredField("playerTradingOffer");
@@ -47,82 +71,28 @@ public class PlayerControllerTest {
         playerTradingOfferField.trySetAccessible();
         playerTradingRequestField.trySetAccessible();
 
-        PlayerMock player = (PlayerMock) players.get(0);
-        PlayerMock tradingPlayer = jsonParams.getBoolean("tradingPlayerSet") ? (PlayerMock) players.get(1) : null;
+        Player tradingPlayer = jsonParams.getBoolean("tradingPlayerSet") ? players.get(1) : null;
         Map<ResourceType, Integer> playerTradingOffer = Utils.deserializeEnumMap(jsonParams.get("playerTradingOffer"), ResourceType.class, Utils.AS_INTEGER);
         Map<ResourceType, Integer> playerTradingRequest = Utils.deserializeEnumMap(jsonParams.get("playerTradingRequest"), ResourceType.class, Utils.AS_INTEGER);
+        player.addResources(jsonParams.getBoolean("enablePlayerInventory") && playerTradingRequest != null ? playerTradingRequest : Collections.emptyMap());
+        if (tradingPlayer != null) {
+            tradingPlayer.addResources(jsonParams.getBoolean("enablePartnerInventory") && playerTradingOffer != null ? playerTradingOffer : Collections.emptyMap());
+        }
 
-        Map<ResourceType, Integer> playerInventory = new HashMap<>(playerTradingRequest != null ? playerTradingRequest : Collections.emptyMap());
-        player.setUseDelegate("addResource", "addResources", "hasResources", "removeResource", "removeResources");
-        player.setMethodAction((methodName, params) -> switch (methodName) {
-            case "addResource" -> {
-                playerInventory.merge((ResourceType) params[1], (Integer) params[2], Integer::sum);
-                yield null;
-            }
-            case "addResources" -> {
-                ((Map<ResourceType, Integer>) params[1]).forEach(((Player) params[0])::addResource);
-                yield null;
-            }
-            case "hasResources" -> jsonParams.getBoolean("enablePlayerInventory") && playerTradingRequest.equals(params[1]);
-            case "removeResource" -> {
-                playerInventory.merge((ResourceType) params[1], -((Integer) params[2]), Integer::sum);
-                yield true;
-            }
-            case "removeResources" -> ((Map<ResourceType, Integer>) params[1]).entrySet()
-                .stream()
-                .map(entry -> ((Player) params[0]).removeResource(entry.getKey(), entry.getValue()))
-                .reduce((a, b) -> a && b);
-            default -> null;
-        });
-        PlayerControllerMock playerController = new PlayerControllerMock(gameController, player,
-            Predicate.not(List.of("blockingGetNextAction", "waitForNextAction")::contains),
-            (methodName, params) -> {
-                if (params.length == 1 + 1 && params[1] instanceof PlayerObjective playerObjective) {
-                    ((PlayerController) params[0]).setPlayerObjective(playerObjective);
-                }
-                return null;
-            });
         boolean accepted = jsonParams.getBoolean("accepted");
 
         playerTradingOfferField.set(playerController, playerTradingOffer);
         playerTradingRequestField.set(playerController, playerTradingRequest);
-        Map<ResourceType, Integer> tradingPlayerInventory = new HashMap<>(playerTradingOffer != null ? playerTradingOffer : Collections.emptyMap());
-        if (tradingPlayer != null) {
-            tradingPlayer.setUseDelegate("addResource", "addResources", "hasResources", "removeResource", "removeResources");
-            tradingPlayer.setMethodAction((methodName, params) -> switch (methodName) {
-                case "addResource" -> {
-                    ResourceType key = (ResourceType) params[1];
-                    Integer value = (Integer) params[2];
-                    tradingPlayerInventory.merge(key, value, Integer::sum);
-                    yield null;
-                }
-                case "addResources" -> {
-                    ((Map<ResourceType, Integer>) params[1]).forEach(((Player) params[0])::addResource);
-                    yield null;
-                }
-                case "hasResources" -> jsonParams.getBoolean("enablePartnerInventory") && playerTradingOffer.equals(params[1]);
-                case "removeResource" -> {
-                    ResourceType key = (ResourceType) params[1];
-                    Integer value = (Integer) params[2];
-                    tradingPlayerInventory.merge(key, -value, Integer::sum);
-                    yield true;
-                }
-                case "removeResources" -> ((Map<ResourceType, Integer>) params[1]).entrySet()
-                    .stream()
-                    .map(entry -> ((Player) params[0]).removeResource(entry.getKey(), entry.getValue()))
-                    .reduce((a, b) -> a && b);
-                default -> null;
-            });
-        }
         tradingPlayerField.set(playerController, tradingPlayer);
 
         Context context = contextBuilder()
-            .add("player", player)
+            .add(baseContext)
             .add("tradingPlayer", tradingPlayer)
             .add("playerTradingOffer", playerTradingOffer)
             .add("playerTradingRequest", playerTradingRequest)
             .add("accepted", accepted)
             .build();
+        executionHandler.disableMethodDelegation(PlayerController.class.getDeclaredMethod("acceptTradeOffer", boolean.class));
         if (jsonParams.getBoolean("exception")) {
             Exception e = assertThrows(IllegalActionException.class, () -> playerController.acceptTradeOffer(accepted), context, result ->
                 "Expected PlayerController.acceptTradeOffer to throw an IllegalActionException");
@@ -139,14 +109,16 @@ public class PlayerControllerTest {
                 Map<ResourceType, Integer> originalRequest = Utils.deserializeEnumMap(jsonParams.get("playerTradingRequest"), ResourceType.class, Utils.AS_INTEGER);
 
                 assertEquals(originalOffer,
-                    playerInventory.entrySet()
+                    player.getResources()
+                        .entrySet()
                         .stream()
                         .filter(entry -> entry.getValue() > 0)
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)),
                     context,
                     result -> "Current player's inventory does not equal the expected state");
                 assertEquals(originalRequest,
-                    tradingPlayerInventory.entrySet()
+                    tradingPlayer.getResources()
+                        .entrySet()
                         .stream()
                         .filter(entry -> entry.getValue() > 0)
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)),
@@ -161,57 +133,18 @@ public class PlayerControllerTest {
 
     @ParameterizedTest
     @JsonParameterSetTest("/controller/PlayerController/tradeWithBank.json")
-    @SuppressWarnings("unchecked")
-    public void testTradeWithBank(JsonParameterSet jsonParams) {
+    public void testTradeWithBank(JsonParameterSet jsonParams) throws NoSuchMethodException {
         ResourceType offerType = jsonParams.get("offerType", ResourceType.class);
         int offerAmount = jsonParams.getInt("offerAmount");
         ResourceType request = jsonParams.get("request", ResourceType.class);
         int tradeRatio = jsonParams.getInt("tradeRatio");
 
-        PlayerMock player = (PlayerMock) players.get(0);
-        Map<ResourceType, Integer> playerInventory = new HashMap<>(Map.of(offerType, offerAmount));
-        player.setUseDelegate("addResource", "addResources", "hasResources", "removeResource", "removeResources", "getTradeRatio");
-        player.setMethodAction((methodName, params) -> switch (methodName) {
-            case "addResource" -> {
-                playerInventory.merge((ResourceType) params[1], (Integer) params[2], Integer::sum);
-                yield null;
-            }
-            case "addResources" -> {
-                ((Map<ResourceType, Integer>) params[1]).forEach(((Player) params[0])::addResource);
-                yield null;
-            }
-            case "hasResources" -> jsonParams.getBoolean("enablePlayerInventory") && Map.of(offerType, offerAmount).equals(params[1]);
-            case "removeResource" -> {
-                if (!jsonParams.getBoolean("enablePlayerInventory") || playerInventory.getOrDefault(params[1], -1) < (Integer) params[2]) {
-                    yield false;
-                }
-                playerInventory.merge((ResourceType) params[1], -((Integer) params[2]), Integer::sum);
-                yield true;
-            }
-            case "removeResources" -> {
-                if (((Map<ResourceType, Integer>) params[1]).entrySet()
-                    .stream()
-                    .allMatch(entry -> playerInventory.containsKey(entry.getKey()) &&
-                                       playerInventory.getOrDefault(entry.getKey(), -1) >= entry.getValue())) {
-                    yield false;
-                }
-                ((Map<ResourceType, Integer>) params[1]).forEach((key, value) -> ((Player) params[0]).removeResource(key, value));
-                yield true;
-            }
-            case "getTradeRatio" -> tradeRatio;
-            default -> null;
-        });
-        PlayerControllerMock playerController = new PlayerControllerMock(gameController, player,
-            Predicate.not(List.of("blockingGetNextAction", "waitForNextAction")::contains),
-            (methodName, params) -> {
-                if (params.length == 1 + 1 && params[1] instanceof PlayerObjective playerObjective) {
-                    ((PlayerController) params[0]).setPlayerObjective(playerObjective);
-                }
-                return null;
-            });
+        player.addResources(jsonParams.getBoolean("enablePlayerInventory") ? Map.of(offerType, offerAmount) : Collections.emptyMap());
+        executionHandler.substituteMethod(PlayerImpl.class.getDeclaredMethod("getTradeRatio", ResourceType.class),
+            invocation -> tradeRatio);
 
         Context context = contextBuilder()
-            .add("player", player)
+            .add(baseContext)
             .add("offerType", offerType)
             .add("offerAmount", offerAmount)
             .add("request", request)
@@ -224,7 +157,7 @@ public class PlayerControllerTest {
             call(() -> playerController.tradeWithBank(offerType, offerAmount, request), context, result ->
                 "PlayerController.tradeWithBank threw an uncaught exception");
             assertEquals(Map.of(offerType, 0, request, 1),
-                playerInventory,
+                player.getResources(),
                 context,
                 result -> "Player's inventory is not in the expected state after invoking PlayerController.tradeWithBank");
         }
@@ -232,115 +165,79 @@ public class PlayerControllerTest {
 
     @ParameterizedTest
     @JsonParameterSetTest("/controller/PlayerController/canBuildVillage.json")
-    public void testCanBuildVillage(JsonParameterSet jsonParams) {
-        PlayerMock player = (PlayerMock) players.get(0);
-        player.setUseDelegate("addResource", "addResources", "hasResources", "removeResource", "removeResources", "getRemainingVillages");
-        player.setMethodAction((methodName, params) -> switch (methodName) {
-            case "hasResources" -> jsonParams.getBoolean("hasResources") && Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.VILLAGE).equals(params[1]);
-            case "getRemainingVillages" -> jsonParams.getInt("remainingVillages");
-            default -> null;
-        });
-        PlayerControllerMock playerController = new PlayerControllerMock(gameController, player,
-            Predicate.not(List.of("blockingGetNextAction", "waitForNextAction")::contains),
-            (methodName, params) -> {
-                if (methodName.equals("waitForNextAction") && params.length == 1 + 1 && params[1] instanceof PlayerObjective playerObjective) {
-                    ((PlayerController) params[0]).setPlayerObjective(playerObjective);
-                }
-                return null;
-            });
+    public void testCanBuildVillage(JsonParameterSet jsonParams) throws NoSuchMethodException {
+        player.addResources(jsonParams.getBoolean("hasResources") ? Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.VILLAGE) : Collections.emptyMap());
+        executionHandler.substituteMethod(PlayerImpl.class.getDeclaredMethod("getRemainingVillages"),
+            invocation -> jsonParams.getInt("remainingVillages"));
 
         boolean objectiveSet = jsonParams.getBoolean("objectiveSet");
         Context context = contextBuilder()
-            .add("player", player)
-            .add("playerController", playerController)
+            .add(baseContext)
             .add("objective set to PLACE_VILLAGE", objectiveSet)
             .add("remaining villages", jsonParams.getInt("remainingVillages"))
             .build();
         if (objectiveSet) {
             playerController.setPlayerObjective(PlayerObjective.PLACE_VILLAGE);
         }
+        executionHandler.disableMethodDelegation(PlayerController.class.getDeclaredMethod("canBuildVillage"));
         assertCallEquals(jsonParams.getBoolean("expected"), playerController::canBuildVillage, context, result ->
             "PlayerController.canBuildVillage did not return the expected value");
     }
 
     @ParameterizedTest
     @JsonParameterSetTest("/controller/PlayerController/canBuildRoad.json")
-    public void testCanBuildRoad(JsonParameterSet jsonParams) {
-        PlayerMock player = (PlayerMock) players.get(0);
-        player.setUseDelegate("addResource", "addResources", "hasResources", "removeResource", "removeResources", "getRemainingRoads");
-        player.setMethodAction((methodName, params) -> switch (methodName) {
-            case "hasResources" -> jsonParams.getBoolean("hasResources") && Config.ROAD_BUILDING_COST.equals(params[1]);
-            case "getRemainingRoads" -> jsonParams.getInt("remainingRoads");
-            default -> null;
-        });
-        PlayerControllerMock playerController = new PlayerControllerMock(gameController, player,
-            Predicate.not(List.of("blockingGetNextAction", "waitForNextAction")::contains),
-            (methodName, params) -> {
-                if (methodName.equals("waitForNextAction") && params.length == 1 + 1 && params[1] instanceof PlayerObjective playerObjective) {
-                    ((PlayerController) params[0]).setPlayerObjective(playerObjective);
-                }
-                return null;
-            });
+    public void testCanBuildRoad(JsonParameterSet jsonParams) throws NoSuchMethodException {
+        player.addResources(jsonParams.getBoolean("hasResources") ? Config.ROAD_BUILDING_COST : Collections.emptyMap());
+        executionHandler.substituteMethod(PlayerImpl.class.getDeclaredMethod("getRemainingRoads"),
+            invocation -> jsonParams.getInt("remainingRoads"));
 
         boolean objectiveSet = jsonParams.getBoolean("objectiveSet");
         Context context = contextBuilder()
-            .add("player", player)
-            .add("playerController", playerController)
+            .add(baseContext)
             .add("objective set to PLACE_ROAD", objectiveSet)
             .add("remaining roads", jsonParams.getInt("remainingRoads"))
             .build();
         if (objectiveSet) {
             playerController.setPlayerObjective(PlayerObjective.PLACE_ROAD);
         }
+        executionHandler.disableMethodDelegation(PlayerController.class.getDeclaredMethod("canBuildRoad"));
         assertCallEquals(jsonParams.getBoolean("expected"), playerController::canBuildRoad, context, result ->
             "PlayerController.canBuildRoad did not return the expected value");
     }
 
     @ParameterizedTest
     @JsonParameterSetTest("/controller/PlayerController/buildVillage.json")
-    public void testBuildVillage(JsonParameterSet jsonParams) {
+    public void testBuildVillage(JsonParameterSet jsonParams) throws NoSuchMethodException {
         boolean firstRound = jsonParams.getBoolean("firstRound");
+        boolean canBuildVillage = jsonParams.getBoolean("canBuildVillage");
+        player.addResources(canBuildVillage ? Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.VILLAGE) : Collections.emptyMap());
         AtomicBoolean calledRemoveResources = new AtomicBoolean();
-        PlayerMock player = (PlayerMock) players.get(0);
-        player.setUseDelegate("addResource", "addResources", "hasResources", "removeResource", "removeResources");
-        player.setMethodAction((methodName, params) -> switch (methodName) {
-            case "hasResources" -> jsonParams.getBoolean("canBuildVillage") && Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.VILLAGE).equals(params[1]);
-            case "removeResource", "removeResources" -> {
+        executionHandler.substituteMethod(PlayerImpl.class.getDeclaredMethod("removeResource", ResourceType.class, int.class),
+            invocation -> {
                 calledRemoveResources.set(true);
-                yield true;
-            }
-            default -> null;
-        });
-        PlayerControllerMock playerController = new PlayerControllerMock(gameController, player,
-            Predicate.not(List.of("blockingGetNextAction", "waitForNextAction", "canBuildVillage")::contains),
-            (methodName, params) -> switch (methodName) {
-                case "waitForNextAction" -> {
-                    if (params.length == 1 + 1 && params[1] instanceof PlayerObjective playerObjective) {
-                        ((PlayerController) params[0]).setPlayerObjective(playerObjective);
-                    }
-                    yield null;
-                }
-                case "canBuildVillage" -> jsonParams.getBoolean("canBuildVillage");
-                default -> null;
+                return true;
             });
+        executionHandler.substituteMethod(PlayerImpl.class.getDeclaredMethod("removeResources", Map.class),
+            invocation -> {
+                calledRemoveResources.set(true);
+                return true;
+            });
+        executionHandler.substituteMethod(PlayerController.class.getDeclaredMethod("canBuildVillage"),
+            invocation -> canBuildVillage);
+
         AtomicBoolean calledPlaceVillage = new AtomicBoolean();
-        IntersectionMock intersection = new IntersectionMock(new IntersectionImpl(
-            new TilePosition(0, 0), new TilePosition(0, 1), new TilePosition(1, 0), hexGrid),
-            Predicate.not(List.of("placeVillage")::contains),
-            (methodName, params) -> switch (methodName) {
-                case "placeVillage" -> {
-                    calledPlaceVillage.set(true);
-                    yield !jsonParams.getBoolean("exception");
-                }
-                default -> null;
+        executionHandler.substituteMethod(IntersectionImpl.class.getDeclaredMethod("placeVillage", Player.class, boolean.class),
+            invocation -> {
+                calledPlaceVillage.set(true);
+                return !jsonParams.getBoolean("exception");
             });
+        Intersection intersection = hexGrid.getIntersectionAt(new TilePosition(0, 0), new TilePosition(0, 1), new TilePosition(1, 0));
 
         gameController.getRoundCounterProperty().set(firstRound ? 0 : 1);
         playerController.setPlayerObjective(firstRound ? PlayerObjective.PLACE_VILLAGE : PlayerObjective.IDLE);
 
         Context context = contextBuilder()
-            .add("player", player)
-            .add("playerController", playerController)
+            .add(baseContext)
             .add("first round", firstRound)
             .add("canBuildVillage", jsonParams.getBoolean("canBuildVillage"))
             .build();
@@ -363,50 +260,39 @@ public class PlayerControllerTest {
 
     @ParameterizedTest
     @JsonParameterSetTest("/controller/PlayerController/buildRoad.json")
-    public void testBuildRoad(JsonParameterSet jsonParams) {
+    public void testBuildRoad(JsonParameterSet jsonParams) throws NoSuchMethodException {
         boolean firstRound = jsonParams.getBoolean("firstRound");
+        boolean canBuildRoad = jsonParams.getBoolean("canBuildRoad");
+        player.addResources(canBuildRoad ? Config.ROAD_BUILDING_COST : Collections.emptyMap());
         AtomicBoolean calledRemoveResources = new AtomicBoolean();
-        PlayerMock player = (PlayerMock) players.get(0);
-        player.setUseDelegate("addResource", "addResources", "hasResources", "removeResource", "removeResources");
-        player.setMethodAction((methodName, params) -> switch (methodName) {
-            case "hasResources" -> jsonParams.getBoolean("canBuildRoad") && Config.ROAD_BUILDING_COST.equals(params[1]);
-            case "removeResource", "removeResources" -> {
+        executionHandler.substituteMethod(PlayerImpl.class.getDeclaredMethod("removeResource", ResourceType.class, int.class),
+            invocation -> {
                 calledRemoveResources.set(true);
-                yield true;
-            }
-            default -> null;
-        });
-        PlayerControllerMock playerController = new PlayerControllerMock(gameController, player,
-            Predicate.not(List.of("blockingGetNextAction", "waitForNextAction", "canBuildRoad")::contains),
-            (methodName, params) -> switch (methodName) {
-                case "waitForNextAction" -> {
-                    if (params.length == 1 + 1 && params[1] instanceof PlayerObjective playerObjective) {
-                        ((PlayerController) params[0]).setPlayerObjective(playerObjective);
-                    }
-                    yield null;
-                }
-                case "canBuildRoad" -> jsonParams.getBoolean("canBuildRoad");
-                default -> null;
+                return true;
             });
+        executionHandler.substituteMethod(PlayerImpl.class.getDeclaredMethod("removeResources", Map.class),
+            invocation -> {
+                calledRemoveResources.set(true);
+                return true;
+            });
+        executionHandler.substituteMethod(PlayerController.class.getDeclaredMethod("canBuildRoad"),
+            invocation -> canBuildRoad);
+
         AtomicBoolean calledAddRoad = new AtomicBoolean();
+        executionHandler.substituteMethod(HexGridImpl.class.getDeclaredMethod("addRoad", TilePosition.class, TilePosition.class, Player.class, boolean.class),
+            invocation -> {
+                calledAddRoad.set(true);
+                return !jsonParams.getBoolean("exception");
+            });
+
         TilePosition tilePosition1 = new TilePosition(0, 0);
         TilePosition tilePosition2 = new TilePosition(0, 1);
-
-        hexGrid.setUseDelegate("addRoad");
-        hexGrid.setMethodAction((methodName, params) -> switch (methodName) {
-            case "addRoad" -> {
-                calledAddRoad.set(true);
-                yield !jsonParams.getBoolean("exception");
-            }
-            default -> null;
-        });
 
         gameController.getRoundCounterProperty().set(firstRound ? 0 : 1);
         playerController.setPlayerObjective(firstRound ? PlayerObjective.PLACE_ROAD : PlayerObjective.IDLE);
 
         Context context = contextBuilder()
-            .add("player", player)
-            .add("playerController", playerController)
+            .add(baseContext)
             .add("first round", firstRound)
             .add("canBuildRoad", jsonParams.getBoolean("canBuildRoad"))
             .build();
@@ -429,45 +315,33 @@ public class PlayerControllerTest {
 
     @ParameterizedTest
     @JsonParameterSetTest("/controller/PlayerController/upgradeVillage.json")
-    public void testUpgradeVillage(JsonParameterSet jsonParams) {
+    public void testUpgradeVillage(JsonParameterSet jsonParams) throws NoSuchMethodException {
+        boolean canUpgradeVillage = jsonParams.getBoolean("canUpgradeVillage");
+        player.addResources(canUpgradeVillage ? Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.CITY) : Collections.emptyMap());
         AtomicBoolean calledRemoveResources = new AtomicBoolean();
-        PlayerMock player = (PlayerMock) players.get(0);
-        player.setUseDelegate("addResource", "addResources", "hasResources", "removeResource", "removeResources");
-        player.setMethodAction((methodName, params) -> switch (methodName) {
-            case "hasResources" -> jsonParams.getBoolean("canUpgradeVillage") && Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.CITY).equals(params[1]);
-            case "removeResource", "removeResources" -> {
+        executionHandler.substituteMethod(PlayerImpl.class.getDeclaredMethod("removeResource", ResourceType.class, int.class),
+            invocation -> {
                 calledRemoveResources.set(true);
-                yield true;
-            }
-            default -> null;
-        });
-        PlayerControllerMock playerController = new PlayerControllerMock(gameController, player,
-            Predicate.not(List.of("blockingGetNextAction", "waitForNextAction", "canUpgradeVillage")::contains),
-            (methodName, params) -> switch (methodName) {
-                case "waitForNextAction" -> {
-                    if (params.length == 1 + 1 && params[1] instanceof PlayerObjective playerObjective) {
-                        ((PlayerController) params[0]).setPlayerObjective(playerObjective);
-                    }
-                    yield null;
-                }
-                case "canUpgradeVillage" -> jsonParams.getBoolean("canUpgradeVillage");
-                default -> null;
+                return true;
             });
+        executionHandler.substituteMethod(PlayerImpl.class.getDeclaredMethod("removeResources", Map.class),
+            invocation -> {
+                calledRemoveResources.set(true);
+                return true;
+            });
+        executionHandler.substituteMethod(PlayerController.class.getDeclaredMethod("canUpgradeVillage"),
+            invocation -> canUpgradeVillage);
+
         AtomicBoolean calledUpgradeVillage = new AtomicBoolean();
-        IntersectionMock intersection = new IntersectionMock(new IntersectionImpl(
-            new TilePosition(0, 0), new TilePosition(0, 1), new TilePosition(1, 0), hexGrid),
-            Predicate.not(List.of("upgradeSettlement")::contains),
-            (methodName, params) -> switch (methodName) {
-                case "upgradeSettlement" -> {
-                    calledUpgradeVillage.set(true);
-                    yield !jsonParams.getBoolean("exception");
-                }
-                default -> null;
+        executionHandler.substituteMethod(IntersectionImpl.class.getDeclaredMethod("upgradeSettlement", Player.class),
+            invocation -> {
+                calledUpgradeVillage.set(true);
+                return !jsonParams.getBoolean("exception");
             });
+        Intersection intersection = hexGrid.getIntersectionAt(new TilePosition(0, 0), new TilePosition(0, 1), new TilePosition(1, 0));
 
         Context context = contextBuilder()
-            .add("player", player)
-            .add("playerController", playerController)
+            .add(baseContext)
             .add("canUpgradeVillage", jsonParams.getBoolean("canUpgradeVillage"))
             .build();
         if (jsonParams.getBoolean("exception")) {
