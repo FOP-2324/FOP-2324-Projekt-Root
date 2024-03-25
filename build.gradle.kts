@@ -22,18 +22,28 @@ jagr {
         val graderPrivate by creating {
             graderName.set("Projekt-Private")
             rubricProviderName.set("projekt.Projekt_RubricProvider")
+            configureDependencies {
+                implementation(libs.algoutils.tutor)
+                implementation(libs.junit.pioneer)
+                implementation(libs.bundles.testfx)
+            }
             config.set(
                 org.sourcegrade.jagr.launcher.env.Config(
-                    executor = org.sourcegrade.jagr.launcher.env.Executor(),
+                    executor = org.sourcegrade.jagr.launcher.env.Executor(jvmArgs = listOf(
+                        "-Djava.awt.headless=true",
+                        "-Dtestfx.robot=glass",
+                        "-Dtestfx.headless=true",
+                        "-Dprism.order=sw",
+                        "-Dprism.lcdtext=false",
+                        "-Dprism.subpixeltext=false",
+                        "-Dglass.win.uiScale=100%",
+                        "-Dprism.text=t2k"
+                    )),
                     transformers = org.sourcegrade.jagr.launcher.env.Transformers(
                         timeout = org.sourcegrade.jagr.launcher.env.Transformers.TimeoutTransformer(enabled = false),
                     ),
                 ),
             )
-            configureDependencies {
-                implementation(libs.algoutils.tutor)
-                implementation(libs.junit.pioneer)
-            }
         }
     }
 }
@@ -62,6 +72,16 @@ tasks {
             runDir.mkdirs()
         }
         workingDir = runDir
+        jvmArgs(
+            "-Djava.awt.headless=true",
+            "-Dtestfx.robot=glass",
+            "-Dtestfx.headless=true",
+            "-Dprism.order=sw",
+            "-Dprism.lcdtext=false",
+            "-Dprism.subpixeltext=false",
+            "-Dglass.win.uiScale=100%",
+            "-Dprism.text=t2k"
+        )
         useJUnitPlatform()
     }
     withType<JavaCompile> {
@@ -77,5 +97,5 @@ tasks {
 
 javafx {
     version = "21"
-    modules("javafx.controls", "javafx.fxml", "javafx.swing")
+    modules("javafx.controls", "javafx.graphics", "javafx.base", "javafx.fxml", "javafx.swing")
 }

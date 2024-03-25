@@ -1,5 +1,6 @@
 [versions]
 algoutils = "0.7.3-SNAPSHOT"
+testfx = "4.0.17"
 
 [libraries]
 annotations = "org.jetbrains:annotations:23.0.0"
@@ -8,8 +9,14 @@ algoutils-tutor = { module = "org.tudalgo:algoutils-tutor", version.ref = "algou
 junit-core = { module = "org.junit.jupiter:junit-jupiter", version = "5.9.1" }
 junit-pioneer = { module = "org.junit-pioneer:junit-pioneer", version = "2.1.0" }
 asm-tree = { module = "org.ow2.asm:asm-tree", version = "9.6"}
+testfx-core = { module = "org.testfx:testfx-core", version.ref = "testfx" }
+testfx-junit5 = { module = "org.testfx:testfx-junit5", version.ref = "testfx" }
+openjfx-monocle = { module = "org.testfx:openjfx-monocle", version = "jdk-12.0.1+2" }
 
 [plugins]
 style = { id = "org.sourcegrade.style", version = "2.1.0" }
 jagr-gradle = { id = "org.sourcegrade.jagr-gradle", version = "0.10.2" }
 javafx = { id = "org.openjfx.javafxplugin", version = "0.1.0" }
+
+[bundles]
+testfx = ["testfx-core", "testfx-junit5", "openjfx-monocle"]

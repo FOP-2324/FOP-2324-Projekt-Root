@@ -6,6 +6,7 @@ import org.tudalgo.algoutils.tutor.general.jagr.RubricUtils;
 import org.tudalgo.algoutils.tutor.general.json.JsonParameterSet;
 import projekt.controller.GameControllerTest;
 import projekt.controller.PlayerControllerTest;
+import projekt.controller.gui.PlayerActionsControllerTest;
 import projekt.model.EdgeImplTest;
 import projekt.model.HexGridImplTest;
 import projekt.model.IntersectionImplTest;
@@ -320,6 +321,11 @@ public class Projekt_RubricProvider implements RubricProvider {
                             .addChildCriteria(
                                 Criterion.builder()
                                     .shortDescription("Methode updateBuildVillageButtonState funktioniert wie beschrieben")
+                                    .grader(Grader.testAwareBuilder()
+                                        .requirePass(JUnitTestRef.ofMethod(() -> PlayerActionsControllerTest.class.getDeclaredMethod("testUpdateBuildVillageButtonState")))
+                                        .pointsFailedMin()
+                                        .pointsPassedMax()
+                                        .build())
                                     .build(),
                                 Criterion.builder()
                                     .shortDescription("Methode updateUpgradeVillageButtonState funktioniert wie beschrieben")
