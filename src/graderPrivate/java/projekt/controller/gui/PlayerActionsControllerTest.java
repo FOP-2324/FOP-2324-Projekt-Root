@@ -49,6 +49,7 @@ public class PlayerActionsControllerTest {
         reset();
 
         HexGrid hexGrid = new HexGridImpl(1);
+        hexGrid.setRobberPosition(new TilePosition(0, 0));
         List<Player> players = IntStream.range(0, Config.MAX_PLAYERS)
             .mapToObj(i -> new PlayerImpl.Builder(i).build(hexGrid))
             .toList();
@@ -97,10 +98,13 @@ public class PlayerActionsControllerTest {
 
     @Test
     public void testUpdateBuildVillageButtonState() throws ReflectiveOperationException {
+        Method updateBuildVillageButtonStateMethod = PlayerActionsController.class.getDeclaredMethod("updateBuildVillageButtonState");
+        updateBuildVillageButtonStateMethod.trySetAccessible();
+
         // wrong objective, no buildable intersections
         AtomicBoolean calledEnableBuildVillageButton = new AtomicBoolean();
         AtomicBoolean calledDisableBuildVillageButton = new AtomicBoolean();
-        setup("updateBuildVillageButtonState",
+        setup(updateBuildVillageButtonStateMethod.getName(),
                 calledEnableBuildVillageButton,
                 calledDisableBuildVillageButton,
                 PlayerObjective.IDLE,
@@ -113,8 +117,6 @@ public class PlayerActionsControllerTest {
                         0,
                         Collections.emptyMap()));
 
-        Method updateBuildVillageButtonStateMethod = PlayerActionsController.class.getDeclaredMethod("updateBuildVillageButtonState");
-        updateBuildVillageButtonStateMethod.trySetAccessible();
         executionHandler.disableMethodDelegation(updateBuildVillageButtonStateMethod);
         call(() -> updateBuildVillageButtonStateMethod.invoke(playerActionsController), baseContext, result ->
                 "PlayerActionsController.updateBuildVillageButtonState threw an uncaught exception");
@@ -126,7 +128,7 @@ public class PlayerActionsControllerTest {
         // wrong objective, one buildable intersection
         calledEnableBuildVillageButton.set(false);
         calledDisableBuildVillageButton.set(false);
-        setup("updateBuildVillageButtonState",
+        setup(updateBuildVillageButtonStateMethod.getName(),
                 calledEnableBuildVillageButton,
                 calledDisableBuildVillageButton,
                 PlayerObjective.IDLE,
@@ -158,7 +160,7 @@ public class PlayerActionsControllerTest {
         // correct objective, one buildable intersection
         calledEnableBuildVillageButton.set(false);
         calledDisableBuildVillageButton.set(false);
-        setup("updateBuildVillageButtonState",
+        setup(updateBuildVillageButtonStateMethod.getName(),
                 calledEnableBuildVillageButton,
                 calledDisableBuildVillageButton,
                 PlayerObjective.PLACE_VILLAGE,
