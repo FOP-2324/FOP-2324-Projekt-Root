@@ -16,6 +16,7 @@ import projekt.controller.GameController;
 import projekt.controller.PlayerController;
 import projekt.controller.PlayerObjective;
 import projekt.model.*;
+import projekt.util.Utils;
 import projekt.view.gameControls.PlayerActionsBuilder;
 
 import java.lang.reflect.Method;
@@ -39,6 +40,7 @@ public class PlayerActionsControllerTest {
     @BeforeAll
     public static void start() throws TimeoutException {
         FxToolkit.registerPrimaryStage();
+        Utils.transformSubmission();
     }
 
     private void setup(String testedMethodName,
