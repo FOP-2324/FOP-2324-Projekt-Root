@@ -1,11 +1,13 @@
 package projekt.controller;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.opentest4j.AssertionFailedError;
 import org.sourcegrade.jagr.api.rubric.TestForSubmission;
+import org.testfx.api.FxToolkit;
 import org.tudalgo.algoutils.tutor.general.assertions.Context;
 import org.tudalgo.algoutils.tutor.general.json.JsonParameterSet;
 import org.tudalgo.algoutils.tutor.general.json.JsonParameterSetTest;
@@ -22,6 +24,7 @@ import projekt.util.Utils;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -44,6 +47,12 @@ public class GameControllerTest {
     private Map<Player, List<PlayerObjective>> playerObjectives;
     private Map<Player, PlayerController> playerControllers;
     private final Context baseContext = contextBuilder().add("players", players).build();
+
+    @BeforeAll
+    public static void start() throws TimeoutException {
+        FxToolkit.registerPrimaryStage();
+        Utils.transformSubmission();
+    }
 
     @BeforeEach
     public void setup() throws ReflectiveOperationException {

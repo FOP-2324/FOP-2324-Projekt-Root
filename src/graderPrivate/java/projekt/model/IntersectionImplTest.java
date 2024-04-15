@@ -1,17 +1,21 @@
 package projekt.model;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.sourcegrade.jagr.api.rubric.TestForSubmission;
+import org.testfx.api.FxToolkit;
 import org.tudalgo.algoutils.tutor.general.assertions.Context;
 import org.tudalgo.algoutils.tutor.general.json.JsonParameterSet;
 import org.tudalgo.algoutils.tutor.general.json.JsonParameterSetTest;
 import projekt.SubmissionExecutionHandler;
 import projekt.model.buildings.Settlement;
+import projekt.util.Utils;
 
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -23,6 +27,12 @@ public class IntersectionImplTest {
     private final SubmissionExecutionHandler executionHandler = SubmissionExecutionHandler.getInstance();
     private final HexGrid hexGrid = new HexGridImpl(1);
     private final Player player = new PlayerImpl.Builder(0).build(hexGrid);
+
+    @BeforeAll
+    public static void start() throws TimeoutException {
+        FxToolkit.registerPrimaryStage();
+        Utils.transformSubmission();
+    }
 
     @AfterEach
     public void reset() {

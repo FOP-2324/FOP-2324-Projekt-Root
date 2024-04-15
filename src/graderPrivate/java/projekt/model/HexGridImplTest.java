@@ -1,23 +1,23 @@
 package projekt.model;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sourcegrade.jagr.api.rubric.TestForSubmission;
+import org.testfx.api.FxToolkit;
 import org.tudalgo.algoutils.tutor.general.assertions.Context;
 import org.tudalgo.algoutils.tutor.general.json.JsonParameterSet;
 import org.tudalgo.algoutils.tutor.general.json.JsonParameterSetTest;
 import projekt.SubmissionExecutionHandler;
 import projekt.model.buildings.Edge;
 import projekt.model.buildings.Settlement;
+import projekt.util.Utils;
 
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import static org.tudalgo.algoutils.tutor.general.assertions.Assertions2.*;
@@ -28,6 +28,12 @@ public class HexGridImplTest {
     private final SubmissionExecutionHandler executionHandler = SubmissionExecutionHandler.getInstance();
     private HexGrid hexGrid;
     private Player player;
+
+    @BeforeAll
+    public static void start() throws TimeoutException {
+        FxToolkit.registerPrimaryStage();
+        Utils.transformSubmission();
+    }
 
     @BeforeEach
     public void setup() {
