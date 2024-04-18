@@ -38,7 +38,8 @@ public final class Utils {
     }
 
     /**
-     * Transforms this submission for use with {@link projekt.SubmissionExecutionHandler}.
+     * Transforms this submission for use with {@link projekt.SubmissionExecutionHandler} without Jagr,
+     * i.e., for plain JUnit tests.
      * Does nothing on subsequent calls or if Jagr is present.
      */
     public static void transformSubmission() {

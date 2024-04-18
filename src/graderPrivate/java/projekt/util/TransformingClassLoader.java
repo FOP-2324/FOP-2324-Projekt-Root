@@ -8,7 +8,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TransformingClassLoader extends ClassLoader {
+/**
+ * This ClassLoader transforms and loads classes with a counterpart in the {@code resources/classes/} directory.
+ * It should not be used directly and is intended as a utility for {@link Utils#transformSubmission()}.
+ */
+class TransformingClassLoader extends ClassLoader {
 
     private final String projectPrefix;
     private final ClassTransformer classTransformer;
@@ -19,6 +23,14 @@ public class TransformingClassLoader extends ClassLoader {
         this.classTransformer = classTransformer;
     }
 
+    /**
+     * Loads the specified class, transforming those with a binary class file in {@code resources/classes/}
+     * using {@link projekt.ClassTransformer}.
+     *
+     * @param name binary name of the class
+     * @return a {@link Class} object describing the specified class
+     * @throws ClassNotFoundException if the super ClassLoader cannot load the specified class
+     */
     @Override
     public Class<?> loadClass(String name) throws ClassNotFoundException {
         if (name.startsWith(projectPrefix) && getSystemClassLoader().getResource("classes/" + name.replace('.', '/') + ".bin") != null) {

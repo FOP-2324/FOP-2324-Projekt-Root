@@ -2,6 +2,7 @@ package projekt;
 
 import kotlin.Pair;
 import org.objectweb.asm.Type;
+import projekt.util.Utils;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -21,9 +22,45 @@ import java.util.function.Supplier;
  * This can be done either explicitly using {@link #disableMethodDelegation} or implicitly using
  * {@link #substituteMethod}.
  * <br>
- * To use any features, the submission classes need to be transformed using Jagr's bytecode transforming mechanism.
- * This means, that this class is only effective when used together with Jagr and calls to methods of this class
- * have no effect outside of it (i.e., when using only JUnit).
+ * To use any of these features, the submission classes need to be transformed using bytecode transformation,
+ * either using Jagr's mechanism or {@link Utils#transformSubmission()}.
+ * <br><br>
+ * An example test class could look like this:
+ * <pre>
+ * {@code
+ * public class ExampleTest {
+ *
+ *     private final SubmissionExecutionHandler executionHandler = SubmissionExecutionHandler.getInstance();
+ *
+ *     @BeforeAll
+ *     public static void start() {
+ *         Utils.transformSubmission(); // In case Jagr is not present
+ *     }
+ *
+ *     @BeforeEach
+ *     public void setup() {
+ *         // Pre-test setup, if necessary. Useful for substitution:
+ *         Method substitutedMethod = TestedClass.class.getDeclaredMethod("dependencyForTest");
+ *         executionHandler.substituteMethod(substitutedMethod, invocation -> "Hello world!");
+ *     }
+ *
+ *     @AfterEach
+ *     public void reset() {
+ *         // Optionally reset invocation logs, substitutions, etc.
+ *         executionHandler.resetMethodInvocationLogging();
+ *         executionHandler.resetMethodDelegation();
+ *         executionHandler.resetMethodSubstitution();
+ *     }
+ *
+ *     @Test
+ *     public void test() throws ReflectiveOperationException {
+ *         Method method = TestedClass.class.getDeclaredMethod("methodUnderTest");
+ *         executionHandler.disableDelegation(method); // Disable delegation, i.e., use the original implementation
+ *         ...
+ *     }
+ * }
+ * }
+ * </pre>
  *
  * @see ClassTransformer
  */
