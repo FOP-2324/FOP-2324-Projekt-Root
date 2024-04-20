@@ -1,15 +1,26 @@
 package projekt.view.gameControls;
 
+import java.util.Map;
+import java.util.function.Consumer;
+
+import org.tudalgo.algoutils.student.annotation.DoNotTouch;
+
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.util.Builder;
-import org.tudalgo.algoutils.student.annotation.DoNotTouch;
-
-import java.util.function.Consumer;
+import projekt.Config;
+import projekt.model.ResourceType;
+import projekt.model.buildings.Settlement;
+import projekt.view.CardPane;
+import projekt.view.FixedPopup;
+import projekt.view.ResourceCardPane;
 
 /**
  * A Builder to create the player actions view.
@@ -57,16 +68,15 @@ public class PlayerActionsBuilder implements Builder<Region> {
      * @param abortButtonAction               The handler for the abort action.
      */
     public PlayerActionsBuilder(
-        final Consumer<ActionEvent> buildVillageButtonAction,
-        final Consumer<ActionEvent> upgradeVillageButtonAction,
-        final Consumer<ActionEvent> buildRoadButtonAction,
-        final Consumer<ActionEvent> buyDevelopmentCardButtonAction,
-        final Consumer<ActionEvent> playDevelopmentCardButtonAction,
-        final Consumer<ActionEvent> endTurnButtonAction,
-        final Consumer<ActionEvent> rollDiceButtonAction,
-        final Consumer<ActionEvent> tradeButtonAction,
-        final Consumer<ActionEvent> abortButtonAction
-    ) {
+            final Consumer<ActionEvent> buildVillageButtonAction,
+            final Consumer<ActionEvent> upgradeVillageButtonAction,
+            final Consumer<ActionEvent> buildRoadButtonAction,
+            final Consumer<ActionEvent> buyDevelopmentCardButtonAction,
+            final Consumer<ActionEvent> playDevelopmentCardButtonAction,
+            final Consumer<ActionEvent> endTurnButtonAction,
+            final Consumer<ActionEvent> rollDiceButtonAction,
+            final Consumer<ActionEvent> tradeButtonAction,
+            final Consumer<ActionEvent> abortButtonAction) {
         this.buildVillageButtonAction = buildVillageButtonAction;
         this.upgradeVillageButtonAction = upgradeVillageButtonAction;
         this.buildRoadButtonAction = buildRoadButtonAction;
@@ -120,28 +130,82 @@ public class PlayerActionsBuilder implements Builder<Region> {
         abortButton.setOnAction(abortButtonAction::accept);
         this.abortNode = abortButton;
 
-        mainBox.getChildren().addAll(tradeButton, buildRoadButton, buildVillageButton, upgradeVillageButton,
-                                     buyDevelopmentCardButton, playDevelopmentCardButton, rollDiceButton, endTurnButton, abortButton
-        );
+        mainBox.getChildren().addAll(tradeButton, createPopupNode(buildRoadButton, Config.ROAD_BUILDING_COST),
+                createPopupNode(buildVillageButton, Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.VILLAGE)),
+                createPopupNode(upgradeVillageButton, Config.SETTLEMENT_BUILDING_COST.get(Settlement.Type.CITY)),
+                createPopupNode(buyDevelopmentCardButton, Config.DEVELOPMENT_CARD_COST),
+                playDevelopmentCardButton, rollDiceButton, endTurnButton, abortButton);
         mainBox.setSpacing(5);
         mainBox.setPadding(new Insets(10));
         return mainBox;
     }
 
     /**
+     * Creates a popup with the given resources.
+     *
+     * @param resources The resources to display in the popup
+     * @return The created popup
+     */
+    private FixedPopup createResourcesPopup(final Map<ResourceType, Integer> resources) {
+        final VBox content = new VBox();
+        content.setSpacing(5);
+
+        final HBox cardBox = new HBox();
+        cardBox.setSpacing(5);
+        resources.forEach((resourceType, amount) -> {
+            final CardPane card = new ResourceCardPane(resourceType, amount.toString(), 35.0);
+            cardBox.getChildren().add(card);
+        });
+        content.getChildren().addAll(new Label("Needed Resources:"), cardBox);
+        final FixedPopup popup = new FixedPopup();
+        popup.setContent(content);
+        return popup;
+    }
+
+    /**
+     * Creates
+     *
+     * @param node
+     * @param resources
+     * @return
+     */
+    private Node createPopupNode(final Region node, final Map<ResourceType, Integer> resources) {
+        final Pane popupNode = new Pane();
+        final FixedPopup popup = createResourcesPopup(resources);
+        popupNode.getChildren().add(node);
+        popup.install(popupNode);
+        popup.setYOffset(-(popup.getHeight() * 2 + 10));
+        return popupNode;
+    }
+
+    /**
      * Disables all buttons in the view.
      */
     public void disableAllButtons() {
-        mainBox.getChildren().stream().filter(Button.class::isInstance).map(node -> (Button) node)
-            .forEach(button -> button.setDisable(true));
+        disableAbortButton();
+        disableBuildRoadButton();
+        disableBuildVillageButton();
+        disableUpgradeVillageButton();
+        disableBuyDevelopmentCardButton();
+        disablePlayDevelopmentCardButton();
+        disableEndTurnButton();
+        disableRollDiceButton();
+        disableTradeButton();
     }
 
     /**
      * Enables all buttons in the view.
      */
     public void enableAllButtons() {
-        mainBox.getChildren().stream().filter(Button.class::isInstance).map(node -> (Button) node)
-            .forEach(button -> button.setDisable(false));
+        enableAbortButton();
+        enableBuildRoadButton();
+        enableBuildVillageButton();
+        enableUpgradeVillageButton();
+        enableBuyDevelopmentCardButton();
+        enablePlayDevelopmentCardButton();
+        enableEndTurnButton();
+        enableRollDiceButton();
+        enableTradeButton();
     }
 
     /**
