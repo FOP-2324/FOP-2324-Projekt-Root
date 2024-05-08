@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.algoutils.student)
     testImplementation(libs.junit.core)
     testImplementation(libs.asm.tree)
+    testImplementation("org.hamcrest:java-hamcrest:2.0.0.0")
 }
 
 application {
