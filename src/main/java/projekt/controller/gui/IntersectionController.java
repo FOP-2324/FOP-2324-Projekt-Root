@@ -37,6 +37,7 @@ public class IntersectionController implements Controller {
      * @param handler the handler to call when the intersection is clicked
      */
     public void highlight(final Consumer<MouseEvent> handler) {
+
         Platform.runLater(() -> buidler.highlight(handler));
     }
 

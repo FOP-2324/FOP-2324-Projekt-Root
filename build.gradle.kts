@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.algoutils.student)
     testImplementation(libs.junit.core)
     testImplementation(libs.asm.tree)
+    testImplementation("org.hamcrest:java-hamcrest:2.0.0.0")
 }
 
 application {
@@ -72,16 +73,16 @@ tasks {
             runDir.mkdirs()
         }
         workingDir = runDir
-        jvmArgs(
-            "-Djava.awt.headless=true",
-            "-Dtestfx.robot=glass",
-            "-Dtestfx.headless=true",
-            "-Dprism.order=sw",
-            "-Dprism.lcdtext=false",
-            "-Dprism.subpixeltext=false",
-            "-Dglass.win.uiScale=100%",
-            "-Dprism.text=t2k"
-        )
+//        jvmArgs(
+//            "-Djava.awt.headless=true",
+//            "-Dtestfx.robot=glass",
+//            "-Dtestfx.headless=true",
+//            "-Dprism.order=sw",
+//            "-Dprism.lcdtext=false",
+//            "-Dprism.subpixeltext=false",
+//            "-Dglass.win.uiScale=100%",
+//            "-Dprism.text=t2k"
+//        )
         useJUnitPlatform()
     }
     withType<JavaCompile> {
