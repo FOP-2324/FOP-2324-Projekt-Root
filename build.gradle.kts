@@ -13,9 +13,9 @@ jagr {
     assignmentId.set("projekt")
     submissions {
         val main by creating {
-             studentId.set("")
-             firstName.set("")
-             lastName.set("")
+            studentId.set("")
+            firstName.set("")
+            lastName.set("")
         }
     }
     graders {
@@ -29,19 +29,24 @@ jagr {
             }
             config.set(
                 org.sourcegrade.jagr.launcher.env.Config(
-                    executor = org.sourcegrade.jagr.launcher.env.Executor(jvmArgs = listOf(
-                        "-Djava.awt.headless=true",
-                        "-Dtestfx.robot=glass",
-                        "-Dtestfx.headless=true",
-                        "-Dprism.order=sw",
-                        "-Dprism.lcdtext=false",
-                        "-Dprism.subpixeltext=false",
-                        "-Dglass.win.uiScale=100%",
-                        "-Dprism.text=t2k"
-                    )),
-                    transformers = org.sourcegrade.jagr.launcher.env.Transformers(
-                        timeout = org.sourcegrade.jagr.launcher.env.Transformers.TimeoutTransformer(enabled = false),
-                    ),
+                    executor =
+                        org.sourcegrade.jagr.launcher.env.Executor(
+                            jvmArgs =
+                                listOf(
+                                    "-Djava.awt.headless=true",
+                                    "-Dtestfx.robot=glass",
+                                    "-Dtestfx.headless=true",
+                                    "-Dprism.order=sw",
+                                    "-Dprism.lcdtext=false",
+                                    "-Dprism.subpixeltext=false",
+                                    "-Dglass.win.uiScale=100%",
+                                    "-Dprism.text=t2k",
+                                ),
+                        ),
+                    transformers =
+                        org.sourcegrade.jagr.launcher.env.Transformers(
+                            timeout = org.sourcegrade.jagr.launcher.env.Transformers.TimeoutTransformer(enabled = false),
+                        ),
                 ),
             )
         }

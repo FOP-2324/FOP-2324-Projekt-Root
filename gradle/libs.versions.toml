@@ -11,7 +11,7 @@ junit-pioneer = { module = "org.junit-pioneer:junit-pioneer", version = "2.1.0" 
 asm-tree = { module = "org.ow2.asm:asm-tree", version = "9.6"}
 testfx-core = { module = "org.testfx:testfx-core", version.ref = "testfx" }
 testfx-junit5 = { module = "org.testfx:testfx-junit5", version.ref = "testfx" }
-openjfx-monocle = { module = "org.testfx:openjfx-monocle", version = "jdk-12.0.1+2" }
+openjfx-monocle = { module = "org.testfx:openjfx-monocle", version = "17.0.10" }
 
 [plugins]
 style = { id = "org.sourcegrade.style", version = "2.1.0" }

@@ -68,6 +68,7 @@ public class PlayerActionsControllerTest extends ApplicationTest {
 
         stage.setWidth(1280);
         stage.setHeight(720);
+        stage.show();
 
         this.stage = stage;
     }
@@ -527,13 +528,12 @@ public class PlayerActionsControllerTest extends ApplicationTest {
 
         Field paneField = IntersectionBuilder.class.getDeclaredField("pane");
         paneField.trySetAccessible();
-        super.interact(() -> stage.show());
         for (Intersection intersection : hexGrid.getIntersections().values()) {
             IntersectionController intersectionControllerSpy = intersectionControllerSpies.get(intersection);
             if (buildableIntersections.contains(intersection)) {
                 Mockito.verify(intersectionControllerSpy).highlight(ArgumentMatchers.any());
 
-                clickOn(intersectionControllerSpy.getBuilder().build(), MouseButton.PRIMARY);
+                super.interact(() ->clickOn(intersectionControllerSpy.getBuilder().build(), MouseButton.PRIMARY));
             } else {
                 Mockito.verify(intersectionControllerSpy, Mockito.never()).highlight(ArgumentMatchers.any());
             }
