@@ -45,6 +45,10 @@ jagr {
                 ),
             )
         }
+        val graderManual by creating {
+            parent(graderPrivate)
+            graderName.set("Projekt-Manual")
+        }
     }
 }
 

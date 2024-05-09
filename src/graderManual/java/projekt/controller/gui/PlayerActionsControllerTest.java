@@ -58,10 +58,8 @@ public class PlayerActionsControllerTest extends ApplicationTest {
     private Property<PlayerController> activePlayerControllerProperty;
     private GameBoardController gameBoardController;
 
-    //    @BeforeAll
     @Override
-    public void start(Stage stage) throws Exception {
-        super.start(stage);
+    public void start(Stage stage) {
         Utils.transformSubmission();
 
         stage.setWidth(1280);
