@@ -362,7 +362,7 @@ public class SubmissionExecutionHandler {
          * @return the parameter value
          */
         public boolean getBooleanParameter(int index) {
-            return getParameter(index, boolean.class);
+            return getParameter(index, Boolean.class);
         }
 
         /**
@@ -372,7 +372,7 @@ public class SubmissionExecutionHandler {
          * @return the parameter value
          */
         public byte getByteParameter(int index) {
-            return getParameter(index, byte.class);
+            return getParameter(index, Byte.class);
         }
 
         /**
@@ -382,7 +382,7 @@ public class SubmissionExecutionHandler {
          * @return the parameter value
          */
         public short getShortParameter(int index) {
-            return getParameter(index, short.class);
+            return getParameter(index, Short.class);
         }
 
         /**
@@ -392,7 +392,7 @@ public class SubmissionExecutionHandler {
          * @return the parameter value
          */
         public char getCharParameter(int index) {
-            return getParameter(index, char.class);
+            return getParameter(index, Character.class);
         }
 
         /**
@@ -402,7 +402,7 @@ public class SubmissionExecutionHandler {
          * @return the parameter value
          */
         public int getIntParameter(int index) {
-            return getParameter(index, int.class);
+            return getParameter(index, Integer.class);
         }
 
         /**
@@ -412,7 +412,7 @@ public class SubmissionExecutionHandler {
          * @return the parameter value
          */
         public long getLongParameter(int index) {
-            return getParameter(index, long.class);
+            return getParameter(index, Long.class);
         }
 
         /**
@@ -422,7 +422,7 @@ public class SubmissionExecutionHandler {
          * @return the parameter value
          */
         public float getFloatParameter(int index) {
-            return getParameter(index, float.class);
+            return getParameter(index, Float.class);
         }
 
         /**
@@ -432,7 +432,7 @@ public class SubmissionExecutionHandler {
          * @return the parameter value
          */
         public double getDoubleParameter(int index) {
-            return getParameter(index, double.class);
+            return getParameter(index, Double.class);
         }
 
         /**
