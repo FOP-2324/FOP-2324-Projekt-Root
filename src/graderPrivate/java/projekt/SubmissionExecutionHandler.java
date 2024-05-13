@@ -8,6 +8,8 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A singleton class to configure the way a submission is executed.
@@ -73,6 +75,7 @@ public class SubmissionExecutionHandler {
     public static final String INTERNAL_NAME = Type.getInternalName(SubmissionExecutionHandler.class);
 
     private static SubmissionExecutionHandler instance;
+    private static final Pattern LAMBDA_METHOD_NAME_PATTERN = Pattern.compile("^lambda\\$(?<methodName>[_a-zA-Z][_a-zA-Z0-9]*?)\\$.+");
 
     private final Map<String, Map<String, List<Invocation>>> methodInvocations = new HashMap<>();
     private final Map<String, Map<String, Boolean>> methodDelegationWhitelist = new HashMap<>();
@@ -255,8 +258,28 @@ public class SubmissionExecutionHandler {
      * @return {@code true} if delegation is disabled for the given method, otherwise {@code false}
      */
     public boolean useStudentImpl(String className, String name, String descriptor) {
-        return methodDelegationWhitelist.getOrDefault(className, Collections.emptyMap())
-            .getOrDefault(name + descriptor, false);
+        String canonizedMethodName;
+        boolean isLambda;
+        if (name.startsWith("lambda$")) {
+            // in theory, '$' is also allowed in identifiers but heavily discouraged (and also would break this)
+            Matcher matcher = LAMBDA_METHOD_NAME_PATTERN.matcher(name);
+            if (!matcher.matches()) {
+                throw new IllegalArgumentException("Could not match lambda method name");
+            }
+            canonizedMethodName = matcher.group("methodName");
+            isLambda = true;
+        } else {
+            canonizedMethodName = name;
+            isLambda = false;
+        }
+
+        Map<String, Boolean> whitelist = methodDelegationWhitelist.getOrDefault(className, Collections.emptyMap());
+        return whitelist.keySet()
+            .stream()
+            .filter(methodSignature -> methodSignature.startsWith(canonizedMethodName + '('))
+            .findAny()
+            .map(methodSignature -> isLambda || whitelist.getOrDefault(canonizedMethodName + descriptor, false))
+            .orElse(false);
     }
 
     /**

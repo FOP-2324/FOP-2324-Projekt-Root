@@ -6,9 +6,7 @@ import projekt.SubmissionExecutionHandler.Invocation;
 import projekt.SubmissionExecutionHandler.MethodSubstitution;
 
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -48,19 +46,23 @@ public class ClassTransformer implements org.sourcegrade.jagr.api.testing.ClassT
     private class SubmissionClassVisitor extends ClassVisitor {
 
         private final String className;
+        private final Map<String, MethodNode> classMethodNodes;
+        private final List<String> visitedMethods = new ArrayList<>();
 
         protected SubmissionClassVisitor(ClassVisitor classVisitor, String className) {
             super(ASM9, classVisitor);
             this.className = className;
+            this.classMethodNodes = methodNodes.get(className);
         }
 
         @Override
         public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
+            String nameDescriptor = name + descriptor;
+            visitedMethods.add(nameDescriptor);
+
             return new MethodVisitor(ASM9, super.visitMethod(access, name, descriptor, signature, exceptions)) {
                 @Override
                 public void visitCode() {
-                    Map<String, MethodNode> classMethodNodes = methodNodes.get(className);
-                    String nameDescriptor = name + descriptor;
                     // if method is not abstract and a MethodNode for the current method exists
                     if ((access & ACC_ABSTRACT) == 0 && classMethodNodes.containsKey(nameDescriptor)) {
                         Type[] argumentTypes = Type.getArgumentTypes(descriptor);
@@ -194,6 +196,17 @@ public class ClassTransformer implements org.sourcegrade.jagr.api.testing.ClassT
                     }
                 }
             };
+        }
+
+        @Override
+        public void visitEnd() {
+            // add missing methods (including lambdas)
+            classMethodNodes.entrySet()
+                .stream()
+                .filter(entry -> !visitedMethods.contains(entry.getKey()))
+                .map(Map.Entry::getValue)
+                .forEach(methodNode -> methodNode.accept(getDelegate()));
+            super.visitEnd();
         }
 
         /**
