@@ -102,5 +102,5 @@ tasks {
 
 javafx {
     version = "21"
-    modules("javafx.controls", "javafx.graphics", "javafx.base", "javafx.fxml", "javafx.swing")
+    modules("javafx.controls", "javafx.graphics", "javafx.base", "javafx.fxml", "javafx.swing", "javafx.media")
 }
