@@ -320,21 +320,27 @@ public class Projekt_RubricProvider implements RubricProvider {
                             .addChildCriteria(
                                 Criterion.builder()
                                     .shortDescription("Methode updateBuildVillageButtonState funktioniert wie beschrieben")
+                                    .grader(RubricUtils.manualGrader())
                                     .build(),
                                 Criterion.builder()
                                     .shortDescription("Methode updateUpgradeVillageButtonState funktioniert wie beschrieben")
+                                    .grader(RubricUtils.manualGrader())
                                     .build(),
                                 Criterion.builder()
                                     .shortDescription("Methode updateBuildRoadButtonState funktioniert wie beschrieben")
+                                    .grader(RubricUtils.manualGrader())
                                     .build(),
                                 Criterion.builder()
                                     .shortDescription("Methode buildVillageButtonAction funktioniert wie beschrieben")
+                                    .grader(RubricUtils.manualGrader())
                                     .build(),
                                 Criterion.builder()
                                     .shortDescription("Methode upgradeVillageButtonAction funktioniert wie beschrieben")
+                                    .grader(RubricUtils.manualGrader())
                                     .build(),
                                 Criterion.builder()
                                     .shortDescription("Methode buildRoadButtonAction funktioniert wie beschrieben")
+                                    .grader(RubricUtils.manualGrader())
                                     .build())
                             .build(),
                         Criterion.builder()
@@ -342,6 +348,7 @@ public class Projekt_RubricProvider implements RubricProvider {
                             .addChildCriteria(
                                 Criterion.builder()
                                     .shortDescription("Methode updateUIBasedOnObjective funktioniert wie beschrieben")
+                                    .grader(RubricUtils.manualGrader())
                                     .minPoints(0)
                                     .maxPoints(2)
                                     .build())
@@ -351,21 +358,27 @@ public class Projekt_RubricProvider implements RubricProvider {
                             .addChildCriteria(
                                 Criterion.builder()
                                     .shortDescription("Methode removePlayer funktioniert wie beschrieben")
+                                    .grader(RubricUtils.manualGrader())
                                     .build(),
                                 Criterion.builder()
                                     .shortDescription("Methode createAddPlayerButton funktioniert wie beschrieben")
+                                    .grader(RubricUtils.manualGrader())
                                     .build(),
                                 Criterion.builder()
                                     .shortDescription("Methode createRemovePlayerButton funktioniert wie beschrieben")
+                                    .grader(RubricUtils.manualGrader())
                                     .build(),
                                 Criterion.builder()
                                     .shortDescription("Methode createPlayerColorPicker funktioniert wie beschrieben")
+                                    .grader(RubricUtils.manualGrader())
                                     .build(),
                                 Criterion.builder()
                                     .shortDescription("Methode createBotOrPlayerSelector funktioniert wie beschrieben")
+                                    .grader(RubricUtils.manualGrader())
                                     .build(),
                                 Criterion.builder()
                                     .shortDescription("Methode initCenter funktioniert wie beschrieben")
+                                    .grader(RubricUtils.manualGrader())
                                     .build())
                             .build(),
                         Criterion.builder()
@@ -373,19 +386,23 @@ public class Projekt_RubricProvider implements RubricProvider {
                             .addChildCriteria(
                                 Criterion.builder()
                                     .shortDescription("Für jede wählbare Ressource gibt es eine Eingabemöglichkeit")
+                                    .grader(RubricUtils.manualGrader())
                                     .minPoints(0)
                                     .maxPoints(4)
                                     .build(),
                                 Criterion.builder()
                                     .shortDescription("Jede wählbare Ressource wird dargestellt")
+                                    .grader(RubricUtils.manualGrader())
                                     .minPoints(0)
                                     .maxPoints(4)
                                     .build(),
                                 Criterion.builder()
                                     .shortDescription("Der Dialog kann erst geschlossen werden, wenn die korrekte Menge an Ressourcen ausgewählt wurde")
+                                    .grader(RubricUtils.manualGrader())
                                     .build(),
                                 Criterion.builder()
                                     .shortDescription("Der Dialog gibt die ausgewählten Ressourcen korrekt zurück, wenn er geschlossen wird")
+                                    .grader(RubricUtils.manualGrader())
                                     .build())
                             .build())
                     .build(),

@@ -303,9 +303,48 @@ public class ClassTransformer implements org.sourcegrade.jagr.api.testing.ClassT
 
         @Override
         public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
-            MethodNode methodNode = new MethodNode(ASM9, access, name, descriptor, signature, exceptions);
-            methodNodes.get(className).putIfAbsent(name + descriptor, methodNode);
+            MethodNode methodNode;
+            String nameDescriptor;
+
+            if ((access & ACC_SYNTHETIC) != 0 && name.startsWith("lambda$")) {  // if method is lambda
+                methodNode = getMethodNode(access, name + "$solution", descriptor, signature, exceptions);
+                nameDescriptor = name + "$solution" + descriptor;
+            } else {
+                methodNode = getMethodNode(access, name, descriptor, signature, exceptions);
+                nameDescriptor = name + descriptor;
+            }
+            methodNodes.get(className).putIfAbsent(nameDescriptor, methodNode);
             return methodNode;
+        }
+
+        private MethodNode getMethodNode(int access, String name, String descriptor, String signature, String[] exceptions) {
+            return new MethodNode(ASM9, access, name, descriptor, signature, exceptions) {
+                @Override
+                public void visitMethodInsn(int opcodeAndSource, String owner, String name, String descriptor, boolean isInterface) {
+                    super.visitMethodInsn(opcodeAndSource,
+                        owner,
+                        name + (name.startsWith("lambda$") ? "$solution" : ""),
+                        descriptor,
+                        isInterface);
+                }
+
+                @Override
+                public void visitInvokeDynamicInsn(String name, String descriptor, Handle bootstrapMethodHandle, Object... bootstrapMethodArguments) {
+                    super.visitInvokeDynamicInsn(name, descriptor, bootstrapMethodHandle, Arrays.stream(bootstrapMethodArguments)
+                        .map(o -> {
+                            if (o instanceof Handle handle && handle.getName().startsWith("lambda$")) {
+                                return new Handle(handle.getTag(),
+                                    handle.getOwner(),
+                                    handle.getName() + "$solution",
+                                    handle.getDesc(),
+                                    handle.isInterface());
+                            } else {
+                                return o;
+                            }
+                        })
+                        .toArray());
+                }
+            };
         }
     }
 }
